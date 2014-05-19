@@ -1,0 +1,421 @@
+5.1.1 (2014-03-04)
+
+    Engine
+    - Fixed: bug causing ignoring next raw file when current file is shorter
+        than expected.
+    - Fixed: bug causing 'full co-spectra' files not to be read in 'eddypro_fcc'.
+
+5.1.0 (2014-01-31)
+
+    Minor update mostly for bug fixing and refinement.
+
+    Engine
+    - Fixed: import of TOB1, no longer copies the TOB1 file multiple times and
+      speeds up processing of long TOB1 files (typical use case).
+    - Fixed: bug that was causing storage fluxes to be identically zero in most
+        use cases.
+    - Fixed: file in src_common was importing module rp-related (did not cause
+        computation issues).
+    - Refinement: modified absolute limits statistical test defaults as follows:
+        * Minimum sonic temperature set to -40 C (was -20 C).
+        * Maximum CO2 set to 900 ppm (was 600 ppm).
+    - Refinement: fixes to ranges of accepted biomet values:
+        * Changed minimum ambient pressure to 40 kPa (was 80 kPa).
+        * Made all interval min/max closed instead of open,
+          most important for RH, to include values 0 and 100.
+    - Refinement: optimized the output time stamp in case
+        of shorter-than-expected raw files.
+
+    GUI
+    - Fixed: behavior of the progress bar.
+    - Fixed: decimal digits of the 4th gas molecular values were lost in the
+        Basic settings page when saved.
+    - Refinement: improved information available in Run page.
+    - Refinement: added default button selection to SMARTFlux create package
+        dialog.
+    - Refinement: modified absolute limits statistical test as listed above
+
+5.0.0 (2013-12-09)
+For a complete list of new features see:
+http://envsupport.licor.com/help/EddyPro5/index.htm#Whats_New.htm
+
+    Introduced support to the package creation for SMARTFlux systems.
+
+    Engine
+    - Fixed: bug causing crash on short raw files.
+    - Fixed: bug causing the software not to read strings longer than 200 characters
+        in .eddypro file.
+    - Fixed: potential problems with timestamps in non-ISO format.
+    - Fixed: bug causing crash if last raw file of the dataset is not a valid one
+        (too short, not valid header, etc.).
+    - Fixed: bug causing the software not to process correctly averaging intervals
+        shorter than file length in certain circumstances.
+    - Fixed: use dynamic metadata files. Same variables as usual, but now full
+        independence of processed time period from definition of dynamic metadata
+        dates.
+    - Fixed: bug causing the spectral correction of Fratini et al. (2012) to virtually
+        always use the fallback solution (model) rather than the direct method
+        (thanks Olli Peltola and Ivan Mammarella!).
+    - Fixed: bug causing the spectral assessment to fail if a large number of spectra
+        files were to be used.
+    - Refinement: changed units of ET fluxes in the full output file. New units is
+        mm+1hour-1.
+    - Refinement: changed Express settings. Cross-wind correction is no longer
+        applied by default.
+    - Refinement: exception handling with SLT-EdiSol files if header reports
+        implausible record length.
+    - Refinement: merged and simplified spectral correction code.
+    - Refinement: period to be processed extended to include the very last
+        averaging interval, which was excluded from the automatic selection of
+        start&end date performed in the GUI.
+    - Refinement: initialization of stats and their values when variables are missing.
+    - Added: Creation of unique temp folder for allowing parallel runs.
+    - Added: possibility to process indefinitely long raw files. Possibility to process
+        datasets for multiple years in one session.
+    - Added: smart understanding of initial timestamp in the dataset.
+
+    GUI
+    - Implemented SMARTFlux bar and file package creation button.
+    - Removed 'Number of files to merge' control.
+    - Removed gas analyzer height in the Metadata editor.
+    - Introduced 'Open Sans' font.
+
+4.2.1 (2013-10-04)
+    Minor update that fixes a GUI bug related to the retrieval of declination correction
+    for magnetic north from the U.S. National Oceanic and Atmospheric Administration
+    (NOAA) website. The update corrects an error that occurs when the website is
+    unavailable.
+
+4.2.0 (2013-08-22)
+    For a complete list of new features see:
+    http://envsupport.licor.com/help/EddyPro4/Default.htm#Whats_New.htm
+
+    Engine
+    - Fixed: use of "Flags" (set in the "Basic Settings" page) for filtering out individual
+        raw data records.
+    - Fixed: import of SLT-EddySoft raw files featuring low-resolution data.
+    - Fixed: formulation of tube transfer function for laminar regimes and - only in FCC -
+        for turbulent regimes.
+    - Fixed: problem with Fratini et al. 2012 spectral correction giving NaN in case of high
+        fluxes.
+    - Fixed: bug in the running mean and exponential running mean detrending
+        algorithms.
+    - Fixed: bug in planar fit with no velocity bias that caused rotations not to be
+        performed.
+    - Fixed: bug in time lag optimizer causing a crash.
+    - Fixed: initialization of footprint results for Kormann and Meixner (2001) and
+        Hsieh (2000) models.
+    - Fixed: labels of custom variables in full output, when created by FCC program
+        (added "_mean" padding to each variable name).
+    - Fixed: Management of missing variables when passing from RP to FCC.
+    - Fixed: Using flow rate from raw data files when available, with both GHG and
+        non-GHG files, if time lags are not explicitly set by user.
+    - Fixed: bug that caused mismatch in full output headers when advanced processing
+        settings were used.
+    - Fixed: missing LI-7700 CH4 flux output in full output file when data is screened
+        using LI-7700 Diagnostic Value.
+    - Fixed: wind coordinates rotation when AXIS configuration (GIll sonics) or R2
+        anemometer is selected, for angle-of-attack correction.
+    - Addition: added ET (evapotranspiration flux, in mm) to full output.
+    - Addition: optional cross-wind correction of sonic temperature for Gill WindMaster
+        and WindMaster-Pro anemometers (needed for type 1352, not for types
+        1561 and 1590).
+    - Refinement: running in EXP mode, the default version of the angle of attack
+        correction depends on the anemometer model (2006 for R3 and R2).
+    - Refinement: increased resolution of footprint results, from 5 to 1 meter, for
+        Kormann and Meixner (2001) and Hsieh (2000) models.
+    - Refinement: support for TOB1 files with no header lines (explicit user specification
+        of variable types 'IEEE4' or 'FP2' is needed).
+    - Refinement: stationarity test evaluated after time lag compensation and
+        tilt correction.
+    - Refinement: minor modifications to QC flags to better match flag definitions
+        according to TK3 approach (M. Mauder, personal communications).
+    - Refinement: resolving Integral Turbulence Time Scale to the simple definition
+        from Billesbach (2012) if direct calculation fails.
+    - Refinement: support of flux averaging intervals equal to 1 minute.
+    - Refinement: Raw data filtering for "absolute limits" postponed, in order to
+        account for actual T and P rather than "normal values".
+    - Refinement: Extended automatic definition of time lag plausibility windows (min/max)
+        for both open and closed path instruments.
+    - Refinement: extended range of accepted ambient pressures, now the minimum
+        value accepted by EddyPro is 40 kPa, which replaces the former value of 80 kPa.
+
+    GUI
+    - Fixed: behavior of North alignment for Generic anemometer in the Metadata editor.
+    - Fixed: default angle-of-attack overrides user selection when re-opening a saved
+        project.
+    - Fixed: flags threshold, rounding and policy persistence re-opening a saved project.
+    - Fixed: prevented overriding "Lowest noise frequency" settings.
+    - Fixed: prevented overwrite of the anemometer user selection on basic settings page
+        in case of multiple anemometers.
+    - Fixed: prevented undue field persistency changing units of the input in the
+        Metadata editor.
+    - Fixed: restored Magnetic declination fetching not working properly due to NOAA
+        website changes.
+    - Fixed: improved reset behavior on metadata file deletion
+    - Fixed: magnetic declination not included in final wind direction calculations
+    - Refinement: added dialog when clearing the raw data directory.
+    - Refinement: modified raw file name format displayed in the corresponding dialog.
+    - Refinement: permitted negative altitudes in Metadata editor.
+    - Refinement: improved Metadata editor stability.
+    - Refinement: added Gain-Offset automatic selection in the Metadata editor.
+    - Refinement: added colors to variables ignored or not numeric in the Metadata editor.
+    - Refinement: disabled not necessary fields and set Ignore to yes in case of
+        Not numeric variables in the Metadata editor.
+    - Refinement: prevented that column selection in Metadata tables triggers first row
+        editing.
+    - Refinement: Ctrl+mouse-wheel resizes the GUI main window.
+    - Refinement: disabled Ctrl+F12 shortcut to launch the program.
+    - Refinement: cross-wind correction checkbox is always enabled, though checked
+        as suggestion when needed
+    - Refinement: changed angle-of-attack correction policy with Gill anemometers
+        (see help for details)
+    - Refinement: increased absolute limits ranges for statistical test on gases
+    - Refinement: changed policies to update software, project and metadata files
+        versions at saving time
+    - Refinement: custom variables created in the file description table of the metadata
+        file editor will be permanently available in the local computer for future uses.
+
+4.1.0 (2012-11-01)
+      For a complete list of new features see:
+      http://envsupport.licor.com/help/EddyPro4/Default.htm#Whats_New.htm
+
+    - New features
+      - A new spectral correction scheme based on Fratini et al. (2012),
+        specifically designed for closed-path systems, but applicable to any EC setup.
+      - A new angle-of-attack correction algorithm, implemented after Nakai and
+        Shimoyama (2012).
+
+    - Improvements
+      - Usage of "previous results" to dramatically reduce program execution time.
+      - Binary SLT files containing more than 6 variables can now be processed with
+        EddyPro.
+      - Usage of external biomet data files, not anymore limited to 18,000 data records.
+        In version 4.1, biomet files can contain any number of data records.
+      - Express processing uses the new angle-of-attack correction algorithm from
+        Nakai and Shimoyama (2012) rather than the correction from Nakai et al. (2006)
+        used in previous versions.
+
+    - Major bug fixes
+      - Automatic time lag optimization
+        - Bug description
+          The bug is found in the "Automatic time lag optimization" procedure
+          (Advanced Settings >> Processing Options >> Time lag compensation"). The bug
+          is such that time lags assessed for H2O (if this gas is treated in flux
+          computation) are erroneously used also for CO2 or CH4. Selection of an
+          erroneous time lag results in flux underestimates: the more the used time
+          lag deviates from the real one, the more fluxes are underestimated.
+        - Who is affected
+          Anyone who used the "Automatic time lag optimization" option for flux
+          computation is likely to be affected. However, the severity of the effects
+          changes according to the gas analyzer in use. For open-path analyzers (e.g.,
+          LI-7500A), the bias if most likely negligible, if present at all. For
+          enclosed-path analyzers (e.g., LI-7200), the bias is probably detectable but
+          still negligible, because time lags of H2O do not deviate dramatically from
+          those of CO2, especially if conditions of low relative humidity (<50-60%,
+          typical of daytime). In these analyzers, effects are further minimized
+          if a short (< 1 m) and/or heated or insulated sampling line was used. For
+          closed-path analyzers with sampling lines longer than 2 m (e.g., with an
+          LI-7000 or an LI-6262), the effects are likely to be relevant and we thus
+          recommend to recalculate fluxes using version 4.1.
+        - Who is not affected
+          All users who ran EddyPro in "Express mode", or those who did not use the
+          "Automatic timelag optimization" option are not affected by this bug.
+        - Note
+          We recommend using the "Automatic timelag optimization" procedure especially for
+          closed-path setups featuring medium and long (> 3-4 m) sampling lines. The bug
+          notified here was fixed and the correct procedure is available in this release
+          (EddyPro 4.1).
+
+      - Calculation of average CH4 mole fractions and mixing ratios from LI-7700
+        - Bug description
+          Fixed a bug that caused the band-broadening correction to not get applied in the
+          calculation of average CH4 concentrations. Note that this did not affect fluxes
+          at any extent, as the band-broadening correction was applied on fluxes
+          separately in 4.0. The effects of this bug were visible especially in conditions
+          of very low ambient pressure with respect to normal values.
+
+    - Other bug fixes
+      - Fixed bug that caused the program to crash when the number of files selected for
+        planar fit calculations were more than the maximum allowed (3,000). The bug was
+        fixed and this maximum value was increased to 18,000.
+      - Fixed bug that caused the calculation of maximal wind speed to fail in case of
+        existence of any raw data records with at least one wind components set to -9999
+        (EddyPro's internal error code). Most often this bug resulted in a maximal wind
+        speed of 17318.7 m/s, that was the result of wind speed calculated from 3 wind
+        components set to -9999. This bug had no affect on flux results.
+      - Fixed bug that caused the cross-wind correction of sonic temperature to be
+        calculated erroneously for individual data records that have any wind component
+        set to -9999. This bug resulted in implausible values for sonic temperature and
+        thus either in fluxes set to -9999, or to extremely spiky fluxes. Note that for
+        most anemometers the cross-wind correction is applied in the firmware, so there
+        is no need to apply it at processing time with EddyPro.
+      - Fixed bug that caused the header of the "full output" file to be erroneous when
+        using the option "Use standard output format".
+      - Fixed bug that caused the night-time/daytime indication in the "full output" file
+        to fail in some circumstances.
+      - Fixed a bug in the Random uncertainty estimate that caused the software to
+        crash with an "Out of memory" error message.
+
+    - GUI changes
+      - Added a general "Restore Default Values" button to restore all the Advanced
+        Settings to the Default (express) Settings.
+      - Added many constraints between fields to help fill out the Metadata File Editor
+        tables.
+      - Improved management of previous versions of Project and Metadata files for
+        backward compatibility.
+      - Added a Software Version field in the Metadata File Editor IRGA table.
+      - Added an automatic "Detect Dataset Dates" button for the raw data files.
+      - Prevented wheel mouse scrolling on setting controls.
+      - Improved management at low resolution displays.
+      - Added automatic saving on sub-dialogs exit.
+      - Fixed opening associated .eddypro project files when double clicking the file.
+      - Added button to clear the output console.
+      - Improved guided mode information messages.
+      - Fixed many minor GUI bugs.
+
+4.0.0 (2012-04-25)
+    - New features
+      - Support for biomet data (biological and meteorological data) collected
+        from ancillary sensors.
+      - Metadata Retriever tool to compile all site metadata from GHG files
+        into a single metadata file that can be edited or viewed.
+      - Planar Fit tool customization with graphical controls.
+      - Time Lag Optimization tool now supports automatic time lag optimization
+        to account for time lags.
+      - Random Uncertainty estimation tool.
+
+3.0.1 (2012-03-12, not released)
+    - Major bug fixes
+      - Kljun et al. 2004 footprint estimation: Previous version used
+        measurement height (z). Update uses the difference between the measurement
+        height and displacement height (z-d).
+      - Initialization of latitude, longitude and altitude when using
+        dynamic metadata file.
+      - Sampling line flow-rate calculation when average flow rate from
+        high-frequency data is used to initialize nominal, minimum and maximum
+        time lags.
+      - Spectral assessment output file when selected correction method is
+        Horst (1997).
+      - A bug prevented runs without any spectral corrections applied.
+      - Refined handling of the "Select a subperiod" option.
+      - GUI dialog windows. Users in the previous version could potentially
+        loose settings in the dialog windows. When a user clicks on a button
+        to enter data, such as "Settings..." next to Generic binary, they can
+        enter their data, save the project, close the project, re-open it,
+        re-open the widget and their data will not be visible in the GUI. The
+        data is still there but not appearing. If the user saves the project, the
+        information will be overwritten. If they select cancel, it will remain as
+        it was before.
+      - Improved project and data selection pages by adding page splitters.
+      - Fixed behavior with the cross-wind correction checkbox in relation to
+        being properly deactivated with the Master Anemometer in data selection
+        page.
+      - Improved multiple items in the raw file description. The measurement type
+        "Molar Density" was changed to "Molar/Mass Density." The option "Raw File
+        Settings" is now deactivated when SLT file types are selected. The algorithm
+        for detection of valid minimum variable settings was corrected for "Speed
+        of Sound." The saving and reloading of the correct field separator values
+        was fixed.
+      - Fixed and improved multiple items in the advanced settings. The [%] unit
+        was removed from the "Steadiness of Horizontal Wind" feature. Under the
+        processing options, the behavior of the widgets for "compensate density
+        fluctuations" and "add instrument sensible heat components" was corrected
+        to gray and disabled when appropriate.
+      - Fixed the error label default number to correctly display in the project
+        file as -9999. (Advanced settings/output files).
+      - Fixed the default setting under Advanced Settings/Output Files so "Build
+        continuous dataset" is unchecked.
+      - Match the default unchecked state of Metadata output checkbox with
+        project file setting and remove the incorrect association with Full Output.
+      - Fixed incomplete offline help system.
+      - Fixed the Guided mode for the Metadata File Editor algorithm to properly
+        assess the fixed unit of measurement for both input and output
+        relationships.
+
+3.0.0 (2012-02-06)
+    - Final official release of introducing the Advanced Settings.
+
+3.0.0 Beta (2011-12-14)
+    - First public release of 3.0 Beta. This version introduces the Advanced Settings.
+
+2.3.0 (2011-07-20)
+    - Major bug fixes
+      - An error occurred in the calculation of corrected fluxes if the
+        N2O analyzer was a closed-path one, while the CH4 analyzer was open-path
+        or CH4 was not present at all. The bug resulted in corrected fluxes of
+        N2O equal to -9999 (that is, if your N2O fluxes are not -9999, they are
+        not affected by this bug).
+      - Definition of "relative separations". No impact on calculations,
+        only on the output metadata.
+      - Control on use of cell temperature (fixed re-initialization of column
+        information)
+      - In statistical tests (Spike count/removal and Amplitude Resolution/Drop
+        Out) length of implied windows modified so as to scale with the length
+        of the averaging period.
+    - Improvements
+      - Handling of situations where H2O readings are not available
+        (air density, momentum flux).
+      - Control over peculiar situations in Fluxes23 (WPL section).
+      - Introduced support for TOB1 format "FP2"
+      - Introduced detection of very implausible values in the raw
+        files, and their substitution with error codes.
+      - Error codes in raw files (-9999) are no longer modified
+        during conversions of raw units into EddyPro units
+      - Better handling of situation when all GHG files have invalid
+        metadata or are corrupted.
+      - Better handling of the computations exit codes
+
+2.2.0 (2011-06-20)
+    - Major bug fixes
+      - Fixed bug concerning fluxes calculated from CH4 and N2O mole fraction
+        measurements from closed path systems. The bug affected also fluxes
+        calculated with CO2 mole fractions, if the paired H2O was measured as
+        either molar density or mixing ratio. In all cases, the bug resulted
+        in flux values =-9999 (that is, if your fluxes are not -9999, they
+        are not affected by this bug).
+      - Fixed Altitude field zeroing in the Metadata editor.
+      - Changed the docking policies of the Tips dock: now it's movable and
+        floatable top and bottom and it could also be tabbed with the Console.
+      - Changed the dimension policy of the Tips dock: now it's expandable.
+      - Fixed misspellings.
+      - Used native dialog for the 'Save metadata as' button.
+      - GUI code cleaned up.
+
+2.1.4 (2011-06-02)
+      - Fixed incorrect filtering of CH4 vars in the Processing page, in case of
+        Generic gas analyzer.
+      - Added the changelog file viewer in the About dialog.
+
+2.1.3 (2011-05-31)
+      - Fixed the SoS to temperature conversion.
+      - More detailed diagnostic on the metadata file validation at console.
+      - Quality flags recalculated according to Mauder and Foken (2004), which
+        should eliminate most (possibly not all) the -9999 in the quality flags
+      - Added CHANGELOG.txt to source and installer packages.
+
+2.1.2 (2011-05-18, not released)
+      - Fixed problem of Access denied authorization during the processing of the
+        data.
+
+2.1.1 (2011-04-26)
+    - Fixed typo about the unit of measure of the Raw Data Description table
+      (umol/mol^3, instead of umol/m^3).
+
+2.1.0 (2011-04-21)
+    - Optimized GUI for support low resolution screens (up to 800x600 px).
+    - Rearranged widgets between Project page and Processing page (ID moved to
+      Processing).
+    - Added input dialog for the ID field.
+    - Improved look&feel of Combo box and Spin box.
+    - Changed policies for scrollbar and scrolling behavior into the tables.
+    - Changed default value in some table fields.
+    - Changed from QByteArrays to QString where there is the possibilities of
+      weak conversions.
+    - Fixed selection of None variables into Processing page combo's when there
+      are already some variable.
+    - Updated the manual.
+
+2.0.0 (2011-04-05)
+    - First public release of EddyPro (Express version only).
+

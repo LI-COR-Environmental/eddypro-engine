@@ -1,0 +1,69 @@
+# Acknowledgements
+
+We would like to thank the whole Eddy Covariance community, the authors, 
+testers, the users and the following people (and the missing ones), in no 
+special order, for their collaboration and source code contribution to create 
+this free software.
+
+## Original Authors 
+Gerardo Fratini (gerardo.fratini@licor.com): processing engines designer and developer
+Antonio Forgione (antonio.forgione@licor.com): GUI designer and developer
+Dario Papale (darpap@unitus.it): project manager and coordinator           
+
+## Others contributors
+Carlo Trotta: code harmonization and documentation
+Natascha Kljun: code for footprint estimation, Kljun et al. (2004, BLM)
+Taro Nakai: code for angle of attack correction, Nakai et al. (2006, AFM)
+Andreas Ibrom: supervision during implementation of a spectral correction procedure, Ibrom et al. (2007, AFM)
+Stephen Chan: Revision, refinement and testing of implementation of Massman 2000/2001 spectral correction.
+
+## Software validation (intercomparison)
+Juha-Pekka Tuovinen
+Andreas Ibrom
+Ivan Mammarella
+Robert Clement
+Meelis Molder
+Olaf Kolle
+Corinna Rebmann
+Matthias Mauder
+Jan Elbers
+
+## User testing and bug notifications
+Tarek El-Madany
+Sergiy Medinets
+Beniamino Gioli
+Nicola Arriga
+Luca Belelli
+Michal Heliasz
+Bernard Heinesch
+Arnaud Carrara
+Paik Vestin
+Matthias Barthel
+Karoline Wischnewski
+Matthew Wilkinson
+Simone Sabbatini
+
+## Software discussions
+Ian Elbers
+George Burba
+Christian Wille           
+
+## Libraries
+Arjan van Dijk: libdate module
+Michael Baudin, Arjen Markus: m_logging module
+University of Chicago: m_levenberg_marquardt from the MINPACK package
+netlib.org: FFT routines from the SLATEC Common Mathematical Library
+Digia Plc: Qt framework
+Boost::math
+Trenton Schulz (former Trolltech AS): Fader widget
+Morgan Leborgne: QProgressIndicator widget
+Witold Wysota: Debug helper class and wwWidgtes library
+Sergey A. Tachenov: QuaZIP
+Mark Summerfield: classes from the book 'Advanced Qt Programming'
+
+## Tools
+GForan compiler
+MinGW compiler and GDB debugger
+Clang compiler
+Digia Plc: Qt Creator IDE
+Code::Blocks IDE

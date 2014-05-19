@@ -1,0 +1,620 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="eddypro_rp" />
+		<Option pch_mode="2" />
+		<Option compiler="gfortran" />
+		<Build>
+			<Target title="debug">
+				<Option output="../bin/debug/eddypro_rp_debug" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../bin/debug/" />
+				<Option object_output="../obj/debug/eddypro_rp/" />
+				<Option type="1" />
+				<Option compiler="gfortran" />
+				<Compiler>
+					<Add option="-pg" />
+					<Add option="-g" />
+				</Compiler>
+				<Linker>
+					<Add option="-pg -lgmon" />
+				</Linker>
+			</Target>
+			<Target title="release">
+				<Option output="../bin/release/eddypro_rp" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../bin/release/" />
+				<Option object_output="../obj/release/eddypro_rp/" />
+				<Option type="1" />
+				<Option compiler="gfortran" />
+				<Compiler>
+					<Add option="-O3" />
+					<Add directory="../mod" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-pedantic -fall-intrinsics -fbounds-check -Wall -Wextra -Wcharacter-truncation -Wunderflow -std=f2003" />
+		</Compiler>
+		<Linker>
+			<Add option="-static" />
+		</Linker>
+		<ExtraCommands>
+			<Add before="current_date_and_version_as_parameters.bat" />
+		</ExtraCommands>
+		<Unit filename="../src/src_common/aoa_cal_nakai_2012.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/aoa_calibration_nakai.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_common/average_no_error.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/basic_stats.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/bpcf_Horst_97.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/bpcf_Ibrom_07.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/bpcf_additional_horst_lenschow_09.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/bpcf_analytic_transfer_functions.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/bpcf_anemometric_fluxes.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/bpcf_aux_subs.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/bpcf_bandpass_spectral_corrections.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/bpcf_cospectral_models.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/bpcf_fratini_12.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/bpcf_massman_00.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/bpcf_moncrieff_97.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/bpcf_only_lowfrequency_correction.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/bpcf_read_full_cos_wt.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/calibrate_gas4.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_common/change_24_into_00.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/check_file_prototype.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/configure_for_embedded.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/covariance_matrix_no_error.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/create_datasets_common.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/create_master_timeseries.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/cross_wind_corr.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/date_subs.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/def_cross_indx_rng.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/def_sngl_indx_rng.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/define_all_var_set.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/define_e2_set.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/define_relative_separations.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/define_used_variables.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/define_user_set.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/dir_sub.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/error_handle.f90">
+			<Option weight="0" />
+		</Unit>
+		<Unit filename="../src/src_common/filelist_by_ext.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/files_in_chronological_order.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/first_file_of_current_period.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/fluctuations.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/fourier_transform.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/generate_t_cell.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/import_ascii.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/import_ascii_with_text.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/import_binary.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/import_current_period.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/import_native_data.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/import_slt_eddysoft.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/import_slt_edisol.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/import_tob1.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/inform_of_metadata_problem.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/init_continuous_dataset.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/init_env.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/m_common_global_var.f90">
+			<Option weight="2" />
+		</Unit>
+		<Unit filename="../src/src_common/m_dates.f90">
+			<Option weight="0" />
+		</Unit>
+		<Unit filename="../src/src_common/m_fp2_to_float.f90">
+			<Option weight="1" />
+		</Unit>
+		<Unit filename="../src/src_common/m_index_parameters.f90">
+			<Option weight="1" />
+		</Unit>
+		<Unit filename="../src/src_common/m_libdate.f90">
+			<Option weight="0" />
+		</Unit>
+		<Unit filename="../src/src_common/m_logger.f90">
+			<Option weight="0" />
+		</Unit>
+		<Unit filename="../src/src_common/m_methane_tables.f90">
+			<Option weight="1" />
+		</Unit>
+		<Unit filename="../src/src_common/m_numeric_kinds.f90">
+			<Option weight="0" />
+		</Unit>
+		<Unit filename="../src/src_common/m_typedef.f90">
+			<Option weight="1" />
+		</Unit>
+		<Unit filename="../src/src_common/make_dataset.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/maths_subs.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/matrix_inversion.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/max_wind_speed.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_common/median.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/metadata_file_validation.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/multipliers_7700.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/parse_file_name_with_prototype.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/parse_ini_file.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/planar_fit_aux_params.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/planarfit_rotation_matrix.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/point_by_point_to_mixing_ratio.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/portion_of_file_in_current_period.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/potential_radiation.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/qc_flags_subs.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/read_biomet_file.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/read_biomet_meta_file.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/read_licor_ghg_archive.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/read_metadata_file.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/rename_tmp_files_common.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/replace_gap_with_linear_interpolation.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/replace_sonic_temperature.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/retrieve_vars_selection.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/set_os_environment.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/show_daily_advancement.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/spectral_density.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/string_sub.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/timelag_handle.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/timestamp.f90">
+			<Option weight="1" />
+		</Unit>
+		<Unit filename="../src/src_common/ts_extract_subperiod_indexes.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/ts_round_to_minute.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/unzip_archive.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/user_basic_stats.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/user_fluctuations.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/user_timelag_handle.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/wind_direction.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/write_out_stats.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/write_processing_project_variables.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_rp/add_to_timelag_opt_dataset.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/adjust_sonic_coordinates.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/adjust_timelag_opt_settings.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/air_and_cell_parameters.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/assess_daytime.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/binned_frequency_vector.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/burba_terms.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/cleanup_e2_set.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/configure_for_express.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/configure_for_md_retrieval.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/create_datasets_rp.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/default_vars_selection.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/degraded_covariances.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/despike_user_set.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/developed_turbulence_test.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/drift_correction.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/drift_retrieve_calibration_events.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/eddypro-rp_main.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/eliminate_corrupted_variables.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/extract_biomet_data.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/fft4/rfftf.F">
+			<Option weight="0" />
+			<Option compiler="mingw" use="1" buildCommand="$compiler $includes-c $file -o $object" />
+			<Option compiler="gfortran_v47_20110813" use="1" buildCommand="$compiler $includes-c $file -o $object" />
+			<Option compiler="gfortran" use="1" buildCommand="$compiler $includes -c $file -o $object" />
+			<Option compiler="mingw_062" use="1" buildCommand="$compiler $includes-c $file -o $object" />
+			<Option compiler="gnu_gfortran_32" use="1" buildCommand="$compiler $includes-c $file -o $object" />
+		</Unit>
+		<Unit filename="../src/src_rp/fft4/rffti.F">
+			<Option weight="0" />
+			<Option compiler="mingw" use="1" buildCommand="$compiler $includes-c $file -o $object" />
+			<Option compiler="gfortran_v47_20110813" use="1" buildCommand="$compiler $includes-c $file -o $object" />
+			<Option compiler="gfortran" use="1" buildCommand="$compiler $includes -c $file -o $object" />
+			<Option compiler="mingw_062" use="1" buildCommand="$compiler $includes-c $file -o $object" />
+			<Option compiler="gnu_gfortran_32" use="1" buildCommand="$compiler $includes-c $file -o $object" />
+		</Unit>
+		<Unit filename="../src/src_rp/filter_data_for_diagnostics.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/filter_for_physical_thresholds.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/filter_raw_data_by_flags.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/fix_dataset_for_spectra.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/fix_planarfit_sectors.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/fix_timelag_opt_dataset.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/flux_params.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/fluxes0_rp.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/fluxes1_rp.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/fluxes23_rp.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/footprint_handle_rp.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/init_dynamic_medata.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/init_external_biomet.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/init_outfiles_rp.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/init_user_outfiles.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/int_2_flag.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/integral_turbulence_scale.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/interpret_diagnostics.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/m_rp_global_var.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_rp/molefractions_and_mixingratios.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/optimize_timelags.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/out_raw_data.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/override_settings.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/power_of_two.f90">
+			<Option weight="0" />
+		</Unit>
+		<Unit filename="../src/src_rp/random_error_handle.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/read_ext_biomet_files.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/read_ini_rp.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/read_planar_fit_file.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/read_timelag_opt_file.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/rename_tmp_files_rp.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/retrieve_biomet_data.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/retrieve_dynamic_metadata.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/retrieve_sensor_params.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/set_licor_diagnostics.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/set_timelags.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/sort_wind_by_sector.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/spectral_analysis.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/stationarity_test.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/statistical_screening.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/storage.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/tapering.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/test_absolute_limits.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/test_amp_res_drop_out.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/test_attack_angle.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/test_discontinuities.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/test_higher_moments.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/test_non_steady_wind.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/test_spike_detection.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/test_spike_detection_coming_soon.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/test_timelag.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/tests_not_performed.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/tilt_correction.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/wind_sector.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/write_out_ameriflux_rp.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/write_out_planar_fit.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/write_out_user_stats.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/write_outfiles.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/writeout_qc_details.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/writeout_timelag_optimization.f90">
+			<Option weight="4" />
+		</Unit>
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<lib_finder disable_auto="1" />
+			<AutoVersioning>
+				<Scheme minor_max="10" build_max="0" rev_max="0" rev_rand_max="10" build_times_to_increment_minor="100" />
+				<Settings autoincrement="1" date_declarations="1" use_define="0" update_manifest="1" do_auto_increment="0" ask_to_increment="0" language="C++" svn="0" svn_directory="" header_path="version.h" />
+				<Changes_Log show_changes_editor="0" app_title="released version %M.%m.%b of %p" changeslog_path="ChangesLog.txt" />
+				<Code header_guard="VERSION_H" namespace="AutoVersion" prefix="" />
+			</AutoVersioning>
+			<DoxyBlocks>
+				<comment_style block="0" line="0" />
+				<doxyfile_project />
+				<doxyfile_build />
+				<doxyfile_warnings />
+				<doxyfile_output />
+				<doxyfile_dot />
+				<general />
+			</DoxyBlocks>
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
