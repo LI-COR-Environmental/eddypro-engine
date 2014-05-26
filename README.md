@@ -15,7 +15,7 @@ the ECO<sub>2</sub>S development team, the [University of Tuscia](www.unitus.it)
 and scientists around the world who assisted with development and testing of
 the original version of this software.
 
-![EddyPro](img/app-logo-small.png)
+![EddyPro](docs/img/app-logo-small.png)
 
 ## Overview
 
