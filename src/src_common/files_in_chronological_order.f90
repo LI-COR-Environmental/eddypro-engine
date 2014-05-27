@@ -94,15 +94,6 @@ subroutine FilesInChronologicalOrder(FileList, nrow, StartTimestamp, EndTimestam
     end do
     nrow = maxi - mini + 1
     write(*,'(a)') ' done.'
-
-    call log_delimiter(LOG_LEVEL_CHAPTER)
-    write(LogInteger, '(i6)') nrow
-    call SchrinkString(LogInteger)
-    LogString = ' inf=processing ' // LogInteger(1:len_trim(LogInteger)) // ' files.'
-    call log_msg(LogString)
-    LogString = ' file_type=' // EddyProProj%ftype(1:len_trim(EddyProProj%ftype))
-    call log_msg(LogString)
-    call log_delimiter(LOG_LEVEL_CHAPTER)
 end subroutine FilesInChronologicalOrder
 
 !***************************************************************************

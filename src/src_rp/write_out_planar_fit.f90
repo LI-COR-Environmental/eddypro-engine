@@ -45,25 +45,13 @@ subroutine WriteOutPlanarFit(NumElem, N)
     integer :: sec
 
     !> Create output directory if it does not exist
-    LogString = ' rp_mainout_dir=' // Dir%main_out(1:len_trim(Dir%main_out))
-    call DoubleCharInString(LogString, slash)
-    call log_msg(LogString)
     mkdir_status = CreateDir('"' //Dir%main_out(1:len_trim(Dir%main_out)) // '"')
-    write(LogLogical, '(L1)') mkdir_status
-    LogString = ' mkdir_error=' // LogLogical
-    call log_msg(LogString)
 
     !> Create output file
     PlanarFit_Path = Dir%main_out(1:len_trim(Dir%main_out)) &
               // EddyProProj%id(1:len_trim(EddyProProj%id)) &
               // PlanarFit_FilePadding // Timestamp_FilePadding // TxtExt
-    LogString = ' pf_file=' // PlanarFit_Path(1:len_trim(PlanarFit_Path))
-    call DoubleCharInString(LogString, slash)
-    call log_msg(LogString)
     open(upf, file = PlanarFit_Path, iostat = open_status, encoding = 'utf-8')
-    write(LogLogical, '(L1)') open_status
-    LogString = ' create_file_error=' // LogLogical
-    call log_msg(LogString)
 
     !> Write on output file sector-wise plane coefficients
     if (PFSetup%north_offset >= 0) then

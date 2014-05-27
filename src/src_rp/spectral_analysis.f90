@@ -86,6 +86,7 @@ subroutine SpectralAnalysis(date, time, bf, Set, N, M)
     do i = 1, N/2
         nf(i) = dble(i) * Metadata%ac_freq / dble(N)
     end do
+
     !> Use "Aux" variables to calculate degraded covariances and to
     !> output full co-spectrum wT. "Aux" variables are not tapered
     AuxSet = Set
@@ -95,6 +96,7 @@ subroutine SpectralAnalysis(date, time, bf, Set, N, M)
 
     !> Fft and calculate cospectra
     call FourierTransform(AuxSet, N, M)
+
     call AllCospectra(AuxSet, auxsumw, AuxSpectrum, AuxCospectrum, &
         DoSpectrum, DoCospectrum, N, M)
 

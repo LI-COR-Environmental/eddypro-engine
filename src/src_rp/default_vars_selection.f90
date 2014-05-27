@@ -90,7 +90,7 @@ subroutine DefaultVarsSelection(LocCol)
     !> the variable, so does not change it
     !> If EddyProProj%col(i) > 0, that's an user decision to use
     !> that column, so does not change it
-    !> In embbeded mode, EddyProProj%col(i) < 0 means that the user is leaving
+    !> In embedded mode, EddyProProj%col(i) < 0 means that the user is leaving
     !> the decision on which variable to use to EddyPro, so select most
     !> appropriate variable now
 

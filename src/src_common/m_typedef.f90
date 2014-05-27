@@ -587,11 +587,6 @@ module m_typedef
         real(kind = dbl) :: x90
     end type FootType
 
-    type :: FullCospType
-        real(kind = dbl) :: fn(MaxNumRow)
-        real(kind = dbl) :: wt(MaxNumRow)
-    end type FullCospType
-
     type FPCheckType
         integer :: outliers
     end type FPCheckType
@@ -1240,14 +1235,8 @@ module m_typedef
         real(kind = dbl) :: gas4_min_flux
         real(kind = dbl) :: le_min_flux
         real(kind = dbl) :: pg_range
-        real(kind = dbl) :: co2_min_lag
-        real(kind = dbl) :: co2_max_lag
-        real(kind = dbl) :: h2o_min_lag
-        real(kind = dbl) :: h2o_max_lag
-        real(kind = dbl) :: ch4_min_lag
-        real(kind = dbl) :: ch4_max_lag
-        real(kind = dbl) :: gas4_min_lag
-        real(kind = dbl) :: gas4_max_lag
+        real(kind = dbl) :: min_lag(GHGNumVar)
+        real(kind = dbl) :: max_lag(GHGNumVar)
         character(10) :: start_date
         character(10) :: end_date
     end type TOSetupType

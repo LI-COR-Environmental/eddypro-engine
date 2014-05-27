@@ -46,8 +46,7 @@ Program EddyproFCC
     integer :: NumBinnedFiles
     integer :: NumBinnedFilesNoRecurse
     integer :: fcount
-
-    character(64) :: OutLogFile
+    integer :: nrow_full
 
     logical :: skip
     logical :: InitializeOuputFiles
@@ -56,6 +55,7 @@ Program EddyproFCC
     logical :: skip_cospectra
     logical :: ValidRecord
     logical :: EndOfFileReached
+    logical :: exEndReached
 
     !> Derived type variables
     type(DateType) :: fxStartTimestamp
@@ -89,13 +89,14 @@ Program EddyproFCC
     !*******************************************************************************
     !*******************************************************************************
 
-
-    write(*, '(a)') 'Starting flux computation and correction session..'
-
     app = fcc_app
 
     !> Initialize environment
+    write(*, '(a)')
     call InitEnv()
+
+    write(*, '(a)') 'Starting flux computation and correction session..'
+    write(*, '(a)')
 
     !> Read ".eddypro" file for both spectral analysis and flux correction
     call ReadIniFX('FluxCorrection')
@@ -107,9 +108,7 @@ Program EddyproFCC
     call InitExVars(fxStartTimestamp, fxEndTimestamp, NumExRecords, NumValidExRecords)
 
     !> If no good records are found stop execution
-    if (NumValidExRecords <= 0) then
-        call ErrorHandle(2, 0, 11)
-    end if
+    if (NumValidExRecords <= 0) call ExceptionHandler(61)
 
     !> Retrieve NumberOfPeriods and allocate MasterTimeSeries
     NumberOfPeriods = NumOfPeriods(fxStartTimestamp, fxEndTimestamp, DateStep)
@@ -129,7 +128,7 @@ Program EddyproFCC
         SelectedEndTimestamp, fxStartTimestampIndx, fxEndTimestampIndx)
 
     if (fxStartTimestampIndx == nint(error) .or. fxEndTimestampIndx == nint(error)) &
-        call ErrorHandle(0, 0, 50)
+        call ExceptionHandler(50)
 
     !> For convenience, change timestamps of MasterTimeSeries by increasing of DateStep
     do i = 1, size(MasterTimeSeries)
@@ -138,12 +137,15 @@ Program EddyproFCC
 
     !> Initialize import of full cospectra files
     if (FCCsetup%import_full_cospectra) then
-        call NumberOfFilesInDir(Dir%full, '.csv', NumFullFiles, NumFullFilesNoRecurse)
+        call NumberOfFilesInDir(Dir%full, '.csv', .false., '', NumFullFiles, NumFullFilesNoRecurse)
         allocate(FullFileList(NumFullFiles))
 
         !> Read names of full cospectra files
         call FileListByExt(Dir%full, '.csv', .true., FullFilePrototype, .true., .true., .true., &
             FullFilelist, size(FullFilelist), .true., '')
+
+        !> Retrieve length of full cospectra for later allocation
+        call FullCospectraLength(FullFilelist(1)%path, nrow_full)
     end if
 
     !****************************************************************
@@ -166,7 +168,8 @@ Program EddyproFCC
         call DateTimeToDateType(FCCsetup%SA%end_date,   '23:59', saEndTimestamp)
 
         !> Read names of binned (co)spectra files
-        call NumberOfFilesInDir(Dir%binned, '.csv', NumBinnedFiles, NumBinnedFilesNoRecurse)
+        call NumberOfFilesInDir(Dir%binned, '.csv', .false., '', &
+            NumBinnedFiles, NumBinnedFilesNoRecurse)
         allocate(BinnedFileList(NumBinnedFiles))
 
         !> Create list of binned spectra file names
@@ -183,9 +186,8 @@ Program EddyproFCC
 
         !> Loop to import binned spectra files and sort them
         write(LogInteger, '(i8)') saEndTimestampIndx - saStartTimestampIndx + 1
-        call schrinkstring(LogInteger)
         write(*, '(a)') '  Importing and sorting up to ' &
-            // LogInteger(1:len_trim(LogInteger)) // ' binned spectra from files.. '
+            // adjustl(trim(LogInteger)) // ' binned spectra from files.. '
 
         !> Create an exponentially spaced frequency array in a range wide enough to accommodate
         !> any possible normalized frequency
@@ -198,7 +200,7 @@ Program EddyproFCC
         !> Open Ex file to keep it ready for reading
         !> and exit with error in case of problems opening the file
         open(uex, file = AuxFile%ex, status = 'old', iostat = open_status)
-        if (open_status /= 0) call ErrorHandle(2, 0, 1)
+        if (open_status /= 0) call ExceptionHandler(60)
         !> Skip header in Ex file
         read(uex, *)
 
@@ -225,6 +227,11 @@ Program EddyproFCC
                 call ShowDailyAdvancement('  Importing binned spectra for day: ', BinnedFileList(fcount)%timestamp)
             end if
 
+            !> Retrieve essentials information for current spectra
+            call RetrieveExVarsByTimestamp(uex, BinnedFileList(fcount)%timestamp, lEx, exEndReached, skip)
+            if (exEndReached) exit binned_loop
+            if (skip) cycle binned_loop
+
             !> Allocate variables that depend on nbins and initialize them
             if (.not. allocated(MeanBinSpec)) then
                 allocate(MeanBinSpec(nbins, MaxGasClasses))
@@ -239,9 +246,6 @@ Program EddyproFCC
                 FitStable   = NullFitCosp
             end if
 
-            !> Retrieve essentials information for current spectra
-            call RetrieveExVarsByTimestamp(uex, BinnedFileList(fcount)%timestamp, lEx, skip)
-            if (skip) cycle binned_loop
 
             !> Ignore spectra if not everything is available and within specified limits
             !> NOTE: cospectra are not filtered out based on availability of same stuff
@@ -313,7 +317,7 @@ Program EddyproFCC
     !> Open Ex file to keep it ready for reading
     !> and exit with error in case of problems opening the file
     open(uex, file = AuxFile%ex, status = 'old', iostat = open_status)
-    if (open_status /= 0) call ErrorHandle(2, 0, 1)
+    if (open_status /= 0) call ExceptionHandler(60)
     !> Skip first line for header
     read(uex, *)
 
@@ -348,7 +352,7 @@ Program EddyproFCC
         if (day /= CurrentTimestamp%day .or. month /= CurrentTimestamp%month) then
             month = CurrentTimestamp%month
             day   = CurrentTimestamp%day
-            call ShowDailyAdvancement('Calculating fluxes for: ', CurrentTimestamp)
+            call ShowDailyAdvancement(' Calculating fluxes for: ', CurrentTimestamp)
         end if
 
         !> Band-pass spectral correction factors
@@ -364,7 +368,7 @@ Program EddyproFCC
         call BandPassSpectralCorrections(lEx%instr(sonic)%height, lEx%disp_height, &
             lEx%var_present, lEx%WS, lEx%Ta, lEx%zL, lEx%ac_freq, nint(lEx%avrg_length), &
             lEx%det_meth, nint(lEx%det_timec), size(FullFileList), .false., AuxInstrument, &
-            FullFileList, lEx, FCCsetup)
+            FullFileList, nrow_full, lEx, FCCsetup)
 
         !> Calculate fluxes at Level 1
         call Fluxes1(lEx)
@@ -406,6 +410,7 @@ Program EddyproFCC
     close(umd)
 
     write(*,*)
+    write(*,*)
     call sleep(1)
 
     !> Creating datasets from output files
@@ -416,22 +421,8 @@ Program EddyproFCC
         call RenameTmpFilesCommon()
     end if
 
-    !> Close logging
-    call log_delimiter(LOG_LEVEL_VOLUME)
-    call log_msg(' inf=program EddyPro-FCC executed gracefully.')
-    call log_delimiter(LOG_LEVEL_VOLUME)
-    call log_shutdown()
-
-    !> Rename and copy log files in ..\log\ and in output directory
-    OutLogFile = FX_FilePadding // EddyProProj%id(9:len_trim(EddyProProj%id)) &
-              // Timestamp_FilePadding // LogExt
-
     !> Delete tmp folder if running in embedded mode
     if(EddyProProj%run_env == 'desktop') call system(trim(comm_rmdir) // ' "' // trim(adjustl(TmpDir)) // '"')
-
-    call system(comm_copy // comm_force_opt // ' "' // LogPath(1:len_trim(LogPath)) &
-        // '" "' // Dir%main_out(1:len_trim(Dir%main_out)) // '"' &
-        // OutLogFile(1:len_trim(OutLogFile)) // comm_out_redirect // comm_err_redirect)
 
     write(*, '(a)') ''
     write(*, '(a)') ' ****************************************************'

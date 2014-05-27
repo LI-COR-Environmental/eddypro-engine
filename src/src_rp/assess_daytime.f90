@@ -31,13 +31,13 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine AssessDayTime(date, time)
+subroutine AssessDaytime(date, time)
     use m_rp_global_var
     implicit none
     !> in/out variables
     character(10), intent(in) :: date
     character(5), intent(in) :: time
-    logical, external :: IsDayTime
+    logical, external :: IsDaytime
 
     Stats%daytime = .false.
     !> Based on Rg
@@ -47,5 +47,5 @@ subroutine AssessDayTime(date, time)
         Stats%daytime = .true.
     !> based on period timestamp and potential radiation
     if (Stats%mRg == error .and. Stats%mPPFD == error) &
-        Stats%daytime = IsDayTime(PotRad, date, time)
-end subroutine AssessDayTime
+        Stats%daytime = IsDaytime(PotRad, date, time)
+end subroutine AssessDaytime

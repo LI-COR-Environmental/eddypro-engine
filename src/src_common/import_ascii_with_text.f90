@@ -90,10 +90,6 @@ subroutine ImportAsciiWithText(FirstRecord, LastRecord, LocCol, fRaw, nrow, ncol
     fRaw = error
     record_loop: do
         tN = tN + 1
-
-        !> Normal exit instruction, if current record is beyond the number of record to be imported
-        if (tN > LastRecord - FirstRecord + 1) exit record_loop
-
         !> Read data line as a string and decide what to do if reading fails
         N = N + 1
         read(unat, '(a)', iostat = io_status) datastring
@@ -121,6 +117,16 @@ subroutine ImportAsciiWithText(FirstRecord, LastRecord, LocCol, fRaw, nrow, ncol
                 cycle record_loop
             end if
         end if
+
+        !> Normal exit instruction, if current record is beyond the number of record to be imported
+        if (tN > LastRecord - FirstRecord + 1) then
+            N = N - 1
+            exit record_loop
+        end if
+
+        !> Eliminate multiple separators from datastring, but currently only if it's a space
+        if (FileInterpreter%separator == '') &
+            call StripConsecutiveChar(datastring, FileInterpreter%separator)
 
         !> Parse variables out of the string
         jj = 0

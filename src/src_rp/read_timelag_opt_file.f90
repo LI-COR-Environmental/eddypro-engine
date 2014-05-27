@@ -40,18 +40,10 @@ subroutine ReadTimelagOptFile(ncls)
     integer :: read_status
     character(500) :: strg
 
-    call log_msg(' inf=reading time lag optimization file.')
-    LogString = ' to_file_in=' // AuxFile%to(1:len_trim(AuxFile%to))
-    call DoubleCharInString(LogString, slash)
-    call log_msg(LogString)
 
     !> Open planar fit file and read rotation matrices
     write(*,'(a)') ' Reading time lag optimization file: ' // AuxFile%to(1:len_trim(AuxFile%to))
     open(udf, file = AuxFile%to, status = 'old', iostat = open_status)
-
-    write(LogLogical, '(L1)') open_status
-    LogString = ' open_error=' //Loglogical
-    call log_msg(LogString)
 
     if (open_status == 0) then
         write(*, '(a)') ' Time lag optimization file found, retrieving content..'
@@ -131,10 +123,8 @@ subroutine ReadTimelagOptFile(ncls)
         end do
     else
        !> If the specified file is not found or is empty, switches to covariance maximization without default
-        call log_msg(' err=error while opening time lag optimization file. &
-            &time lag detection method switched to covariance maximization.')
         Meth%rot = 'maxcov'
-        call ErrorHandle(0, 0, 39)
+        call ExceptionHandler(39)
     end if
     write(*,'(a)')   ' Done.'
 end subroutine ReadTimelagOptFile

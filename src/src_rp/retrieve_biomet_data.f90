@@ -31,12 +31,14 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine RetrieveBiometData(EmbBiometDataExist, LastBiometFile, LastBiometRecord, &
+subroutine RetrieveBiometData(EmbBiometDataExist, BiometFileList, NumBiometFiles, LastBiometFile, LastBiometRecord, &
         InitialTimestamp, FinalTimestamp, bN)
     use m_rp_global_var
     implicit none
     !> in/out variables
     integer, intent(in) :: bN
+    integer, intent(in) :: NumBiometFiles
+    type (FileListType), intent(in) :: BiometFileList(NumBiometFiles)
     type (DateType), intent(in) :: InitialTimestamp
     type (DateType), intent(in) :: FinalTimestamp
     integer, intent(inout) :: LastBiometFile
@@ -85,7 +87,8 @@ subroutine RetrieveBiometData(EmbBiometDataExist, LastBiometFile, LastBiometReco
     !> If requested, read external file containing biomet measurements
     BiometDataExist = .false.
     if (index(EddyProProj%biomet_data, 'ext_') /= 0) then
-        call ReadExtBiometFiles(BiometDataExist, LastBiometFile, LastBiometRecord, FinalTimestamp, N)
+        call ReadExtBiometFiles(BiometDataExist, BiometFileList, NumBiometFiles, &
+            LastBiometFile, LastBiometRecord, FinalTimestamp, N)
     else
         N = bN
     end if
@@ -353,7 +356,7 @@ subroutine RetrieveBiometData(EmbBiometDataExist, LastBiometFile, LastBiometReco
                         end if
                     end if
                     if (BiometUnits%Ts(rep) /= 'none') then
-                        if(Biomet(i)%Ts(rep) > Tmin .and. Biomet(i)%Ts(rep) < Tmax) then
+                        if(Biomet(i)%Ts(rep) >= Tmin .and. Biomet(i)%Ts(rep) <= Tmax) then
                             E2Biomet%Ts(rep) = E2Biomet%Ts(rep) + Biomet(i)%Ts(rep)
                             CountBiomet%Ts(rep) = CountBiomet%Ts(rep) + 1
                         end if
@@ -622,7 +625,7 @@ subroutine RetrieveBiometData(EmbBiometDataExist, LastBiometFile, LastBiometReco
         elsewhere
             E2Biomet%SHF(:) = error
         end where
-        where (CountBiomet%SHF(:) /= 0)
+        where (CountBiomet%TS(:) /= 0)
             E2Biomet%TS(:) = E2Biomet%TS(:) / CountBiomet%TS(:)
         elsewhere
             E2Biomet%TS(:) = error

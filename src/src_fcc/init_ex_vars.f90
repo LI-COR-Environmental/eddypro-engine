@@ -53,15 +53,9 @@ subroutine InitExVars(StartTimestamp, EndTimestamp, NumRecords, NumValidRecords)
 
     !> Open EX file
     open(udf, file = AuxFile%ex, status = 'old', iostat = open_status)
-    write(LogLogical, '(L1)') open_status
-    LogString = ' open_error=' //Loglogical
-    call log_msg(LogString)
 
     !> Exit with error in case of problems opening the file
-    if (open_status /= 0) then
-        call log_msg( ' err=error while reading "essentials" file. execution aborted.')
-        call ErrorHandle(2, 0, 1)
-    end if
+    if (open_status /= 0) call ExceptionHandler(60)
 
     write(*, '(a)') '  File found, importing content..'
     !> Retrieve label of forth gas from header

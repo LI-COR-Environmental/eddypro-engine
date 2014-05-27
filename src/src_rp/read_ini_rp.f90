@@ -39,7 +39,7 @@ subroutine ReadIniRP(key)
     !> local variables
     logical :: IniFileNotFound
 
-    call log_msg(' inf=reading EddyPro project file for processing setup')
+
     write(*,'(a)') ' Reading EddyPro project file: ' &
                      // PrjPath(1:len_trim(PrjPath)) // '..'
 
@@ -47,19 +47,18 @@ subroutine ReadIniRP(key)
     call ParseIniFile(PrjPath, 'Project', EPPrjNTags, EPPrjCTags,&
         size(EPPrjNTags), size(EPPrjCTags), SNTagFound, SCTagFound, IniFileNotFound)
 
-    if (IniFileNotFound) call ErrorHandle(0, 0, 21)
+    if (IniFileNotFound) call ExceptionHandler(21)
     call WriteProcessingProjectVariables()
 
     !> parse processing.eddypro file and store all numeric and character tags
     call ParseIniFile(PrjPath, key, SNTags, SCTags, size(SNTags), size(SCTags),&
         SNTagFound, SCTagFound, IniFileNotFound)
 
-    if (IniFileNotFound) call ErrorHandle(0, 0, 21)
+    if (IniFileNotFound) call ExceptionHandler(21)
     !> selects only tags needed in this software, and store them in relevant variables
     call WriteVariablesRP()
 
     write(*,'(a)')   ' done.'
-    call log_msg(' inf=EddyPro project file read correctly')
 end subroutine ReadIniRP
 
 !***************************************************************************
@@ -478,7 +477,7 @@ subroutine WriteVariablesRP()
             end if
         end do
         if (PFSetup%num_sec == 0) then
-            call ErrorHandle(0, 0, 40)
+            call ExceptionHandler(40)
             PFSetup%num_sec = 1
         elseif (PFSetup%num_sec == 1) then
             PFSetup%wsect_end(PFSetup%num_sec) = 360
@@ -502,14 +501,14 @@ subroutine WriteVariablesRP()
         TOSetup%gas4_min_flux = SNTags(196)%value
         TOSetup%le_min_flux   = SNTags(197)%value
         TOSetup%pg_range      = SNTags(198)%value
-        TOSetup%co2_min_lag   = SNTags(199)%value
-        TOSetup%co2_max_lag   = SNTags(200)%value
-        TOSetup%h2o_min_lag   = SNTags(201)%value
-        TOSetup%h2o_max_lag   = SNTags(202)%value
-        TOSetup%ch4_min_lag   = SNTags(203)%value
-        TOSetup%ch4_max_lag   = SNTags(204)%value
-        TOSetup%gas4_min_lag  = SNTags(205)%value
-        TOSetup%gas4_max_lag  = SNTags(206)%value
+        TOSetup%min_lag(co2)   = SNTags(199)%value
+        TOSetup%max_lag(co2)   = SNTags(200)%value
+        TOSetup%min_lag(h2o)   = SNTags(201)%value
+        TOSetup%max_lag(h2o)   = SNTags(202)%value
+        TOSetup%min_lag(ch4)   = SNTags(203)%value
+        TOSetup%max_lag(ch4)   = SNTags(204)%value
+        TOSetup%min_lag(gas4)  = SNTags(205)%value
+        TOSetup%max_lag(gas4)  = SNTags(206)%value
         TOSetup%h2o_nclass    = nint(SNTags(207)%value)
         if (TOSetup%h2o_nclass > 1) then
             TOSetup%h2o_class_size = floor(100d0 / TOSetup%h2o_nclass)

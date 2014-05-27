@@ -30,15 +30,18 @@
 ! \deprecated
 ! \test
 !***************************************************************************
-subroutine InitExternalBiomet()
+subroutine InitExternalBiomet(BiometFileList, N)
     use m_rp_global_var
     implicit none
+    !> In/out variables
+    integer, intent(in) :: N
+    type (FilelistType), intent(out) :: BiometFileList(N)
+    !> Local variables
     integer :: i
     integer :: ii
     integer :: j
     integer :: jj
     integer :: nbiomet
-    integer :: nfile
     integer :: nfl
     integer :: open_status
     integer :: read_status
@@ -47,17 +50,12 @@ subroutine InitExternalBiomet()
     character(32) :: text_vars(1000)
     character(1024) :: datastring
     character(64) :: tstamp_string
-    type (FilelistType) :: BiometFileList(1000)
 
 
-    call log_msg(' inf=initializing external biomet usage.')
     write(*, '(a)', advance = 'no') ' Initializing external biomet usage..'
 
+    !> Retrieve list of biomet files
     if (EddyProProj%biomet_data == 'ext_file') then
-        LogString = ' biomet_file_in=' // AuxFile%biomet(1:len_trim(AuxFile%biomet))
-        call DoubleCharInString(LogString, slash)
-        call log_msg(LogString)
-        nfile = 1
         BiometFileList(1)%path = AuxFile%biomet
     elseif (EddyProProj%biomet_data == 'ext_dir') then
         call FileListByExt(Dir%biomet, trim(adjustl(EddyProProj%biomet_tail)), .false., 'none', .false., &
@@ -67,19 +65,17 @@ subroutine InitExternalBiomet()
     BiometUnits = NullBiometUnits
     ProfileUnits = NullProfileUnits
     i = 0
-    file_loop: do nfl = 1, nfile
-        !> Open biomet measurement file(s) and read data, selecting those in plausible ranges
+    file_loop: do nfl = 1, N
+
+        !> Open biomet measurement file(s) and read data
         open(udf, file = BiometFileList(nfl)%path, status = 'old', iostat = open_status)
-        write(LogLogical, '(L1)') open_status
-        LogString = ' open_error=' //Loglogical
-        call log_msg(LogString)
 
         Biomet(1:MaxNumBiometRow) = ErrBiomet
         if (open_status == 0) then
             !> Interpret file header or "header string"
             call ReadBiometHeader(udf)
             NumBiometVar = NumSlowVar
-            !> Preliminarly define date prototype
+            !> Preliminarily define date prototype
             BiometSetup%tstamp_prototype = ''
             do ii = 1, NumSlowVar
                 if (index(BiometOrd(ii)%var, 'TIMESTAMP') /= 0) then
@@ -395,17 +391,15 @@ subroutine InitExternalBiomet()
                             end if
                         end do
                     end if
-
                 end do var_loop
 
                 call BiometDateTime(trim(adjustl(BiometSetup%tstamp_prototype)), &
                     tstamp_string, Biomet(i)%date, Biomet(i)%time)
 
             end do rec_loop
-            !exit file_loop
+            exit file_loop
         else
-            call log_msg( ' err=error while reading biomet file. file skipped.')
-            call ErrorHandle(0, 0, 2)
+            call ExceptionHandler(2)
         end if
     end do file_loop
     nbiomet = i
@@ -489,11 +483,11 @@ subroutine ReadBiometHeader(unt)
     !> Adjust all Header labels: capitalize and schrinks
     do i = 1, cnt
         call uppercase(HeaderVars(i))
-        call SchrinkString(HeaderVars(i))
+        call ShrinkString(HeaderVars(i))
         !> But not for timestamp labels (capitalization meaningful)
         if(index(HeaderVars(i), 'TIMESTAMP') == 0) then
             call uppercase(HeaderUnits(i))
-            call SchrinkString(HeaderUnits(i))
+            call ShrinkString(HeaderUnits(i))
         end if
     end do
 
@@ -543,6 +537,7 @@ subroutine ReadBiometHeader(unt)
         end do
     end if
 end subroutine ReadBiometHeader
+
 !***************************************************************************
 !
 ! \brief       Retrieve time step intrinsic in Biomet file (in minutes)

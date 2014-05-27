@@ -347,26 +347,25 @@ subroutine ExperimentalLPTF(shape, nf, N, BPTF)
     character(*), intent(in) :: shape
     type(BPTFType), intent(out) :: BPTF(N)
 
-
     !> experimental transfer function, Fratini et al. 2012, Eq. 1 and 3
     if (shape == 'iir') then
         if (f_c(co2) /= error) then
-            BPTF(1:N)%EXP(w_co2) = dsqrt(1d0 / (1d0 + (nf(1:N) / f_c(co2))**2))
+            BPTF(1:N)%EXP(w_co2) = 1d0 / (1d0 + (nf(1:N) / f_c(co2))**2)
         else
             BPTF(:)%EXP(w_co2) = 1d0
         end if
         if (f_c(h2o) /= error) then
-            BPTF(1:N)%EXP(w_h2o) = dsqrt(1d0 / (1d0 + (nf(1:N) / f_c(h2o))**2))
+            BPTF(1:N)%EXP(w_h2o) = 1d0 / (1d0 + (nf(1:N) / f_c(h2o))**2)
         else
             BPTF(:)%EXP(w_h2o) = 1d0
         end if
         if (f_c(ch4) /= error) then
-            BPTF(1:N)%EXP(w_ch4) = dsqrt(1d0 / (1d0 + (nf(1:N) / f_c(ch4))**2))
+            BPTF(1:N)%EXP(w_ch4) = 1d0 / (1d0 + (nf(1:N) / f_c(ch4))**2)
         else
             BPTF(:)%EXP(w_ch4) = 1d0
         end if
         if (f_c(gas4) /= error) then
-            BPTF(1:N)%EXP(w_gas4) = dsqrt(1d0 / (1d0 + (nf(1:N) / f_c(gas4))**2))
+            BPTF(1:N)%EXP(w_gas4) = 1d0 / (1d0 + (nf(1:N) / f_c(gas4))**2)
         else
             BPTF(:)%EXP(w_gas4) = 1d0
         end if

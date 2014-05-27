@@ -53,7 +53,7 @@ subroutine BinnedFrequencyVector(lEx, bnf, N)
     else
         call log_msg(' err=acquisition frequency seems to be <= 0. &
                      &low-pass spectral correction not applied.')
-        call ErrorHandle(2, 0, 5)
+        call ErrorHandle(0, 0, 66)
         EddyProProj%hf_meth = 'none'
     end if
     call log_msg(' inf=array created correctly.')

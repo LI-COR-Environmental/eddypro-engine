@@ -60,13 +60,10 @@ subroutine InitOutFiles_rp()
     character(10000) :: dataline = ''
     integer :: today(3), now(3)
     character(8) :: dum_string
-    character(1024) :: command
     character(MaxOutstringLen) :: string
     logical :: proceed
     logical, external :: NewerSwVer
-!    character(kind=utf8,len=10), parameter :: mymu = char(int(z'3bc'),utf8)
 
-    call log_msg(' inf=creating output directories and files')
 
     !> Convenient strings
     e2sg(u)   = 'u_'
@@ -89,20 +86,7 @@ subroutine InitOutFiles_rp()
     end do
 
     !> Create output directory if it does not exist
-    LogString = ' rp_out_dir=' // Dir%main_out(1:len_trim(Dir%main_out))
-    call DoubleCharInString(LogString, slash)
-    call log_msg(LogString)
     mkdir_status = CreateDir('"' //Dir%main_out(1:len_trim(Dir%main_out)) // '"')
-    write(LogLogical, '(L1)') mkdir_status
-    LogString = ' mkdir_error=' // LogLogical
-    call log_msg(LogString)
-
-
-    !> First, copy ".eddypro" file into output folder
-    command = comm_copy // trim(adjustl(PrjPath)) // ' ' &
-        // '"' // Dir%main_out(1:len_trim(Dir%main_out)) // 'processing' &
-        // Timestamp_FilePadding // '.eddypro" ' // comm_out_redirect
-    call system(command)
 
     !> Create sub-directory
     !> Stats dir
@@ -115,13 +99,7 @@ subroutine InitOutFiles_rp()
     end do
     if (proceed) then
         StatsDir = Dir%main_out(1:len_trim(Dir%main_out)) // SubDirStats // slash
-        LogString = ' rp_stats_dir=' // StatsDir(1:len_trim(StatsDir))
-        call DoubleCharInString(LogString, slash)
-        call log_msg(LogString)
         mkdir_status = CreateDir('"' // StatsDir(1:len_trim(StatsDir)) // '"')
-        write(LogLogical, '(L1)') mkdir_status
-        LogString = ' mkdir_error=' // LogLogical
-        call log_msg(LogString)
     end if
     !> Raw dataset dir
     proceed = .false.
@@ -133,13 +111,7 @@ subroutine InitOutFiles_rp()
     end do
     if (proceed) then
         RawDir = Dir%main_out(1:len_trim(Dir%main_out)) // SubDirRaw // slash
-        LogString = ' rp_raw_dir=' // RawDir(1:len_trim(RawDir))
-        call DoubleCharInString(LogString, slash)
-        call log_msg(LogString)
         mkdir_status = CreateDir('"' // RawDir(1:len_trim(RawDir)) // '"')
-        write(LogLogical, '(L1)') mkdir_status
-        LogString = ' mkdir_error=' // LogLogical
-        call log_msg(LogString)
         !> Create subfolders for selected outputs
         if (RPsetup%out_raw(1)) then
             RawSubDir(1) = RawDir(1:len_trim(RawDir)) // 'level_1' // slash
@@ -174,24 +146,12 @@ subroutine InitOutFiles_rp()
     !> Binned cospectral dir
     if (RPsetup%out_bin_sp) then
         BinCospectraDir = Dir%main_out(1:len_trim(Dir%main_out)) // SubDirBinCospectra // slash
-        LogString = ' rp_bincosp_dir=' // BinCospectraDir(1:len_trim(BinCospectraDir))
-        call DoubleCharInString(LogString, slash)
-        call log_msg(LogString)
         mkdir_status = CreateDir('"' // BinCospectraDir(1:len_trim(BinCospectraDir)) // '"')
-        write(LogLogical, '(L1)') mkdir_status
-        LogString = ' mkdir_error=' // LogLogical
-        call log_msg(LogString)
     end if
     !> Binned ogive dir
     if (RPsetup%out_bin_og) then
         BinOgivesDir = Dir%main_out(1:len_trim(Dir%main_out)) // SubDirBinOgives // slash
-        LogString = ' rp_binogive_dir=' // BinOgivesDir(1:len_trim(BinOgivesDir))
-        call DoubleCharInString(LogString, slash)
-        call log_msg(LogString)
         mkdir_status = CreateDir('"' // BinOgivesDir(1:len_trim(BinOgivesDir)) // '"')
-        write(LogLogical, '(L1)') mkdir_status
-        LogString = ' mkdir_error=' // LogLogical
-        call log_msg(LogString)
     end if
     !> Full cospectra dir
     !> (First determine if at least one full (co)spectrum has to be written on output)
@@ -204,13 +164,7 @@ subroutine InitOutFiles_rp()
     end do
     if (proceed) then
         CospectraDir = Dir%main_out(1:len_trim(Dir%main_out)) // SubDirCospectra // slash
-        LogString = ' rp_fullcosp_dir=' // CospectraDir(1:len_trim(CospectraDir))
-        call DoubleCharInString(LogString, slash)
-        call log_msg(LogString)
         mkdir_status = CreateDir('"' // CospectraDir(1:len_trim(CospectraDir)) // '"')
-        write(LogLogical, '(L1)') mkdir_status
-        LogString = ' mkdir_error=' // LogLogical
-        call log_msg(LogString)
     end if
 
     !> Open full output file and writes header
@@ -220,13 +174,7 @@ subroutine InitOutFiles_rp()
                   // FullOut_FilePadding // Timestamp_FilePadding // CsvExt
         dot = index(Test_Path, CsvExt, .true.) - 1
         FullOut_Path = Test_Path(1:dot) // CsvTmpExt
-        LogString = ' rp_fullout_file=' // FullOut_Path(1:len_trim(FullOut_Path))
-        call DoubleCharInString(LogString, slash)
-        call log_msg(LogString)
         open(uflx, file = FullOut_Path, iostat = open_status, encoding = 'utf-8')
-        write(LogLogical, '(L1)') open_status
-        LogString = ' create_file_error=' // LogLogical
-        call log_msg(LogString)
 
         !> Initialize header strings to void
         call Clearstr(header1)
@@ -660,13 +608,7 @@ subroutine InitOutFiles_rp()
                   // Biomet_FilePadding // Timestamp_FilePadding // CsvExt
         dot = index(Test_Path, CsvExt, .true.) - 1
         Slow_Path = Test_Path(1:dot) // CsvTmpExt
-        LogString = ' slow_file=' // Slow_Path(1:len_trim(Slow_Path))
-        call DoubleCharInString(LogString, slash)
-        call log_msg(LogString)
         open(uslow, file = Slow_Path, iostat = open_status, encoding = 'utf-8')
-        write(LogLogical, '(L1)') open_status
-        LogString = ' create_file_error=' // LogLogical
-        call log_msg(LogString)
 
         !> Initialize string to void
         call Clearstr(header1)
@@ -1118,13 +1060,7 @@ subroutine InitOutFiles_rp()
                   // Essentials_FilePadding // Timestamp_FilePadding // CsvExt
         dot = index(Test_Path, CsvExt, .true.) - 1
         Essentials_Path = Test_Path(1:dot) // CsvTmpExt
-        LogString = ' ex_file=' // Essentials_Path(1:len_trim(Essentials_Path))
-        call DoubleCharInString(LogString, slash)
-        call log_msg(LogString)
         open(uex, file = Essentials_Path, iostat = open_status, encoding = 'utf-8')
-        write(LogLogical, '(L1)') open_status
-        LogString = ' create_file_error=' // LogLogical
-        call log_msg(LogString)
 
         string = 'filename,date,time,daytime,file_records,used_records,&
             &Tau,ru_Tau,H,ru_H,LE,ru_LE,co2_flux,ru_co2,h2o_flux,ru_h2o,ch4_flux,ru_ch4,' &
@@ -1210,13 +1146,7 @@ subroutine InitOutFiles_rp()
                   // GHGEUROPE_FilePadding // Timestamp_FilePadding // CsvExt
         dot = index(Test_Path, CsvExt, .true.) - 1
         GHGEUROPE_Path = Test_Path(1:dot) // CsvTmpExt
-        LogString = ' flxnt_file=' // GHGEUROPE_Path(1:len_trim(GHGEUROPE_Path))
-        call DoubleCharInString(LogString, slash)
-        call log_msg(LogString)
         open(ughgeu, file = GHGEUROPE_Path, iostat = open_status, encoding = 'utf-8')
-        write(LogLogical, '(L1)') open_status
-        LogString = ' create_file_error=' // LogLogical
-        call log_msg(LogString)
 
         !> Initialize header strings to void
         call Clearstr(header1)
@@ -1327,13 +1257,8 @@ subroutine InitOutFiles_rp()
                   // AmeriFlux_FilePadding // Timestamp_FilePadding // CsvExt
         dot = index(Test_Path, CsvExt, .true.) - 1
         AmeriFlux_Path = Test_Path(1:dot) // CsvTmpExt
-        LogString = ' flxnt_file=' // AmeriFlux_Path(1:len_trim(AmeriFlux_Path))
-        call DoubleCharInString(LogString, slash)
-        call log_msg(LogString)
         open(uaflx, file = AmeriFlux_Path, iostat = open_status, encoding = 'utf-8')
-        write(LogLogical, '(L1)') open_status
-        LogString = ' create_file_error=' // LogLogical
-        call log_msg(LogString)
+
         write(uaflx, '(a)') 'Sitename:' // Metadata%sitename(1:len_trim(Metadata%sitename))
         write(uaflx, '(a, f12.7, a, f12.7, a, f6.0)') 'Location: Latitude: ', Metadata%lat, &
             ' - Longitude: ', Metadata%lon, ' - Elevation (masl): ', Metadata%alt
@@ -1395,13 +1320,8 @@ subroutine InitOutFiles_rp()
                   // MetaData_FilePadding // Timestamp_FilePadding // CsvExt
         dot = index(Test_Path, CsvExt, .true.) - 1
         Metadata_Path = Test_Path(1:dot) // CsvTmpExt
-        LogString = ' md_file=' // Metadata_Path(1:len_trim(Metadata_Path))
-        call DoubleCharInString(LogString, slash)
-        call log_msg(LogString)
         open(umd, file = Metadata_Path, iostat = open_status, encoding = 'utf-8')
-        write(LogLogical, '(L1)') open_status
-        LogString = ' create_file_error=' // LogLogical
-        call log_msg(LogString)
+
         call Clearstr(dataline)
         call AddDatum(dataline,'filename,date,time,DOY,latitude,longitude,altitude,canopy_height,displacement_height,&
             &roughness_length,file_length,acquisition_frequency,&
@@ -1452,13 +1372,7 @@ subroutine InitOutFiles_rp()
                   // QCdetails_FilePadding // Timestamp_FilePadding // CsvExt
         dot = index(Test_Path, CsvExt, .true.) - 1
         QCdetails_Path = Test_Path(1:dot) // CsvTmpExt
-        LogString = ' qc_file=' // QCdetails_Path(1:len_trim(QCdetails_Path))
-        call DoubleCharInString(LogString, slash)
-        call log_msg(LogString)
         open(uqc, file = QCdetails_Path, iostat = open_status, encoding = 'utf-8')
-        write(LogLogical, '(L1)') open_status
-        LogString = ' create_file_error=' // LogLogical
-        call log_msg(LogString)
 
         call Clearstr(header1)
         call Clearstr(header2)
@@ -1466,7 +1380,6 @@ subroutine InitOutFiles_rp()
         call Clearstr(head1_utf8)
         call Clearstr(head2_utf8)
         call Clearstr(head3_utf8)
-
         call AddDatum(header1,'file_info,,,,stationarity test,,', separator)
         call AddDatum(header2,'filename,date,time,DOY,dev(u),dev(w),dev(ts)', separator)
         call AddDatum(header3,',[yyyy-mm-dd],[HH:MM],[ddd.ddd],[%],[%],[%]', separator)
@@ -1565,13 +1478,8 @@ subroutine InitOutFiles_rp()
                   // Stats1_FilePadding // Timestamp_FilePadding // CsvExt
         dot = index(Test_Path, CsvExt, .true.) - 1
         St1_Path = Test_Path(1:dot) // CsvTmpExt
-        LogString = ' st1_file=' // St1_Path(1:len_trim(St1_Path))
-        call DoubleCharInString(LogString, slash)
-        call log_msg(LogString)
         open(ust1, file = St1_Path, iostat = open_status, encoding = 'utf-8')
-        write(LogLogical, '(L1)') open_status
-        LogString = ' create_file_error=' // LogLogical
-        call log_msg(LogString)
+
         write(ust1, '(a)') 'first_statistics:_on_raw_data'
         write(ust1, '(a)') 'filename,date,time,DOY,used_records,&
                            &mean(u),mean(v),mean(w),mean(ts),mean(co2),mean(h2o),&
@@ -1601,13 +1509,8 @@ subroutine InitOutFiles_rp()
                   // Stats2_FilePadding // Timestamp_FilePadding // CsvExt
         dot = index(Test_Path, CsvExt, .true.) - 1
         St2_Path = Test_Path(1:dot) // CsvTmpExt
-        LogString = ' st2_file=' // St2_Path(1:len_trim(St2_Path))
-        call DoubleCharInString(LogString, slash)
-        call log_msg(LogString)
         open(ust2, file = St2_Path, iostat = open_status, encoding = 'utf-8')
-        write(LogLogical, '(L1)') open_status
-        LogString = ' create_file_error=' // LogLogical
-        call log_msg(LogString)
+
         write(ust2, '(a)') 'second_statistics:_on_raw_data_after_after_despiking'
         write(ust2, '(a)') 'filename,date,time,DOY,used_records,&
                            &mean(u),mean(v),mean(w),mean(ts),mean(co2),mean(h2o),&
@@ -1637,13 +1540,8 @@ subroutine InitOutFiles_rp()
                   // Stats3_FilePadding // Timestamp_FilePadding // CsvExt
         dot = index(Test_Path, CsvExt, .true.) - 1
         St3_Path = Test_Path(1:dot) // CsvTmpExt
-        LogString = ' st3_file=' // St3_Path(1:len_trim(St3_Path))
-        call DoubleCharInString(LogString, slash)
-        call log_msg(LogString)
         open(ust3, file = St3_Path, iostat = open_status, encoding = 'utf-8')
-        write(LogLogical, '(L1)') open_status
-        LogString = ' create_file_error=' // LogLogical
-        call log_msg(LogString)
+
         write(ust3, '(a)') 'third_statistics:_on_raw_data_after_after_despiking_and_cross-wind_correction'
         write(ust3, '(a)') 'filename,date,time,DOY,used_records,&
                            &mean(u),mean(v),mean(w),mean(ts),mean(co2),mean(h2o),&
@@ -1673,13 +1571,8 @@ subroutine InitOutFiles_rp()
                   // Stats4_FilePadding // Timestamp_FilePadding // CsvExt
         dot = index(Test_Path, CsvExt, .true.) - 1
         St4_Path = Test_Path(1:dot) // CsvTmpExt
-        LogString = ' st4_file=' // St4_Path(1:len_trim(St4_Path))
-        call DoubleCharInString(LogString, slash)
-        call log_msg(LogString)
         open(ust4, file = St4_Path, iostat = open_status, encoding = 'utf-8')
-        write(LogLogical, '(L1)') open_status
-        LogString = ' create_file_error=' // LogLogical
-        call log_msg(LogString)
+
         write(ust4, '(a)') 'forth statistics:_on_raw_data_after_despiking_cross_wind_correction&
                             &_and_angle-of-attack_correction'
         write(ust4, '(a)') 'filename,date,time,DOY,used_records,&
@@ -1710,13 +1603,8 @@ subroutine InitOutFiles_rp()
                   // Stats5_FilePadding // Timestamp_FilePadding // CsvExt
         dot = index(Test_Path, CsvExt, .true.) - 1
         St5_Path = Test_Path(1:dot) // CsvTmpExt
-        LogString = ' st5_file=' // St5_Path(1:len_trim(St5_Path))
-        call DoubleCharInString(LogString, slash)
-        call log_msg(LogString)
         open(ust5, file = St5_Path, iostat = open_status, encoding = 'utf-8')
-        write(LogLogical, '(L1)') open_status
-        LogString = ' create_file_error=' // LogLogical
-        call log_msg(LogString)
+
         write(ust5, '(a)') 'fifth_statistics:_on_raw_data_after_despiking_cross_wind_correction&
                             &_angle-of-attack_correction_and_double_rotation'
         write(ust5, '(a)') 'filename,date,time,DOY,used_records,&
@@ -1747,13 +1635,8 @@ subroutine InitOutFiles_rp()
                   // Stats6_FilePadding // Timestamp_FilePadding // CsvExt
         dot = index(Test_Path, CsvExt, .true.) - 1
         St6_Path = Test_Path(1:dot) // CsvTmpExt
-        LogString = ' st6_file=' // St6_Path(1:len_trim(St6_Path))
-        call DoubleCharInString(LogString, slash)
-        call log_msg(LogString)
         open(ust6, file = St6_Path, iostat = open_status, encoding = 'utf-8')
-        write(LogLogical, '(L1)') open_status
-        LogString = ' create_file_error=' // LogLogical
-        call log_msg(LogString)
+
         write(ust6, '(a)') 'sixth statistics:_on_raw_data_after_despiking_cross_wind_correction&
             &_angle-of-attack_correction_double_rotation_and_time-lag_compensation'
         write(ust6, '(a)') 'filename,date,time,DOY,used_records,&
@@ -1784,13 +1667,8 @@ subroutine InitOutFiles_rp()
                   // Stats7_FilePadding // Timestamp_FilePadding // CsvExt
         dot = index(Test_Path, CsvExt, .true.) - 1
         St7_Path = Test_Path(1:dot) // CsvTmpExt
-        LogString = ' st7_file=' // St7_Path(1:len_trim(St7_Path))
-        call DoubleCharInString(LogString, slash)
-        call log_msg(LogString)
         open(ust7, file = St7_Path, iostat = open_status, encoding = 'utf-8')
-        write(LogLogical, '(L1)') open_status
-        LogString = ' create_file_error=' // LogLogical
-        call log_msg(LogString)
+
         write(ust7, '(a)') 'seventh_statistics:seventh_statistics:_on_raw_data_after_despiking_cross_wind_correction&
             &_angle-of-attack_correction_double_rotation_time-lag_compensation_and_detrending'
         write(ust7, '(a)') 'filename,date,time,DOY,used_records,&
@@ -1813,6 +1691,4 @@ subroutine InitOutFiles_rp()
                            &kur(u),kur(v),kur(w),kur(ts),kur(co2),kur(h2o),&
                            &kur(ch4),kur(' // e2sg(gas4)(1:len_trim(e2sg(gas4)) - 1) // '),kur(tc),kur(pc),kur(te),kur(pe)'
     end if
-
-    call log_delimiter(LOG_LEVEL_SUBSECTION)
 end subroutine InitOutFiles_rp

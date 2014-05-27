@@ -41,15 +41,6 @@ module m_fx_global_var
     type(FootType) :: Foot
     type(FCCMetadataType) :: FCCMetadata
 
-    type(SpectraSetType), parameter :: &
-        ErrSpec = SpectraSetType(0, error, error, error)
-    type(SpectraSetType), parameter :: &
-        NullSpec = SpectraSetType(0, 0d0, 0d0, 0d0)
-    type(MeanSpectraType), parameter :: &
-        NullMeanSpec = MeanSpectraType(0, 0, 0d0, 0d0, 0d0)
-    type(FitSpectraType), parameter :: &
-        NullFitCosp = FitSpectraType(0d0, 0d0)
-
     !> tags of the setup ".ini" file for eccoce
     integer, parameter :: Nsn = 96
     integer, parameter :: Nsc = 22

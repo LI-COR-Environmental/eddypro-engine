@@ -55,7 +55,6 @@ subroutine FitRh2Fco()
     integer :: cls2
     integer :: cnt
     integer :: cnt2
-    real(kind = dbl) :: avrg_fc = 0d0
     real(kind = dbl), allocatable  :: fvec(:), fjac(:,:)
     integer, parameter :: npar_EXP = 3
     integer :: info, ipvt_EXP(npar_EXP)
@@ -79,7 +78,6 @@ subroutine FitRh2Fco()
         !> fit exponential model analytically, such that the exponential function
         !> provides a constant value, equal to the mean value of f_cutoff among all
         !> RH classes
-        call log_msg(' inf=fitting cut-off frequencies versus RH')
         write(*, '(a)', advance = 'no') ' Open-path H2O analyser: analytic fitting of cut-off frequencies vs. RH.. '
         mean_fc = 0d0
         cnt2 = 0
@@ -95,7 +93,6 @@ subroutine FitRh2Fco()
         RegPar(dum, dum)%e3 = dlog(mean_fc)
     else
         !> Fit exponential model by least squares minimization
-        call log_msg(' inf=fitting cut-off frequencies versus RH')
         write(*, '(a)', advance = 'no') ' Fitting in-situ assessment of cut-off frequencies vs. RH.. '
 
         !> Initialization of function parameters (see Ibrom et al. 2007, AFM)
@@ -130,14 +127,17 @@ subroutine FitRh2Fco()
             RegPar(dum, dum)%e3 = EXPPar(3)
         elseif(m == 2) then
             cnt = 0
-            avrg_fc = 0d0
+            mean_fc = 0d0
             do cls = RH10, RH90
                 if (RegPar(h2o, cls)%fc /= error) then
                     cnt = cnt + 1
-                    avrg_fc = avrg_fc + RegPar(h2o, cls)%fc
+                    mean_fc = mean_fc + RegPar(h2o, cls)%fc
                     if (cnt == 2) then
-                        avrg_fc = avrg_fc / cnt
-                        RegPar(h2o, RH10:RH90)%fc = avrg_fc
+                        mean_fc = mean_fc / cnt
+                        RegPar(h2o, RH10:RH90)%fc = mean_fc
+                        RegPar(dum, dum)%e1 = 1d-15
+                        RegPar(dum, dum)%e2 = 1d-15
+                        RegPar(dum, dum)%e3 = dlog(mean_fc)
                         exit
                     end if
                 end if
@@ -146,6 +146,9 @@ subroutine FitRh2Fco()
             do cls = RH10, RH90
                 if (RegPar(h2o, cls)%fc /= error) then
                     RegPar(h2o, RH10:RH90)%fc = RegPar(h2o, cls)%fc
+                    RegPar(dum, dum)%e1 = 1d-15
+                    RegPar(dum, dum)%e2 = 1d-15
+                    RegPar(dum, dum)%e3 = dlog(RegPar(h2o, cls)%fc)
                     exit
                 end if
             end do
@@ -155,7 +158,7 @@ subroutine FitRh2Fco()
             RegPar(dum, dum)%e3 = error
         endif
 
-        !> Now that the regession is done, sets Fc which are at -9999, to the closest valid value.
+        !> Now that the regression is done, sets Fc which are at -9999, to the closest valid value.
         if (m >= 3) then
             !> For low RH classes, uses higher ones
             do cls = RH50, RH10, - 1
@@ -189,5 +192,4 @@ subroutine FitRh2Fco()
     if (allocated(ddum)) deallocate(ddum)
 
     write(*, '(a)') 'Done.'
-    call log_msg(' inf=fit calculated correctly.')
 end subroutine FitRh2Fco

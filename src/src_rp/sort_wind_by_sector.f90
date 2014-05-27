@@ -45,12 +45,9 @@ subroutine SortWindBySector(Wind, nrow, NumElem, WindBySect)
 
 
     write(*, '(a)') ' Sorting wind data by sector..'
-    call log_msg(' inf=sorting wind data by sector.')
     write(LogInteger, '(i2)') PFSetup%num_sec
-    call SchrinkString(LogInteger)
-    write(*, '(a, i1, a)') '  '// LogInteger(1:len_trim(LogInteger))&
+    write(*, '(a, i1, a)') '  '// adjustl(trim(LogInteger)) &
         // ' wind sector(s) selected.'
-    LogString = 'num_sec=' // LogInteger(1:len_trim(LogInteger))
 
     NumElem = 0
     do i = 1, nrow
@@ -69,17 +66,6 @@ subroutine SortWindBySector(Wind, nrow, NumElem, WindBySect)
             WindBySect(NumElem(sec), u:w, sec) = Wind(i, u:w)
         end if
     end do
-    write(*, '(a)')   ' Done.'
 
-    do i = 1, PFSetup%num_sec
-        write(LogInteger, '(i2)') i
-        call SchrinkString(LogInteger)
-        LogString = ' ndata_sect' // LogInteger(1:len_trim(LogInteger)) // '='
-        write(LogInteger, '(i6)') NumElem(i)
-        call SchrinkString(LogInteger)
-        LogString = LogString(1:len_trim(LogString)) &
-                  // LogInteger(1:len_trim(LogInteger))
-        call log_msg(LogString)
-    end do
-    call log_msg(' inf=wind data sorted correctly.')
+    write(*, '(a)')   ' Done.'
 end subroutine SortWindBySector

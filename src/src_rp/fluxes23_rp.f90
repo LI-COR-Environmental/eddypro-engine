@@ -836,7 +836,7 @@ subroutine Fluxes23_rp()
         Tp = error
     end if
 
-    !> Monin-Obukhov length (L = - (Tp^ /(k*g))*(ustar**3/(w'Tp')^ in m)
+    !> Monin-Obukhov length (L = - (Tp^ /(k*g))*(ustar**3/(w'Tp') in m)
     if (Flux3%H /= 0d0 .and. Flux3%H /= error .and. &
         LitePar%RhoCp > 0d0 .and. LitePar%us >= 0d0 .and. Tp > error) then
         LitePar%L = -Tp * (LitePar%us**3) / (vk * g * Flux3%H / LitePar%RhoCp)

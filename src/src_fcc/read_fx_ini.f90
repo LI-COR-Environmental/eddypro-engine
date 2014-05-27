@@ -37,7 +37,6 @@ subroutine ReadIniFX(key)
     !> local variables
     logical :: IniFileNotFound
 
-    call log_msg(' inf=reading EddyPro project file for processing setup')
     write(*,'(a)') ' Reading EddyPro project file: ' &
                      // PrjPath(1:len_trim(PrjPath)) // '..'
 
@@ -45,19 +44,18 @@ subroutine ReadIniFX(key)
     call ParseIniFile(PrjPath, 'Project', EPPrjNTags, EPPrjCTags,&
         size(EPPrjNTags), size(EPPrjCTags), SNTagFound, SCTagFound, IniFileNotFound)
 
-    if (IniFileNotFound) call ErrorHandle(0, 0, 21)
+    if (IniFileNotFound) call ExceptionHandler(21)
     call WriteProcessingProjectVariables()
 
     !> parse processing.eddypro file and store all numeric and character tags
     call ParseIniFile(PrjPath, key, SNTags, SCTags, size(SNTags), size(SCTags),&
         SNTagFound, SCTagFound, IniFileNotFound)
 
-    if (IniFileNotFound) call ErrorHandle(0, 0, 21)
+    if (IniFileNotFound) call ExceptionHandler(21)
     !> selects only tags needed in this software, and store them in relevant variables
     call WriteVariablesFX()
 
     write(*,'(a)')   ' done.'
-    call log_msg(' inf=EddyPro project file read correctly')
 end subroutine ReadIniFX
 
 !***************************************************************************
@@ -96,13 +94,17 @@ subroutine WriteVariablesFX()
         FCCsetup%SA%end_date   = '2100-12-31'
     end if
 
-    !> in/out files and folders
+    !> Essentials files
     AuxFile%ex = SCTags(7)%value(1:len_trim(SCTags(7)%value))
     if (len_trim(AuxFile%ex) == 0) AuxFile%ex = 'none'
+    !> Binned (co)spectra folder
     Dir%binned = SCTags(8)%value
-    if (len_trim(Dir%binned) == 0) Dir%binned = 'none'
+    if (len_trim(Dir%binned) == 0 .or. index(trim(Dir%binned), slash) == 0) &
+        Dir%binned = trim(Dir%main_out) // trim(SubDirBinCospectra)
+    !> Full (co)spectra folder
     Dir%full = SCTags(9)%value
-    if (len_trim(Dir%full) == 0) Dir%full = 'none'
+    if (len_trim(Dir%full) == 0 .or. index(trim(Dir%full), slash) == 0) &
+        Dir%full = trim(Dir%main_out) // trim(SubDirCospectra)
 
     !> Method of H correction
     select case (SCTags(13)%value(1:1))

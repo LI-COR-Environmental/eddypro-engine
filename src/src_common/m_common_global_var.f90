@@ -31,7 +31,6 @@
 ! \todo
 !***************************************************************************
 module m_common_global_var
-    use m_logger
     use m_typedef
     use m_dates
     use m_methane_tables
@@ -87,12 +86,9 @@ module m_common_global_var
     character(256) :: IniDir
     character(256) :: LogDir
     character(256) :: TmpDir
-    character(256) :: LogPath
     character(256) :: PrjPath
 
     character(18), parameter :: PrjFile   = 'processing.eddypro'
-    character(14), parameter :: LogFileRP = 'eddypro_rp.log'
-    character(15), parameter :: LogFileFX = 'eddypro_fcc.log'
     character(6), parameter :: licor_appdata = '.licor'
     character(18)  :: Timestamp_FilePadding
     character(7), parameter  :: EDDYPRO_FilePadding    = 'eddypro'
@@ -102,6 +98,8 @@ module m_common_global_var
     character(7),  parameter :: EC_FilePadding = '_fluxes'
     character(8),  parameter :: PF_FilePadding = '_tilting'
     character(8),  parameter :: TO_FilePadding = '_timelag'
+    character(24), parameter :: SubDirBinCospectra      = 'eddypro_binned_cospectra'
+    character(22), parameter :: SubDirCospectra         = 'eddypro_full_cospectra'
     character(22), parameter :: RS_flags_FilePadding    = '_statistical_screening'
     character(13), parameter :: RS_spike_FilePadding    = '_spike_counts'
     character(23), parameter :: Rot2D_FilePadding       = '_double_rotation_angles'
@@ -172,7 +170,6 @@ module m_common_global_var
     real(kind = dbl), parameter :: StdVair = 0.02245d0  !< gas molar volume at 25 °C and 101.325 kPa
     real(kind = dbl), parameter :: vk = 0.41d0 !< Von Karman constant
     real(kind = dbl), parameter :: Md = 0.02897d0 !< molecular weight of dry air [kg_d/mol_d]
-!    real(kind = dbl), parameter :: Mw = 0.01802d0 !< molecular weight of water vapour [kg_w mol_w-1]
     real(kind = dbl), parameter :: mu = Md / 18.02d-3
     real(kind = dbl), parameter :: kg_gamma = 0.95d0 !< for H correction after Kaimal and Gaynor (1991).
     real(kind = dbl), parameter :: g  = 9.81d0 !< gravity
@@ -238,8 +235,6 @@ module m_common_global_var
     character(4), parameter  :: LogExt                  = '.log'
 
     !> logging variables and parameters
-    character(1024) :: LogString
-    character(1) :: LogLogical
     character(10) :: LogInteger
     logical :: LogAll = .false. !< working variable, for debug only
     logical :: co2_new_sw_ver = .false.
@@ -265,6 +260,15 @@ module m_common_global_var
     integer, parameter :: gPi  = 15
     integer, parameter :: gTe  = 16
     integer, parameter :: gPe  = 17
+
+    type(SpectraSetType), parameter :: &
+        ErrSpec = SpectraSetType(0, error, error, error)
+    type(SpectraSetType), parameter :: &
+        NullSpec = SpectraSetType(0, 0d0, 0d0, 0d0)
+    type(MeanSpectraType), parameter :: &
+        NullMeanSpec = MeanSpectraType(0, 0, 0d0, 0d0, 0d0)
+    type(FitSpectraType), parameter :: &
+        NullFitCosp = FitSpectraType(0d0, 0d0)
 
     real(kind = dbl) :: StdFco(9)
     data (StdFco(mmm), mmm = 1, 9) / 0.004d0, 0.008d0, 0.016d0, 0.032d0, 0.065d0, 0.133d0, &

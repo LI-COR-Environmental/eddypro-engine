@@ -73,12 +73,8 @@ subroutine MakeDataset(PathIn, MasterTimeSeries, nrow, StartIndx, EndIndx, AddNo
 
     !> Open output file
     open(udf2, file = PathOut, iostat = open_status, encoding = 'utf-8')
-    write(LogLogical, '(L1)') open_status
-    LogString = ' create_file_error=' // LogLogical
-    call log_msg(LogString)
     if (open_status /= 0) then
-        call log_msg(' err=error while opening output file. dataset not created.')
-        call ErrorHandle(6, 0, 1)
+        call ExceptionHandler(67)
         return
     end if
 
@@ -178,7 +174,7 @@ subroutine AddErrorString(unt, Timestamp, ErrString, LenErrStr, IsGhgEuropeFile,
     call DateTypeToDateTime(Timestamp, date, time)
     call DateTimeToDOY(date, time, int_doy, float_doy)
     call WriteDatumFloat(float_doy, char_doy, EddyProProj%err_label)
-    call SchrinkString(char_doy)
+    call ShrinkString(char_doy)
 
     !> Create output string
     if (AddNoFile) then

@@ -157,14 +157,10 @@ subroutine ImportCurrentPeriod(InitialTimestamp, FinalTimestamp, FileList, NumFi
 
                 !> File skip control
                 if (skip_file .or. (.not.passed(1))) then
-                    if (skip_file) then
-                        call log_msg(' err=error while reading GHG archive. file skipped.')
-                        call ErrorHandle(0, 0, 24)
-                    end if
+                    if (skip_file) call ExceptionHandler(24)
                     if (.not.passed(1)) then
-                        call log_msg(' err=error while validating embedded metadata file. GHG archive skipped.')
                         call InformOfMetadataProblem(passed, faulty_col)
-                        call ErrorHandle(0, 0, 25)
+                        call ExceptionHandler(25)
                     end if
                     N = pN
                     bN = pbN
@@ -177,9 +173,9 @@ subroutine ImportCurrentPeriod(InitialTimestamp, FinalTimestamp, FileList, NumFi
                 call ImportNativeData(FileList(CurrentFile)%path, FirstRecord, LastRecord, &
                     LocCol, fRaw, size(fRaw, 1), size(fRaw, 2), skip_file, N, FileEndReached)
 
+                !> File skip control
                 if (skip_file) then
-                    call log_msg(' err=error while opening raw file. file skipped.')
-                    call ErrorHandle(0, 0, 28)
+                    call ExceptionHandler(28)
                     N = pN
                     CurrentFile = CurrentFile + 1
                     if (allocated(fRaw)) deallocate(fRaw)
@@ -231,7 +227,6 @@ subroutine ImportCurrentPeriod(InitialTimestamp, FinalTimestamp, FileList, NumFi
 
     !> Define NextFile
     NextFile = CurrentFile
-
     N = pN
     bN = pbN
 

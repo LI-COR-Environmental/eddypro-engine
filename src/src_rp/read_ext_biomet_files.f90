@@ -29,11 +29,14 @@
 ! \deprecated
 ! \test
 !***************************************************************************
-subroutine ReadExtBiometFiles(BiometDataExist, last_nfl, last_nrec, CurrentTimestamp, nbiomet)
+subroutine ReadExtBiometFiles(BiometDataExist, BiometFileList, NumBiometFiles, &
+        last_nfl, last_nrec, CurrentTimestamp, nbiomet)
     use m_rp_global_var
     implicit none
     !> in/out variables
-    type (DateType), intent(in) :: CurrentTimestamp
+    integer, intent(in) :: NumBiometFiles
+    type(FileListType), intent(in) :: BiometFileList(NumBiometFiles)
+    type(DateType), intent(in) :: CurrentTimestamp
     integer, intent(out) :: nbiomet
     logical, intent(out) :: BiometDataExist
     integer, intent(inout) :: last_nfl
@@ -52,20 +55,16 @@ subroutine ReadExtBiometFiles(BiometDataExist, last_nfl, last_nrec, CurrentTimes
     integer :: read_status
     integer :: var_num
     integer :: sepa
-    integer :: nfile
     integer :: ncstm
     character(32) :: text_vars(1000)
     character(1024) :: datastring
     character(64) :: tstamp_string
-    type (FilelistType) :: BiometFileList(1000)
     type (DateType) :: tol
     type (DateType) :: win
     type (DateType) :: biomet_date
     logical :: BiometPeriodHooked
     logical :: skip_init
 
-
-    call log_msg(' inf=importing biomet data from external file(s).')
 
     !> Initializations
     skip_init = .true.
@@ -74,14 +73,6 @@ subroutine ReadExtBiometFiles(BiometDataExist, last_nfl, last_nrec, CurrentTimes
     win = datetype(0, 0, 0, 0, RPsetup%avrg_len)
     tol = datetype(0, 0, 0, 0, max(BiometSetup%tstep, nint(BiometMeta%step)) / 2)
 
-    if (EddyProProj%biomet_data == 'ext_file') then
-        nfile = 1
-        BiometFileList(1)%path = AuxFile%biomet
-    elseif (EddyProProj%biomet_data == 'ext_dir') then
-        call FileListByExt(Dir%biomet, trim(adjustl(EddyProProj%biomet_tail)), .false., 'none', .false., &
-            .false., EddyProProj%biomet_recurse, BiometFileList, size(BiometFileList), .false., ' ')
-    end if
-
     !> Initialization
     Biomet(1:MaxNumBiometRow) = ErrBiomet
     Profile(1:MaxNumBiometRow) = ErrProfile
@@ -89,14 +80,10 @@ subroutine ReadExtBiometFiles(BiometDataExist, last_nfl, last_nrec, CurrentTimes
     i = 0
     nbiomet = 0
     BiometPeriodHooked = .false.
-    file_loop: do nfl = last_nfl, nfile
+    file_loop: do nfl = last_nfl, NumBiometFiles
         nrec = 0
         !> Open biomet measurement file(s) and read data, selecting those in plausible ranges
         open(udf, file = BiometFileList(nfl)%path, status = 'old', iostat = open_status)
-        write(LogLogical, '(L1)') open_status
-        LogString = ' open_error=' //Loglogical
-        call log_msg(LogString)
-
         if (open_status == 0) then
             BiometDataExist = .true.
 
@@ -125,6 +112,7 @@ subroutine ReadExtBiometFiles(BiometDataExist, last_nfl, last_nrec, CurrentTimes
                 var_num = 0
                 read(udf, '(a)', iostat = read_status) datastring
                 if (read_status < 0) then
+                    if (nfl < NumBiometFiles) i = i - 1
                     close(udf)
                     cycle file_loop
                 end if
@@ -188,7 +176,7 @@ subroutine ReadExtBiometFiles(BiometDataExist, last_nfl, last_nrec, CurrentTimes
                     call DateTimeToDateType(Biomet(i)%date, Biomet(i)%time, biomet_date)
 
                     !> Check if biomet_date is strictly within the averaging period, otherwise cycles
-                    if (biomet_date <= CurrentTimestamp + tol .and. biomet_date >= CurrentTimestamp - win + tol) then
+                    if (biomet_date < CurrentTimestamp + tol .and. biomet_date >= CurrentTimestamp - win + tol) then
                         BiometPeriodHooked = .true.
                         last_nfl = nfl
 
@@ -604,8 +592,7 @@ subroutine ReadExtBiometFiles(BiometDataExist, last_nfl, last_nrec, CurrentTimes
                 end do ol
             end do rec_loop
         else
-            call log_msg( ' err=error while reading biomet file. file skipped.')
-            call ErrorHandle(0, 0, 2)
+            call ExceptionHandler(2)
         end if
     end do file_loop
     nbiomet = i - 1
@@ -615,13 +602,12 @@ subroutine ReadExtBiometFiles(BiometDataExist, last_nfl, last_nrec, CurrentTimes
         write(*,'(a)') '  No valid biomet records found for this averaging period. Continuing without biomet data.'
     else
         write(LogInteger, '(i6)') nbiomet
-        call SchrinkString(LogInteger)
-        write(*,'(a)') '  ' // LogInteger(1:len_trim(LogInteger)) &
+        write(*,'(a)') '  ' // adjustl(trim(LogInteger)) &
             // ' biomet record(s) imported correctly for this averaging period.'
     end if
 
     !> Adjust units as needed
-    call BiometStandardUnits()
+    call BiometStandardUnits(nbiomet)
 
     !> Adjust timesteps of Biomet data if needed
     call AdjustBiometTimestamps(nbiomet)
@@ -631,7 +617,7 @@ end subroutine ReadExtBiometFiles
 !
 ! \brief       Convert input units into standard units
 ! \author      Gerardo Fratini
-! \note        not part of EddyPro Express
+! \note        
 !              Radiations (Rg, Rn, Rd, Rr, LWin, LWout, Ruva, Ruvb) are not expected to need unit conversion
 !              Photons flux densities (PPFD, PPFDd, PPFDr, PPFDbc, APAR) are not expected to need unit conversion
 !              Albedo (Alb) is not expected to need unit conversion
@@ -643,9 +629,11 @@ end subroutine ReadExtBiometFiles
 ! \deprecated
 ! \test
 !***************************************************************************
-subroutine BiometStandardUnits()
+subroutine BiometStandardUnits(N)
     use m_rp_global_var
     implicit none
+    !> in/out variables
+    integer, intent(in) :: N
     !> local variables
 !    integer :: kkk
 !    integer :: lll
@@ -655,16 +643,16 @@ subroutine BiometStandardUnits()
     do jj = TA_1_1_1, TA_10_1_1
         select case(BiometUnits%Ta(jj - TA_1_1_1 + 1))
             case('C','°C')
-                Biomet%Ta(jj - TA_1_1_1 + 1) = Biomet%Ta(jj - TA_1_1_1 + 1) + 273.16d0
+                Biomet(1:N)%Ta(jj - TA_1_1_1 + 1) = Biomet(1:N)%Ta(jj - TA_1_1_1 + 1) + 273.16d0
             case('F','°F')
-                Biomet%Ta(jj - TA_1_1_1 + 1) = (Biomet%Ta(jj - TA_1_1_1 + 1) - 32d0) &
+                Biomet(1:N)%Ta(jj - TA_1_1_1 + 1) = (Biomet(1:N)%Ta(jj - TA_1_1_1 + 1) - 32d0) &
                     * 5d0 / 9d0 + 273.16d0
             case('CK')
-                Biomet%Ta(jj - TA_1_1_1 + 1) = Biomet%Ta(jj - TA_1_1_1 + 1) * 1d-2
+                Biomet(1:N)%Ta(jj - TA_1_1_1 + 1) = Biomet(1:N)%Ta(jj - TA_1_1_1 + 1) * 1d-2
             case('CC','C°C')
-                Biomet%Ta(jj - TA_1_1_1 + 1) = Biomet%Ta(jj - TA_1_1_1 + 1) * 1d-2 + 273.16d0
+                Biomet(1:N)%Ta(jj - TA_1_1_1 + 1) = Biomet(1:N)%Ta(jj - TA_1_1_1 + 1) * 1d-2 + 273.16d0
             case('CF','C°F')
-                Biomet%Ta(jj - TA_1_1_1 + 1) = (Biomet%Ta(jj - TA_1_1_1 + 1) * 1d-2 - 32d0) &
+                Biomet(1:N)%Ta(jj - TA_1_1_1 + 1) = (Biomet(1:N)%Ta(jj - TA_1_1_1 + 1) * 1d-2 - 32d0) &
                     * 5d0 / 9d0 + 273.16d0
             case default
         end select
@@ -672,16 +660,16 @@ subroutine BiometStandardUnits()
     do jj = TC_1_1_1, TC_10_1_1
         select case(BiometUnits%Tc(jj - TC_1_1_1 + 1))
             case('C','°C')
-                Biomet%Tc(jj - TC_1_1_1 + 1) = Biomet%Tc(jj - TC_1_1_1 + 1) + 273.16d0
+                Biomet(1:N)%Tc(jj - TC_1_1_1 + 1) = Biomet(1:N)%Tc(jj - TC_1_1_1 + 1) + 273.16d0
             case('F','°F')
-                Biomet%Tc(jj - TC_1_1_1 + 1) = (Biomet%Tc(jj - TC_1_1_1 + 1) - 32d0) &
+                Biomet(1:N)%Tc(jj - TC_1_1_1 + 1) = (Biomet(1:N)%Tc(jj - TC_1_1_1 + 1) - 32d0) &
                     * 5d0 / 9d0 + 273.16d0
             case('CK')
-                Biomet%Tc(jj - TC_1_1_1 + 1) = Biomet%Tc(jj - TC_1_1_1 + 1) * 1d-2
+                Biomet(1:N)%Tc(jj - TC_1_1_1 + 1) = Biomet(1:N)%Tc(jj - TC_1_1_1 + 1) * 1d-2
             case('CC','C°C')
-                Biomet%Tc(jj - TC_1_1_1 + 1) = Biomet%Tc(jj - TC_1_1_1 + 1) * 1d-2 + 273.16d0
+                Biomet(1:N)%Tc(jj - TC_1_1_1 + 1) = Biomet(1:N)%Tc(jj - TC_1_1_1 + 1) * 1d-2 + 273.16d0
             case('CF','C°F')
-                Biomet%Tc(jj - TC_1_1_1 + 1) = (Biomet%Tc(jj - TC_1_1_1 + 1) * 1d-2 - 32d0) &
+                Biomet(1:N)%Tc(jj - TC_1_1_1 + 1) = (Biomet(1:N)%Tc(jj - TC_1_1_1 + 1) * 1d-2 - 32d0) &
                     * 5d0 / 9d0 + 273.16d0
             case default
         end select
@@ -689,16 +677,16 @@ subroutine BiometStandardUnits()
     do jj = TS_1_1_1, TS_10_1_1
         select case(BiometUnits%Ts(jj - TS_1_1_1 + 1))
             case('C','°C')
-                Biomet%Ts(jj - TS_1_1_1 + 1) = Biomet%Ts(jj - TS_1_1_1 + 1) + 273.16d0
+                Biomet(1:N)%Ts(jj - TS_1_1_1 + 1) = Biomet(1:N)%Ts(jj - TS_1_1_1 + 1) + 273.16d0
             case('F','°F')
-                Biomet%Ts(jj - TS_1_1_1 + 1) = (Biomet%Ts(jj - TS_1_1_1 + 1) - 32d0) &
+                Biomet(1:N)%Ts(jj - TS_1_1_1 + 1) = (Biomet(1:N)%Ts(jj - TS_1_1_1 + 1) - 32d0) &
                     * 5d0 / 9d0 + 273.16d0
             case('CK')
-                Biomet%Ts(jj - TS_1_1_1 + 1) = Biomet%Ts(jj - TS_1_1_1 + 1) * 1d-2
+                Biomet(1:N)%Ts(jj - TS_1_1_1 + 1) = Biomet(1:N)%Ts(jj - TS_1_1_1 + 1) * 1d-2
             case('CC','C°C')
-                Biomet%Ts(jj - TS_1_1_1 + 1) = Biomet%Ts(jj - TS_1_1_1 + 1) * 1d-2 + 273.16d0
+                Biomet(1:N)%Ts(jj - TS_1_1_1 + 1) = Biomet(1:N)%Ts(jj - TS_1_1_1 + 1) * 1d-2 + 273.16d0
             case('CF','C°F')
-                Biomet%Ts(jj - TS_1_1_1 + 1) = (Biomet%Ts(jj - TS_1_1_1 + 1) * 1d-2 - 32d0) &
+                Biomet(1:N)%Ts(jj - TS_1_1_1 + 1) = (Biomet(1:N)%Ts(jj - TS_1_1_1 + 1) * 1d-2 - 32d0) &
                     * 5d0 / 9d0 + 273.16d0
             case default
         end select
@@ -706,16 +694,16 @@ subroutine BiometStandardUnits()
     do jj = TBC_1_1_1, TBC_10_1_1
         select case(BiometUnits%Tbc(jj - TBC_1_1_1 + 1))
             case('C','°C')
-                Biomet%Tbc(jj - TBC_1_1_1 + 1) = Biomet%Tbc(jj - TBC_1_1_1 + 1) + 273.16d0
+                Biomet(1:N)%Tbc(jj - TBC_1_1_1 + 1) = Biomet(1:N)%Tbc(jj - TBC_1_1_1 + 1) + 273.16d0
             case('F','°F')
-                Biomet%Tbc(jj - TBC_1_1_1 + 1) = (Biomet%Tbc(jj - TBC_1_1_1 + 1) - 32d0) &
+                Biomet(1:N)%Tbc(jj - TBC_1_1_1 + 1) = (Biomet(1:N)%Tbc(jj - TBC_1_1_1 + 1) - 32d0) &
                     * 5d0 / 9d0 + 273.16d0
             case('CK')
-                Biomet%Tbc(jj - TBC_1_1_1 + 1) = Biomet%Tbc(jj - TBC_1_1_1 + 1) * 1d-2
+                Biomet(1:N)%Tbc(jj - TBC_1_1_1 + 1) = Biomet(1:N)%Tbc(jj - TBC_1_1_1 + 1) * 1d-2
             case('CC','C°C')
-                Biomet%Tbc(jj - TBC_1_1_1 + 1) = Biomet%Tbc(jj - TBC_1_1_1 + 1) * 1d-2 + 273.16d0
+                Biomet(1:N)%Tbc(jj - TBC_1_1_1 + 1) = Biomet(1:N)%Tbc(jj - TBC_1_1_1 + 1) * 1d-2 + 273.16d0
             case('CF','C°F')
-                Biomet%Tbc(jj - TBC_1_1_1 + 1) = (Biomet%Tbc(jj - TBC_1_1_1 + 1) * 1d-2 - 32d0) &
+                Biomet(1:N)%Tbc(jj - TBC_1_1_1 + 1) = (Biomet(1:N)%Tbc(jj - TBC_1_1_1 + 1) * 1d-2 - 32d0) &
                     * 5d0 / 9d0 + 273.16d0
             case default
         end select
@@ -723,16 +711,16 @@ subroutine BiometStandardUnits()
     do jj = TBOLE_1_1_1, TBOLE_10_1_1
         select case(BiometUnits%Tc(jj - TBOLE_1_1_1 + 1))
             case('C','°C')
-                Biomet%Tbole(jj - TBOLE_1_1_1 + 1) = Biomet%Tbole(jj - TBOLE_1_1_1 + 1) + 273.16d0
+                Biomet(1:N)%Tbole(jj - TBOLE_1_1_1 + 1) = Biomet(1:N)%Tbole(jj - TBOLE_1_1_1 + 1) + 273.16d0
             case('F','°F')
-                Biomet%Tbole(jj - TBOLE_1_1_1 + 1) = (Biomet%Tbole(jj - TBOLE_1_1_1 + 1) - 32d0) &
+                Biomet(1:N)%Tbole(jj - TBOLE_1_1_1 + 1) = (Biomet(1:N)%Tbole(jj - TBOLE_1_1_1 + 1) - 32d0) &
                     * 5d0 / 9d0 + 273.16d0
             case('CK')
-                Biomet%Tbole(jj - TBOLE_1_1_1 + 1) = Biomet%Tbole(jj - TBOLE_1_1_1 + 1) * 1d-2
+                Biomet(1:N)%Tbole(jj - TBOLE_1_1_1 + 1) = Biomet(1:N)%Tbole(jj - TBOLE_1_1_1 + 1) * 1d-2
             case('CC','C°C')
-                Biomet%Tbole(jj - TBOLE_1_1_1 + 1) = Biomet%Tbole(jj - TBOLE_1_1_1 + 1) * 1d-2 + 273.16d0
+                Biomet(1:N)%Tbole(jj - TBOLE_1_1_1 + 1) = Biomet(1:N)%Tbole(jj - TBOLE_1_1_1 + 1) * 1d-2 + 273.16d0
             case('CF','C°F')
-                Biomet%Tbole(jj - TBOLE_1_1_1 + 1) = (Biomet%Tbole(jj - TBOLE_1_1_1 + 1) &
+                Biomet(1:N)%Tbole(jj - TBOLE_1_1_1 + 1) = (Biomet(1:N)%Tbole(jj - TBOLE_1_1_1 + 1) &
                     * 1d-2 - 32d0) * 5d0 / 9d0 + 273.16d0
             case default
         end select
@@ -741,17 +729,17 @@ subroutine BiometStandardUnits()
     do jj = PA_1_1_1, PA_10_1_1
         select case(BiometUnits%Pa(jj - PA_1_1_1 + 1))
             case('HPA')
-                Biomet%Pa(jj - PA_1_1_1 + 1) = Biomet%Pa(jj - PA_1_1_1 + 1) * 1d2
+                Biomet(1:N)%Pa(jj - PA_1_1_1 + 1) = Biomet(1:N)%Pa(jj - PA_1_1_1 + 1) * 1d2
             case('KPA')
-                Biomet%Pa(jj - PA_1_1_1 + 1) = Biomet%Pa(jj - PA_1_1_1 + 1) * 1d3
+                Biomet(1:N)%Pa(jj - PA_1_1_1 + 1) = Biomet(1:N)%Pa(jj - PA_1_1_1 + 1) * 1d3
             case('MMHG', 'TORR')
-                Biomet%Pa(jj - PA_1_1_1 + 1) = Biomet%Pa(jj - PA_1_1_1 + 1) * 133.32d0
+                Biomet(1:N)%Pa(jj - PA_1_1_1 + 1) = Biomet(1:N)%Pa(jj - PA_1_1_1 + 1) * 133.32d0
             case('PSI')
-                Biomet%Pa(jj - PA_1_1_1 + 1) = Biomet%Pa(jj - PA_1_1_1 + 1) * 6894.6d0
+                Biomet(1:N)%Pa(jj - PA_1_1_1 + 1) = Biomet(1:N)%Pa(jj - PA_1_1_1 + 1) * 6894.6d0
             case('BAR')
-                Biomet%Pa(jj - PA_1_1_1 + 1) = Biomet%Pa(jj - PA_1_1_1 + 1) * 1d5
+                Biomet(1:N)%Pa(jj - PA_1_1_1 + 1) = Biomet(1:N)%Pa(jj - PA_1_1_1 + 1) * 1d5
             case('ATM')
-                Biomet%Pa(jj - PA_1_1_1 + 1) = Biomet%Pa(jj - PA_1_1_1 + 1) * 0.980665d5
+                Biomet(1:N)%Pa(jj - PA_1_1_1 + 1) = Biomet(1:N)%Pa(jj - PA_1_1_1 + 1) * 0.980665d5
             case default
                 continue
         end select
@@ -760,7 +748,7 @@ subroutine BiometStandardUnits()
     do jj = RH_1_1_1, RH_10_1_1
         select case(BiometUnits%RH(jj - RH_1_1_1 + 1))
             case('NUMBER','#','DIMENSIONLESS')
-                Biomet%RH(jj - RH_1_1_1 + 1) = Biomet%RH(jj - RH_1_1_1 + 1) * 1d2
+                Biomet(1:N)%RH(jj - RH_1_1_1 + 1) = Biomet(1:N)%RH(jj - RH_1_1_1 + 1) * 1d2
             case default
                 continue
         end select
@@ -769,15 +757,15 @@ subroutine BiometStandardUnits()
     do jj = P_1_1_1, P_10_1_1
         select case(BiometUnits%P(jj - P_1_1_1 + 1))
             case('NM')
-                Biomet%P(jj - P_1_1_1 + 1) = Biomet%P(jj - P_1_1_1 + 1) * 1d-9
+                Biomet(1:N)%P(jj - P_1_1_1 + 1) = Biomet(1:N)%P(jj - P_1_1_1 + 1) * 1d-9
             case('UM')
-                Biomet%P(jj - P_1_1_1 + 1) = Biomet%P(jj - P_1_1_1 + 1) * 1d-6
+                Biomet(1:N)%P(jj - P_1_1_1 + 1) = Biomet(1:N)%P(jj - P_1_1_1 + 1) * 1d-6
             case('MM')
-                Biomet%P(jj - P_1_1_1 + 1) = Biomet%P(jj - P_1_1_1 + 1) * 1d-3
+                Biomet(1:N)%P(jj - P_1_1_1 + 1) = Biomet(1:N)%P(jj - P_1_1_1 + 1) * 1d-3
             case('CM')
-                Biomet%P(jj - P_1_1_1 + 1) = Biomet%P(jj - P_1_1_1 + 1) * 1d-2
+                Biomet(1:N)%P(jj - P_1_1_1 + 1) = Biomet(1:N)%P(jj - P_1_1_1 + 1) * 1d-2
             case('KM')
-                Biomet%P(jj - P_1_1_1 + 1) = Biomet%P(jj - P_1_1_1 + 1) * 1d3
+                Biomet(1:N)%P(jj - P_1_1_1 + 1) = Biomet(1:N)%P(jj - P_1_1_1 + 1) * 1d3
             case default
                 continue
         end select
@@ -785,15 +773,15 @@ subroutine BiometStandardUnits()
     do jj = P_RAIN_1_1_1, P_RAIN_10_1_1
         select case(BiometUnits%Prain(jj - P_RAIN_1_1_1 + 1))
             case('NM')
-                Biomet%Prain(jj - P_RAIN_1_1_1 + 1) = Biomet%Prain(jj - P_RAIN_1_1_1 + 1) * 1d-9
+                Biomet(1:N)%Prain(jj - P_RAIN_1_1_1 + 1) = Biomet(1:N)%Prain(jj - P_RAIN_1_1_1 + 1) * 1d-9
             case('UM')
-                Biomet%Prain(jj - P_RAIN_1_1_1 + 1) = Biomet%Prain(jj - P_RAIN_1_1_1 + 1) * 1d-6
+                Biomet(1:N)%Prain(jj - P_RAIN_1_1_1 + 1) = Biomet(1:N)%Prain(jj - P_RAIN_1_1_1 + 1) * 1d-6
             case('MM')
-                Biomet%Prain(jj - P_RAIN_1_1_1 + 1) = Biomet%Prain(jj - P_RAIN_1_1_1 + 1) * 1d-3
+                Biomet(1:N)%Prain(jj - P_RAIN_1_1_1 + 1) = Biomet(1:N)%Prain(jj - P_RAIN_1_1_1 + 1) * 1d-3
             case('CM')
-                Biomet%Prain(jj - P_RAIN_1_1_1 + 1) = Biomet%Prain(jj - P_RAIN_1_1_1 + 1) * 1d-2
+                Biomet(1:N)%Prain(jj - P_RAIN_1_1_1 + 1) = Biomet(1:N)%Prain(jj - P_RAIN_1_1_1 + 1) * 1d-2
             case('KM')
-                Biomet%Prain(jj - P_RAIN_1_1_1 + 1) = Biomet%Prain(jj - P_RAIN_1_1_1 + 1) * 1d3
+                Biomet(1:N)%Prain(jj - P_RAIN_1_1_1 + 1) = Biomet(1:N)%Prain(jj - P_RAIN_1_1_1 + 1) * 1d3
             case default
                 continue
         end select
@@ -801,15 +789,15 @@ subroutine BiometStandardUnits()
     do jj = P_SNOW_1_1_1, P_SNOW_10_1_1
         select case(BiometUnits%Psnow(jj - P_SNOW_1_1_1 + 1))
             case('NM')
-                Biomet%Psnow(jj - P_SNOW_1_1_1 + 1) = Biomet%Psnow(jj - P_SNOW_1_1_1 + 1) * 1d-9
+                Biomet(1:N)%Psnow(jj - P_SNOW_1_1_1 + 1) = Biomet(1:N)%Psnow(jj - P_SNOW_1_1_1 + 1) * 1d-9
             case('UM')
-                Biomet%Psnow(jj - P_SNOW_1_1_1 + 1) = Biomet%Psnow(jj - P_SNOW_1_1_1 + 1) * 1d-6
+                Biomet(1:N)%Psnow(jj - P_SNOW_1_1_1 + 1) = Biomet(1:N)%Psnow(jj - P_SNOW_1_1_1 + 1) * 1d-6
             case('MM')
-                Biomet%Psnow(jj - P_SNOW_1_1_1 + 1) = Biomet%Psnow(jj - P_SNOW_1_1_1 + 1) * 1d-3
+                Biomet(1:N)%Psnow(jj - P_SNOW_1_1_1 + 1) = Biomet(1:N)%Psnow(jj - P_SNOW_1_1_1 + 1) * 1d-3
             case('CM')
-                Biomet%Psnow(jj - P_SNOW_1_1_1 + 1) = Biomet%Psnow(jj - P_SNOW_1_1_1 + 1) * 1d-2
+                Biomet(1:N)%Psnow(jj - P_SNOW_1_1_1 + 1) = Biomet(1:N)%Psnow(jj - P_SNOW_1_1_1 + 1) * 1d-2
             case('KM')
-                Biomet%Psnow(jj - P_SNOW_1_1_1 + 1) = Biomet%Psnow(jj - P_SNOW_1_1_1 + 1) * 1d3
+                Biomet(1:N)%Psnow(jj - P_SNOW_1_1_1 + 1) = Biomet(1:N)%Psnow(jj - P_SNOW_1_1_1 + 1) * 1d3
             case default
                 continue
         end select
@@ -817,15 +805,15 @@ subroutine BiometStandardUnits()
     do jj = SNOWD_1_1_1, SNOWD_10_1_1
         select case(BiometUnits%SNOWD(jj - SNOWD_1_1_1 + 1))
             case('NM')
-                Biomet%SNOWD(jj - SNOWD_1_1_1 + 1) = Biomet%SNOWD(jj - SNOWD_1_1_1 + 1) * 1d-9
+                Biomet(1:N)%SNOWD(jj - SNOWD_1_1_1 + 1) = Biomet(1:N)%SNOWD(jj - SNOWD_1_1_1 + 1) * 1d-9
             case('UM')
-                Biomet%SNOWD(jj - SNOWD_1_1_1 + 1) = Biomet%SNOWD(jj - SNOWD_1_1_1 + 1) * 1d-6
+                Biomet(1:N)%SNOWD(jj - SNOWD_1_1_1 + 1) = Biomet(1:N)%SNOWD(jj - SNOWD_1_1_1 + 1) * 1d-6
             case('MM')
-                Biomet%SNOWD(jj - SNOWD_1_1_1 + 1) = Biomet%SNOWD(jj - SNOWD_1_1_1 + 1) * 1d-3
+                Biomet(1:N)%SNOWD(jj - SNOWD_1_1_1 + 1) = Biomet(1:N)%SNOWD(jj - SNOWD_1_1_1 + 1) * 1d-3
             case('CM')
-                Biomet%SNOWD(jj - SNOWD_1_1_1 + 1) = Biomet%SNOWD(jj - SNOWD_1_1_1 + 1) * 1d-2
+                Biomet(1:N)%SNOWD(jj - SNOWD_1_1_1 + 1) = Biomet(1:N)%SNOWD(jj - SNOWD_1_1_1 + 1) * 1d-2
             case('KM')
-                Biomet%SNOWD(jj - SNOWD_1_1_1 + 1) = Biomet%SNOWD(jj - SNOWD_1_1_1 + 1) * 1d3
+                Biomet(1:N)%SNOWD(jj - SNOWD_1_1_1 + 1) = Biomet(1:N)%SNOWD(jj - SNOWD_1_1_1 + 1) * 1d3
             case default
                 continue
         end select
@@ -833,15 +821,15 @@ subroutine BiometStandardUnits()
     do jj = STEMFLOW_1_1_1, STEMFLOW_10_1_1
         select case(BiometUnits%STEMFLOW(jj - STEMFLOW_1_1_1 + 1))
             case('NM')
-                Biomet%STEMFLOW(jj - STEMFLOW_1_1_1 + 1) = Biomet%STEMFLOW(jj - STEMFLOW_1_1_1 + 1) * 1d-9
+                Biomet(1:N)%STEMFLOW(jj - STEMFLOW_1_1_1 + 1) = Biomet(1:N)%STEMFLOW(jj - STEMFLOW_1_1_1 + 1) * 1d-9
             case('UM')
-                Biomet%STEMFLOW(jj - STEMFLOW_1_1_1 + 1) = Biomet%STEMFLOW(jj - STEMFLOW_1_1_1 + 1) * 1d-6
+                Biomet(1:N)%STEMFLOW(jj - STEMFLOW_1_1_1 + 1) = Biomet(1:N)%STEMFLOW(jj - STEMFLOW_1_1_1 + 1) * 1d-6
             case('MM')
-                Biomet%STEMFLOW(jj - STEMFLOW_1_1_1 + 1) = Biomet%STEMFLOW(jj - STEMFLOW_1_1_1 + 1) * 1d-3
+                Biomet(1:N)%STEMFLOW(jj - STEMFLOW_1_1_1 + 1) = Biomet(1:N)%STEMFLOW(jj - STEMFLOW_1_1_1 + 1) * 1d-3
             case('CM')
-                Biomet%STEMFLOW(jj - STEMFLOW_1_1_1 + 1) = Biomet%STEMFLOW(jj - STEMFLOW_1_1_1 + 1) * 1d-2
+                Biomet(1:N)%STEMFLOW(jj - STEMFLOW_1_1_1 + 1) = Biomet(1:N)%STEMFLOW(jj - STEMFLOW_1_1_1 + 1) * 1d-2
             case('KM')
-                Biomet%STEMFLOW(jj - STEMFLOW_1_1_1 + 1) = Biomet%STEMFLOW(jj - STEMFLOW_1_1_1 + 1) * 1d3
+                Biomet(1:N)%STEMFLOW(jj - STEMFLOW_1_1_1 + 1) = Biomet(1:N)%STEMFLOW(jj - STEMFLOW_1_1_1 + 1) * 1d3
             case default
                 continue
         end select
@@ -851,9 +839,9 @@ subroutine BiometStandardUnits()
     do jj = WS_1_1_1, WS_10_1_1
         select case(BiometUnits%WS(jj - WS_1_1_1 + 1))
             case('CM+1S-1','CM/S','CMS^-1','CMS-1')
-                Biomet%WS(jj - WS_1_1_1 + 1) = Biomet%WS(jj - WS_1_1_1 + 1) * 1d-2
+                Biomet(1:N)%WS(jj - WS_1_1_1 + 1) = Biomet(1:N)%WS(jj - WS_1_1_1 + 1) * 1d-2
             case('MM+1S-1','MM/S','MMS^-1','MMS-1')
-                Biomet%WS(jj - WS_1_1_1 + 1) = Biomet%WS(jj - WS_1_1_1 + 1) * 1d-3
+                Biomet(1:N)%WS(jj - WS_1_1_1 + 1) = Biomet(1:N)%WS(jj - WS_1_1_1 + 1) * 1d-3
             case default
                 continue
         end select
@@ -861,9 +849,9 @@ subroutine BiometStandardUnits()
     do jj = MWS_1_1_1, MWS_10_1_1
         select case(BiometUnits%MWS(jj - MWS_1_1_1 + 1))
             case('CM+1S-1','CM/S','CMS^-1','CMS-1')
-                Biomet%MWS(jj - MWS_1_1_1 + 1) = Biomet%MWS(jj - MWS_1_1_1 + 1) * 1d-2
+                Biomet(1:N)%MWS(jj - MWS_1_1_1 + 1) = Biomet(1:N)%MWS(jj - MWS_1_1_1 + 1) * 1d-2
             case('MM+1S-1','MM/S','MMS^-1','MMS-1')
-                Biomet%MWS(jj - MWS_1_1_1 + 1) = Biomet%MWS(jj - MWS_1_1_1 + 1) * 1d-3
+                Biomet(1:N)%MWS(jj - MWS_1_1_1 + 1) = Biomet(1:N)%MWS(jj - MWS_1_1_1 + 1) * 1d-3
             case default
                 continue
         end select

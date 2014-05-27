@@ -43,7 +43,6 @@ subroutine InitUserOutFiles()
     character(256) :: Test_Path
     logical :: proceed
 
-    call log_msg(' inf=creating user-customized directory and files')
 
     !> create sub-directory
     proceed = .false.
@@ -55,13 +54,7 @@ subroutine InitUserOutFiles()
     end do
     if (proceed) then
         UserStatsDir = Dir%main_out(1:len_trim(Dir%main_out)) // SubDirUserStats // slash
-        LogString = ' rp_user_stats_dir=' // UserStatsDir(1:len_trim(UserStatsDir))
-        call DoubleCharInString(LogString, slash)
-        call log_msg(LogString)
         mkdir_status = CreateDir('"' // UserStatsDir(1:len_trim(UserStatsDir)) // '"')
-        write(LogLogical, '(L1)') mkdir_status
-        LogString = ' mkdir_error=' // LogLogical
-        call log_msg(LogString)
     end if
 
     !> Statistics files Level 1
@@ -71,13 +64,7 @@ subroutine InitUserOutFiles()
                   // UserStats1_FilePadding // Timestamp_FilePadding // CsvExt
         dot = index(Test_Path, CsvExt, .true.) - 1
         UserSt1_Path = Test_Path(1:dot) // CsvTmpExt
-        LogString = ' user_st1_file=' // UserSt1_Path(1:len_trim(UserSt1_Path))
-        call DoubleCharInString(LogString, slash)
-        call log_msg(LogString)
         open(u_user_st1, file = UserSt1_Path, iostat = open_status, encoding = 'utf-8')
-        write(LogLogical, '(L1)') open_status
-        LogString = ' create_file_error=' // LogLogical
-        call log_msg(LogString)
         write(u_user_st1, '(a)') 'first_statistics:_on_raw_data'
     end if
 
@@ -88,13 +75,7 @@ subroutine InitUserOutFiles()
                   // UserStats2_FilePadding // Timestamp_FilePadding // CsvExt
         dot = index(Test_Path, CsvExt, .true.) - 1
         UserSt2_Path = Test_Path(1:dot) // CsvTmpExt
-        LogString = ' user_st2_file=' // UserSt2_Path(1:len_trim(UserSt2_Path))
-        call DoubleCharInString(LogString, slash)
-        call log_msg(LogString)
         open(u_user_st2, file = UserSt2_Path, iostat = open_status, encoding = 'utf-8')
-        write(LogLogical, '(L1)') open_status
-        LogString = ' create_file_error=' // LogLogical
-        call log_msg(LogString)
         write(u_user_st2, '(a)') 'second_statistics:_on_raw_data_after_despiking'
     end if
 
@@ -105,13 +86,7 @@ subroutine InitUserOutFiles()
                   // UserStats3_FilePadding // Timestamp_FilePadding // CsvExt
         dot = index(Test_Path, CsvExt, .true.) - 1
         UserSt3_Path = Test_Path(1:dot) // CsvTmpExt
-        LogString = ' user_st3_file=' // UserSt3_Path(1:len_trim(UserSt3_Path))
-        call DoubleCharInString(LogString, slash)
-        call log_msg(LogString)
         open(u_user_st3, file = UserSt3_Path, iostat = open_status, encoding = 'utf-8')
-        write(LogLogical, '(L1)') open_status
-        LogString = ' create_file_error=' // LogLogical
-        call log_msg(LogString)
         write(u_user_st3, '(a)') 'third_statistics:_on_raw_data_after_despiking_and_cross-wind_correction'
     end if
 
@@ -122,13 +97,7 @@ subroutine InitUserOutFiles()
                   // UserStats4_FilePadding // Timestamp_FilePadding // CsvExt
         dot = index(Test_Path, CsvExt, .true.) - 1
         UserSt4_Path = Test_Path(1:dot) // CsvTmpExt
-        LogString = ' user_st4_file=' // UserSt4_Path(1:len_trim(UserSt4_Path))
-        call DoubleCharInString(LogString, slash)
-        call log_msg(LogString)
         open(u_user_st4, file = UserSt4_Path, iostat = open_status, encoding = 'utf-8')
-        write(LogLogical, '(L1)') open_status
-        LogString = ' create_file_error=' // LogLogical
-        call log_msg(LogString)
         write(u_user_st4, '(a)') 'forth_statistics:_on_raw_data_after_despiking_cross_wind_correction&
             &_and_angle-of-attack_correction'
     end if
@@ -140,13 +109,7 @@ subroutine InitUserOutFiles()
                   // UserStats5_FilePadding // Timestamp_FilePadding // CsvExt
         dot = index(Test_Path, CsvExt, .true.) - 1
         UserSt5_Path = Test_Path(1:dot) // CsvTmpExt
-        LogString = ' user_st5_file=' // UserSt5_Path(1:len_trim(UserSt5_Path))
-        call DoubleCharInString(LogString, slash)
-        call log_msg(LogString)
         open(u_user_st5, file = UserSt5_Path, iostat = open_status, encoding = 'utf-8')
-        write(LogLogical, '(L1)') open_status
-        LogString = ' create_file_error=' // LogLogical
-        call log_msg(LogString)
         write(u_user_st5, '(a)') 'fifth_statistics:_on_raw_data_after_despiking_cross_wind_correction&
             &_angle-of-attack_correction_and_double_rotation'
     end if
@@ -158,13 +121,7 @@ subroutine InitUserOutFiles()
                   // UserStats6_FilePadding // Timestamp_FilePadding // CsvExt
         dot = index(Test_Path, CsvExt, .true.) - 1
         UserSt6_Path = Test_Path(1:dot) // CsvTmpExt
-        LogString = ' user_st6_file=' // UserSt6_Path(1:len_trim(UserSt6_Path))
-        call DoubleCharInString(LogString, slash)
-        call log_msg(LogString)
         open(u_user_st6, file = UserSt6_Path, iostat = open_status, encoding = 'utf-8')
-        write(LogLogical, '(L1)') open_status
-        LogString = ' create_file_error=' // LogLogical
-        call log_msg(LogString)
         write(u_user_st6, '(a)') 'sixth_statistics:_on_raw_data_after_despiking_cross_wind_correction&
             &_angle-of-attack_correction_double_rotation_and_time-lag_compensation'
     end if
@@ -176,13 +133,7 @@ subroutine InitUserOutFiles()
                   // UserStats7_FilePadding // Timestamp_FilePadding // CsvExt
         dot = index(Test_Path, CsvExt, .true.) - 1
         UserSt7_Path = Test_Path(1:dot) // CsvTmpExt
-        LogString = ' user_st7_file=' // UserSt7_Path(1:len_trim(UserSt7_Path))
-        call DoubleCharInString(LogString, slash)
-        call log_msg(LogString)
         open(u_user_st7, file = UserSt7_Path, iostat = open_status, encoding = 'utf-8')
-        write(LogLogical, '(L1)') open_status
-        LogString = ' create_file_error=' // LogLogical
-        call log_msg(LogString)
         write(u_user_st7, '(a)') 'seventh_statistics:_on_raw_data_after_despiking_cross_wind_correction&
             &_angle-of-attack_correction_double_rotation_time-lag_compensation_and_detrending'
     end if

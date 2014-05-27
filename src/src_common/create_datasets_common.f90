@@ -47,22 +47,18 @@ subroutine CreateDatasetsCommon(MasterTimeSeries, nrow, rpStartIndx, rpEndIndx)
 
     !> Full out file
     if (EddyProProj%out_full) then
-        call log_msg(' inf=creating full output dataset.')
         write(*,'(a)', advance = 'no') '  Creating Full Output dataset..'
         call MakeDataset(FullOut_Path(1:len_trim(FullOut_Path)), &
             MasterTimeSeries, size(MasterTimeSeries), rpStartIndx, rpEndIndx, .true., 3)
         write(*,'(a)') ' Done.'
-        call log_msg(' inf=full output file processed correctly.')
     end if
 
     !> GHG-EUROPE file
     if (EddyProProj%out_ghg_eu) then
-        call log_msg(' inf=creating GHG-EUROPE-style dataset.')
         write(*,'(a)', advance = 'no') '  Creating GHG-EUROPE-style dataset..'
         call MakeDataset(GHGEUROPE_Path(1:len_trim(GHGEUROPE_Path)), &
             MasterTimeSeries, size(MasterTimeSeries), rpStartIndx, rpEndIndx, .true., 3)
         write(*,'(a)') ' Done.'
-        call log_msg(' inf=GHG-EUROPE-style file processed correctly.')
     end if
 
     !> AmeriFlux file
@@ -76,12 +72,10 @@ subroutine CreateDatasetsCommon(MasterTimeSeries, nrow, rpStartIndx, rpEndIndx)
 
     !> Metadata file
     if (EddyProProj%out_md) then
-        call log_msg(' inf=creating metadata dataset.')
         write(*,'(a)', advance = 'no') '  Creating Metadata dataset..'
         call MakeDataset(Metadata_Path(1:len_trim(Metadata_Path)), &
             MasterTimeSeries, size(MasterTimeSeries), rpStartIndx, rpEndIndx, .true., 1)
         write(*,'(a)') ' Done.'
-        call log_msg(' inf=metadata file processed correctly.')
     end if
 
     !> Remove temporary output file

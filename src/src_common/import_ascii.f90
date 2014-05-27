@@ -82,10 +82,6 @@ subroutine ImportAscii(FirstRecord, LastRecord, LocCol, fRaw, nrow, ncol, N, Fil
         !> Read datalines directly as real arrays
         record_loop: do
             tN = tN + 1
-
-            !> Normal exit instruction, if current record is beyond LastRecord
-            if (tN > LastRecord - FirstRecord + 1) exit record_loop
-
             N = N + 1
             read(unat, *, iostat = io_status) TmpfRaw(N, 1:NumCol)
             if (io_status < 0 .or. io_status == 5001 .or. io_status == 5008) then
@@ -93,30 +89,25 @@ subroutine ImportAscii(FirstRecord, LastRecord, LocCol, fRaw, nrow, ncol, N, Fil
                 FileEndReached = .true.
                 exit record_loop
             end if
-            if (io_status == 5010) then
-                N = N - 1
-                cycle record_loop
-            end if
             if (io_status > 0) then
                 N = N - 1
                 cycle record_loop
             end if
+
+            !> Normal exit instruction, if current record is beyond LastRecord
+            if (tN > LastRecord - FirstRecord) exit record_loop
         end do record_loop
     else
         !> Read datalines directly as real arrays and discard first field
         record_loop2: do
             tN = tN + 1
-
-            !> Normal exit instruction, if current record is beyond LastRecord
-            if (tN > LastRecord - FirstRecord + 1) exit record_loop2
-
             N = N + 1
             read(unat, *, iostat = io_status) lab, TmpfRaw(N, 1:NumCol)
-            if (io_status < 0 .or. io_status == 5001) exit record_loop2
-            if (io_status == 5010) then
-                !backspace(unat)
+
+            if (io_status < 0 .or. io_status == 5001 .or. io_status == 5008) then
                 N = N - 1
-                cycle record_loop2
+                FileEndReached = .true.
+                exit record_loop2
             end if
             if (io_status > 0) then
                 N = N - 1
@@ -126,6 +117,8 @@ subroutine ImportAscii(FirstRecord, LastRecord, LocCol, fRaw, nrow, ncol, N, Fil
                 N = N - 1
                 cycle record_loop2
             end if
+            !> Normal exit instruction, if current record is beyond LastRecord
+            if (tN > LastRecord - FirstRecord) exit record_loop2
         end do record_loop2
     end if
 

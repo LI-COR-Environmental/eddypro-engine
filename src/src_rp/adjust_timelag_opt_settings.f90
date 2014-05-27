@@ -33,75 +33,59 @@ subroutine AdjustTimelagOptSettings()
     use m_rp_global_var
     implicit none
     !> local variables
+    integer :: gas
     real(kind = dbl) :: nominal
-    real(kind = dbl) :: pg_mult = 2d0    !< multiplier for Passive Gases
-    real(kind = dbl) :: ag_mult = 10d0   !< multiplier for Active Gases
+    real(kind = dbl) :: mult(GHGNumVar)
     real(kind = dbl) :: gui_tlag_threshold = -1000d0
+    real(kind = dbl) :: tube_time(GHGNumVar)
+    real(kind = dbl) :: tube_volume(GHGNumVar)
+    real(kind = dbl) :: cell_time(GHGNumVar)
+    real(kind = dbl) :: cell_volume(GHGNumVar)
+    real(kind = dbl) :: safety
 
+
+    !> Initialization to zero of all timelags
+    E2Col(:)%min_tl = 0d0
+    E2Col(:)%max_tl = 0d0
+
+    !> Initialize multiplier
+    mult(:) = 2d0     !< For passive gases
+    mult(h2o) = 10d0  !< For active gases
+    safety = 0.3d0  !< Safety margin for min/max setting, should nominal tlag be very close to zero
+
+    !> Transit time in cell and sampling lines of closed path instruments
+    where (E2Col(co2:gas4)%instr%path_type == 'closed')
+        tube_volume(co2:gas4) = (p * (E2Col(co2:gas4)%instr%tube_d / 2d0)**2 * &
+                                E2Col(co2:gas4)%instr%tube_l)
+        tube_time(co2:gas4) =  tube_volume(co2:gas4) / E2Col(co2:gas4)%instr%tube_f
+
+        cell_volume(co2:gas4) = (p * (E2Col(co2:gas4)%instr%hpath_length / 2d0)**2 * &
+                                E2Col(co2:gas4)%instr%vpath_length)
+        cell_time(co2:gas4) = cell_volume(co2:gas4) / E2Col(co2:gas4)%instr%tube_f
+    elsewhere
+        tube_time(co2:gas4) = 0d0
+        cell_time(co2:gas4) = 0d0
+    end where
 
     !> If user didn't set min and max time lags, does so by using tube properties for closed path
     !> and distances for open path
-    !> CO2
-    if (TOSetup%co2_min_lag < gui_tlag_threshold .or. TOSetup%co2_max_lag < gui_tlag_threshold) then
-        if (E2Col(co2)%instr%path_type == 'closed') then
-            nominal = (p * (E2Col(co2)%instr%tube_d /2d0)**2 * E2Col(co2)%instr%tube_l) &
-                    / E2Col(co2)%instr%tube_f
-            E2Col(co2)%min_tl = max(0d0, nominal - 2d0)
-            E2Col(co2)%max_tl = min(nominal + pg_mult * nominal, RPsetup%avrg_len * 60d0)
-        else
-            E2Col(co2)%min_tl = - dsqrt(E2Col(co2)%instr%hsep**2 + E2Col(co2)%instr%vsep**2) * 2d0 - 0.3d0
-            E2Col(co2)%max_tl =   dsqrt(E2Col(co2)%instr%hsep**2 + E2Col(co2)%instr%vsep**2) * 2d0 + 0.3d0
+    do gas = co2, gas4
+        if (E2Col(gas)%present) then
+            if (TOSetup%min_lag(gas) < gui_tlag_threshold .or. TOSetup%max_lag(gas) < gui_tlag_threshold) then
+                if (E2Col(gas)%instr%path_type == 'closed') then
+                    !> Closed path
+                    nominal = tube_time(gas) + cell_time(gas)
+                    E2Col(gas)%min_tl = max(0d0, nominal - 2d0)
+                    E2Col(gas)%max_tl = min(nominal + mult(gas) * nominal, RPsetup%avrg_len * 60d0) + safety
+                else
+                    !> Open path
+                    E2Col(gas)%min_tl = - dsqrt(E2Col(gas)%instr%hsep**2 + E2Col(gas)%instr%vsep**2) * 2d0 - safety
+                    E2Col(gas)%max_tl = + dsqrt(E2Col(gas)%instr%hsep**2 + E2Col(gas)%instr%vsep**2) * 2d0 + safety
+                end if
+            else
+                E2Col(gas)%min_tl = TOSetup%min_lag(gas)
+                E2Col(gas)%max_tl = TOSetup%max_lag(gas)
+            end if
         end if
-    else
-        E2Col(co2)%min_tl = TOSetup%co2_min_lag
-        E2Col(co2)%max_tl = TOSetup%co2_max_lag
-    end if
-
-    !> H2O
-    if (TOSetup%h2o_min_lag < gui_tlag_threshold .or. TOSetup%h2o_max_lag < gui_tlag_threshold) then
-        if (E2Col(h2o)%instr%path_type == 'closed') then
-            nominal = (p * (E2Col(h2o)%instr%tube_d /2d0)**2 * E2Col(h2o)%instr%tube_l) &
-                    / E2Col(h2o)%instr%tube_f
-            E2Col(h2o)%min_tl = max(0d0, nominal - 2d0)
-            E2Col(h2o)%max_tl = min(nominal + ag_mult * nominal, RPsetup%avrg_len * 60d0)
-        else
-            E2Col(h2o)%min_tl = - dsqrt(E2Col(h2o)%instr%hsep**2 + E2Col(h2o)%instr%vsep**2) * 2d0 - 0.3d0
-            E2Col(h2o)%max_tl =   dsqrt(E2Col(h2o)%instr%hsep**2 + E2Col(h2o)%instr%vsep**2) * 2d0 + 0.3d0
-        end if
-    else
-        E2Col(h2o)%min_tl = TOSetup%h2o_min_lag
-        E2Col(h2o)%max_tl = TOSetup%h2o_max_lag
-    end if
-
-    !> CH4
-    if (TOSetup%ch4_min_lag < gui_tlag_threshold .or. TOSetup%ch4_max_lag < gui_tlag_threshold) then
-        if (E2Col(ch4)%instr%path_type == 'closed') then
-            nominal = (p * (E2Col(ch4)%instr%tube_d /2d0)**2 * E2Col(ch4)%instr%tube_l) &
-                    / E2Col(ch4)%instr%tube_f
-            E2Col(ch4)%min_tl = max(0d0, nominal - 2d0)
-            E2Col(ch4)%max_tl = min(nominal + pg_mult * nominal, RPsetup%avrg_len * 60d0)
-        else
-            E2Col(ch4)%min_tl = - dsqrt(E2Col(ch4)%instr%hsep**2 + E2Col(ch4)%instr%vsep**2) * 2d0 - 0.3d0
-            E2Col(ch4)%max_tl =   dsqrt(E2Col(ch4)%instr%hsep**2 + E2Col(ch4)%instr%vsep**2) * 2d0 + 0.3d0
-        end if
-    else
-        E2Col(ch4)%min_tl = TOSetup%ch4_min_lag
-        E2Col(ch4)%max_tl = TOSetup%ch4_max_lag
-    end if
-
-    !> GAS4
-    if (TOSetup%gas4_min_lag < gui_tlag_threshold .or. TOSetup%gas4_max_lag < gui_tlag_threshold) then
-        if (E2Col(gas4)%instr%path_type == 'closed') then
-            nominal = (p * (E2Col(gas4)%instr%tube_d /2d0)**2 * E2Col(gas4)%instr%tube_l) &
-                    / E2Col(gas4)%instr%tube_f
-            E2Col(gas4)%min_tl = max(0d0, nominal - 2d0)
-            E2Col(gas4)%max_tl = min(nominal + pg_mult * nominal, RPsetup%avrg_len * 60d0)
-        else
-            E2Col(gas4)%min_tl = - dsqrt(E2Col(gas4)%instr%hsep**2 + E2Col(gas4)%instr%vsep**2) * 2d0 - 0.3d0
-            E2Col(gas4)%max_tl =   dsqrt(E2Col(gas4)%instr%hsep**2 + E2Col(gas4)%instr%vsep**2) * 2d0 + 0.3d0
-        end if
-    else
-        E2Col(gas4)%min_tl = TOSetup%gas4_min_lag
-        E2Col(gas4)%max_tl = TOSetup%gas4_max_lag
-    end if
+    end do
 end subroutine AdjustTimelagOptSettings

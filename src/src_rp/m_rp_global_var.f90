@@ -50,9 +50,7 @@ module m_rp_global_var
     character(13), parameter :: SubDirStats         = 'eddypro_stats'
     character(20), parameter :: SubDirRaw           = 'eddypro_raw_datasets'
     character(18), parameter :: SubDirUserStats     = 'eddypro_user_stats'
-    character(24), parameter :: SubDirBinCospectra  = 'eddypro_binned_cospectra'
     character(21), parameter :: SubDirBinOgives     = 'eddypro_binned_ogives'
-    character(22), parameter :: SubDirCospectra     = 'eddypro_full_cospectra'
     character(512) :: raw_out_header
     character(256) :: StatsDir
     character(256) :: UserStatsDir

@@ -310,9 +310,8 @@ subroutine WriteProcessingProjectVariables()
     if (EddyProProj%run_env /= 'embedded') then
         Dir%main_out = EPPrjCTags(35)%value
         if (len_trim(Dir%main_out) == 0) then
-            call log_msg('err=output directory not selected. execution aborted.')
             write(*, *)
-            call ErrorHandle(0, 0, 36)
+            call ExceptionHandler(36)
         end if
         call AdjDir(Dir%main_out, slash)
     end if

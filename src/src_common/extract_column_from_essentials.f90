@@ -49,7 +49,7 @@ subroutine ExtractColumnFromEssentials(ExFilename, NumExRecords, column, array, 
 
     !> Open file, stop execution in case of problems and skip header
     open(uex, file = ExFilename, status = 'old', iostat = open_status)
-    if (open_status /= 0) call ErrorHandle(2, 0, 1)
+    if (open_status /= 0) call ExceptionHandler(60)
     !> Skip header
     read(uex, *)
 

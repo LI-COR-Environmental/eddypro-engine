@@ -47,26 +47,14 @@ subroutine ReadBinnedFile(InFile, BinSpec, BinCosp, nrow, nbins, skip)
     integer :: read_status
     real(kind = dbl) :: aux
 
-    !> Some logging
-    if (LogAll) then
-        call log_msg(' inf=importing binned spectra file.')
-        LogString = ' bin_cosp_file_in=' // InFile%path(1:len_trim(InFile%path))
-        call log_msg(LogString)
-    end if
+
     !> Open file
     open(udf, file = InFile%path, iostat = open_status)
-    if (LogAll) then
-        write(LogLogical, '(L1)') open_status
-        LogString = ' open_error=' //Loglogical
-        call log_msg(LogString)
-    end if
-
     !> Control on error in file opening
     skip = .false.
     if (open_status /= 0) then
-        call log_msg(' err=error while opening binned (co)spectra file. file skipped.')
         skip = .true.
-        call ErrorHandle(2, 0, 2)
+        call ExceptionHandler(62)
         return
     end if
 
@@ -153,6 +141,4 @@ subroutine ReadBinnedFile(InFile, BinSpec, BinCosp, nrow, nbins, skip)
             end if
         end do il4
     end do ol4
-
-    if (LogAll) call log_msg(' inf=spectra file imported correctly.')
 end subroutine ReadBinnedFile

@@ -49,8 +49,7 @@ subroutine FixPlanarfitSectors(GoPlanarFit, N)
     end do
     if (sec == N + 1) then
         Meth%rot = 'double_rotation'
-        call ErrorHandle(0, 0, 37)
-        call log_msg('warn=no wind sector with valid planar fit matrix. switching to "double rotation" method.')
+        call ExceptionHandler(37)
         return
     end if
 

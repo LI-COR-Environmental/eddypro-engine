@@ -469,5 +469,5 @@ subroutine ExtractEmbeddedBiometData(Set, N, M, bN)
         end if
     end do
 
-    call BiometStandardUnits()
+    call BiometStandardUnits(bN)
 end subroutine ExtractEmbeddedBiometData

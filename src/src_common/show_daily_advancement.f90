@@ -38,34 +38,16 @@ subroutine ShowDailyAdvancement(init_message, date)
     !> local variables
     character(4) :: lyear
     character(2) :: cday
+    character(15) :: months(12)
+    data months(1:12) / 'January', 'February', 'March', &
+        'April', 'May', 'June', 'July', 'August', &
+        'September', 'October', 'November', 'December' /
 
 
     write(lyear, '(i4)') date%year
     write(cday, '(i2)') date%day
-    select case (date%month)
-        case(1)
-            write(*, *) init_message // '  ' // cday // ' January ' // lyear
-        case(2)
-            write(*, *) init_message // '  ' // cday // ' February ' // lyear
-        case(3)
-            write(*, *) init_message // '  ' // cday // ' March ' // lyear
-        case(4)
-            write(*, *) init_message // '  ' // cday // ' April ' // lyear
-        case(5)
-            write(*, *) init_message // '  ' // cday // ' May ' // lyear
-        case(6)
-            write(*, *) init_message // '  ' // cday // ' June ' // lyear
-        case(7)
-            write(*, *) init_message // '  ' // cday // ' July ' // lyear
-        case(8)
-            write(*, *) init_message // '  ' // cday // ' August ' // lyear
-        case(9)
-            write(*, *) init_message // '  ' // cday // ' September ' // lyear
-        case(10)
-            write(*, *) init_message // '  ' // cday // ' October ' // lyear
-        case(11)
-            write(*, *) init_message // '  ' // cday // ' November ' // lyear
-        case(12)
-            write(*, *) init_message // '  ' // cday // ' December ' // lyear
-    end select
+    write(*, '(a)')
+    write(*, '(a)', advance = 'no') init_message // '  ' // cday // ' ' // &
+        trim(adjustl(months(date%month))) // ', ' // lyear // ' '
+
 end subroutine ShowDailyAdvancement

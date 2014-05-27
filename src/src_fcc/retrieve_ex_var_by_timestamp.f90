@@ -31,12 +31,13 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine RetrieveExVarsByTimestamp(unt, Timestamp, lEx, skip)
+subroutine RetrieveExVarsByTimestamp(unt, Timestamp, lEx, endReached, skip)
     use m_common_global_var
     implicit none
     !> in/out variables
     integer, intent(in) :: unt
     type(DateType), intent(in) :: Timestamp
+    logical, intent(out) :: endReached
     logical, intent(out) :: skip
     type(ExType), intent(out) :: lEx
     !> Local variables
@@ -45,11 +46,13 @@ subroutine RetrieveExVarsByTimestamp(unt, Timestamp, lEx, skip)
     logical :: ValidRecord
 
     skip = .false.
+    endReached = .false.
     do
         call ReadExRecord('', unt, -1, lEx, ValidRecord, EndOfFileReached)
 
         !> If end of files was reached, exit routine with error flag
         if (EndOfFileReached) then
+            endReached = .true.
             skip = .true.
             return
         end if
@@ -69,5 +72,4 @@ subroutine RetrieveExVarsByTimestamp(unt, Timestamp, lEx, skip)
             return
         end if
     end do
-
 end subroutine RetrieveExVarsByTimestamp

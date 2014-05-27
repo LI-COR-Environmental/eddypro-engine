@@ -57,13 +57,8 @@ subroutine OutputSpectralAssessmentResults(out_assessment, out_ensemble, nbins)
 
 
     !> Create output directory
-    call log_msg(' inf=writing results on output files.')
     SpecDir = Dir%main_out(1:len_trim(Dir%main_out)) // SubDirSpecAn // slash
     mkdir_status = CreateDir('"' // SpecDir(1:len_trim(SpecDir)) // '"')
-    write(LogLogical, '(L1)') mkdir_status
-    LogString = ' mkdir_error=' // LogLogical
-    call log_msg(LogString)
-
 
     if (out_assessment) then
         write(*,'(a)') ' Writing spectral assessment results on output file.. '
@@ -72,19 +67,8 @@ subroutine OutputSpectralAssessmentResults(out_assessment, out_ensemble, nbins)
         Filename = EddyProProj%id(1:len_trim(EddyProProj%id)) // SA_FilePadding  &
             // Timestamp_FilePadding // TxtExt
         FilePath = SpecDir(1:len_trim(SpecDir)) // Filename(1:len_trim(Filename))
-
-        LogString = ' sa_file_out=' // FilePath(1:len_trim(FilePath))
-        call log_msg(logString)
-
-
         open(udf, file = FilePath, iostat = open_status)
-        write(LogLogical, '(L1)') open_status
-        logString = ' create_status=' // LogLogical
-        call log_msg(LogString)
-        if (open_status /= 0) then
-            call log_msg(' err=error while creating file. output file not written.')
-            call ErrorHandle(2, 0, 3)
-        end if
+        if (open_status /= 0) call ExceptionHandler(64)
 
         write(udf,'(a)') 'Transfer_function_parameters_(TFP)_for_IIR-shaped_filter_(see_Ibrom_et_al._2007_AFM).'
         write(udf,'(a)') 'fc:_IIR_cut-off_frequency'
@@ -217,17 +201,8 @@ subroutine OutputSpectralAssessmentResults(out_assessment, out_ensemble, nbins)
         Filename = EddyProProj%id(1:len_trim(EddyProProj%id)) // H2OAvrg_FilePadding  &
             // Timestamp_FilePadding // CsvExt
         FilePath = SpecDir(1:len_trim(SpecDir)) // Filename(1:len_trim(Filename))
-        LogString = ' h2o_avrg_sp_file=' // FilePath(1:len_trim(FilePath))
-        call log_msg(logString)
-
         open(udf, file = FilePath, iostat = open_status)
-        write(LogLogical, '(L1)') open_status
-        logString = ' create_status=' // LogLogical
-        call log_msg(LogString)
-        if (open_status /= 0) then
-            call log_msg(' err=error while creating file. output file not written.')
-            call ErrorHandle(2, 0, 3)
-        end if
+        if (open_status /= 0) call ExceptionHandler(64)
 
         write(udf,'(a)') 'Binned_average_and_predicted_H2O_spectra_sorted_by_RH-class.'
         write(udf,'(a)') ',RH=0.1,,,RH=0.2,,,RH=0.3,,,RH=0.4,,,RH=0.5,,,RH=0.6,,,RH=0.7,,,RH=0.8,,,RH=0.9'
@@ -295,16 +270,8 @@ subroutine OutputSpectralAssessmentResults(out_assessment, out_ensemble, nbins)
         Filename = EddyProProj%id(1:len_trim(EddyProProj%id)) // PASGAS_Avrg_FilePadding  &
             // Timestamp_FilePadding // CsvExt
         FilePath = SpecDir(1:len_trim(SpecDir)) // Filename(1:len_trim(Filename))
-        LogString = ' passive_gases_avrg_sp_file=' // FilePath(1:len_trim(FilePath))
-        call log_msg(logString)
         open(udf, file = FilePath, iostat = open_status)
-        write(LogLogical, '(L1)') open_status
-        logString = ' create_status=' // LogLogical
-        call log_msg(LogString)
-        if (open_status /= 0) then
-            call log_msg(' err=error while creating file. output file not created.')
-            call ErrorHandle(2, 0, 3)
-        end if
+        if (open_status /= 0) call ExceptionHandler(64)
 
     !    write(udf,'(a)') 'Binned_average_and_predicted_spectra_for_passive_gases._Sorted_by_month'
         write(udf,'(a)') 'Binned_average_and_predicted_spectra_for_passive_gases'
@@ -410,17 +377,8 @@ subroutine OutputSpectralAssessmentResults(out_assessment, out_ensemble, nbins)
         Filename = EddyProProj%id(1:len_trim(EddyProProj%id)) // Cosp_FilePadding  &
             // Timestamp_FilePadding // CsvExt
         FilePath = SpecDir(1:len_trim(SpecDir)) // Filename(1:len_trim(Filename))
-        LogString = ' avrg_cosp_file=' // FilePath(1:len_trim(FilePath))
-        call log_msg(logString)
-
         open(udf, file = FilePath, iostat = open_status)
-        write(LogLogical, '(L1)') open_status
-        logString = ' create_status=' // LogLogical
-        call log_msg(LogString)
-        if (open_status /= 0) then
-            call log_msg(' err=error while creating file. output file not written.')
-            call ErrorHandle(2, 0, 3)
-        end if
+        if (open_status /= 0) call ExceptionHandler(64)
 
         write(udf,'(a)') 'Binned_average_cospectra_sorted_by_time_of_day.'
         write(udf,'(a)') ',00:00-02:59,,,,,03:00-5:59,,,,,06:00-08:59,,,,,09:00-11:59,,,,,&
@@ -489,24 +447,16 @@ subroutine OutputSpectralAssessmentResults(out_assessment, out_ensemble, nbins)
 
         !> If not one fit went good, alert on output and exit routine
         if (.not. proceed) then
-            call ErrorHandle(0, 0, 45)
+            call ExceptionHandler(45)
             return
         end if
 
         Filename = EddyProProj%id(1:len_trim(EddyProProj%id)) // Stability_FilePadding  &
             // Timestamp_FilePadding // CsvExt
         FilePath = SpecDir(1:len_trim(SpecDir)) // Filename(1:len_trim(Filename))
-        LogString = ' avrg_stability_file=' // FilePath(1:len_trim(FilePath))
-        call log_msg(logString)
 
         open(udf, file = FilePath, iostat = open_status)
-        write(LogLogical, '(L1)') open_status
-        logString = ' create_status=' // LogLogical
-        call log_msg(LogString)
-        if (open_status /= 0) then
-            call log_msg(' err=error while creating file. output file not written.')
-            call ErrorHandle(2, 0, 3)
-        end if
+        if (open_status /= 0) call ExceptionHandler(64)
 
         write(udf,'(a)') 'Ensemble_cospectra,fitted_Massman_cospectra_and_Kaimal_cospectra.'
         write(udf,'(a)') 'Massman_model:'

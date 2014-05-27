@@ -55,25 +55,12 @@ subroutine ImportNativeData(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nro
     !> Open native data file
     select case (EddyProProj%ftype(1:len_trim(EddyProProj%ftype)))
 
-        case ('alteddy_bin')
-            open(unat, file = trim(adjustl(Filepath)), status = 'old', &
-                iostat = io_status, access='direct', form = 'unformatted', recl = 12)
-            write(LogLogical, '(L1)') io_status
-            if (io_status /= 0) then
-                call log_msg(' Error while opening native binary file. file skipped.')
-                call ErrorHandle(1, 0, 4)
-                skip_file = .true.
-                return
-            end if
-
         case ('eddymeas_bin')
             !> Open raw file in binary mode
             open(unat, file = trim(adjustl(Filepath)), status = 'old', &
                 iostat = io_status, access='direct', form = 'unformatted', recl = 8 + (NumCol - 4) * 2)
-            write(LogLogical, '(L1)') io_status
             if (io_status /= 0) then
-                call log_msg(' Error while opening native binary file. file skipped.')
-                call ErrorHandle(1, 0, 4)
+                call ExceptionHandler(54)
                 skip_file = .true.
                 return
             end if
@@ -83,10 +70,8 @@ subroutine ImportNativeData(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nro
 
             open(udf, file = trim(adjustl(Filepath)), status = 'old', &
                 iostat = io_status, access='direct', form = 'unformatted', recl = 1)
-            write(LogLogical, '(L1)') io_status
             if (io_status /= 0) then
-                call log_msg(' Error while opening native binary file. file skipped.')
-                call ErrorHandle(1, 0, 4)
+                call ExceptionHandler(54)
                 skip_file = .true.
                 return
             end if
@@ -94,8 +79,7 @@ subroutine ImportNativeData(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nro
 
             !> Check that rec_len is consistent with number of variables in files, if not skip
             if (read_status /= 0 .or. rec_len < 0 .or. rec_len > 24 .or. rec_len /= size(fRaw, 2) * 2) then
-                call log_msg(' Error while reading native binary file. file skipped.')
-                call ErrorHandle(1, 0, 5)
+                call ExceptionHandler(54)
                 skip_file = .true.
                 return
             end if
@@ -107,10 +91,8 @@ subroutine ImportNativeData(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nro
         case ('generic_bin')
             open(unat, file = trim(adjustl(Filepath)), access='direct', &
                 form = 'unformatted', recl = 1, iostat = io_status)
-            write(LogLogical, '(L1)') io_status
             if (io_status /= 0) then
-                call log_msg(' Error while opening native binary file. file skipped.')
-                call ErrorHandle(1, 0, 4)
+                call ExceptionHandler(55)
                 skip_file = .true.
                 return
             end if
@@ -119,10 +101,8 @@ subroutine ImportNativeData(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nro
             !> If number of header rows is /= 0, open file in TEXT mode to read data format (IEEE4 or FP2)
             if (FileInterpreter%tob1_format == 'none' .and. FileInterpreter%header_rows > 0) then
                 open(udf, file = trim(adjustl(Filepath)), status = 'old', iostat = io_status)
-                write(LogLogical, '(L1)') io_status
                 if (io_status /= 0) then
-                    call log_msg(' Error while opening native binary file. file skipped.')
-                    call ErrorHandle(1, 0, 4)
+                    call ExceptionHandler(56)
                     skip_file = .true.
                     return
                 end if
@@ -152,20 +132,25 @@ subroutine ImportNativeData(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nro
             !> Open raw file in binary mode
             open(udf, file = trim(adjustl(Filepath)), status = 'old', &
                 iostat = io_status, access='direct', form = 'unformatted', recl = 8192)
-            write(LogLogical, '(L1)') io_status
             if (io_status /= 0) then
-                call log_msg(' Error while opening native binary file. file skipped.')
-                call ErrorHandle(1, 0, 4)
+                call ExceptionHandler(56)
+                skip_file = .true.
+                return
+            end if
+
+        case ('alteddy_bin')
+            open(unat, file = trim(adjustl(Filepath)), status = 'old', &
+                iostat = io_status, access='direct', form = 'unformatted', recl = 12)
+            if (io_status /= 0) then
+                call ExceptionHandler(54)
                 skip_file = .true.
                 return
             end if
 
         case default
             open(unat, file = trim(adjustl(Filepath)), status = 'old', iostat = io_status)
-            write(LogLogical, '(L1)') io_status
             if (io_status /= 0) then
-                call log_msg(' Error while opening generic ASCII file. file skipped.')
-                call ErrorHandle(1, 0, 6)
+                call ExceptionHandler(57)
                 skip_file = .true.
                 return
             end if
@@ -180,7 +165,6 @@ subroutine ImportNativeData(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nro
     !> Values are now converted into standard physical units, if needed.
     call DefineAllVarSet(LocCol, fRaw, size(fRaw, 1), size(fRaw, 2), N)
     close(unat)
-
 end subroutine ImportNativeData
 
 !***************************************************************************

@@ -32,7 +32,6 @@
 module m_fp2_to_float
     use m_numeric_kinds
 
-
     real(kind = sgl) :: FP2(0:65535)
 
      data FP2(0000000:0003421) / &

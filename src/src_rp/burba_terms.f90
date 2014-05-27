@@ -48,7 +48,7 @@ subroutine BurbaTerms()
     real(kind = dbl) :: delta_spar
     real(kind = dbl) :: k_air
     real(kind = dbl) :: Umean
-
+    logical :: switch_to_linear
 
     !> Is user explicitly selects not to perform Burba correction, set terms to zero.
     if (RPsetup%bu_corr == 'none') then
@@ -65,7 +65,7 @@ subroutine BurbaTerms()
         k_air = error
     end if
 
-    !> Mean horizonal wind
+    !> Mean horizontal wind
     if (Stats%Mean(u) /= error .and. Stats%Mean(v) /= error) then
         Umean = dsqrt(Stats%Mean(u)**2 + Stats%Mean(v)**2)
     else
@@ -73,11 +73,10 @@ subroutine BurbaTerms()
     end if
 
     !> If any parameter for multi linear is not available, set method to simple linear
-    if (BiometVar%Rg == error .or. BiometVar%LWin == error) then
-        RPsetup%bu_multi = .false.
-    end if
+    switch_to_linear = .false.
+    if (BiometVar%Rg == error .or. BiometVar%LWin == error) switch_to_linear = .true.
 
-    if (RPsetup%bu_multi) then
+    if (RPsetup%bu_multi .and. .not. switch_to_linear) then
         !> multiple regression option
         if (Stats%daytime) then
             if (Stats%T /= error .and. BiometVar%Rg /= error .and. Umean /= error) then

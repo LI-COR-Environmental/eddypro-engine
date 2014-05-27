@@ -203,7 +203,7 @@ end subroutine stripstr
 ! \test
 ! \todo
 !***************************************************************************
-subroutine SchrinkString(string)
+subroutine ShrinkString(string)
     implicit none
     !> in/out variables
     character(*), intent(inout) :: string
@@ -219,7 +219,7 @@ subroutine SchrinkString(string)
         end if
         if (i >= len_trim(string)) exit
     end do
-end subroutine SchrinkString
+end subroutine ShrinkString
 
 !***************************************************************************
 !
@@ -343,7 +343,6 @@ subroutine AddDatum(dataline, datum, separator)
     end if
 end subroutine AddDatum
 
-
 !***************************************************************************
 !
 ! \brief       Write an integer datum as a string, \n
@@ -366,7 +365,7 @@ subroutine WriteDatumInt(int_datum, char_datum, err_label)
 
     if (int_datum /= nint(error)) then
         write(char_datum, *) int_datum
-        call schrinkString(char_datum)
+        call ShrinkString(char_datum)
     else
         char_datum = err_label(1:len_trim(err_label))
     end if
@@ -480,6 +479,41 @@ end subroutine DoubleCharInString
 
 !***************************************************************************
 !
+! \brief       Eliminate repeated character in string, most notably useful
+!              to eliminate multiple contiguous delimiters
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+subroutine StripConsecutiveChar(string, char)
+    implicit none
+    !> in/out variables
+    character(*), intent(in) :: char
+    character(*), intent(inout) :: string
+    !> local variables
+    integer :: i
+
+    i = 2
+    do while (i <= len_trim(string) - 1)
+        if ((string(i:i) == char) .and. string(i:i) == string(i-1:i-1)) then
+            string = string(1:i-1) // string(i+1:len_trim(string))
+            i = i - 1
+        end if
+        i = i + 1
+    end do
+    !> Special case of last character
+    if (string(len_trim(string):len_trim(string)) == &
+        string(len_trim(string)-1:len_trim(string)-1)) then
+        string = string(1:len_trim(string)-1)
+    end if
+end subroutine StripConsecutiveChar
+
+!***************************************************************************
+! \file        src/string_sub.f90
 ! \brief       Returns True is software version "ver_new" is
 !              strictly more recent than "ver_old"
 ! \author      Gerardo Fratini

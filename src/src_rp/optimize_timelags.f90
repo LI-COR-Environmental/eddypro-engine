@@ -88,7 +88,7 @@ subroutine OptimizeTimelags(toSet, nrow, actn, M, h2o_n, MM, cls_size)
             !> If H2O was split in classes, now make H2O calculations
 !TO REFINE            if (gas /= h2o) cycle
             if (gas == h2o .and. MM > 1) then
-                !> Water vapour, the same as above, but for 20 RH classes
+                !> Water vapour, the same as above, but for RH classes
                 toH2O%def=error
                 toH2O%min=error
                 toH2O%max=error
@@ -206,7 +206,7 @@ subroutine OptimizeTimelags(toSet, nrow, actn, M, h2o_n, MM, cls_size)
 
     !> If time lag optimization failed, switch to covariance maximization
     if (toH2O(1)%def == error .and. toH2O(MM)%def == error) then
-        call ErrorHandle(0, 0, 43)
+        call ExceptionHandler(43)
         Meth%tlag = 'maxcov'
     end if
 !TO REFINEdo cls = 1, MM

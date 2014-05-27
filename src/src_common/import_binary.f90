@@ -123,15 +123,16 @@ subroutine ImportBinary(FirstRecord, LastRecord, LocCol, fRaw, nrow, ncol, N, Fi
     N = 0
     record_loop: do
         i = i + 1
-
-        !> Normal exit
-        if (N + 1 > LastRecord - FirstRecord + 1) exit record_loop
-
         do j = 1, NumCol
             !> For each variable, read <nbytes> bytes
             do i = 1, Binary%nbytes
                 read(unat, rec = rec_num + 2 * j + i - 2, iostat = io_status) b(i)
-                if (io_status /= 0) exit record_loop
+                !> In case of binary files, any problem in reading the file
+                !> causes EP to skip it until its end.
+                if (io_status /= 0) then
+                    FileEndReached = .true.
+                    exit record_loop
+                end if
             end do
             !> join bytes to create variable value
             IntRec(j) = 0_2
@@ -155,6 +156,9 @@ subroutine ImportBinary(FirstRecord, LastRecord, LocCol, fRaw, nrow, ncol, N, Fi
 
         !> Cycle until FirstRecord.
         if (i < FirstRecord) cycle record_loop
+
+        !> Normal exit
+        if (N > LastRecord - FirstRecord) exit record_loop
 
         N = N + 1
         TmpfRaw(N, :) = IntRec(:)
