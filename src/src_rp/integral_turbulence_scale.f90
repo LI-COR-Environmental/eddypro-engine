@@ -128,9 +128,6 @@ subroutine IntegralTurbulenceScale(Set, nrow, ncol)
     deallocate(w_cross_corr)
 
     !> Filter reasonable values of ITS, in case anything went wrong.
-    !> ITS shouldn't be higher than the integral of "1" over the whole time lag period.
-    !> Use a factor of 2 to account for anomalies.
-
     !> For badly estimated ITS, uses simple formula from Wyngaard (1973), as cited in Billesbach (2012):
     !> "The integraltimescale can be estimated (under neutral stability) as the
     !> instrument height divided by the mean wind speed".
@@ -139,9 +136,10 @@ subroutine IntegralTurbulenceScale(Set, nrow, ncol)
     else
         ITS_bill = error
     end if
-
-!    where (ITS(u:gas4) > 2. * RUsetup%tlag_max .or. ITS(u:gas4) == error)
+    !> ITS shouldn't be higher than the integral of "1" over the whole time lag period.
+    !> Use a factor of 2 to account for anomalies.
+    where (ITS(u:gas4) > 2. * RUsetup%tlag_max .or. ITS(u:gas4) == error)
        ITS(u:gas4) = ITS_bill
-!    end where
+    end where
     write(*, '(a)') ' done.'
 end subroutine IntegralTurbulenceScale
