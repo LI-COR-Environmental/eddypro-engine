@@ -184,8 +184,8 @@ end subroutine RU_Mann_Lenschow_04
 
 !***************************************************************************
 !
-! \brief       Estimate random instrument noise according to Billesbach (2011)
-!              Eq. 3
+! \brief       Estimate random instrument noise (RIN) according to
+!              Billesbach (2011), Eq. 3
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -200,16 +200,22 @@ subroutine RIN_Billesbach_11(Set, N, M)
     !> in/out variables
     integer, intent(in) :: N
     integer, intent(in) :: M
-    real(kind = dbl), intent(in) :: Set(N, M)
+    real(kind = dbl), intent(inout) :: Set(N, M)
     !> local variables
     integer :: i
     integer :: ntimes = 1
+    real(kind = dbl) :: tmpW(N)
 
     !> Calculate ntimes (given) times the relevant covariances
     !> with 1 time series shuffled (w, so that shuffling is done only once)
+    tmpW = Set(w, 1:N)
     do i = 1, ntimes
-    call CovarianceMatrixNoError(Set, size(Set, 1), size(Set, 2), Stats%Cov, error)
+        call RandomShuffle(tmpW, Set(w, 1:N), N)
+        call CovarianceMatrixNoError(Set, size(Set, 1), size(Set, 2), &
+            Stats%Cov, error)
     end do
+    !> Reset w to its original shape
+    Set(w, 1:N) = tmpW
 end subroutine RIN_Billesbach_11
 !***************************************************************************
 !
@@ -220,7 +226,7 @@ end subroutine RIN_Billesbach_11
 ! \bug
 ! \deprecated
 ! \test
-! \todo
+! \todo        Under development
 !***************************************************************************
 subroutine RandomShuffle(arr, arrout, N)
     use m_rp_global_var
@@ -262,7 +268,7 @@ end subroutine RandomShuffle
 ! \bug
 ! \deprecated
 ! \test
-! \todo
+! \todo        Under development
 !***************************************************************************
 integer function RandomBetween(min, max)
     use m_rp_global_var
@@ -277,14 +283,14 @@ end function RandomBetween
 
 !***************************************************************************
 !
-! \brief       initialize random number generation
+! \brief       Initialize random number generation
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
 ! \bug
 ! \deprecated
 ! \test
-! \todo
+! \todo        Under development
 !***************************************************************************
 subroutine InitRandomSeed()
     use m_rp_global_var
@@ -292,6 +298,7 @@ subroutine InitRandomSeed()
     integer, allocatable :: seed(:)
     integer :: i, n, dt(8), pid, t(2), s
     integer(8) :: count, tms
+
 
     call random_seed(size = n)
     allocate(seed(n))
@@ -316,14 +323,14 @@ subroutine InitRandomSeed()
     pid = getpid() + 1099279 ! Add a prime
     s = ieor(s, pid)
     if (n >= 3) then
-      seed(1) = t(1) + 36269
-      seed(2) = t(2) + 72551
-      seed(3) = pid
-      if (n > 3) then
-         seed(4:) = s + 37 * (/ (i, i = 0, n - 4) /)
-      end if
+        seed(1) = t(1) + 36269
+        seed(2) = t(2) + 72551
+        seed(3) = pid
+        if (n > 3) then
+            seed(4:) = s + 37 * (/ (i, i = 0, n - 4) /)
+        end if
     else
-      seed = s + 37 * (/ (i, i = 0, n - 1 ) /)
+        seed = s + 37 * (/ (i, i = 0, n - 1 ) /)
     end if
     call random_seed(put=seed)
 end subroutine InitRandomSeed

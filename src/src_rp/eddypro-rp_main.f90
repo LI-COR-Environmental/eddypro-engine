@@ -120,7 +120,6 @@ program EddyproRP
     character(32) :: char_doy
     character(10) :: tmpDate
     character(5) ::  tmpTime
-    character(1024) :: command
 
     logical :: skip_period
     logical :: passed(32)

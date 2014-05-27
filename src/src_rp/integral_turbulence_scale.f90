@@ -110,7 +110,7 @@ subroutine IntegralTurbulenceScale(Set, nrow, ncol)
                 end if
             end do
         case('full_integral')
-            !> Intgrate over the full range of variation of time lag
+            !> Integrate over the full range of variation of time lag
             do var = u, gas4
                 if (var /= w .and. E2Col(var)%present) then
                     if (.not. w_cross_corr_failed(var)) then
