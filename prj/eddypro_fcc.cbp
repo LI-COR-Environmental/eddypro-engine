@@ -180,9 +180,6 @@
 		<Unit filename="../src/src_common/m_libdate.f90">
 			<Option weight="0" />
 		</Unit>
-		<Unit filename="../src/src_common/m_logger.f90">
-			<Option weight="0" />
-		</Unit>
 		<Unit filename="../src/src_common/m_methane_tables.f90">
 			<Option weight="1" />
 		</Unit>
@@ -238,9 +235,6 @@
 			<Option weight="4" />
 		</Unit>
 		<Unit filename="../src/src_fcc/available_mean_spectra_cospectra.f90">
-			<Option weight="4" />
-		</Unit>
-		<Unit filename="../src/src_fcc/binned_frequency_vector_fcc.f90">
 			<Option weight="4" />
 		</Unit>
 		<Unit filename="../src/src_fcc/correction_factor_model.f90">
