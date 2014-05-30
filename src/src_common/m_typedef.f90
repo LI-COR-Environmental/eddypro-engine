@@ -454,6 +454,7 @@ module m_typedef
         character(32) :: err_label
         character(32) :: run_mode
         character(32) :: run_env
+        character(32) :: caller
         character(32) :: biomet_data
         character(64) :: biomet_tail
         logical :: biomet_dir

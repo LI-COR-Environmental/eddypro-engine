@@ -431,9 +431,6 @@ program EddyproRP
             to_periods_loop: do
                 pcount = pcount + 1
 
-                !> Period advancement
-                if (day /= 0) write(*, '(a)', advance = 'no') '#'
-
                 !> If embedded metadata are to be used, reinitialize column information to null
                 if (EddyProProj%use_extmd_file) then
                     Col = BypassCol
@@ -453,11 +450,26 @@ program EddyproRP
                 call FirstFileOfCurrentPeriod(InitialTimestamp, FinalTimestamp, RawFileList, &
                     NumRawFiles, LatestRawFileIndx, NextRawFileIndx, skip_period)
 
+                !> Averaging period advancement
+                 if (day /= 0) then
+                    if (EddyProProj%caller == 'console') then
+                        write(*, '(a)', advance = 'no') '#'
+                    else
+                        call DisplayProgress('avrg_interval', &
+                            '   another small step to the time-lag: ',  InitialTimestamp, 'yes')
+                    end if
+                end if
+
                 !> Daily advancement
                 if (day /= InitialTimestamp%day .or. month /= InitialTimestamp%month) then
                     month = InitialTimestamp%month
                     day   = InitialTimestamp%day
-                    call ShowDailyAdvancement('  Importing data for: ', InitialTimestamp)
+                    if (EddyProProj%caller == 'console') then
+                        write(*, '(a)')
+                        call DisplayProgress('daily','  Importing data for: ', InitialTimestamp, 'no')
+                    else
+                        call DisplayProgress('daily','  Importing data for: ', InitialTimestamp, 'yes')
+                    end if
                 end if
 
                 if (skip_period) cycle to_periods_loop
@@ -672,6 +684,7 @@ program EddyproRP
 
             end do to_periods_loop
             write(*, '(a)')
+            write(*, '(a)') ' Done.'
 
             !***************************************************************************************
             !**** RAW DATA REDUCTION FINISHES HERE. NOW STARTS TIME LAG OPT CALCULATIONS ***********
@@ -760,9 +773,6 @@ program EddyproRP
             pf_periods_loop: do
                 pcount = pcount + 1
 
-                !> Period advancement
-                if (day /= 0) write(*, '(a)', advance = 'no') '#'
-
                 !> If embedded metadata are to be used, reinitialize column information to null
                 if (EddyProProj%use_extmd_file) then
                     Col = BypassCol
@@ -783,11 +793,26 @@ program EddyproRP
                 call FirstFileOfCurrentPeriod(InitialTimestamp, FinalTimestamp, RawFileList, &
                     NumRawFiles, LatestRawFileIndx, NextRawFileIndx, skip_period)
 
+                !> Averaging period advancement
+                if (day /= 0) then
+                    if (EddyProProj%caller == 'console') then
+                        write(*, '(a)', advance = 'no') '#'
+                    else
+                        call DisplayProgress('avrg_interval', &
+                            '   another small step to the planar-fit: ', InitialTimestamp, 'yes')
+                    end if
+                end if
+
                 !> Daily advancement
                 if (day /= InitialTimestamp%day .or. month /= InitialTimestamp%month) then
                     month = InitialTimestamp%month
                     day   = InitialTimestamp%day
-                    call ShowDailyAdvancement('  Importing wind data for: ', InitialTimestamp)
+                    if (EddyProProj%caller == 'console') then
+                        write(*, '(a)')
+                        call DisplayProgress('daily','  Importing wind data for ', InitialTimestamp, 'no')
+                    else
+                        call DisplayProgress('daily','  Importing wind data for ', InitialTimestamp, 'yes')
+                    end if
                 end if
 
                 if (skip_period) cycle pf_periods_loop
@@ -895,6 +920,7 @@ program EddyproRP
                 pfWind(pfn, v) = Stats4%Mean(v)
                 pfWind(pfn, w) = Stats4%Mean(w)
             end do pf_periods_loop
+            write(*, '(a)')
             write(*, '(a)') ' Done.'
 
             !***************************************************************************************

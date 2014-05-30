@@ -61,6 +61,7 @@ subroutine InitEnv()
     OS = ''
     homedir = ''
     EddyProProj%run_env = ''
+    EddyProProj%caller = ''
     projPath = ''
     i = 1
     arg_loop: do
@@ -92,6 +93,12 @@ subroutine InitEnv()
                     EddyProProj%run_env = trim(arg)
                     if (EddyProProj%run_env(1:1) == '-') EddyProProj%run_env = ''
 
+                !> Switch for "caller", whether "gui" or "console"
+                case('-c', '--caller')
+                    if (io_status > 0 .or. len_trim(switch) == 0) exit arg_loop
+                    EddyProProj%caller = trim(arg)
+                    if (EddyProProj%caller(1:1) == '-') EddyProProj%caller = ''
+
                 !> Software version
                 case('-v', '--version')
                     call InformOfSoftwareVersion(sw_ver, build_date)
@@ -109,8 +116,11 @@ subroutine InitEnv()
     !> Set OS-dependent parameters
     if (len_trim(OS) == 0) OS = OS_default
     call SetOSEnvironment()
+
+    !> Default values if args are not passed
     if (len_trim(homedir) == 0) homedir = '..'
     if (len_trim(EddyProProj%run_env) == 0) EddyProProj%run_env = 'desktop'
+    if (len_trim(EddyProProj%caller) == 0)  EddyProProj%caller  = 'console'
 
     !> Define default unit number (udf), run specific
     call hms_current_hms(aux, aux, aux, udf)
