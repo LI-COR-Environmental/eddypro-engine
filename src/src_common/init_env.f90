@@ -212,6 +212,7 @@ subroutine CommandLineHelp(sw_ver, build_date)
     write(*, '(a)') ' OPTIONS:'
     write(*, '(a)') '   [-s | --system [win | linux | mac]]  Operating system; if not provided assumes "win"'
     write(*, '(a)') '   [-m | --mode [embedded | desktop]]   Running mode; if not provided assumes "desktop"'
+    write(*, '(a)') '   [-c | --caller [gui | console]]      Caller; if not provided assumes "console"'
     write(*, '(a)') '   [-e | --environment [DIRECTORY]]     Working directory, to be provided in embedded mode;&
                                                              & if not provided assumes \.'
     write(*, '(a)') '   [-h | --help]                        Display this help and exit'
