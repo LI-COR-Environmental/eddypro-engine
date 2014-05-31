@@ -224,7 +224,7 @@ Program EddyproFCC
             if (day /= BinnedFileList(fcount)%timestamp%Day .or. month /= BinnedFileList(fcount)%timestamp%Month) then
                 month = BinnedFileList(fcount)%timestamp%Month
                 day   = BinnedFileList(fcount)%timestamp%Day
-                call ShowDailyAdvancement('  Importing binned spectra for day: ', BinnedFileList(fcount)%timestamp)
+                call DisplayProgress('daily', '  Importing binned spectra for ', BinnedFileList(fcount)%timestamp, 'yes')
             end if
 
             !> Retrieve essentials information for current spectra
@@ -352,7 +352,7 @@ Program EddyproFCC
         if (day /= CurrentTimestamp%day .or. month /= CurrentTimestamp%month) then
             month = CurrentTimestamp%month
             day   = CurrentTimestamp%day
-            call ShowDailyAdvancement(' Calculating fluxes for: ', CurrentTimestamp)
+            call DisplayProgress('daily', '  Calculating fluxes for ', CurrentTimestamp, 'yes')
         end if
 
         !> Band-pass spectral correction factors

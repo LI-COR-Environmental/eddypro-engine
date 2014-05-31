@@ -120,6 +120,7 @@ program EddyproRP
     character(32) :: char_doy
     character(10) :: tmpDate
     character(5) ::  tmpTime
+    character(128) ::  PeriodSkipMessage
 
     logical :: skip_period
     logical :: passed(32)
@@ -193,6 +194,14 @@ program EddyproRP
     !> EddyPro Express settings
     if (EddyProProj%run_mode == 'express') call ConfigureForExpress()
     if (EddyProProj%run_mode == 'md_retrieval') call ConfigureForMdRetrieval()
+
+
+    !> Define message for skipped periods
+    if (EddyProProj%run_mode /= 'md_retrieval') then
+        PeriodSkipMessage = '   Flux averaging period processing time: '
+    else
+        PeriodSkipMessage = '  Metadata retrieving time: '
+    end if
 
     !> Selects which datasets should be filled with error codes, based on user selection
     make_dataset_common = EddyProProj%make_dataset
@@ -466,9 +475,9 @@ program EddyproRP
                     day   = InitialTimestamp%day
                     if (EddyProProj%caller == 'console') then
                         write(*, '(a)')
-                        call DisplayProgress('daily','  Importing data for: ', InitialTimestamp, 'no')
+                        call DisplayProgress('daily','  Importing data for ', InitialTimestamp, 'no')
                     else
-                        call DisplayProgress('daily','  Importing data for: ', InitialTimestamp, 'yes')
+                        call DisplayProgress('daily','  Importing data for ', InitialTimestamp, 'yes')
                     end if
                 end if
 
@@ -1288,6 +1297,7 @@ program EddyproRP
         !> Exception handling
         if (skip_period) then
             if (EddyProProj%run_mode /= 'md_retrieval') call ExceptionHandler(53)
+            call hms_delta_print(PeriodSkipMessage,'')
             cycle periods_loop
         end if
 
@@ -1301,7 +1311,10 @@ program EddyproRP
             PeriodRecords, bN, EmbBiometDataExist, skip_period, LatestRawFileIndx, Col) !< out ("Col" is in/out)
 
         !> Period skip control
-        if (EddyProProj%run_mode /= 'md_retrieval' .and. skip_period) cycle periods_loop
+        if (EddyProProj%run_mode /= 'md_retrieval' .and. skip_period) then
+            call hms_delta_print(PeriodSkipMessage,'')
+            cycle periods_loop
+        end if
 
         !> If it's running in metadata retriever mode, create a dummy dataset 1 minute long
         if (EddyProProj%run_mode == 'md_retrieval') then
@@ -1327,7 +1340,7 @@ program EddyproRP
             MissingRecords = dfloat(MaxPeriodNumRecords - PeriodRecords) / dfloat(MaxPeriodNumRecords) * 100d0
             if (PeriodRecords > 0 .and. MissingRecords > RPsetup%max_lack) then
                 call ExceptionHandler(58)
-                write(*, *)
+                call hms_delta_print(PeriodSkipMessage,'')
                 cycle periods_loop
             end if
 
@@ -1397,6 +1410,7 @@ program EddyproRP
                 if(allocated(E2Primes)) deallocate(E2Primes)
                 call ExceptionHandler(59)
                 write(*,*)''
+                call hms_delta_print(PeriodSkipMessage,'')
                 cycle periods_loop
             end if
         end if
@@ -1511,6 +1525,7 @@ program EddyproRP
                 if(allocated(UserPrimes)) deallocate(UserPrimes)
                 call ExceptionHandler(59)
                 write(*,*)''
+                call hms_delta_print(PeriodSkipMessage,'')
                 cycle periods_loop
             end if
             NumberOfOkPeriods = NumberOfOkPeriods + 1
@@ -1530,6 +1545,7 @@ program EddyproRP
             if (MissingRecords > RPsetup%max_lack) then
                 call ExceptionHandler(58)
                 write(*, *)
+                call hms_delta_print(PeriodSkipMessage,'')
                 cycle periods_loop
             end if
 
