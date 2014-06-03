@@ -541,8 +541,8 @@ program EddyproRP
 
                 !> Retrieve biomet data if they exist (the option was selected and the file was
                 !> successfully read with at least one valid biomet record)
-                call RetrieveBiometData(EmbBiometDataExist, BiometFileList, size(BiometFileList), LastBiometFile, &
-                    LastBiomerRecord, InitialTimestamp, FinalTimestamp, bN)
+                call RetrieveBiometData(EmbBiometDataExist, BiometFileList, size(BiometFileList), &
+                    LastBiometFile, LastBiomerRecord, InitialTimestamp, FinalTimestamp, bN, .false.)
 
                 !> Copy relevant information in variables used in the following
                 !> to be updated by elimianting Stats%mT etc..
@@ -1432,8 +1432,8 @@ program EddyproRP
 
             !> Retrieve biomet data if they exist (the option was selected and the file was
             !> successfully read with at least one valid biomet record)
-            call RetrieveBiometData(EmbBiometDataExist, BiometFileList, size(BiometFileList), LastBiometFile, &
-                LastBiomerRecord, InitialTimestamp, FinalTimestamp, bN)
+            call RetrieveBiometData(EmbBiometDataExist, BiometFileList, size(BiometFileList), &
+                LastBiometFile, LastBiomerRecord, InitialTimestamp, FinalTimestamp, bN, .true.)
 
             !> Copy relevant information in variables used in the following
             !> to be updated by elimianting Stats%mT etc..

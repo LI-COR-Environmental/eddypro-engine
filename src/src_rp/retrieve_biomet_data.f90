@@ -31,8 +31,8 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine RetrieveBiometData(EmbBiometDataExist, BiometFileList, NumBiometFiles, LastBiometFile, LastBiometRecord, &
-        InitialTimestamp, FinalTimestamp, bN)
+subroutine RetrieveBiometData(EmbBiometDataExist, BiometFileList, NumBiometFiles, LastBiometFile, &
+        LastBiometRecord, InitialTimestamp, FinalTimestamp, bN, printout)
     use m_rp_global_var
     implicit none
     !> in/out variables
@@ -44,6 +44,7 @@ subroutine RetrieveBiometData(EmbBiometDataExist, BiometFileList, NumBiometFiles
     integer, intent(inout) :: LastBiometFile
     integer, intent(inout) :: LastBiometRecord
     logical, intent(in) :: EmbBiometDataExist
+    logical, intent(in) :: printout
     !> local variables
     integer :: i
     integer :: rep
@@ -88,7 +89,7 @@ subroutine RetrieveBiometData(EmbBiometDataExist, BiometFileList, NumBiometFiles
     BiometDataExist = .false.
     if (index(EddyProProj%biomet_data, 'ext_') /= 0) then
         call ReadExtBiometFiles(BiometDataExist, BiometFileList, NumBiometFiles, &
-            LastBiometFile, LastBiometRecord, FinalTimestamp, N)
+            LastBiometFile, LastBiometRecord, FinalTimestamp, N, printout)
     else
         N = bN
     end if

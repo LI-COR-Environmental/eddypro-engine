@@ -30,7 +30,7 @@
 ! \test
 !***************************************************************************
 subroutine ReadExtBiometFiles(BiometDataExist, BiometFileList, NumBiometFiles, &
-        last_nfl, last_nrec, CurrentTimestamp, nbiomet)
+        last_nfl, last_nrec, CurrentTimestamp, nbiomet, printout)
     use m_rp_global_var
     implicit none
     !> in/out variables
@@ -41,6 +41,7 @@ subroutine ReadExtBiometFiles(BiometDataExist, BiometFileList, NumBiometFiles, &
     logical, intent(out) :: BiometDataExist
     integer, intent(inout) :: last_nfl
     integer, intent(inout) :: last_nrec
+    logical, intent(in) :: printout
     !> local variables
     integer :: i
     integer :: j
@@ -87,8 +88,10 @@ subroutine ReadExtBiometFiles(BiometDataExist, BiometFileList, NumBiometFiles, &
         if (open_status == 0) then
             BiometDataExist = .true.
 
-            if(nfl == last_nfl) write(*, '(a)') '  Searching biomet data in file: '
-            write(*, '(a)') '   ' // BiometFileList(nfl)%path(1:len_trim(BiometFileList(nfl)%path))
+            if (printout) then
+                if (nfl == last_nfl) write(*, '(a)') '  Searching biomet data in file: '
+                write(*, '(a)') '   ' // BiometFileList(nfl)%path(1:len_trim(BiometFileList(nfl)%path))
+            end if
 
             !> Skip header
             if (BiometSetup%head_lines > 0) then
@@ -599,11 +602,14 @@ subroutine ReadExtBiometFiles(BiometDataExist, BiometFileList, NumBiometFiles, &
 
     if (nbiomet < 1) then
         BiometDataExist = .false.
-        write(*,'(a)') '  No valid biomet records found for this averaging period. Continuing without biomet data.'
+        if (printout) write(*,'(a)') '  No valid biomet records found for &
+            &this averaging period. Continuing without biomet data.'
     else
-        write(LogInteger, '(i6)') nbiomet
-        write(*,'(a)') '  ' // adjustl(trim(LogInteger)) &
-            // ' biomet record(s) imported correctly for this averaging period.'
+        if (printout) then
+            write(LogInteger, '(i6)') nbiomet
+            write(*,'(a)') '  ' // adjustl(trim(LogInteger)) &
+                // ' biomet record(s) imported correctly for this averaging period.'
+        end if
     end if
 
     !> Adjust units as needed
@@ -617,7 +623,7 @@ end subroutine ReadExtBiometFiles
 !
 ! \brief       Convert input units into standard units
 ! \author      Gerardo Fratini
-! \note        
+! \note
 !              Radiations (Rg, Rn, Rd, Rr, LWin, LWout, Ruva, Ruvb) are not expected to need unit conversion
 !              Photons flux densities (PPFD, PPFDd, PPFDr, PPFDbc, APAR) are not expected to need unit conversion
 !              Albedo (Alb) is not expected to need unit conversion
