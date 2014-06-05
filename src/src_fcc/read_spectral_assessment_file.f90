@@ -50,7 +50,7 @@ subroutine ReadSpectralAssessmentFile()
     RegPar%fc = 0d0
     RegPar%f2 = 0d0
     if (open_status == 0) then
-        write(*, '(a)', advance = 'no') ' Spectral assessment file found, importing content..'
+        write(*, '(a)') '  Spectral assessment file found, importing content..'
         !> skip 7 lines
         do i = 1, 7
             read(udf, *)
@@ -95,7 +95,7 @@ subroutine ReadSpectralAssessmentFile()
         string = string(index(string, '=') + 1: len_trim(string))
         read(string, *)  StPar(1), StPar(2)
         close(udf)
-        write(*,*) ' Done.'
+        write(*, '(a)') ' Done.'
     else
        !> If the specified file was not found or is empty,m switches to an analytic method
         EddyProProj%hf_meth = 'moncrieff_97'
