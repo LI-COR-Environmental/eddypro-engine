@@ -66,7 +66,7 @@ subroutine driftRetrieveCalibrationEvents(nCalibEvents)
                      // AuxFile%DynMD(1:len_trim(AuxFile%DynMD))
     open(udf, file = AuxFile%DynMD, status = 'old', iostat = open_status)
 
-    Calib = CalibType('', '', tsNull, .false., error, error, error, error, error, error)
+    Calib = CalibType('', '', tsNull, .false., nint(error), error, error, error, error, error, error)
 
     nCalibEvents = 0
     mdcol = 0
@@ -169,7 +169,7 @@ subroutine driftRetrieveCalibrationEvents(nCalibEvents)
             6, dabs(Calib(i)%ref(h2o) + Calib(i)%offset(h2o)) / Calib(i)%Tcell / Ru * 1d3, 1, biased_abs)
         if (h2o_bias_is_negative) biased_abs = - biased_abs
 
-        if (mdcol(co2) /= 0 .and. mdcol(co2_ref) /= 0) call PolyVal(DriftCorr%inv_cal(0:6, h2o), &
+        if (mdcol(h2o) /= 0 .and. mdcol(h2o_ref) /= 0) call PolyVal(DriftCorr%inv_cal(0:6, h2o), &
             6, Calib(i)%ref(h2o) / Calib(i)%Tcell / Ru * 1d3, 1, unbiased_abs)
 
         Calib(i)%offset(h2o) = biased_abs - unbiased_abs
