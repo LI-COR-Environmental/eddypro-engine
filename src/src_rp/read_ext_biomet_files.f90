@@ -84,13 +84,16 @@ subroutine ReadExtBiometFiles(BiometDataExist, BiometFileList, NumBiometFiles, &
     file_loop: do nfl = last_nfl, NumBiometFiles
         nrec = 0
         !> Open biomet measurement file(s) and read data, selecting those in plausible ranges
-        open(udf, file = BiometFileList(nfl)%path, status = 'old', iostat = open_status)
+        open(udf, file = BiometFileList(nfl)%path, &
+            status = 'old', iostat = open_status)
         if (open_status == 0) then
             BiometDataExist = .true.
 
             if (printout) then
-                if (nfl == last_nfl) write(*, '(a)') '  Searching biomet data in file: '
-                write(*, '(a)') '   ' // BiometFileList(nfl)%path(1:len_trim(BiometFileList(nfl)%path))
+                if (nfl == last_nfl) write(*, '(a)') &
+                    '  Searching biomet data in file: '
+                write(*, '(a)') '   ' &
+                    // trim(adjustl(BiometFileList(nfl)%path))
             end if
 
             !> Skip header
@@ -146,29 +149,32 @@ subroutine ReadExtBiometFiles(BiometDataExist, BiometFileList, NumBiometFiles, &
                     do jj = TIMESTAMP_1, TIMESTAMP_7
                         if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                             if (BiometOrd(j)%units == 'ddd' .and. len_trim(text_vars(j)) == 2) &
-                                text_vars(j) = '0' // text_vars(j)(1:len_trim(text_vars(j)))
+                                text_vars(j) = '0' // trim(adjustl(text_vars(j)))
                             if (BiometOrd(j)%units == 'ddd' .and. len_trim(text_vars(j)) == 1) &
-                                text_vars(j) = '00' // text_vars(j)(1:len_trim(text_vars(j)))
+                                text_vars(j) = '00' // trim(adjustl(text_vars(j)))
                             if (BiometOrd(j)%units == 'dd' .and. len_trim(text_vars(j)) == 1) &
-                                text_vars(j) = '0' // text_vars(j)(1:len_trim(text_vars(j)))
+                                text_vars(j) = '0' // trim(adjustl(text_vars(j)))
                             if (BiometOrd(j)%units == 'HH' .and. len_trim(text_vars(j)) == 1) &
-                                text_vars(j) = '0' // text_vars(j)(1:len_trim(text_vars(j)))
+                                text_vars(j) = '0' // trim(adjustl(text_vars(j)))
                             if (BiometOrd(j)%units == 'MM' .and. len_trim(text_vars(j)) == 1) &
-                                text_vars(j) = '0' // text_vars(j)(1:len_trim(text_vars(j)))
-                            !> Special case of Excel messing up timestamp in american style mm/dd/yyyy
+                                text_vars(j) = '0' // trim(adjustl(text_vars(j)))
+                            !> Special case of Excel messing up timestamp
+                            !> in American style mm/dd/yyyy
                             if (BiometOrd(j)%units == 'mm/dd/yyyy') then
                                 if (text_vars(j)(2:2) == '/') &
-                                    text_vars(j) = '0' // text_vars(j)(1:len_trim(text_vars(j)))
+                                    text_vars(j) = '0' &
+                                    // trim(adjustl(text_vars(j)))
                                 if (text_vars(j)(5:5) == '/') &
-                                    text_vars(j) = text_vars(j)(1:3) // '0' // text_vars(j)(4:len_trim(text_vars(j)))
+                                    text_vars(j) = text_vars(j)(1:3) &
+                                    // '0' // text_vars(j)(4:len_trim(text_vars(j)))
                             end if
                             !> Special case of Excel messing up timestamp in american style HH:MM:SS
                             if (BiometOrd(j)%units == 'HH:MM:SS') then
                                 if (text_vars(j)(2:2) == ':') &
-                                    text_vars(j) = '0' // text_vars(j)(1:len_trim(text_vars(j)))
+                                    text_vars(j) = '0' // trim(adjustl(text_vars(j)))
                             end if
-                            tstamp_string = tstamp_string(1:len_trim(tstamp_string)) &
-                                // text_vars(j)(1:len_trim(text_vars(j)))
+                            tstamp_string = trim(adjustl(tstamp_string)) &
+                                // trim(adjustl(text_vars(j)))
                             cycle ol
                         end if
                     end do
@@ -187,67 +193,54 @@ subroutine ReadExtBiometFiles(BiometDataExist, BiometFileList, NumBiometFiles, &
                         do jj = TA_1_1_1, TA_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%Ta(jj - TA_1_1_1 + 1)
-!                                if (i == 1) BiometUnits%Ta(jj - TA_1_1_1 + 1) = BiometOrd(j)%units
-!                                if (i == 1 .and. BiometSetup%Ta == j) BiometSetup%Ta = jj - TA_1_1_1 + 1
                                 cycle ol
                             end if
                         end do
                         do jj = PA_1_1_1, PA_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%Pa(jj - PA_1_1_1 + 1)
-!                                if (i == 1) BiometUnits%Pa(jj - PA_1_1_1 + 1) = BiometOrd(j)%units
-!                                if (i == 1 .and. BiometSetup%Pa == j) BiometSetup%Pa = jj - PA_1_1_1 + 1
                                 cycle ol
                             end if
                         end do
                         do jj = RH_1_1_1, RH_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%RH(jj - RH_1_1_1 + 1)
-!                                if (i == 1) BiometUnits%RH(jj - RH_1_1_1 + 1) = BiometOrd(j)%units
-!                                if (i == 1 .and. BiometSetup%RH == j) BiometSetup%RH = jj - RH_1_1_1 + 1
                                 cycle ol
                             end if
                         end do
                         do jj = RG_1_1_1, RG_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%Rg(jj - RG_1_1_1 + 1)
-!                                if (i == 1) BiometUnits%Rg(jj - RG_1_1_1 + 1) = BiometOrd(j)%units
-!                                if (i == 1 .and. BiometSetup%Rg == j) BiometSetup%Rg = jj - RG_1_1_1 + 1
                                 cycle ol
                             end if
                         end do
                         do jj = RN_1_1_1, RN_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%Rn(jj - RN_1_1_1 + 1)
-!                                if (i == 1) BiometUnits%Rn(jj - RN_1_1_1 + 1) = BiometOrd(j)%units
                                 cycle ol
                             end if
                         end do
                         do jj = RD_1_1_1, RD_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%Rd(jj - RD_1_1_1 + 1)
-!                                if (i == 1) BiometUnits%Rd(jj - RD_1_1_1 + 1) = BiometOrd(j)%units
                                 cycle ol
                             end if
                         end do
                         do jj = RR_1_1_1, RR_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%RR(jj - RR_1_1_1 + 1)
-!                                if (i == 1) BiometUnits%Rr(jj - RR_1_1_1 + 1) = BiometOrd(j)%units
                                 cycle ol
                             end if
                         end do
                         do jj = R_UVA_1_1_1, R_UVA_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%Ruva(jj - R_UVA_1_1_1 + 1)
-!                                if (i == 1) BiometUnits%Ruva(jj - R_UVA_1_1_1 + 1) = BiometOrd(j)%units
                                 cycle ol
                             end if
                         end do
                         do jj = R_UVB_1_1_1, R_UVB_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%Ruvb(jj - R_UVB_1_1_1 + 1)
-!                                if (i == 1) BiometUnits%Ruvb(jj - R_UVB_1_1_1 + 1) = BiometOrd(j)%units
                                 cycle ol
                             end if
                         end do
@@ -255,211 +248,180 @@ subroutine ReadExtBiometFiles(BiometDataExist, BiometFileList, NumBiometFiles, &
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%LWin(jj - LWIN_1_1_1 + 1)
                                 BiometUnits%LWin(jj - LWIN_1_1_1 + 1) = BiometOrd(j)%units
- !                               if (i == 1 .and. BiometSetup%LWin == j) BiometSetup%LWin = jj - LWIN_1_1_1 + 1
                                 cycle ol
                             end if
                         end do
                         do jj = LWOUT_1_1_1, LWOUT_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%LWout(jj - LWOUT_1_1_1 + 1)
-!                                if (i == 1) BiometUnits%LWout(jj - LWOUT_1_1_1 + 1) = BiometOrd(j)%units
                                 cycle ol
                             end if
                         end do
                         do jj = TC_1_1_1, TC_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%Tc(jj - TC_1_1_1 + 1)
-!                                if (i == 1) BiometUnits%Tc(jj - TC_1_1_1 + 1) = BiometOrd(j)%units
                                 cycle ol
                             end if
                         end do
                         do jj = TBOLE_1_1_1, TBOLE_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%Tbole(jj - TBOLE_1_1_1 + 1)
-!                                if (i == 1) BiometUnits%Tbole(jj - TBOLE_1_1_1 + 1) = BiometOrd(j)%units
                                 cycle ol
                             end if
                         end do
                         do jj = P_1_1_1, P_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%P(jj - P_1_1_1 + 1)
-!                                if (i == 1) BiometUnits%P(jj - P_1_1_1 + 1) = BiometOrd(j)%units
                                 cycle ol
                             end if
                         end do
                         do jj = P_RAIN_1_1_1, P_RAIN_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%Prain(jj - P_RAIN_1_1_1 + 1)
-!                                if (i == 1) BiometUnits%Prain(jj - P_RAIN_1_1_1 + 1) = BiometOrd(j)%units
                                 cycle ol
                             end if
                         end do
                         do jj = P_SNOW_1_1_1, P_SNOW_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%Psnow(jj - P_SNOW_1_1_1 + 1)
-!                                if (i == 1) BiometUnits%Psnow(jj - P_SNOW_1_1_1 + 1) = BiometOrd(j)%units
                                 cycle ol
                             end if
                         end do
                         do jj = SNOWD_1_1_1, SNOWD_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%SNOWD(jj - SNOWD_1_1_1 + 1)
-!                                if (i == 1) BiometUnits%SNOWD(jj - SNOWD_1_1_1 + 1) = BiometOrd(j)%units
                                 cycle ol
                             end if
                         end do
                         do jj = PPFD_1_1_1, PPFD_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%PPFD(jj - PPFD_1_1_1 + 1)
-!                                if (i = 1) BiometUnits%PPFD(jj - PPFD_1_1_1 + 1) = BiometOrd(j)%units
-!                                if (i == 1 .and. BiometSetup%PPFD == j) BiometSetup%PPFD = jj - PPFD_1_1_1 + 1
                                 cycle ol
                             end if
                         end do
                         do jj = PPFDd_1_1_1, PPFDd_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%PPFDd(jj - PPFDd_1_1_1 + 1)
-!                                if (i == 1) BiometUnits%PPFDd(jj - PPFDd_1_1_1 + 1) = BiometOrd(j)%units
                                 cycle ol
                             end if
                         end do
                         do jj = PPFDr_1_1_1, PPFDr_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%PPFDr(jj - PPFDr_1_1_1 + 1)
-!                                if (i == 1) BiometUnits%PPFDr(jj - PPFDr_1_1_1 + 1) = BiometOrd(j)%units
                                 cycle ol
                             end if
                         end do
                         do jj = PPFDbc_1_1_1, PPFDbc_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%PPFDbc(jj - PPFDbc_1_1_1 + 1)
-!                                if (i == 1) BiometUnits%PPFDbc(jj - PPFDbc_1_1_1 + 1) = BiometOrd(j)%units
                                 cycle ol
                             end if
                         end do
                         do jj = APAR_1_1_1, APAR_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%APAR(jj - APAR_1_1_1 + 1)
-!                                if (i == 1) BiometUnits%APAR(jj - APAR_1_1_1 + 1) = BiometOrd(j)%units
                                 cycle ol
                             end if
                         end do
                         do jj = ALB_1_1_1, ALB_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%Alb(jj - ALB_1_1_1 + 1)
-!                                if (i == 1) BiometUnits%ALB(jj - ALB_1_1_1 + 1) = BiometOrd(j)%units
                                 cycle ol
                             end if
                         end do
                         do jj = PRI_1_1_1, PRI_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%PRI(jj - PRI_1_1_1 + 1)
-!                                if (i == 1) BiometUnits%PRI(jj - PRI_1_1_1 + 1) = BiometOrd(j)%units
                                 cycle ol
                             end if
                         end do
                         do jj = LAI_1_1_1, LAI_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%LAI(jj - LAI_1_1_1 + 1)
-!                                if (i == 1) BiometUnits%LAI(jj - LAI_1_1_1 + 1) = BiometOrd(j)%units
                                 cycle ol
                             end if
                         end do
                         do jj = SWIN_1_1_1, SWIN_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%SWin(jj - SWIN_1_1_1 + 1)
-                                if (i == 1) BiometUnits%SWin(jj - SWIN_1_1_1 + 1) = BiometOrd(j)%units
                                 cycle ol
                             end if
                         end do
                         do jj = SWOUT_1_1_1, SWOUT_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%SWout(jj - SWOUT_1_1_1 + 1)
-!                                if (i == 1) BiometUnits%SWout(jj - SWOUT_1_1_1 + 1) = BiometOrd(j)%units
                                 cycle ol
                             end if
                         end do
                         do jj = SWBC_1_1_1, SWBC_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%SWbc(jj - SWBC_1_1_1 + 1)
-!                                if (i == 1) BiometUnits%SWbc(jj - SWBC_1_1_1 + 1) = BiometOrd(j)%units
                                 cycle ol
                             end if
                         end do
                         do jj = SWDIF_1_1_1, SWDIF_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%SWdif(jj - SWDIF_1_1_1 + 1)
-!                                if (i == 1) BiometUnits%SWdif(jj - SWDIF_1_1_1 + 1) = BiometOrd(j)%units
                                 cycle ol
                             end if
                         end do
                         do jj = TBC_1_1_1, TBC_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%Tbc(jj - TBC_1_1_1 + 1)
-!                                if (i == 1) BiometUnits%Tbc(jj - TBC_1_1_1 + 1) = BiometOrd(j)%units
                                 cycle ol
                             end if
                         end do
                         do jj = WS_1_1_1, WS_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%WS(jj - WS_1_1_1 + 1)
-!                                if (i == 1) BiometUnits%WS(jj - WS_1_1_1 + 1) = BiometOrd(j)%units
                                 cycle ol
                             end if
                         end do
                         do jj = MWS_1_1_1, MWS_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%MWS(jj - MWS_1_1_1 + 1)
-!                                if (i == 1) BiometUnits%MWS(jj - MWS_1_1_1 + 1) = BiometOrd(j)%units
                                 cycle ol
                             end if
                         end do
                         do jj = WD_1_1_1, WD_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%WD(jj - WD_1_1_1 + 1)
-!                                if (i == 1) BiometUnits%WD(jj - WD_1_1_1 + 1) = BiometOrd(j)%units
                                 cycle ol
                             end if
                         end do
                         do jj = SAPFLOW_1_1_1, SAPFLOW_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%SAPFLOW(jj - SAPFLOW_1_1_1 + 1)
- !                               if (i == 1) BiometUnits%SAPFLOW(jj - SAPFLOW_1_1_1 + 1) = BiometOrd(j)%units
                                 cycle ol
                             end if
                         end do
                         do jj = STEMFLOW_1_1_1, STEMFLOW_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%STEMFLOW(jj - STEMFLOW_1_1_1 + 1)
- !                               if (i == 1) BiometUnits%STEMFLOW(jj - STEMFLOW_1_1_1 + 1) = BiometOrd(j)%units
                                 cycle ol
                             end if
                         end do
                         do jj = TR_1_1_1, TR_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%TR(jj - TR_1_1_1 + 1)
- !                               if (i == 1) BiometUnits%TR(jj - TR_1_1_1 + 1) = BiometOrd(j)%units
                                 cycle ol
                             end if
                         end do
                         do jj = SWC_1_1_1, SWC_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%SWC(jj - SWC_1_1_1 + 1)
- !                               if (i == 1) BiometUnits%SWC(jj - SWC_1_1_1 + 1) = BiometOrd(j)%units
                                 cycle ol
                             end if
                         end do
                        do jj = SHF_1_1_1, SHF_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%SHF(jj - SHF_1_1_1 + 1)
-!                                if (i == 1) BiometUnits%SHF(jj - SHF_1_1_1 + 1) = BiometOrd(j)%units
                                 cycle ol
                             end if
                         end do
                         do jj = TS_1_1_1, TS_10_1_1
                             if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
                                 read(text_vars(j), *) Biomet(i)%TS(jj - TS_1_1_1 + 1)
-!                                 if (i == 1) BiometUnits%TS(jj - TS_1_1_1 + 1) = BiometOrd(j)%units
                                 cycle ol
                             end if
                         end do
@@ -589,7 +551,13 @@ subroutine ReadExtBiometFiles(BiometDataExist, BiometFileList, NumBiometFiles, &
                             exit file_loop
                         else
                             i = i - 1
-                            cycle rec_loop
+                            if (biomet_date > CurrentTimestamp + tol) then
+                                last_nrec = nrec - 1
+                                close(udf)
+                                exit file_loop
+                            else
+                                cycle rec_loop
+                            end if
                         end if
                     end if
                 end do ol
@@ -607,7 +575,7 @@ subroutine ReadExtBiometFiles(BiometDataExist, BiometFileList, NumBiometFiles, &
     else
         if (printout) then
             write(LogInteger, '(i6)') nbiomet
-            write(*,'(a)') '  ' // adjustl(trim(LogInteger)) &
+            write(*,'(a)') '  ' // trim(adjustl(LogInteger)) &
                 // ' biomet record(s) imported correctly for this averaging period.'
         end if
     end if

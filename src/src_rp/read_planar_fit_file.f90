@@ -116,7 +116,7 @@ subroutine ReadPlanarFitFile()
             enddo inloop
         end do
         write(LogInteger, '(i6)') PFSetup%num_sec
-        write(*,'(a)') '  ' // adjustl(trim(LogInteger)) // ' sector(s) found.'
+        write(*,'(a)') '  ' // trim(adjustl(LogInteger)) // ' sector(s) found.'
     else
        !> If the specified planar-fit file is not found or is empty, switches to double rotations
         Meth%rot = 'double_rotation'

@@ -57,12 +57,12 @@ subroutine EditIniFile(fname, tag, newval)
             currtag = row(1:sepa-1)
             if (currtag == trim(tag)) row = trim(tag) // '='// trim(newval)
         end if
-        write(11, '(a)') adjustl(trim(row))
+        write(11, '(a)') trim(adjustl(row))
     end do
     close(10, status='DELETE')
     close(11)
 
     !> Input file has been deleted, now change name of tmp file into old input file name
-    call rename(adjustl(trim(tfname)), adjustl(trim(fname)), status = io_error)
+    call rename(trim(adjustl(tfname)), trim(adjustl(fname)), status = io_error)
 end subroutine EditIniFile
 

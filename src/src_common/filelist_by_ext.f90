@@ -144,7 +144,7 @@ subroutine FileListByExt(DirIn, Ext, MatchTemplate, Template, doy_format, GetTim
     !> Some logging
     if (logout) then
         write(LogInteger, '(i8)') cnt
-        write(*,'(a)') indent // '  ' // adjustl(trim(LogInteger)) // ' files found.'
+        write(*,'(a)') indent // '  ' // trim(adjustl(LogInteger)) // ' files found.'
     end if
 
     !> Retrieve timestamps from file names if requested

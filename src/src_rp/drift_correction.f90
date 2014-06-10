@@ -54,6 +54,8 @@ subroutine DriftCorrection(Set, nrow, ncol, locCol, ncol2, nCalibEvents, Initial
     real(kind = dbl) :: tmp2
 
 
+    call AirAndCellParameters()
+
     !> To be refined: find best estimate of cell temperature
     if (Stats%Mean(tc) <= 0d0) Stats%Mean(tc) = Stats%Mean(ts)
 
@@ -96,7 +98,6 @@ subroutine DriftCorrection(Set, nrow, ncol, locCol, ncol2, nCalibEvents, Initial
             end do
     end select
 
-
     tmp  = Set(1, co2)
     tmp2 = Set(1, h2o)
 
@@ -111,9 +112,10 @@ subroutine DriftCorrection(Set, nrow, ncol, locCol, ncol2, nCalibEvents, Initial
         end where
     else
         where (Set(:, co2) /= error)
-            Set(:, co2) = Set(:, co2) / (Stats%Mean(pc) / 1d3 * (1d0 + 0.15d0 * Stats%chi(h2o) * 1d-3)) !> last parenthesis for P_ec = P*[1 + 0.15 chi_h2o]
+            Set(:, co2) = Set(:, co2) / (LitePar%Pcell / 1d3 * (1d0 + 0.15d0 * Stats%chi(h2o) * 1d-3)) !> last parenthesis for P_ec = P*[1 + 0.15 chi_h2o]
         end where
     end if
+
     !> h2o
     if (locCol(h2o)%measure_type /= 'molar density') then
         where (Set(:, h2o) /= error)
@@ -121,7 +123,7 @@ subroutine DriftCorrection(Set, nrow, ncol, locCol, ncol2, nCalibEvents, Initial
         end where
     else
         where (Set(:, h2o) /= error)
-            Set(:, h2o) = Set(:, h2o) / (Stats%Mean(pc) / 1d3)
+            Set(:, h2o) = Set(:, h2o) / (LitePar%Pcell / 1d3)
         end where
     end if
 
@@ -140,13 +142,13 @@ subroutine DriftCorrection(Set, nrow, ncol, locCol, ncol2, nCalibEvents, Initial
     if (lDrift(co2) /= error) then
         where (Set(:, co2) /= error .and. MeanAbs(co2) /= error)
             Set(:, co2) = (MeanAbs(co2) - lDrift(co2)) + &
-                (Set(:, co2) - MeanAbs(co2)) / (1d0 - lDrift(co2) * Stats%Mean(pc) * 1d-3)
+                (Set(:, co2) - MeanAbs(co2)) / (1d0 - lDrift(co2) * LitePar%Pcell * 1d-3)
         end where
     end if
     if (lDrift(h2o) /= error) then
         where (Set(:, h2o) /= error .and. MeanAbs(h2o) /= error)
             Set(:, h2o) = (MeanAbs(h2o) - lDrift(h2o)) + &
-                (Set(:, h2o) - MeanAbs(h2o)) / (1d0 - lDrift(h2o) * Stats%Mean(pc) * 1d-3)
+                (Set(:, h2o) - MeanAbs(h2o)) / (1d0 - lDrift(h2o) * LitePar%Pcell * 1d-3)
         end where
     end if
     if (allocated(MeanAbs)) deallocate(MeanAbs)
@@ -163,7 +165,7 @@ subroutine DriftCorrection(Set, nrow, ncol, locCol, ncol2, nCalibEvents, Initial
         end where
     else
         where (Set(:, co2) /= error)
-            Set(:, co2) = Set(:, co2) * (Stats%Mean(pc) / 1d3 * (1d0 + 0.15d0 * Stats%chi(h2o) * 1d-3))
+            Set(:, co2) = Set(:, co2) * (LitePar%Pcell / 1d3 * (1d0 + 0.15d0 * Stats%chi(h2o) * 1d-3))
         end where
     end if
     !> h2o
@@ -173,9 +175,8 @@ subroutine DriftCorrection(Set, nrow, ncol, locCol, ncol2, nCalibEvents, Initial
         end where
     else
         where (Set(:, h2o) /= error)
-            Set(:, h2o) = Set(:, h2o) * (Stats%Mean(pc) / 1d3)
+            Set(:, h2o) = Set(:, h2o) * (LitePar%Pcell / 1d3)
         end where
     end if
-
     write(124,*) InitialTimestamp, tmp - Set(1, co2), tmp2 - Set(1, h2o)
 end subroutine DriftCorrection

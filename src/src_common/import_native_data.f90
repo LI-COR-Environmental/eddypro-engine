@@ -30,7 +30,8 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine ImportNativeData(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nrow, ncol, skip_file, N, FileEndReached)
+subroutine ImportNativeData(Filepath, FirstRecord, LastRecord, LocCol, &
+    fRaw, nrow, ncol, skip_file, N, FileEndReached)
     use m_common_global_var
     implicit none
     !> in/out variables
@@ -58,7 +59,8 @@ subroutine ImportNativeData(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nro
         case ('eddymeas_bin')
             !> Open raw file in binary mode
             open(unat, file = trim(adjustl(Filepath)), status = 'old', &
-                iostat = io_status, access='direct', form = 'unformatted', recl = 8 + (NumCol - 4) * 2)
+                iostat = io_status, access='direct', form = 'unformatted', &
+                recl = 8 + (NumCol - 4) * 2)
             if (io_status /= 0) then
                 call ExceptionHandler(54)
                 skip_file = .true.
@@ -78,7 +80,8 @@ subroutine ImportNativeData(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nro
             read(udf, rec=1, iostat = read_status) rec_len
 
             !> Check that rec_len is consistent with number of variables in files, if not skip
-            if (read_status /= 0 .or. rec_len < 0 .or. rec_len > 24 .or. rec_len /= size(fRaw, 2) * 2) then
+            if (read_status /= 0 .or. rec_len < 0 .or. rec_len > 24 &
+                .or. rec_len /= size(fRaw, 2) * 2) then
                 call ExceptionHandler(54)
                 skip_file = .true.
                 return
@@ -86,7 +89,8 @@ subroutine ImportNativeData(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nro
             close(udf)
 
             open(unat, file = trim(adjustl(Filepath)), status = 'old', &
-                iostat = io_status, access='direct', form = 'unformatted', recl = rec_len)
+                iostat = io_status, access='direct', form = 'unformatted', &
+                recl = rec_len)
 
         case ('generic_bin')
             open(unat, file = trim(adjustl(Filepath)), access='direct', &
@@ -99,8 +103,10 @@ subroutine ImportNativeData(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nro
 
         case ('tob1')
             !> If number of header rows is /= 0, open file in TEXT mode to read data format (IEEE4 or FP2)
-            if (FileInterpreter%tob1_format == 'none' .and. FileInterpreter%header_rows > 0) then
-                open(udf, file = trim(adjustl(Filepath)), status = 'old', iostat = io_status)
+            if (FileInterpreter%tob1_format == 'none' &
+                .and. FileInterpreter%header_rows > 0) then
+                open(udf, file = trim(adjustl(Filepath)), &
+                    status = 'old', iostat = io_status)
                 if (io_status /= 0) then
                     call ExceptionHandler(56)
                     skip_file = .true.
@@ -109,10 +115,12 @@ subroutine ImportNativeData(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nro
                 do i = 1, FileInterpreter%header_rows
                     !> Read file as text and looks for IEEE4 or FP2 in any row of the file
                     read(udf, '(a)') datastring
-                    if (index(datastring, '"IEEE4"') /= 0 .or. index(datastring, '"ieee4"') /= 0) then
+                    if (index(datastring, '"IEEE4"') /= 0 &
+                        .or. index(datastring, '"ieee4"') /= 0) then
                         FileInterpreter%tob1_format = 'IEEE4'
                         exit
-                    elseif (index(datastring, '"FP2"') /= 0 .or. index(datastring, '"fp2"') /= 0) then
+                    elseif (index(datastring, '"FP2"') /= 0 &
+                        .or. index(datastring, '"fp2"') /= 0) then
                         FileInterpreter%tob1_format = 'FP2'
                         exit
                     end if
@@ -122,7 +130,8 @@ subroutine ImportNativeData(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nro
                 do
                     if(index(datastring, '"ULONG"') /= 0) then
                         FileInterpreter%ulongs = FileInterpreter%ulongs + 1
-                        datastring = datastring(index(datastring, '"ULONG"') + 1: len_trim(datastring))
+                        datastring = &
+                        datastring(index(datastring, '"ULONG"') + 1: len_trim(datastring))
                     else
                         exit
                     end if
@@ -131,7 +140,8 @@ subroutine ImportNativeData(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nro
             end if
             !> Open raw file in binary mode
             open(udf, file = trim(adjustl(Filepath)), status = 'old', &
-                iostat = io_status, access='direct', form = 'unformatted', recl = 8192)
+                iostat = io_status, access='direct', &
+                form = 'unformatted', recl = 8192)
             if (io_status /= 0) then
                 call ExceptionHandler(56)
                 skip_file = .true.
@@ -140,7 +150,8 @@ subroutine ImportNativeData(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nro
 
         case ('alteddy_bin')
             open(unat, file = trim(adjustl(Filepath)), status = 'old', &
-                iostat = io_status, access='direct', form = 'unformatted', recl = 12)
+                iostat = io_status, access='direct', &
+                form = 'unformatted', recl = 12)
             if (io_status /= 0) then
                 call ExceptionHandler(54)
                 skip_file = .true.
@@ -148,7 +159,8 @@ subroutine ImportNativeData(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nro
             end if
 
         case default
-            open(unat, file = trim(adjustl(Filepath)), status = 'old', iostat = io_status)
+            open(unat, file = trim(adjustl(Filepath)), status = 'old', &
+                iostat = io_status)
             if (io_status /= 0) then
                 call ExceptionHandler(57)
                 skip_file = .true.

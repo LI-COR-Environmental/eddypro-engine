@@ -95,7 +95,7 @@ subroutine RU_Finkelstein_Sims_01(Set, N, M)
     real(kind = dbl), external :: LaggedCovarianceNoError
 
 
-    !> Define mm based on ITS
+    !> Define max lag based on ITS
     LagMax(u:gas4) = nint(ITS(u:gas4) * Metadata%ac_freq)
     where (LagMax < 0) LagMax = nint(error)
     do var = u, gas4
@@ -111,7 +111,7 @@ subroutine RU_Finkelstein_Sims_01(Set, N, M)
             end do
 
             !> variance of covariances, Eq. 8  in Finkelstein & Sims (2001, JGR)
-            !> Initialize the value for h = 0
+            !> Initialize the value for lag = 0
             varcov = 0d0
             if (gam(0, 1, 1) /= error .and. gam(0, 2, 2) /= error) &
                 varcov = gam(0, 1, 1) * gam(0, 2, 2) + gam(0, 1, 2) * gam(0, 2, 1)

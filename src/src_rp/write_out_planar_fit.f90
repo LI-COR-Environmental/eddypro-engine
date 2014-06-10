@@ -37,15 +37,12 @@ subroutine WriteOutPlanarFit(NumElem, N)
     integer, intent(in) :: NumElem(N)
     integer, external :: CreateDir
     !> local variables
-    integer :: mkdir_status = 1
     integer :: open_status = 1
     integer :: i
     integer :: j
     integer :: zero
     integer :: sec
 
-    !> Create output directory if it does not exist
-    mkdir_status = CreateDir('"' //Dir%main_out(1:len_trim(Dir%main_out)) // '"')
 
     !> Create output file
     PlanarFit_Path = Dir%main_out(1:len_trim(Dir%main_out)) &
