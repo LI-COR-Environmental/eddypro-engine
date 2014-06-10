@@ -53,9 +53,8 @@ subroutine DriftCorrection(Set, nrow, ncol, locCol, ncol2, nCalibEvents, Initial
     real(kind = dbl) :: tmp2
 
 
-    !> To be refined: find best estimate of cell temperature
-    if (Stats%Mean(tc) <= 0d0) Stats%Mean(tc) = Stats%Mean(ts)
-
+    !> Calculate best guesses of cell and air temperature and pressure
+    call AirAndCellParameters()
 
     !> Calculate drift for the current period, depending on the chosen method
     lDrift(co2:h2o) = error
@@ -74,16 +73,18 @@ subroutine DriftCorrection(Set, nrow, ncol, locCol, ncol2, nCalibEvents, Initial
             end do
 
         case ('signal_strength')
-            !> In case of signal strength proxy, calculate drift based on signal strength
+            !> In case of signal strength proxy, calculate
+            !> drift based on signal strength
             !> Temperature dependency (LI-7200 manual REv5, Eq. 3-32)
-            if (Stats%mean(tc) > 0d0) then
+            if (LitePar%Tcell > 0d0) then
                 TempFact = 0.6d0 + 0.4d0 / (1d0 + &
-                    DriftCorr%b * dexp(DriftCorr%c * (Stats%Mean(tc) - 273.16d0)))
+                    DriftCorr%b * dexp(DriftCorr%c * (LitePar%Tcell - 273.16d0)))
             else
                 TempFact = 1d0
             end if
 
-            !> Detect relevant drift data (all data for periods between t1 and t2 are stored in Calib(t1))
+            !> Detect relevant drift data (all data for periods between
+            !> t1 and t2 are stored in Calib(t1))
             do i = 1, nCalibEvents
                 if (Calib(i-1)%ts <= InitialTimestamp &
                     .and. InitialTimestamp <= Calib(i)%ts) then
@@ -112,25 +113,27 @@ tmp2 = Set(1, h2o)
 
     !> Convert to density/press (note the 10^3 to get to Abs/P with P in kPa)
     !> co2
-    if (locCol(co2)%measure_type /= 'molar density') then
+    if (locCol(co2)%measure_type /= 'molar_density') then
         where (Set(:, co2) /= error)
             !> last parenthesis here is for P_ec = P*[1 + 0.15 chi_h2o]
-            Set(:, co2) = Set(:, co2) / Ru / Stats%Mean(tc) / (1d0 + 0.15d0 * Stats%chi(h2o) * 1d-3)
+            Set(:, co2) = Set(:, co2) / Ru / LitePar%Tcell &
+                / (1d0 + 0.15d0 * Stats%chi(h2o) * 1d-3)
         end where
     else
         where (Set(:, co2) /= error)
             !> last parenthesis here is for P_ec = P*[1 + 0.15 chi_h2o]
-            Set(:, co2) = Set(:, co2) / (Stats%Mean(pc) / 1d3 * (1d0 + 0.15d0 * Stats%chi(h2o) * 1d-3))
+            Set(:, co2) = Set(:, co2) &
+                / (LitePar%Pcell / 1d3 * (1d0 + 0.15d0 * Stats%chi(h2o) * 1d-3))
         end where
     end if
     !> h2o
-    if (locCol(h2o)%measure_type /= 'molar density') then
+    if (locCol(h2o)%measure_type /= 'molar_density') then
         where (Set(:, h2o) /= error)
-            Set(:, h2o) = Set(:, h2o) / Ru / Stats%Mean(tc) * 1d3
+            Set(:, h2o) = Set(:, h2o) !/ Ru / LitePar%Tcell * 1d3
         end where
     else
         where (Set(:, h2o) /= error)
-            Set(:, h2o) = Set(:, h2o) / (Stats%Mean(pc) / 1d3)
+            Set(:, h2o) = Set(:, h2o) / (LitePar%Pcell / 1d3)
         end where
     end if
 
@@ -148,13 +151,15 @@ tmp2 = Set(1, h2o)
     if (lDrift(co2) /= error) then
         where (Set(:, co2) /= error .and. MeanAbs(co2) /= error)
             Set(:, co2) = (MeanAbs(co2) - lDrift(co2)) + &
-                (Set(:, co2) - MeanAbs(co2)) / (1d0 - lDrift(co2) * Stats%Mean(pc) * 1d-3)
+                (Set(:, co2) - MeanAbs(co2)) &
+                / (1d0 - lDrift(co2) * LitePar%Pcell * 1d-3)
         end where
     end if
     if (lDrift(h2o) /= error) then
         where (Set(:, h2o) /= error .and. MeanAbs(h2o) /= error)
             Set(:, h2o) = (MeanAbs(h2o) - lDrift(h2o)) + &
-                (Set(:, h2o) - MeanAbs(h2o)) / (1d0 - lDrift(h2o) * Stats%Mean(pc) * 1d-3)
+                (Set(:, h2o) - MeanAbs(h2o)) &
+                / (1d0 - lDrift(h2o) * LitePar%Pcell * 1d-3)
         end where
     end if
 
@@ -164,23 +169,25 @@ tmp2 = Set(1, h2o)
 
     !> Convert density/press back to concentration or density
     !> co2
-    if (locCol(co2)%measure_type /= 'molar density') then
+    if (locCol(co2)%measure_type /= 'molar_density') then
         where (Set(:, co2) /= error)
-            Set(:, co2) = Set(:, co2) * Ru * Stats%Mean(tc) * (1d0 + 0.15d0 * Stats%chi(h2o) * 1d-3)
+            Set(:, co2) = Set(:, co2) * Ru * LitePar%Tcell &
+                * (1d0 + 0.15d0 * Stats%chi(h2o) * 1d-3)
         end where
     else
         where (Set(:, co2) /= error)
-            Set(:, co2) = Set(:, co2) * (Stats%Mean(pc) / 1d3 * (1d0 + 0.15d0 * Stats%chi(h2o) * 1d-3))
+            Set(:, co2) = Set(:, co2) * &
+                (LitePar%Pcell / 1d3 * (1d0 + 0.15d0 * Stats%chi(h2o) * 1d-3))
         end where
     end if
     !> h2o
-    if (locCol(h2o)%measure_type /= 'molar density') then
+    if (locCol(h2o)%measure_type /= 'molar_density') then
         where (Set(:, h2o) /= error)
-            Set(:, h2o) = Set(:, h2o) * Ru * Stats%Mean(tc) / 1d3
+            Set(:, h2o) = Set(:, h2o) * Ru * LitePar%Tcell / 1d3
         end where
     else
         where (Set(:, h2o) /= error)
-            Set(:, h2o) = Set(:, h2o) * (Stats%Mean(pc) / 1d3)
+            Set(:, h2o) = Set(:, h2o) * (LitePar%Pcell / 1d3)
         end where
     end if
 
