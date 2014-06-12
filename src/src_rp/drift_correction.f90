@@ -126,10 +126,11 @@ tmp2 = Set(1, h2o)
                 / (LitePar%Pcell / 1d3 * (1d0 + 0.15d0 * Stats%chi(h2o) * 1d-3))
         end where
     end if
+
     !> h2o
     if (locCol(h2o)%measure_type /= 'molar_density') then
         where (Set(:, h2o) /= error)
-            Set(:, h2o) = Set(:, h2o) !/ Ru / LitePar%Tcell * 1d3
+            Set(:, h2o) = Set(:, h2o) / Ru / LitePar%Tcell * 1d3
         end where
     else
         where (Set(:, h2o) /= error)
@@ -192,7 +193,8 @@ tmp2 = Set(1, h2o)
     end if
 
 !> ONLY FOR DEBUG, ELIMINATE!
-write(124,*) InitialTimestamp, tmp - Set(1, co2), tmp2 - Set(1, h2o)
+write(124,*) InitialTimestamp, &
+    (tmp - Set(1, co2)) * Ru * LitePar%Tcell / LitePar%Pcell * 1d3
 end subroutine DriftCorrection
 
 !***************************************************************************
