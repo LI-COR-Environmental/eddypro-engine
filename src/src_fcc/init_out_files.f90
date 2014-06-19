@@ -516,14 +516,9 @@ subroutine InitOutFiles()
         call Clearstr(head3_utf8)
 
         !> Initial common part
-        call AddDatum(header1,'file_info,,', separator)
-        call AddDatum(header2,'filename,date,time', separator)
-        call AddDatum(header3,',yyyy-mm-dd,HH:MM', separator)
-
-        !> Another common part
-        call AddDatum(header1, 'air_properties,,', separator)
-        call AddDatum(header2,'Ta_1_1_1,Pa_1_1_1,RH_1_1_1', separator)
-        call AddDatum(header3,'[°C],[kPa],[%]', separator)
+        call AddDatum(header1,'timestamp', separator)
+        call AddDatum(header2,'ISOdate', separator)
+        call AddDatum(header3,'yyyymmddHHMM', separator)
 
         !> Average gas concentrations
         call AddDatum(header1,'gas_concentrations', separator)
@@ -592,10 +587,10 @@ subroutine InitOutFiles()
             call AddDatum(header3, '[' // char(181) // 'mol+1s-1m-2]', separator)
         end if
         !> Turbulence and footprint
-        call AddDatum(header1, 'turbulence,,,,,footprint,,', separator)
-        call AddDatum(header2,'WS_1_1_1,WD_1_1_1,ustar_1_1_1,MO_length_1_1_1,ZL_1_1_1,&
+        call AddDatum(header1, 'turbulence,,,footprint,,', separator)
+        call AddDatum(header2,'ustar_1_1_1,MO_length_1_1_1,ZL_1_1_1,&
             &Fetchmax_1_1_1,Fetch70_1_1_1,Fetch90_1_1_1', separator)
-        call AddDatum(header3,'[m+1s-1],[deg],[m+1s-1],[m],[#],[m],[m],[m]', separator)
+        call AddDatum(header3,'[m+1s-1],[m],[#],[m],[m],[m]', separator)
 
         call latin1_to_utf8(header1, head1_utf8)
         call latin1_to_utf8(header2, head2_utf8)

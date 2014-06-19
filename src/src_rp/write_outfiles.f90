@@ -1113,100 +1113,91 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
 
         call clearstr(dataline)
         call AddDatum(dataline, trim(adjustl(iso_basic)), separator)
-        call AddDatum(dataline, trim(adjustl(tmp_init_string)), separator)
 
         !> Gas concentrations
         do gas = co2, h2o
             if (OutVarPresent(gas)) then
-                write(datum, *) Stats%chi(gas)
+                call WriteDatumFloat(Stats%chi(gas), datum, '-9999.')
                 call AddDatum(dataline, datum, separator)
             end if
         end do
         do gas = ch4, gas4
             if (OutVarPresent(gas)) then
-                write(datum, *) Stats%chi(gas) * 1d3  !< expressed here in ppb
+                call WriteDatumFloat(Stats%chi(gas) * 1d3, datum, '-9999.')
                 call AddDatum(dataline, datum, separator)
             end if
         end do
 
         !> Corrected fluxes (Level 3)
         !> Tau
-        write(datum, *) Flux3%tau
+        call WriteDatumFloat(Flux3%tau, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
-        write(datum, *) QCFlag%tau
+        call WriteDatumInt(QCFlag%tau, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
         !> H
-        write(datum, *) Flux3%H
+        call WriteDatumFloat(Flux3%H, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
-        write(datum, *) QCFlag%H
+        call WriteDatumInt(QCFlag%H, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
         !> LE
         if(OutVarPresent(h2o)) then
-            write(datum, *) Flux3%LE
+            call WriteDatumFloat(Flux3%LE, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
-            write(datum, *) QCFlag%h2o
+            call WriteDatumInt(QCFlag%h2o, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
         end if
         !> Gases
         if(OutVarPresent(co2)) then
-            write(datum, *) Flux3%co2
+            call WriteDatumFloat(Flux3%co2, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
-            write(datum, *) QCFlag%co2
+            call WriteDatumInt(QCFlag%co2, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
         end if
         if(OutVarPresent(h2o)) then
-            write(datum, *) Flux3%h2o
+            call WriteDatumFloat(Flux3%h2o, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
-            write(datum, *) QCFlag%h2o
+            call WriteDatumInt(QCFlag%h2o, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
         end if
         if(OutVarPresent(ch4)) then
-            write(datum, *) Flux3%ch4 * 1d3  !< expressed here in nmol+1m-2s-1
+            call WriteDatumFloat(Flux3%ch4 * 1d3, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
-            write(datum, *) QCFlag%ch4
+            call WriteDatumInt(QCFlag%ch4, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
         end if
         if(OutVarPresent(gas4)) then
-            write(datum, *) Flux3%gas4 * 1d3  !< expressed here in nmol+1m-2s-1
+            call WriteDatumFloat(Flux3%gas4 * 1d3, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
-            write(datum, *) QCFlag%gas4
+            call WriteDatumInt(QCFlag%gas4, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
         end if
 
         !> Storage
-        write(datum, *) Stor%H
+        call WriteDatumFloat(Stor%H, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
         if(OutVarPresent(h2o)) then
-            write(datum, *) Stor%LE
+            call WriteDatumFloat(Stor%LE, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
         end if
         if(OutVarPresent(co2)) then
-            write(datum, *) Stor%of(co2)
+            call WriteDatumFloat(Stor%of(co2), datum, '-9999.')
             call AddDatum(dataline, datum, separator)
         end if
 
         !> Turbulence
-        write(datum, *) Stats5%Mean(u)
+        call WriteDatumFloat(LitePar%us, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
-        write(datum, *) Stats4%wind_dir
+        call WriteDatumFloat(LitePar%L, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
-        write(datum, *) LitePar%us
-        call AddDatum(dataline, datum, separator)
-        if (LitePar%zL /= error .and. LitePar%zL /= 0d0) then
-            write(datum, *) (E2Col(u)%Instr%height - Metadata%d) / LitePar%zL
-            call AddDatum(dataline, datum, separator)
-        else
-            call AddDatum(dataline, 'error', separator)
-        end if
-        write(datum, *) LitePar%zL
+        call WriteDatumFloat(LitePar%zL, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
 
         !> footprint
-        write(datum, *) Foot%peak
+        call WriteDatumFloat(Foot%peak, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
-        write(datum, *) Foot%x70
+        call WriteDatumFloat(Foot%x70, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
-        write(datum, *) Foot%x90
+        call WriteDatumFloat(Foot%x90, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
 
         write(ughgeu, '(a)') dataline(1:len_trim(dataline) - 1)
