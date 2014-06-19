@@ -41,14 +41,12 @@ subroutine WriteOutTimelagOptimization(actn, M, h2o_n, ncls, cls_size)
     integer, external :: CreateDir
     !> local variables
     integer :: cls
-    integer :: mkdir_status = 1
     integer :: open_status = 1
     character(4) :: min
     character(4) :: max
     character(9) :: txt
 
-    !> Create output directory if it does not exist
-    mkdir_status = CreateDir('"' //Dir%main_out(1:len_trim(Dir%main_out)) // '"')
+
     !> Create output file
     TimelagOpt_Path = Dir%main_out(1:len_trim(Dir%main_out)) &
               // EddyProProj%id(1:len_trim(EddyProProj%id)) &
