@@ -38,7 +38,7 @@ subroutine FourierTransform(xx, N, M)
     integer, intent(in) :: M
     real(kind = dbl), intent(inout) :: xx(N, M)
     !> local variables
-    integer :: i = 0
+    integer :: i
     real :: xxx(N)
     real :: wsave(N*2 + 15)
 
@@ -54,3 +54,4 @@ subroutine FourierTransform(xx, N, M)
     end do
     write(*,'(a)') ' done.'
 end subroutine FourierTransform
+
