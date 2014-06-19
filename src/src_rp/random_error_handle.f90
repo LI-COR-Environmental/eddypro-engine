@@ -94,8 +94,7 @@ subroutine RU_Finkelstein_Sims_01(Set, N, M)
     real(kind = dbl) :: varcov
     real(kind = dbl), external :: LaggedCovarianceNoError
 
-
-    !> Define mm based on ITS
+    !> Define max lag based on ITS
     LagMax(u:gas4) = nint(ITS(u:gas4) * Metadata%ac_freq)
     where (LagMax < 0) LagMax = nint(error)
     do var = u, gas4
@@ -104,14 +103,22 @@ subroutine RU_Finkelstein_Sims_01(Set, N, M)
             allocate (gam(0:LagMax(var), 2, 2))
             gam = 0d0
             do lag = 0, LagMax(var)
-                gam(lag, 1, 1) = LaggedCovarianceNoError(Set(:, w), Set(:, w), size(Set, 1), lag, error)
-                gam(lag, 2, 2) = LaggedCovarianceNoError(Set(:, var), Set(:, var), size(Set, 1), lag, error)
-                gam(lag, 1, 2) = LaggedCovarianceNoError(Set(:, w), Set(:, var), size(Set, 1), lag, error)
-                gam(lag, 2, 1) = LaggedCovarianceNoError(Set(:, var), Set(:, w), size(Set, 1), lag, error)
+                gam(lag, 1, 1) = &
+                    LaggedCovarianceNoError(Set(:, w), Set(:, w), &
+                                            size(Set, 1), lag, error)
+                gam(lag, 2, 2) = &
+                    LaggedCovarianceNoError(Set(:, var), Set(:, var), &
+                                            size(Set, 1), lag, error)
+                gam(lag, 1, 2) = &
+                    LaggedCovarianceNoError(Set(:, w), Set(:, var), &
+                                            size(Set, 1), lag, error)
+                gam(lag, 2, 1) = &
+                    LaggedCovarianceNoError(Set(:, w), Set(:, var), &
+                                            size(Set, 1), -lag, error)
             end do
 
             !> variance of covariances, Eq. 8  in Finkelstein & Sims (2001, JGR)
-            !> Initialize the value for h = 0
+            !> Initialize the value for lag = 0
             varcov = 0d0
             if (gam(0, 1, 1) /= error .and. gam(0, 2, 2) /= error) &
                 varcov = gam(0, 1, 1) * gam(0, 2, 2) + gam(0, 1, 2) * gam(0, 2, 1)
