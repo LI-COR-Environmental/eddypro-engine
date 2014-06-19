@@ -405,6 +405,10 @@
 		<Unit filename="../src/src_rp/extract_biomet_data.f90">
 			<Option weight="4" />
 		</Unit>
+		<Unit filename="../src/src_rp/fft4/rfftb.F">
+			<Option weight="0" />
+			<Option compiler="gfortran" use="1" buildCommand="$compiler $includes -c $file -o $object" />
+		</Unit>
 		<Unit filename="../src/src_rp/fft4/rfftf.F">
 			<Option weight="0" />
 			<Option compiler="mingw" use="1" buildCommand="$compiler $includes-c $file -o $object" />
