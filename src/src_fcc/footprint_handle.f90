@@ -40,11 +40,11 @@ subroutine FootprintHandle(lEx)
     foot_model_used = Meth%foot(1:len_trim(Meth%foot))
     !> If Kljun model was chosen, but conditions are outside those stated at Pag. 512 of the paper
     !> shift to Kormann and Meixner model.
-
     if (foot_model_used == 'kljun_04' .and. &
         (lEx%var(w) <= 0d0 .or. lEx%ustar < kj_us_min .or. &
         lEx%zL < kj_zL_min .or. lEx%zL > kj_zL_max .or. lEx%instr(sonic)%height < 1d0)) &
         foot_model_used = 'kormann_meixner_01'
+
     select case(foot_model_used)
         case('kljun_04')
             call Kljun04(lEx)
@@ -202,7 +202,7 @@ subroutine KormannMeixner01(lEx)
         psi_m = - 5d0 * lEx%zL
     else
         phi_m = (1d0 - 16d0 * lEx%zL)**(-1d0 / 4d0)
-        phi_c = (1d0 - 16d0 * LitePar%zL)**(-1d0 / 2d0)
+        phi_c = (1d0 - 16d0 * lEx%zL)**(-1d0 / 2d0)
         eta = (1d0 - 16d0 * lEx%zL)**(1d0 / 4d0)
         psi_m = 2d0 * dlog((1d0 + eta) / 2d0) + dlog((1d0 + eta**2) / 2d0) - 2d0 * datan(eta) + p / 2d0  !< K&M2001
         !psi_m = 0.0954d0 - 1.86d0 * (zm/lEx%L) - 1.07d0 * (zm/lEx%L)**2 - 0.249 * (zm/lEx%L)**3  !< Zhang & Anthes 1983, polynomial interpolation
@@ -224,7 +224,7 @@ subroutine KormannMeixner01(lEx)
     m = lEx%ustar * phi_m / (vk * u_mean)
 
     !> proportionality constant of the wind speed power law (Eqs. 11 and 31)
-    UU = lEx%ustar * (dlog(zm / lEx%rough_length) + psi_m) / (vk * zm**m)
+    !UU = lEx%ustar * (dlog(zm / lEx%rough_length) + psi_m) / (vk * zm**m)
     UU = u_mean / zm**m
     !> Intermediate parameters
     r = 2d0 + m - n
