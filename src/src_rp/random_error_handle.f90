@@ -94,7 +94,6 @@ subroutine RU_Finkelstein_Sims_01(Set, N, M)
     real(kind = dbl) :: varcov
     real(kind = dbl), external :: LaggedCovarianceNoError
 
-
     !> Define max lag based on ITS
     LagMax(u:gas4) = nint(ITS(u:gas4) * Metadata%ac_freq)
     where (LagMax < 0) LagMax = nint(error)
@@ -104,10 +103,18 @@ subroutine RU_Finkelstein_Sims_01(Set, N, M)
             allocate (gam(0:LagMax(var), 2, 2))
             gam = 0d0
             do lag = 0, LagMax(var)
-                gam(lag, 1, 1) = LaggedCovarianceNoError(Set(:, w), Set(:, w), size(Set, 1), lag, error)
-                gam(lag, 2, 2) = LaggedCovarianceNoError(Set(:, var), Set(:, var), size(Set, 1), lag, error)
-                gam(lag, 1, 2) = LaggedCovarianceNoError(Set(:, w), Set(:, var), size(Set, 1), lag, error)
-                gam(lag, 2, 1) = LaggedCovarianceNoError(Set(:, var), Set(:, w), size(Set, 1), lag, error)
+                gam(lag, 1, 1) = &
+                    LaggedCovarianceNoError(Set(:, w), Set(:, w), &
+                                            size(Set, 1), lag, error)
+                gam(lag, 2, 2) = &
+                    LaggedCovarianceNoError(Set(:, var), Set(:, var), &
+                                            size(Set, 1), lag, error)
+                gam(lag, 1, 2) = &
+                    LaggedCovarianceNoError(Set(:, w), Set(:, var), &
+                                            size(Set, 1), lag, error)
+                gam(lag, 2, 1) = &
+                    LaggedCovarianceNoError(Set(:, w), Set(:, var), &
+                                            size(Set, 1), -lag, error)
             end do
 
             !> variance of covariances, Eq. 8  in Finkelstein & Sims (2001, JGR)
