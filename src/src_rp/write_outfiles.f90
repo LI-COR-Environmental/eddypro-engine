@@ -47,6 +47,8 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
 !    integer :: prof
     character(10000) :: dataline
     character(64) :: datum
+    character(64) :: tmp_init_string
+    character(12) :: iso_basic
     logical, external :: NewerSwVer
 
     !> write Essentials output file (csv) for communication
@@ -1077,7 +1079,8 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
                 call WriteDatumFloat(Stats%Cov(w, gas), datum, EddyProProj%err_label)
                 call AddDatum(dataline, datum, separator)
             elseif(EddyProProj%fix_out_format) then
-                call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
+                call AddDatum(dataline, &
+                EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
             end if
         enddo
 
@@ -1094,19 +1097,23 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
 
     !>****************************************************************
     !>****************************************************************
-
     if (EddyProProj%out_ghg_eu) then
         !> write to GHG-Europe style output file
-        call clearstr(dataline)
-        call AddDatum(dataline, init_string(1:index(init_string, ',', .true.) - 1), separator)
 
-        !> Air properties
-        write(datum, *) LitePar%Ta - 273.16d0     !< celsius
-        call AddDatum(dataline, datum, separator)
-        write(datum, *) Stats%Pr * 1d-3           !< kPa
-        call AddDatum(dataline, datum, separator)
-        write(datum, *) Stats%RH                  !< %
-        call AddDatum(dataline, datum, separator)
+        !> Edit init_string to fit GHG-Europe format
+        !> Strip file name and DOY
+        tmp_init_string = &
+            init_string(index(init_string, ',') +1: &
+                        index(init_string, ',', .true.) - 1)
+
+        !> derive ISO basic format timestamp
+        iso_basic = tmp_init_string(1:4) // tmp_init_string(6:7) &
+            // tmp_init_string(9:10) // tmp_init_string(12:13)  &
+            // tmp_init_string(15:16)
+
+        call clearstr(dataline)
+        call AddDatum(dataline, trim(adjustl(iso_basic)), separator)
+        call AddDatum(dataline, trim(adjustl(tmp_init_string)), separator)
 
         !> Gas concentrations
         do gas = co2, h2o

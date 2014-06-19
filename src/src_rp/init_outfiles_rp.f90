@@ -698,14 +698,9 @@ subroutine InitOutFiles_rp()
         call Clearstr(head3_utf8)
 
         !> Initial common part
-        call AddDatum(header1,'file_info,,', separator)
-        call AddDatum(header2,'filename,date,time', separator)
-        call AddDatum(header3,',yyyy-mm-dd,HH:MM', separator)
-
-        !> Another common part
-        call AddDatum(header1, 'air_properties,,', separator)
-        call AddDatum(header2,'Ta_1_1_1,Pa_1_1_1,RH_1_1_1', separator)
-        call AddDatum(header3,'[°C],[kPa],[%]', separator)
+        call AddDatum(header1,'timestamp,,', separator)
+        call AddDatum(header2,'iso_basic_format,date,time', separator)
+        call AddDatum(header3,'yyyymmddHHMM,yyyy-mm-dd,HH:MM', separator)
 
         !> Average gas concentrations
         call AddDatum(header1,'gas_concentrations', separator)
