@@ -242,7 +242,6 @@ module m_typedef
         character(5)  :: time
         type(DateType) :: ts
         logical :: cleaning
-        integer :: numPeriods
         real(kind = dbl) :: offset(GHGNumVar)
         real(kind = dbl) :: ref(GHGNumVar)
         real(kind = dbl) :: ri(GHGNumVar)
