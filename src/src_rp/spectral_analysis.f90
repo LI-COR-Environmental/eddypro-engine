@@ -323,7 +323,7 @@ subroutine AllCospectra(Set, sumw, Spectrum, Cospectrum, DoSpectrum, DoCospectru
     do j = u, GHGNumVar
         if (DoSpectrum(j)) then
             xx(1:N) = Set(1:N, j)
-            call SpectralDensity(xx, xx, Metadata%ac_freq, sumw, Spectrum%of(j), N)
+            call OneSidedPowerSpectrum(xx, xx, Metadata%ac_freq, sumw, Spectrum%of(j), N)
         end if
     end do
 
@@ -333,7 +333,7 @@ subroutine AllCospectra(Set, sumw, Spectrum, Cospectrum, DoSpectrum, DoCospectru
             if (DoCospectrum(j)) then
                 xx(1:N) = Set(1:N, w)
                 yy(1:N) = Set(1:N, j)
-                call SpectralDensity(xx, yy, Metadata%ac_freq, sumw, Cospectrum%of(j), N)
+                call OneSidedPowerSpectrum(xx, yy, Metadata%ac_freq, sumw, Cospectrum%of(j), N)
             end if
         end if
     end do
