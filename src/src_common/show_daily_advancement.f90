@@ -47,7 +47,7 @@ subroutine DisplayProgress(progress_type, init_message, tstamp, adv)
 
 
     call DateTypeToDateTime(tstamp, date, time)
-    select case(adjustl(trim(progress_type)))
+    select case(trim(adjustl(progress_type)))
     case ('daily')
         write(*, '(a)', advance = adv) init_message // date(9:10) // ' ' // &
             trim(adjustl(months(tstamp%month))) // ' ' // date(1:4) // ' '

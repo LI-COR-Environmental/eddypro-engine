@@ -21,16 +21,16 @@
 !
 !***************************************************************************
 !
-! \brief       Calculate spectral density from normalised Fourier coefficients \n
+! \brief       Calculate power (co)spectra from normalised Fourier coefficients \n
 !              (Co)spectra are intended as one-sided, i.e. the negative frequency range \n
-!              is folded into the positive thus spectral densities for 0 < f < +inf \n
+!              is folded into the positive thus spectral densities for 1 < f < +inf \n
 !              are multiplied by 2 to account for the respective negative frequencies. \n
 !              Normalization is done first with the "window squared and summed", \n
 !              as defined in Numerical Recipes in C/Fortran \n
 !              eq. 13.4.11. This equals N**2 if no tapering is applied. \n
 !              Further normalization is done with "df", such that: \n
 !              int_fmin^fmax{S(f)df} = 1.
-!              "df" is given by df = (fmin-fmax) / (N/2) ca. = AcFreq/N
+!              "df" is given by df = (fmin-fmax) / (N/2) ca. = AcFreq/Ns
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -39,7 +39,7 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine SpectralDensity(xx, yy, ac_freq, sumw, co, N)
+subroutine OneSidedPowerSpectrum(xx, yy, ac_freq, sumw, co, N)
     use m_common_global_var
     implicit none
     !> in/out variables
@@ -48,7 +48,7 @@ subroutine SpectralDensity(xx, yy, ac_freq, sumw, co, N)
     real(kind = dbl), intent(in) :: xx(N)
     real(kind = dbl), intent(in) :: yy(N)
     real(kind = dbl), intent(in) :: sumw
-    real(kind = dbl), intent(out) :: co(N / 2 + 1)
+    real(kind = dbl), intent(out) :: co(N/2+1)
     !> local variables
     integer :: i = 0
 
@@ -60,4 +60,36 @@ subroutine SpectralDensity(xx, yy, ac_freq, sumw, co, N)
     end do
     co(N/2 + 1) = xx(N) * yy(N)
     co(:) = co(:) * (dble(N)/ac_freq) / sumw
-end subroutine SpectralDensity
+end subroutine OneSidedPowerSpectrum
+
+
+!***************************************************************************
+!
+! \brief       Raw power spectral density
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+subroutine rawPSD(xx, yy, psd, N)
+    use m_common_global_var
+    implicit none
+    !> in/out variables
+    integer, intent(in) :: N
+    real(kind = dbl), intent(in) :: xx(N)
+    real(kind = dbl), intent(in) :: yy(N)
+    real(kind = dbl), intent(out) :: psd(N/2+1)
+    !> local variables
+    integer :: i
+
+    !> (co)spectral density
+	!> Co(a,b)=(Re(fft(a))*Re(fft(b))+Im(fft(a))*Im(fft(b))
+    psd(1) = xx(1) * yy(1)
+    do i = 2, N - 2, 2
+        psd(i/2 + 1) = xx(i) * yy(i) + xx(i + 1) * yy(i + 1)
+    end do
+    psd(N/2 + 1) = xx(N) * yy(N)
+end subroutine rawPSD
