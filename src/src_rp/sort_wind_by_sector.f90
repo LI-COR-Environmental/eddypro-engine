@@ -46,7 +46,7 @@ subroutine SortWindBySector(Wind, nrow, NumElem, WindBySect)
 
     write(*, '(a)') ' Sorting wind data by sector..'
     write(LogInteger, '(i2)') PFSetup%num_sec
-    write(*, '(a, i1, a)') '  '// adjustl(trim(LogInteger)) &
+    write(*, '(a, i1, a)') '  '// trim(adjustl(LogInteger)) &
         // ' wind sector(s) selected.'
 
     NumElem = 0

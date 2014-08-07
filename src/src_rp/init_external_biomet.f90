@@ -75,6 +75,7 @@ subroutine InitExternalBiomet(BiometFileList, N)
             !> Interpret file header or "header string"
             call ReadBiometHeader(udf)
             NumBiometVar = NumSlowVar
+
             !> Preliminarily define date prototype
             BiometSetup%tstamp_prototype = ''
             do ii = 1, NumSlowVar

@@ -258,7 +258,7 @@ program EddyproRP
     end if
     allocate(RawFileList(NumRawFiles))
 
-    !> Store names of data files in RawFileList
+     !> Store names of data files in RawFileList
     call FileListByExt(Dir%main_in, '.'//EddyProProj%fext, .true., EddyProProj%fproto, &
         EddyProLog%iso_format, .true., RPsetup%recurse, &
         RawFileList, size(RawFileList), .true., indent0)

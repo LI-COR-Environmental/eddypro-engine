@@ -187,7 +187,7 @@ Program EddyproFCC
         !> Loop to import binned spectra files and sort them
         write(LogInteger, '(i8)') saEndTimestampIndx - saStartTimestampIndx + 1
         write(*, '(a)') '  Importing and sorting up to ' &
-            // adjustl(trim(LogInteger)) // ' binned spectra from files.. '
+            // trim(adjustl(LogInteger)) // ' binned spectra from files.. '
 
         !> Create an exponentially spaced frequency array in a range wide enough to accommodate
         !> any possible normalized frequency

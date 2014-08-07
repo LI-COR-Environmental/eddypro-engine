@@ -57,7 +57,6 @@ subroutine ImportSLTEdiSol(rec_len, FirstRecord, LastRecord, LocCol, fRaw, nrow,
 
 
     FileEndReached = .false.
-
     !> skip header
     read(unat, rec=1) (loc_header(j), j = 1, rec_len)
 

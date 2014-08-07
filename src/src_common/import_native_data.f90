@@ -54,7 +54,7 @@ subroutine ImportNativeData(Filepath, FirstRecord, LastRecord, LocCol, &
 
     skip_file = .false.
     !> Open native data file
-    select case (EddyProProj%ftype(1:len_trim(EddyProProj%ftype)))
+    select case (trim(adjustl(EddyProProj%ftype)))
 
         case ('eddymeas_bin')
             !> Open raw file in binary mode
