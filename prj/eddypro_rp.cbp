@@ -153,9 +153,7 @@
 		<Unit filename="../src/src_common/edit_ini_file.f90">
 			<Option weight="3" />
 		</Unit>
-		<Unit filename="../src/src_common/error_handle.f90">
-			<Option weight="0" />
-		</Unit>
+		<Unit filename="../src/src_common/exception_handler.f90" />
 		<Unit filename="../src/src_common/filelist_by_ext.f90">
 			<Option weight="3" />
 		</Unit>

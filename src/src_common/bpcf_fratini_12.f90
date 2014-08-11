@@ -197,54 +197,54 @@ subroutine BPCF_Fratini12(loc_var_present, LocInstr, wind_speed, t_air, ac_frequ
     end if
 end subroutine BPCF_Fratini12
 
-subroutine SpectralCorrectionFactorsLaubach(Cosp, var, nf, nfreq, BPTF)
-    use m_common_global_var
-    implicit none
-    !> in/out variables
-    integer, intent(in) :: nfreq
-    integer, intent(in) :: var
-    real(kind = dbl), intent(in) :: nf(nfreq)
-    real(kind = dbl), intent(in) :: Cosp(nfreq)
-    type(BPTFType), intent(in) :: BPTF(nfreq)
-    !> local variables
-    integer :: k = 0! \file        src/bpcf_aux_subs.f90
-
-    integer :: err_cnt = 0
-    real(kind = dbl) :: IntCO
-    real(kind = dbl) :: IntTFCO
-    real(kind = dbl) :: nf_min, nf_max
-    real(kind = dbl) :: df
-
-
-    !> If cospectrum is made up of only error codes \n
-    !> set correction factors to error as well
-    err_cnt = 0
-    do k = 1, nfreq
-        if (Cosp(k) == error) err_cnt = err_cnt + 1
-    end do
-    if (err_cnt == nfreq) then
-        BPCF%of(var) = error
-        return
-    end if
-
-    !> Artificial frequency range, large enough to accomodate all cases
-    nf_min = 1d0/5000d0
-    nf_max = 100d0
-
-    !> Integrals of cospectrum and filtered cospectrum
-    IntCO = 0d0
-    IntTFCO = 0d0
-    do k = 1, nfreq - 1
-        if (nf(k) > nf_min .and. nf(k + 1) < nf_max .and. &
-            Cosp(k) /= error .and. BPTF(k)%BP(var) /= error .and. BPTF(k)%BP(var) /= 0d0) then
-            df = nf(k + 1) - nf(k)
-            IntCO = IntCO + Cosp(k) * df
-            IntTFCO = IntTFCO + Cosp(k) / BPTF(k)%BP(var) * df
-        end if
-    end do
-    if (IntTFCO /= 0d0) then
-        BPCF%of(var) = IntTFCO / IntCO
-    else
-        BPCF%of(var) = error
-    end if
-end subroutine SpectralCorrectionFactorsLaubach
+!subroutine SpectralCorrectionFactorsLaubach(Cosp, var, nf, nfreq, BPTF)
+!    use m_common_global_var
+!    implicit none
+!    !> in/out variables
+!    integer, intent(in) :: nfreq
+!    integer, intent(in) :: var
+!    real(kind = dbl), intent(in) :: nf(nfreq)
+!    real(kind = dbl), intent(in) :: Cosp(nfreq)
+!    type(BPTFType), intent(in) :: BPTF(nfreq)
+!    !> local variables
+!    integer :: k = 0! \file        src/bpcf_aux_subs.f90
+!
+!    integer :: err_cnt = 0
+!    real(kind = dbl) :: IntCO
+!    real(kind = dbl) :: IntTFCO
+!    real(kind = dbl) :: nf_min, nf_max
+!    real(kind = dbl) :: df
+!
+!
+!    !> If cospectrum is made up of only error codes \n
+!    !> set correction factors to error as well
+!    err_cnt = 0
+!    do k = 1, nfreq
+!        if (Cosp(k) == error) err_cnt = err_cnt + 1
+!    end do
+!    if (err_cnt == nfreq) then
+!        BPCF%of(var) = error
+!        return
+!    end if
+!
+!    !> Artificial frequency range, large enough to accomodate all cases
+!    nf_min = 1d0/5000d0
+!    nf_max = 100d0
+!
+!    !> Integrals of cospectrum and filtered cospectrum
+!    IntCO = 0d0
+!    IntTFCO = 0d0
+!    do k = 1, nfreq - 1
+!        if (nf(k) > nf_min .and. nf(k + 1) < nf_max .and. &
+!            Cosp(k) /= error .and. BPTF(k)%BP(var) /= error .and. BPTF(k)%BP(var) /= 0d0) then
+!            df = nf(k + 1) - nf(k)
+!            IntCO = IntCO + Cosp(k) * df
+!            IntTFCO = IntTFCO + Cosp(k) / BPTF(k)%BP(var) * df
+!        end if
+!    end do
+!    if (IntTFCO /= 0d0) then
+!        BPCF%of(var) = IntTFCO / IntCO
+!    else
+!        BPCF%of(var) = error
+!    end if
+!end subroutine SpectralCorrectionFactorsLaubach
