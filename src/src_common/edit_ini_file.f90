@@ -44,9 +44,9 @@ subroutine EditIniFile(fname, tag, newval)
 
 
     !> Open file to be edited and temp file
-    open(10, file=trim(fname))
+    open(10, file=trim(fname), iostat=io_error)
     tfname = trim(fname) // '.tmp'
-    open(11, file=trim(tfname), status='new')
+    open(11, file=trim(tfname), status='new', iostat=io_error)
 
     !> Copy whole file into temp file including modification
     do
