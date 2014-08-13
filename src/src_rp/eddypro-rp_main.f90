@@ -156,7 +156,7 @@ program EddyproRP
     type (DateType) :: SelectedStartTimestamp
     type (DateType) :: SelectedEndTimestamp
     type (StatsType) :: PrevStats
-    type (ParType) :: PrevLitePar
+    type (AmbientStateType) :: PrevLitePar
     type (QCType) :: StDiff
     type (QCType) :: DtDiff
     type (ColType) :: BypassCol(MaxNumCol)
@@ -1791,11 +1791,11 @@ program EddyproRP
             call StationarityTest(E2Set, size(E2Set, 1), size(E2Set, 2), StDiff)
 
             !> Calculate wind speed and maximum wind speed
-            call MaxWindSpeed(E2Set, size(E2Set, 1), size(E2Set, 2), LitePar%MWS)
+            call MaxWindSpeed(E2Set, size(E2Set, 1), size(E2Set, 2), Ambient%MWS)
             if (Stats6%mean(u) /= error .and. Stats6%mean(v) /= error .and. Stats6%mean(w) /= error) then
-                LitePar%WS = dsqrt(Stats6%mean(u)**2 + Stats6%mean(v)**2 + Stats6%mean(w)**2)
+                Ambient%WS = dsqrt(Stats6%mean(u)**2 + Stats6%mean(v)**2 + Stats6%mean(w)**2)
             else
-                LitePar%WS = error
+                Ambient%WS = error
             end if
 
             !> ***** 7. DETRENDING ******
@@ -1889,7 +1889,7 @@ program EddyproRP
 
             if (E2Col(ch4)%Instr%model(1:len_trim(E2Col(ch4)%Instr%model) - 2) == 'li7700') then
                 !> Calculate multipliers for LI-7700 spectroscopic correction
-                call Multipliers7700(Stats%Pr, LitePar%Ta, Stats%chi(h2o), &
+                call Multipliers7700(Stats%Pr, Ambient%Ta, Stats%chi(h2o), &
                     Mul7700%A, Mul7700%B, Mul7700%C)
                 !> Modify mole fraction and mixing ratio to account for key(T,P), Eq. 6.13 of LI-7700 manual
                 !> Uses multiplies A, because this is equal to key.
@@ -1906,7 +1906,7 @@ program EddyproRP
             if (.not. EddyProProj%fcc_follows) then
                 !> Low-pass and high-pass spectral correction factors
                 call BandPassSpectralCorrections(E2Col(u)%Instr%height, Metadata%d, &
-                    E2Col(u:gas4)%present, LitePar%WS, LitePar%Ta, LitePar%zL, &
+                    E2Col(u:gas4)%present, Ambient%WS, Ambient%Ta, Ambient%zL, &
                     Metadata%ac_freq, RPsetup%avrg_len, Meth%det, RPsetup%Tconst, 1, &
                     .true., E2Col(u:GHGNumVar)%instr)
 
@@ -1918,7 +1918,9 @@ program EddyproRP
 
                 !> Footprint estimation
                 if (Meth%foot(1:len_trim(Meth%foot)) /= 'none') then
-                    call FootprintHandle_rp()
+                    call FootprintHandle(Stats%Cov(w, w), Ambient%us, Ambient%zL, &
+                        Ambient%WS, Ambient%L, E2Col(u)%Instr%height, Metadata%d, &
+                        Metadata%z0)
                 else
                     Foot = FootType(error, error, error, error, error, error, error)
                 end if
@@ -1934,7 +1936,7 @@ program EddyproRP
                 call Storage(PrevStats, PrevLitePar)
             end if
             PrevStats = Stats
-            PrevLitePar = LitePar
+            PrevLitePar = Ambient
             PrevSlowVar = BiometVar
 
             !> Well developed turbulence conditions test,

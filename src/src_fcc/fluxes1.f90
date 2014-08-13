@@ -142,7 +142,7 @@ subroutine Fluxes1(lEx)
     !> Momentum flux [kg m-1 s-2] and friction velocity [m s-1]
     if (BPCF%of(w_u) /= error) then
         Flux1%tau = lEx%Flux0%tau * BPCF%of(w_u)
-        LitePar%us    = LitePar%us * dsqrt(BPCF%of(w_u))
+        Ambient%us    = Ambient%us * dsqrt(BPCF%of(w_u))
     else
         Flux1%tau = lEx%Flux0%tau
     end if

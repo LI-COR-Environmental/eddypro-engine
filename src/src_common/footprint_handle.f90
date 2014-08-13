@@ -1,6 +1,6 @@
 !***************************************************************************
-! footprint_handle_rp.f90
-! -----------------------
+! footprint_handle.f90
+! --------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
 ! Copyright (C) 2011-2014, LI-COR Biosciences
 !
@@ -29,57 +29,78 @@
 ! \bug
 ! \deprecated
 ! \test
-! \todo        Merge with corresponding FCC sub into a common one
+! \todo
 !***************************************************************************
-subroutine FootprintHandle_rp()
-    use m_rp_global_var
+subroutine FootprintHandle(var_w, ustar, zL, wind_speed, MO_length, sonic_height, &
+        disp_height, rough_length)
+    use m_common_global_var
     implicit none
-
-
-    write(*, '(a)', advance = 'no') '  Estimating footprint..'
+    !> In/out variables
+    real(kind = dbl), intent(in) :: var_w
+    real(kind = dbl), intent(in) :: ustar
+    real(kind = dbl), intent(in) :: zL
+    real(kind = dbl), intent(in) :: wind_speed
+    real(kind = dbl), intent(in) :: MO_length
+    real(kind = dbl), intent(in) :: sonic_height
+    real(kind = dbl), intent(in) :: disp_height
+    real(kind = dbl), intent(in) :: rough_length
+    !> Local variables
+    real(kind = dbl) :: std_w
 
     foot_model_used = Meth%foot(1:len_trim(Meth%foot))
     !> If Kljun model was chosen, but conditions are outside those stated at Pag. 512 of the paper
     !> shift to Kormann and Meixner model.
     if (foot_model_used == 'kljun_04' .and. &
-        (Stats%Cov(w, w) <= 0d0 .or. Ambient%us < kj_us_min .or. &
-        Ambient%zL < kj_zL_min .or. Ambient%zL > kj_zL_max .or. E2Col(u)%Instr%height < 1d0)) &
+        (var_w <= 0d0 .or. ustar < kj_us_min .or. &
+        zL < kj_zL_min .or. zL > kj_zL_max .or. sonic_height < 1d0)) &
         foot_model_used = 'kormann_meixner_01'
+
+    !> Calculate std_w
+    if (var_w >= 0d0) then
+        std_w = dsqrt(var_w)
+    else
+        std_w = error
+    end if
 
     select case(foot_model_used)
         case('kljun_04')
-            call Kljun04()
+            call Kljun04(std_w, ustar, zL, sonic_height, disp_height, rough_length)
         case('kormann_meixner_01')
-            call KormannMeixner01()
+            call KormannMeixner01(ustar, zL, wind_speed, sonic_height, disp_height)
         case('hsieh_00')
-            call Hsieh00()
+            call Hsieh00(MO_length, sonic_height, disp_height, rough_length)
     end select
-    write(*, '(a)') ' done.'
-end subroutine FootprintHandle_rp
+end subroutine FootprintHandle
 
 !***************************************************************************
 !
 ! \brief       Footprint esitmations based on Kljun et al. (2004, BLM)
-! \author      Gerardo Fratini, based on original code provided by \n
-!              Natascha Kljun
+! \author      Gerardo Fratini
 ! \note
 ! \sa
 ! \bug
 ! \deprecated
 ! \test
-! \todo        Merge with corresponding FCC sub into a common one
+! \todo
 !***************************************************************************
-subroutine Kljun04()
-    use m_rp_global_var
+subroutine Kljun04(std_w, ustar, zL, sonic_height, disp_height, rough_length)
+    use m_common_global_var
     implicit none
+    !> In/out variables
+    real(kind = dbl), intent(in) :: std_w
+    real(kind = dbl), intent(in) :: ustar
+    real(kind = dbl), intent(in) :: zL
+    real(kind = dbl), intent(in) :: sonic_height
+    real(kind = dbl), intent(in) :: disp_height
+    real(kind = dbl), intent(in) :: rough_length
     !> local variables
-    real(kind = dbl) :: sigma_w
     real(kind = dbl) :: xstarmax
     real(kind = dbl) :: xstar
     real(kind = dbl) :: af, bb, ac, ad
     real(kind = dbl) :: a, b, c, d
     real(kind = dbl) :: zm
     real(kind = dbl) , external :: gammln
+
     real(kind = dbl) :: L(96)
 
     !> Values of L' for varying R (percentage of footprint) for b = 3.70 (see Fig. A1 in Kljun et al. 2004)
@@ -100,13 +121,10 @@ subroutine Kljun04()
     Foot = FootType(error, error, error, error, error, error, error)
 
     !> Height above displacement height
-    zm = E2Col(u)%Instr%height - Metadata%d
+    zm = sonic_height - disp_height
 
     !> Check on retrieved parameters
-    if (zm < 1d0 .or. Metadata%z0 <= 0d0) then
-        write(*, '(a)') ' done.'
-        return
-    end if
+    if (zm < 1d0 .or. rough_length <= 0d0) return
 
     !> Calculate a, b, c, d, depending only on z0 (Eq. 13-16 in Kljun et al. 2004)
     af = 0.175d0
@@ -114,39 +132,32 @@ subroutine Kljun04()
     ac = 4.277d0
     ad = 1.685d0
     b  = 3.69895d0
-    a = af / (bb - dlog(Metadata%z0))
-    c = ac * (bb - dlog(Metadata%z0))
-    d = ad * (bb - dlog(Metadata%z0))
+    a = af / (bb - dlog(rough_length))
+    c = ac * (bb - dlog(rough_length))
+    d = ad * (bb - dlog(rough_length))
 
-    !> Calculate sigma_w
-    if (Stats%Cov(w, w) >= 0d0) then
-        sigma_w = dsqrt(Stats%Cov(w, w))
-    else
-        sigma_w = error
-    end if
-
-    if (sigma_w == error .or. Ambient%us < kj_us_min .or. Ambient%zL < kj_zL_min .or. Ambient%zL > kj_zL_max) then
+    if (std_w == error .or. ustar < kj_us_min .or. zL < kj_zL_min .or. zL > kj_zL_max) then
         Foot = FootType(error, error, error, error, error, error, error)
     else
         !> Calculate location of peak influence
         xstarmax = c - d
-        Foot%peak = xstarmax * zm *(sigma_w / Ambient%us)**(-0.8d0)
+        Foot%peak = xstarmax * zm *(std_w / ustar)**(-0.8d0)
 
         !> Calculate offset from tower: location of 1% contribution
         xstar = L(2) * c - d
-        Foot%offset = xstar * zm *(sigma_w / Ambient%us)**(-0.8d0)
+        Foot%offset = xstar * zm *(std_w / ustar)**(-0.8d0)
 
         !> Calculate distances including increasing percentages of the footprint
         xstar = L(11) * c - d
-        Foot%x10 = xstar * zm *(sigma_w / Ambient%us)**(-0.8d0)
+        Foot%x10 = xstar * zm *(std_w / ustar)**(-0.8d0)
         xstar = L(31) * c - d
-        Foot%x30 = xstar * zm *(sigma_w / Ambient%us)**(-0.8d0)
+        Foot%x30 = xstar * zm *(std_w / ustar)**(-0.8d0)
         xstar = L(51) * c - d
-        Foot%x50 = xstar * zm *(sigma_w / Ambient%us)**(-0.8d0)
+        Foot%x50 = xstar * zm *(std_w / ustar)**(-0.8d0)
         xstar = L(71) * c - d
-        Foot%x70 = xstar * zm *(sigma_w / Ambient%us)**(-0.8d0)
+        Foot%x70 = xstar * zm *(std_w / ustar)**(-0.8d0)
         xstar = L(91) * c - d
-        Foot%x90 = xstar * zm *(sigma_w / Ambient%us)**(-0.8d0)
+        Foot%x90 = xstar * zm *(std_w / ustar)**(-0.8d0)
     end if
 end subroutine Kljun04
 
@@ -159,15 +170,20 @@ end subroutine Kljun04
 ! \bug
 ! \deprecated
 ! \test
-! \todo        Merge with corresponding FCC sub into a common one
+! \todo
 !***************************************************************************
-subroutine KormannMeixner01()
-    use m_rp_global_var
+subroutine KormannMeixner01(ustar, zL, wind_speed, sonic_height, disp_height)
+    use m_common_global_var
     implicit none
+    !> In/out variables
+    real(kind = dbl), intent(in) :: ustar
+    real(kind = dbl), intent(in) :: zL
+    real(kind = dbl), intent(in) :: wind_speed
+    real(kind = dbl), intent(in) :: sonic_height
+    real(kind = dbl), intent(in) :: disp_height
     !> local variables
     integer :: i
     real(kind=dbl) :: n
-    real(kind=dbl) :: u_mean
     real(kind=dbl) :: phi_m
     real(kind=dbl) :: phi_c
     real(kind=dbl) :: psi_m
@@ -191,43 +207,43 @@ subroutine KormannMeixner01()
     !> Initialization to error
     Foot = FootType(error, error, error, error, error, error, error)
 
-    zm = E2Col(u)%Instr%height - Metadata%d
-    u_mean = Ambient%WS
+    zm = sonic_height - disp_height
+
     !> ALTERNATIVE u(z) for z=zm (Monin-Obukhov similarity profile)
-    !u_mean = Ambient%us *(dlog(zm / Metadata%z0) + psi_m) / vk
+    !wind_speed = ustar *(dlog(zm / rough_length) + psi_m) / vk
 
     !> Similarity relations (Paulson, 1970)
-    if (Ambient%zL > 0) then
-        phi_m = 1d0 + 5d0 * Ambient%zL
+    if (zL > 0) then
+        phi_m = 1d0 + 5d0 * zL
         phi_c = phi_m
-        psi_m = - 5d0 * Ambient%zL
+        psi_m = - 5d0 * zL
     else
-        phi_m = (1d0 - 16d0 * Ambient%zL)**(-1d0 / 4d0)
-        phi_c = (1d0 - 16d0 * Ambient%zL)**(-1d0 / 2d0)
-        eta = (1d0 - 16d0 * Ambient%zL)**(1d0 / 4d0)
+        phi_m = (1d0 - 16d0 * zL)**(-1d0 / 4d0)
+        phi_c = (1d0 - 16d0 * zL)**(-1d0 / 2d0)
+        eta = (1d0 - 16d0 * zL)**(1d0 / 4d0)
         psi_m = 2d0 * dlog((1d0 + eta) / 2d0) + dlog((1d0 + eta**2) / 2d0) - 2d0 * datan(eta) + p / 2d0  !< K&M2001
-        !psi_m = 0.0954d0 - 1.86d0 * (zm/Ambient%L) - 1.07d0 * (zm/Ambient%L)**2 - 0.249 * (zm/Ambient%L)**3  !< Zhang & Anthes 1983, polynomial interpolation
+        !psi_m = 0.0954d0 - 1.86d0 * (zm/MO_length) - 1.07d0 * (zm/MO_length)**2 - 0.249 * (zm/MO_length)**3  !< Zhang & Anthes 1983, polynomial interpolation
         !psi_m = dlog(((1 + eta) / 2d0)**2 * (1d0 + eta**2) / 2d0) - 2d0 * datan(eta) + p / 2d0 !< alternative
     end if
     psi_m = -1d0 * psi_m  !< change sign to conform with K&M usage
 
     !> Intermediate parameters for K&M2001
     !> exponent of the diffusivity power law
-    if (Ambient%zL > 0) then
+    if (zL > 0) then
         n  = 1d0 / phi_m
     else
-        n = (1d0 - 24d0 * Ambient%zL) / (1d0 - 16d0 * Ambient%zL)
+        n = (1d0 - 24d0 * zL) / (1d0 - 16d0 * zL)
     end if
 
     !> proportionality constant of the diffusivity power law (Eqs. 11 and 32)
-    key  = vk * Ambient%us * zm / (phi_c * zm**n)
+    key  = vk * ustar * zm / (phi_c * zm**n)
 
     !> exponent of the wind speed power law
-    m = Ambient%us * phi_m / (vk * u_mean)
+    m = ustar * phi_m / (vk * wind_speed)
 
     !> proportionality constant of the wind speed power law (Eqs. 11 and 31)
-!    UU = Ambient%us * (dlog(zm / Metadata%z0) + psi_m) / (vk * zm**m)
-    UU = u_mean / zm**m
+    !UU = ustar * (dlog(zm / rough_length) + psi_m) / (vk * zm**m)
+    UU = wind_speed / zm**m
 
     !> Intermediate parameters
     r = 2d0 + m - n
@@ -283,11 +299,16 @@ end subroutine KormannMeixner01
 ! \bug
 ! \deprecated
 ! \test
-! \todo        Merge with corresponding FCC sub into a common one
+! \todo
 !***************************************************************************
-subroutine Hsieh00()
-    use m_rp_global_var
+subroutine Hsieh00(MO_length, sonic_height, disp_height, rough_length)
+    use m_common_global_var
     implicit none
+    !> In/out variables
+    real(kind = dbl), intent(in) :: MO_length
+    real(kind = dbl), intent(in) :: sonic_height
+    real(kind = dbl), intent(in) :: disp_height
+    real(kind = dbl), intent(in) :: rough_length
     !> local variables
     integer :: i
     real(kind=dbl) :: a1
@@ -300,7 +321,7 @@ subroutine Hsieh00()
     real(kind=dbl) :: zm
     real(kind=dbl) :: zL
     real(kind=dbl) :: int_foot
-    real(kind=dbl), parameter :: di = 1d0
+    real(kind=dbl), parameter :: di = 5d0
     logical :: do_offset
     logical :: do10
     logical :: do30
@@ -311,17 +332,17 @@ subroutine Hsieh00()
     !> Initialization to error
     Foot = FootType(error, error, error, error, error, error, error)
 
-    zm = E2Col(u)%Instr%height - Metadata%d
+    zm = sonic_height - disp_height
 
     !> Model by Hsieh et al. (2000)
     !> Intermediate parameters
     a1 = 0.3d0
     p1 = 0.86d0
-    z0m = Metadata%z0
-    zu = zm * (dlog(zm/Metadata%z0) - 1d0 + Metadata%z0/zm)
-    zL = zu / Ambient%L
+    z0m = rough_length
+    zu = zm * (dlog(zm/rough_length) - 1d0 + rough_length/zm)
+    zL = zu / MO_length
 
-    !> Parameters D and P in Eq. 17
+    !> Parameers D and P in Eq. 17
     DD = 0.97d0
     PP = 1d0
     if (dabs(zL) < 0.04d0) then
@@ -346,7 +367,7 @@ subroutine Hsieh00()
     do70 = .true.
     do i = 1, 10000
         !> Cross-wind integrated 1D function
-        fact = DD * zu**PP * dabs(Ambient%L)**(1d0 - PP) / (vk**2 * (i * di))
+        fact = DD * zu**PP * dabs(MO_length)**(1d0 - PP) / (vk**2 * (i * di))
         int_foot = dexp(-fact)
         if (do_offset .and. int_foot > 0.01d0) then
             Foot%offset = i * di
@@ -373,6 +394,7 @@ subroutine Hsieh00()
             exit
         end if
     end do
+
     !> Peak distance
-    Foot%peak = DD * zu**PP * dabs(Ambient%L)**(1d0 - PP) / (2d0 * vk**2)
+    Foot%peak = DD * zu**PP * dabs(MO_length)**(1d0 - PP) / (2d0 * vk**2)
 end subroutine Hsieh00

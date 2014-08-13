@@ -65,63 +65,63 @@ subroutine DevelopedTurbulenceTest(DtDiff)
     zplus = 1d0
 
     !> Modeled characteristics after Gockede et al. 2004, AFM, Table 1
-    if (LitePar%zL < -0.2d0) then
-    !if (LitePar%zL > -3d0 .and. LitePar%zL < -0.2d0) then  !< bounds the test to z/L > -3 as from Goeckede et al. 2004
-        sigW_mod = 1.3d0 * (1d0 - 2d0 * LitePar%zL)**(1d0/3d0)
-        sigU_mod = 4.15d0 * dabs(LitePar%zL)**(1d0/8d0)
-    !elseif (LitePar%zL > -0.2d0 .and. LitePar%zL < 0.4d0) then  !< bounds the test to z/L < 0.4 as from Goeckede et al. 2004
-    elseif (LitePar%zL > -0.2d0) then
-        sigW_mod = 0.21d0 * dlog(Fcor * zplus / LitePar%us) + 3.1d0
-        sigU_mod = 0.44d0 * dlog(Fcor * zplus / LitePar%us) + 6.3d0
+    if (Ambient%zL < -0.2d0) then
+    !if (Ambient%zL > -3d0 .and. Ambient%zL < -0.2d0) then  !< bounds the test to z/L > -3 as from Goeckede et al. 2004
+        sigW_mod = 1.3d0 * (1d0 - 2d0 * Ambient%zL)**(1d0/3d0)
+        sigU_mod = 4.15d0 * dabs(Ambient%zL)**(1d0/8d0)
+    !elseif (Ambient%zL > -0.2d0 .and. Ambient%zL < 0.4d0) then  !< bounds the test to z/L < 0.4 as from Goeckede et al. 2004
+    elseif (Ambient%zL > -0.2d0) then
+        sigW_mod = 0.21d0 * dlog(Fcor * zplus / Ambient%us) + 3.1d0
+        sigU_mod = 0.44d0 * dlog(Fcor * zplus / Ambient%us) + 6.3d0
     else
         sigW_mod = error
         sigU_mod = error
     end if
 
 !    !> ITC for w and u after Mauder and Foken (TK3 manual)
-!    if (LitePar%zL < -0.032d0) then
-!        sigW_mod = 2.00d0 * dabs(LitePar%zL)**(1d0/8d0)
-!        sigU_mod = 4.15d0 * dabs(LitePar%zL)**(1d0/8d0)
+!    if (Ambient%zL < -0.032d0) then
+!        sigW_mod = 2.00d0 * dabs(Ambient%zL)**(1d0/8d0)
+!        sigU_mod = 4.15d0 * dabs(Ambient%zL)**(1d0/8d0)
 !    else
 !        sigW_mod = 2.7d0
 !        sigU_mod = 1.3d0
 !    end if
 !
 !    !> Neutral range definition by Thomas and Foken (2002) has priority over Foken and Wichura (1996)
-!    if (LitePar%zL > -0.2d0 .and. LitePar%zL < 0.4d0) then
-!        sigW_mod = 0.21d0 * dlog(Fcor * zplus / LitePar%us) + 3.1d0
-!        sigU_mod = 0.44d0 * dlog(Fcor * zplus / LitePar%us) + 6.3d0
+!    if (Ambient%zL > -0.2d0 .and. Ambient%zL < 0.4d0) then
+!        sigW_mod = 0.21d0 * dlog(Fcor * zplus / Ambient%us) + 3.1d0
+!        sigU_mod = 0.44d0 * dlog(Fcor * zplus / Ambient%us) + 6.3d0
 !    else
 !        sigW_mod = error
 !        sigU_mod = error
 !    end if
 
     !> ITC for Ts
-    if(LitePar%zL < -1) then
-        sigT_mod = dabs(LitePar%zL)**(-1d0/3d0)
-    elseif(LitePar%zL >= -1.d0 .and. LitePar%zL < -0.0625d0) then
-        sigT_mod = dabs(LitePar%zL)**(-1d0/4d0)
-    elseif(LitePar%zL >= -0.0625d0 .and. LitePar%zL < 0.02d0) then
-        sigT_mod = 0.5d0 * (dabs(LitePar%zL)**(-0.5d0))
-    elseif(LitePar%zL > 0.02d0) then
-        sigT_mod = 1.4d0 * dabs(LitePar%zL)**(-1d0/4d0)
+    if(Ambient%zL < -1) then
+        sigT_mod = dabs(Ambient%zL)**(-1d0/3d0)
+    elseif(Ambient%zL >= -1.d0 .and. Ambient%zL < -0.0625d0) then
+        sigT_mod = dabs(Ambient%zL)**(-1d0/4d0)
+    elseif(Ambient%zL >= -0.0625d0 .and. Ambient%zL < 0.02d0) then
+        sigT_mod = 0.5d0 * (dabs(Ambient%zL)**(-0.5d0))
+    elseif(Ambient%zL > 0.02d0) then
+        sigT_mod = 1.4d0 * dabs(Ambient%zL)**(-1d0/4d0)
     else
         sigT_mod = error
     end if
 
     !> Measured normalized standard deviations
-    if(LitePar%us /= 0d0 .and. LitePar%us /= error .and. Stats%Cov(u, u) /= error) then
-        sigU_meas = dsqrt(Stats%Cov(u, u)) / LitePar%us
+    if(Ambient%us /= 0d0 .and. Ambient%us /= error .and. Stats%Cov(u, u) /= error) then
+        sigU_meas = dsqrt(Stats%Cov(u, u)) / Ambient%us
     else
         sigU_meas = error
     end if
-    if(LitePar%us /= 0d0 .and. LitePar%us /= error .and. Stats%Cov(w, w) /= error) then
-        sigW_meas = dsqrt(Stats%Cov(w, w)) / LitePar%us
+    if(Ambient%us /= 0d0 .and. Ambient%us /= error .and. Stats%Cov(w, w) /= error) then
+        sigW_meas = dsqrt(Stats%Cov(w, w)) / Ambient%us
     else
         sigW_meas = error
     end if
-    if(LitePar%Ts /= 0d0 .and. LitePar%Ts /= error .and. Stats%Cov(ts, ts) /= error) then
-        sigT_meas = dabs(dsqrt(Stats%Cov(ts, ts)) / LitePar%Ts)
+    if(Ambient%Ts /= 0d0 .and. Ambient%Ts /= error .and. Stats%Cov(ts, ts) /= error) then
+        sigT_meas = dabs(dsqrt(Stats%Cov(ts, ts)) / Ambient%Ts)
     else
         sigT_meas = error
     end if

@@ -123,7 +123,6 @@ module m_rp_global_var
     type (BurbaType):: Burba
     type (BurbaParType) :: BurbaPar
     type (StorType) :: Stor
-    type (FootType) :: Foot
     type (Mul7700Type)   :: Mul7700
 
     !> Dynamic metadata

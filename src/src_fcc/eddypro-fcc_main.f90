@@ -377,7 +377,8 @@ Program EddyproFCC
         call Fluxes23(lEx)
 
         !> Calculate footprint estimation
-        call FootprintHandle(lEx)
+        call FootprintHandle(lEx%var(w), lEx%ustar, lEx%zL, lEx%WS, lEx%L, &
+            lEx%instr(sonic)%height, lEx%disp_height, lEx%rough_length)
 
         !> Calculate quality flags
         StDiff%w_u    = nint(lEx%st_w_u)

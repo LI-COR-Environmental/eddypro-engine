@@ -163,13 +163,13 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
         call AddDatum(dataline, datum, separator)
         write(datum, *) Stats5%Mean(w)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) LitePar%WS
+        write(datum, *) Ambient%WS
         call AddDatum(dataline, datum, separator)
-        write(datum, *) LitePar%MWS
+        write(datum, *) Ambient%MWS
         call AddDatum(dataline, datum, separator)
         write(datum, *) Stats4%wind_dir
         call AddDatum(dataline, datum, separator)
-        write(datum, *) LitePar%us
+        write(datum, *) Ambient%us
         call AddDatum(dataline, datum, separator)
         write(datum, *) Stats7%TKE
         call AddDatum(dataline, datum, separator)
@@ -177,9 +177,9 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
         call AddDatum(dataline, datum, separator)
         write(datum, *) Essentials%zL
         call AddDatum(dataline, datum, separator)
-        write(datum, *) LitePar%bowen
+        write(datum, *) Ambient%bowen
         call AddDatum(dataline, datum, separator)
-        write(datum, *) LitePar%Ts
+        write(datum, *) Ambient%Ts
         call AddDatum(dataline, datum, separator)
 
         !> Gas concentrations, densities and timelags
@@ -197,46 +197,46 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
         !> Air properties
         write(datum, *) Stats7%Mean(ts)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) LitePar%Ta
+        write(datum, *) Ambient%Ta
         call AddDatum(dataline, datum, separator)
         write(datum, *) Stats%Pr
         call AddDatum(dataline, datum, separator)
         write(datum, *) Stats%RH
         call AddDatum(dataline, datum, separator)
-        write(datum, *) LitePar%Va
+        write(datum, *) Ambient%Va
         call AddDatum(dataline, datum, separator)
         write(datum, *) RHO%a
         call AddDatum(dataline, datum, separator)
-        write(datum, *) LitePar%RhoCp
+        write(datum, *) Ambient%RhoCp
         call AddDatum(dataline, datum, separator)
         write(datum, *) RHO%w
         call AddDatum(dataline, datum, separator)
-        write(datum, *) LitePar%e
+        write(datum, *) Ambient%e
         call AddDatum(dataline, datum, separator)
-        write(datum, *) LitePar%es
+        write(datum, *) Ambient%es
         call AddDatum(dataline, datum, separator)
-        write(datum, *) LitePar%Q
+        write(datum, *) Ambient%Q
         call AddDatum(dataline, datum, separator)
-        write(datum, *) LitePar%VPD
+        write(datum, *) Ambient%VPD
         call AddDatum(dataline, datum, separator)
-        write(datum, *) LitePar%Td
+        write(datum, *) Ambient%Td
         call AddDatum(dataline, datum, separator)
         !> Dry air properties
-        write(datum, *) LitePar%p_d
+        write(datum, *) Ambient%p_d
         call AddDatum(dataline, datum, separator)
         write(datum, *) RHO%d
         call AddDatum(dataline, datum, separator)
-        write(datum, *) LitePar%Vd
+        write(datum, *) Ambient%Vd
         call AddDatum(dataline, datum, separator)
         !> Others
-        write(datum, *) LitePar%lambda
+        write(datum, *) Ambient%lambda
         call AddDatum(dataline, datum, separator)
-        write(datum, *) LitePar%sigma
+        write(datum, *) Ambient%sigma
         call AddDatum(dataline, datum, separator)
         !> Cell parameters
-        write(datum, *) LitePar%Tcell
+        write(datum, *) Ambient%Tcell
         call AddDatum(dataline, datum, separator)
-        write(datum, *) LitePar%Pcell
+        write(datum, *) Ambient%Pcell
         call AddDatum(dataline, datum, separator)
         !> Cell molar volume for each gas
         do gas = co2, gas4
@@ -744,19 +744,19 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
         !> Air properties
         call WriteDatumFloat(Stats7%Mean(ts), datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(LitePar%Ta, datum, EddyProProj%err_label)
+        call WriteDatumFloat(Ambient%Ta, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
         call WriteDatumFloat(Stats%Pr, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
         call WriteDatumFloat(RHO%a, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
         if (RHO%a /= 0d0 .and. RHO%a /= error) then
-            call WriteDatumFloat(LitePar%RhoCp / RHO%a, datum, EddyProProj%err_label)
+            call WriteDatumFloat(Ambient%RhoCp / RHO%a, datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         else
             call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
         end if
-        call WriteDatumFloat(LitePar%Va, datum, EddyProProj%err_label)
+        call WriteDatumFloat(Ambient%Va, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
         if (Flux3%h2o /= error) then
             call WriteDatumFloat(Flux3%h2o * 0.0648d0, datum, EddyProProj%err_label)
@@ -766,17 +766,17 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
         end if
         call WriteDatumFloat(RHO%w, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(LitePar%e, datum, EddyProProj%err_label)
+        call WriteDatumFloat(Ambient%e, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(LitePar%es, datum, EddyProProj%err_label)
+        call WriteDatumFloat(Ambient%es, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(LitePar%Q, datum, EddyProProj%err_label)
+        call WriteDatumFloat(Ambient%Q, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
         call WriteDatumFloat(Stats%RH, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(LitePar%VPD, datum, EddyProProj%err_label)
+        call WriteDatumFloat(Ambient%VPD, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(LitePar%Td, datum, EddyProProj%err_label)
+        call WriteDatumFloat(Ambient%Td, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
 
         !> Unrotated and rotated wind components
@@ -792,9 +792,9 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
         call AddDatum(dataline, datum, separator)
         call WriteDatumFloat(Stats5%Mean(w), datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(LitePar%WS, datum, EddyProProj%err_label)
+        call WriteDatumFloat(Ambient%WS, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(LitePar%MWS, datum, EddyProProj%err_label)
+        call WriteDatumFloat(Ambient%MWS, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
         call WriteDatumFloat(Stats4%wind_dir, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
@@ -807,17 +807,17 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
         call AddDatum(dataline, datum, separator)
 
         !> turbulence
-        call WriteDatumFloat(LitePar%us, datum, EddyProProj%err_label)
+        call WriteDatumFloat(Ambient%us, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
         call WriteDatumFloat(Stats7%TKE, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(LitePar%L, datum, EddyProProj%err_label)
+        call WriteDatumFloat(Ambient%L, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(LitePar%zL, datum, EddyProProj%err_label)
+        call WriteDatumFloat(Ambient%zL, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(LitePar%bowen, datum, EddyProProj%err_label)
+        call WriteDatumFloat(Ambient%bowen, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(LitePar%Ts, datum, EddyProProj%err_label)
+        call WriteDatumFloat(Ambient%Ts, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
 
         !> footprint
@@ -1185,11 +1185,11 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
         end if
 
         !> Turbulence
-        call WriteDatumFloat(LitePar%us, datum, '-9999.')
+        call WriteDatumFloat(Ambient%us, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(LitePar%L, datum, '-9999.')
+        call WriteDatumFloat(Ambient%L, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(LitePar%zL, datum, '-9999.')
+        call WriteDatumFloat(Ambient%zL, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
 
         !> footprint

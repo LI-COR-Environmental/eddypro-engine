@@ -153,7 +153,9 @@
 		<Unit filename="../src/src_common/edit_ini_file.f90">
 			<Option weight="3" />
 		</Unit>
-		<Unit filename="../src/src_common/exception_handler.f90" />
+		<Unit filename="../src/src_common/exception_handler.f90">
+			<Option weight="0" />
+		</Unit>
 		<Unit filename="../src/src_common/filelist_by_ext.f90">
 			<Option weight="3" />
 		</Unit>
@@ -164,6 +166,9 @@
 			<Option weight="3" />
 		</Unit>
 		<Unit filename="../src/src_common/fluctuations.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/footprint_handle.f90">
 			<Option weight="3" />
 		</Unit>
 		<Unit filename="../src/src_common/fourier_transform.f90">
@@ -451,9 +456,6 @@
 			<Option weight="4" />
 		</Unit>
 		<Unit filename="../src/src_rp/fluxes23_rp.f90">
-			<Option weight="4" />
-		</Unit>
-		<Unit filename="../src/src_rp/footprint_handle_rp.f90">
 			<Option weight="4" />
 		</Unit>
 		<Unit filename="../src/src_rp/init_biomet_out.f90">

@@ -38,7 +38,6 @@ module m_fx_global_var
     type(FluxType) :: Flux1
     type(FluxType) :: Flux2
     type(FluxType) :: Flux3
-    type(FootType) :: Foot
     type(FCCMetadataType) :: FCCMetadata
 
     !> tags of the setup ".ini" file for eccoce

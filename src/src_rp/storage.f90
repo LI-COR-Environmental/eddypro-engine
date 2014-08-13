@@ -36,7 +36,7 @@ subroutine Storage(PrevStats, PrevLitePar)
     implicit none
     !> in/out variables
     type(StatsType), intent(in) :: PrevStats
-    type(ParType), intent(in) :: PrevLitePar
+    type(AmbientStateType), intent(in) :: PrevLitePar
     !> local variables
     integer, parameter :: stH = 1
     integer, parameter :: stCO2 = 2
@@ -126,21 +126,21 @@ subroutine Storage(PrevStats, PrevLitePar)
     end do
 
     !> Units adjustments
-    if (Stor%H /= 0) Stor%H = LitePar%RhoCp * Stor%H
+    if (Stor%H /= 0) Stor%H = Ambient%RhoCp * Stor%H
     !> Gas from mixing ratio to molar density (should use Vd, not Va. But Vd not necessarily available at this stage)
     do gas = co2, gas4
         select case(gas)
             case (co2, ch4, gas4)
-                if (Stor%of(gas) /= 0 .and. LitePar%Va /= 0) &
-                    Stor%of(gas) = Stor%of(gas) * 1d3 / LitePar%Va
+                if (Stor%of(gas) /= 0 .and. Ambient%Va /= 0) &
+                    Stor%of(gas) = Stor%of(gas) * 1d3 / Ambient%Va
             case(h2o)
-                if (Stor%of(gas) /= 0 .and. LitePar%Va /= 0) &
-                    Stor%of(gas) = Stor%of(gas) / LitePar%Va
+                if (Stor%of(gas) /= 0 .and. Ambient%Va /= 0) &
+                    Stor%of(gas) = Stor%of(gas) / Ambient%Va
         end select
     end do
 
     if (Stor%of(h2o) /= 0) then
-        Stor%LE = Stor%of(h2o) * MW(h2o) * LitePar%lambda * 1d-3
+        Stor%LE = Stor%of(h2o) * MW(h2o) * Ambient%lambda * 1d-3
     else
         Stor%LE = 0d0
     end if
@@ -148,8 +148,8 @@ subroutine Storage(PrevStats, PrevLitePar)
     !> If Stor = 0, it means no profile was available or selected, so calculate it with 1-point formula
     !> Storage for sensible heat
     if (Stor%H == 0) then
-        if(LitePar%RhoCp /= error .and. LitePar%Ta /= error .and. PrevLitePar%Ta /= error) then
-            Stor%H = LitePar%RhoCp * (LitePar%Ta - PrevLitePar%Ta) * E2Col(u)%Instr%height / seconds
+        if(Ambient%RhoCp /= error .and. Ambient%Ta /= error .and. PrevLitePar%Ta /= error) then
+            Stor%H = Ambient%RhoCp * (Ambient%Ta - PrevLitePar%Ta) * E2Col(u)%Instr%height / seconds
         else
             Stor%H = error
         end if
@@ -161,16 +161,16 @@ subroutine Storage(PrevStats, PrevLitePar)
             select case(gas)
                 case (co2, ch4, gas4)
                     if (Stats%chi(gas) /= error .and. PrevStats%chi(gas) /= error) then
-                        Stor%of(gas) = (Stats%chi(gas) - PrevStats%chi(gas)) / LitePar%Va * 1d-3 &
+                        Stor%of(gas) = (Stats%chi(gas) - PrevStats%chi(gas)) / Ambient%Va * 1d-3 &
                                      * E2Col(gas)%Instr%height * 1d3 / seconds
                     else
                         Stor%of(gas) = error
                     end if
                 case(h2o)
                     if (Stats%chi(gas) /= error .and. PrevStats%chi(gas) /= error) then
-                        Stor%of(gas) = (Stats%chi(gas) - PrevStats%chi(gas)) / LitePar%Va &
+                        Stor%of(gas) = (Stats%chi(gas) - PrevStats%chi(gas)) / Ambient%Va &
                                      * E2Col(gas)%Instr%height / seconds
-                        Stor%LE = Stor%of(h2o) * MW(h2o) * LitePar%lambda * 1d-3
+                        Stor%LE = Stor%of(h2o) * MW(h2o) * Ambient%lambda * 1d-3
                     else
                         Stor%of(gas) = error
                         Stor%LE      = error

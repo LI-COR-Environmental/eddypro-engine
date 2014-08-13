@@ -112,7 +112,7 @@ subroutine FitRh2Fco()
 
         !> Extrapolate cut-off frequency with different policies, depending on how
         !> many have been correctly calculated
-        if (m >= 3) then
+        if (m >= 4) then
             !> Perform regression if there are at least 3 RH/fc pairs
             TFShape = 'exponential'
             allocate(fvec(m), fjac(m, npar_EXP))
@@ -125,14 +125,14 @@ subroutine FitRh2Fco()
             RegPar(dum, dum)%e1 = EXPPar(1)
             RegPar(dum, dum)%e2 = EXPPar(2)
             RegPar(dum, dum)%e3 = EXPPar(3)
-        elseif(m == 2) then
+        elseif(m == 3 .or. m == 2) then
             cnt = 0
             mean_fc = 0d0
             do cls = RH10, RH90
                 if (RegPar(h2o, cls)%fc /= error) then
                     cnt = cnt + 1
                     mean_fc = mean_fc + RegPar(h2o, cls)%fc
-                    if (cnt == 2) then
+                    if (cnt == m) then
                         mean_fc = mean_fc / cnt
                         RegPar(h2o, RH10:RH90)%fc = mean_fc
                         RegPar(dum, dum)%e1 = 1d-15

@@ -44,17 +44,17 @@ subroutine Fluxes1_rp()
     !> according to van Dijk et al. (2003, JAOT, eq. 13b)
     select case (E2Col(h2o)%Instr%model(1:len_trim(E2Col(h2o)%Instr%model) - 2))
         case('open_path_krypton','closed_path_krypton', 'open_path_lyman','closed_path_lyman')
-            if (E2Col(h2o)%Instr%kw /= 0d0 .and. LitePar%Ta > 0d0 &
-                .and. LitePar%Bowen /= error .and. LitePar%lambda > 0) then
+            if (E2Col(h2o)%Instr%kw /= 0d0 .and. Ambient%Ta > 0d0 &
+                .and. Ambient%Bowen /= error .and. Ambient%lambda > 0) then
                 Cox = 1d0 + 0.23d0 * E2Col(h2o)%Instr%ko / E2Col(h2o)%Instr%kw &
-                    * LitePar%Bowen * LitePar%lambda / LitePar%Ta
+                    * Ambient%Bowen * Ambient%lambda / Ambient%Ta
                 Stats%Cov(w, h2o) = Cox * Stats%Cov(w, h2o)
                 Stats%Cov(h2o, h2o) = Cox**2 * Stats%Cov(h2o, h2o)
                 !> Alternative formulation by T.W. Horst
                 !> http://www.eol.ucar.edu/instrumentation/sounding/isfs/isff-support-center&
                 !> &/how-tos/corrections-to-sensible-and-latent-heat-flux-measurements
                 !Stats%Cov(w, h2o) = Stats%Cov(w, h2o) / (1 - 8d0 * 0.23d0 * E2Col(h2o)%Instr%ko &
-                ! / E2Col(h2o)%Instr%kw * LitePar%bowen)
+                ! / E2Col(h2o)%Instr%kw * Ambient%bowen)
             endif
     end select
 
@@ -141,7 +141,7 @@ subroutine Fluxes1_rp()
     !> Momentum flux [kg m-1 s-2] and friction velocity [m s-1]
     if (BPCF%of(w_u) /= error) then
         Flux1%tau = Flux0%tau * BPCF%of(w_u)
-        LitePar%us    = LitePar%us * dsqrt(BPCF%of(w_u))
+        Ambient%us    = Ambient%us * dsqrt(BPCF%of(w_u))
     else
         Flux1%tau = Flux0%tau
     end if

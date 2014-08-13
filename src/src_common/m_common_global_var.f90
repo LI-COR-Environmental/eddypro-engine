@@ -203,6 +203,7 @@ module m_common_global_var
     real (kind = dbl), allocatable :: zzFit(:)
     real (kind = dbl), allocatable :: ddum(:)
 
+    type(FootType) :: Foot
     type(EddyProLogType)   :: EddyProLog
     type(EddyProProjType) :: EddyProProj
     type(SpectralType) :: BPCF
@@ -507,7 +508,7 @@ module m_common_global_var
     character(32) :: foot_model_used
     Type(StatsType)  :: Stats
     Type(UserStatsType)  :: UserStats
-    type(ParType)    :: LitePar
+    type(AmbientStateType)    :: Ambient
     type(RegParType) :: RegPar(GHGNumVar, MaxGasClasses)
     type(DateType)   :: DateStep
     type(DateType)   :: DatafileDateStep

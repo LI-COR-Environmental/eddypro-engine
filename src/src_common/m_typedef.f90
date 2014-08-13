@@ -910,7 +910,7 @@ module m_typedef
         real(kind = dbl) :: hf_lim
     end type NSType
 
-    type :: ParType
+    type :: AmbientStateType
         real(kind = dbl) :: VPD
         real(kind = dbl) :: Va
         real(kind = dbl) :: Vd
@@ -934,7 +934,7 @@ module m_typedef
         real(kind = dbl) :: L
         real(kind = dbl) :: zL
         real(kind = dbl) :: alpha
-    end type ParType
+    end type AmbientStateType
 
    type :: PFSetupType
         integer :: num_sec

@@ -48,7 +48,7 @@ subroutine MoleFractionsAndMixingRatios()
         if (E2Col(gas)%present .and. E2Col(gas)%instr%path_type == 'closed') then
             LocVa(gas) = E2Col(gas)%Va
         else
-            LocVa(gas) = LitePar%Va
+            LocVa(gas) = Ambient%Va
         end if
     end do
 
