@@ -102,7 +102,6 @@ program EddyproRP
 
     real(kind = dbl), allocatable :: bf(:)
     real(kind = sgl), allocatable :: Raw(:, :)
-    real(kind = dbl), allocatable :: tmpRaw(:, :)
     real(kind = dbl), allocatable :: E2Set(:, :)
     real(kind = dbl), allocatable :: E2Primes(:, :)
     real(kind = dbl), allocatable :: UserSet(:, :)
@@ -111,7 +110,6 @@ program EddyproRP
     real(kind = dbl), allocatable :: SpecSet(:, :)
     real(kind = dbl), allocatable :: pfWindBySect(:, :, :)
     real(kind = dbl), allocatable :: pfWind(:, :)
-    real(kind = dbl), allocatable :: meanRaw(:)
 
     character(10) :: loggedDate
     character(10) :: date
@@ -388,10 +386,12 @@ program EddyproRP
 
     !> Check the dynamic metadata file for calibration data. If found, builds up time series
     !> of absorptance drifts
-    allocate(tsDrifts(NumberOfPeriods))
-    allocate(Calib(0:NumDynRecords))  !< element 0 is to allocate values at the beginning of period to be processed
-    allocate(tmpCalib(0:NumDynRecords))
-    if (EddyProProj%use_dynmd_file) call driftRetrieveCalibrationEvents(nCalibEvents)
+    if (DriftCorr%method /= 'none') then
+        allocate(tsDrifts(NumberOfPeriods))
+        allocate(Calib(0:NumDynRecords))  !< element 0 is to allocate values at the beginning of period to be processed
+        allocate(tmpCalib(0:NumDynRecords))
+        if (EddyProProj%use_dynmd_file) call driftRetrieveCalibrationEvents(nCalibEvents)
+    end if
 
     !> Define exp-binned frequencies extending \n
     !> from f_min = 1/(Flux avrg length) Hz --> f_max = AcFreq/2 (= Nyquist frequency)
@@ -1116,7 +1116,7 @@ program EddyproRP
     !****************************************************************************************************
     !****************************************************************************************************
     if (DriftCorr%method /= 'none' .and. nCalibEvents > 0) then
-        write(*,'(a)') ' Building concentration drifts history..'
+        write(*,'(a)') ' Elaborating IRGA calibration-check history..'
 
         !> Loop on periods to be processed
         pcount = rpStartTimestampIndx - 1
@@ -1164,10 +1164,12 @@ program EddyproRP
             end if
 
             !> Log out if the case
-            call DateTypeToDateTime(InitialTimestamp, date, time)
-            if (date /= loggedDate) then
-                write(*, '(a)') '  Elaborating calibration data of: ' // date(1:10)
-                loggedDate = date
+            if (pcount /= rpStartTimestampIndx) then
+                call DateTypeToDateTime(InitialTimestamp, date, time)
+                if (date /= loggedDate) then
+                    write(*, '(a)') '  Calibration-check data found on: ' // date(1:10)
+                    loggedDate = date
+                end if
             end if
 
             !> Import dataset for current period. If using embedded biomet, also read biomet data
@@ -1186,24 +1188,8 @@ program EddyproRP
             MissingRecords = dfloat(MaxPeriodNumRecords - PeriodRecords) / dfloat(MaxPeriodNumRecords) * 100d0
             if (PeriodRecords > 0 .and. MissingRecords > RPsetup%max_lack) cycle drift_loop
 
-            !> Allocate arrays for storing raw counts
-            if (.not. allocated(meanRaw)) allocate(meanRaw(size(Raw, 2)))
-            if (.not. allocated(tmpRaw))  allocate(tmpRaw(size(Raw, 1), size(Raw, 2)))
-
-            !> Calculate mean of all data
-            tmpRaw = Raw
-            call AverageNoError(tmpRaw, size(Raw, 1),  size(Raw, 2), meanRaw, error)
-
-            !> Extract mean counts from average
-            refCounts = error
-            do i = 1, NumCol
-                select case (Col(i)%var)
-                    case('co2_ref')
-                        refCounts(co2) = meanRaw(i)
-                    case('h2o_ref')
-                        refCounts(h2o) = meanRaw(i)
-                end select
-            end do
+            !> Calculate reference counts
+            call ReferenceCounts(dble(Raw), size(Raw, 1), size(Raw, 2))
 
             !> Special case of first file in the dataset: used to initialize
             !> drift history assuming cleaned instrument at the beginning
@@ -1215,7 +1201,7 @@ program EddyproRP
             end if
 
             !> Case of cleaning event
-            !> Calculate ri and assign relevant quantities to current Calib dataset
+            !> Assign relevant ri to current Calib dataset
             if (clean > 0) then
                 Calib(latestCleaning + clean)%ri(co2:h2o) = refCounts(co2:h2o)
                 latestCleaning = latestCleaning + clean
@@ -1225,13 +1211,14 @@ program EddyproRP
             if (dirty > 0) then
                 Calib(latestCleaning)%rf(co2:h2o) = refCounts(co2:h2o)
             end if
-            if (allocated(meanRaw)) deallocate(meanRaw)
-            if (allocated(tmpRaw))  deallocate(tmpRaw)
         end do drift_loop
 
         !> Rearrange so that all data needed between t1 and t2 are stored in Calib(t2)
         tmpCalib = Calib
         do i = 0, nCalibEvents - 1
+            !> Calculate number of periods between each calibration-check event
+            Calib(i+1)%numPeriods = NumOfPeriods(Calib(i)%ts, Calib(i+1)%ts, DateStep)
+
             Calib(i+1)%ri = tmpCalib(i)%ri
             Calib(i+1)%rf = tmpCalib(i)%rf
         end do
@@ -1240,10 +1227,10 @@ program EddyproRP
         Calib(0)%ri = error
         Calib(0)%rf = error
 
-!> Only needed for ICOS dataset, where H2O does not start from "clean" but with some offset on day 1, Aug. 3.
+!> Only needed and valid for ICOS dataset, where H2O does not start from "clean" but with some offset on day 1, Aug. 3.
 !> Artificially set initial ri to the mean value at July 23, when H2O signal was actually "clean", i.e. gives
-!> same concentration of LI-7000
-!Calib(1)%ri(h2o) = 34703.78d0
+!> same concentration of LI-7000.
+Calib(1)%ri(h2o) = 34703.78d0
 
     end if
 
@@ -1419,32 +1406,8 @@ program EddyproRP
             if (RPsetup%filter_by_raw_flags) &
                 call FilterRawDataByFlags(Col, Raw, size(Raw, 1), size(Raw, 2))
 
-            !> If drift correction is to be performed with signal
-            !> strength proxy, calculate mean refCounts for current period
-            if (DriftCorr%method == 'signal_strength') then
-                if (.not. allocated(meanRaw)) &
-                    allocate(meanRaw(size(Raw, 2)))
-                if (.not. allocated(tmpRaw)) &
-                    allocate(tmpRaw(size(Raw, 1), size(Raw, 2)))
-
-                !> Calculate mean of all data
-                tmpRaw = Raw
-                call AverageNoError(tmpRaw, size(Raw, 1),  &
-                    size(Raw, 2), meanRaw, error)
-
-                !> Extract mean counts from average
-                refCounts = error
-                do i = 1, NumCol
-                    select case (Col(i)%var)
-                        case('co2_ref')
-                            refCounts(co2) = meanRaw(i)
-                        case('h2o_ref')
-                            refCounts(h2o) = meanRaw(i)
-                    end select
-                end do
-                if (allocated(meanRaw)) deallocate(meanRaw)
-                if (allocated(tmpRaw))  deallocate(tmpRaw)
-            end if
+            !> If drift correction is to be performed with signal strength proxy, calculate mean refCounts for current period
+            if (DriftCorr%method == 'signal_strength') call ReferenceCounts(Raw, size(Raw, 1), size(Raw, 2))
         end if
 
         !***********************************************************************
