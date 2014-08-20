@@ -1622,8 +1622,13 @@ program EddyproRP
             if (allocated(mask)) deallocate(mask)
 
             !> Period skip control
-            MissingRecords = dfloat(MaxPeriodNumRecords - PeriodActualRecords) / dfloat(MaxPeriodNumRecords) * 100d0
+            MissingRecords = dfloat(MaxPeriodNumRecords - PeriodActualRecords) &
+                / dfloat(MaxPeriodNumRecords) * 100d0
             if (MissingRecords > RPsetup%max_lack) then
+                if(allocated(E2Set)) deallocate(E2Set)
+                if(allocated(E2Primes)) deallocate(E2Primes)
+                if(allocated(UserSet)) deallocate(UserSet)
+                if(allocated(UserPrimes)) deallocate(UserPrimes)
                 call ExceptionHandler(58)
                 write(*, *)
                 call hms_delta_print(PeriodSkipMessage,'')
