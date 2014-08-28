@@ -740,11 +740,6 @@ program EddyproRP
 
             allocate(toH2On(TOSetup%h2o_nclass))
 
-
-!            do i = 1, tlagn(h2o)
-!                write(123,*) toSet(i)%RH, toSet(i)%tlag(h2o)
-!            end do
-
 !> Improve readibility of this subroutine call
             !> Optimize time lags
             call OptimizeTimelags(toSet, size(toSet), tlagn, E2NumVar, toH2On, &
