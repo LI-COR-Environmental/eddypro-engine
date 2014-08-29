@@ -40,9 +40,6 @@ subroutine ReadMetadataFile(LocCol, MetaFile, IniFileNotFound)
     logical, intent(out) :: IniFileNotFound
 
 
-    LogString = ' inf=reading "' // MetaFile(1:len_trim(MetaFile)) // '" configuration file'
-    call log_msg(LogString)
-
     !> parse ini file and store all numeric and character tags
     call ParseIniFile(MetaFile, '', ANTags, ACTags, size(ANTags), size(ACTags), &
          ANTagFound, ACTagFound, IniFileNotFound)

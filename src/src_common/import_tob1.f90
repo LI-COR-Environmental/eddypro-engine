@@ -68,13 +68,14 @@ subroutine ImportTOB1(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nrow, nco
     logical, allocatable :: mask(:)
     logical :: repeat
     logical :: TmpFileExists
+    logical :: DeleteFile
     type(ColType) :: TmpCol(MaxNumCol)
 
 
     FileEndReached = .false.
 
     if (FileInterpreter%header_rows > 0) then
-
+        DeleteFile = .True.
         !> Create path of tmp file, that either already exists or must be created
         !> by copying only data from original TOB1 file
         TmpFilepath = trim(adjustl(TmpDir)) // &
@@ -128,6 +129,7 @@ subroutine ImportTOB1(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nrow, nco
     else
         close(udf)
         OnlyDataPath = Filepath
+        DeleteFile = .False.
     end if
 
     !> Read scratch file without header
@@ -142,12 +144,17 @@ subroutine ImportTOB1(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nrow, nco
             record_loop: do
                 i = i + 1
                 !> Normal exit instruction
-                if (N + 1 > LastRecord - FirstRecord + 1) exit record_loop
+                if (N > LastRecord - FirstRecord) exit record_loop
                 !> Read one line of data
                 do j = 1, NumCol
                     read(udf, rec = rec_num + j, iostat = read_status) Dataline(j)
                     if(read_status /= 0) then
-                        close(udf,  status = 'delete')
+                        FileEndReached = .true.
+                        if (DeleteFile) then
+                            close(udf,  status = 'delete')
+                        else
+                            close(udf)
+                        end if
                         exit record_loop
                     end if
                 end do
@@ -171,7 +178,7 @@ subroutine ImportTOB1(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nrow, nco
             record_loop2: do
                 i = i + 1
                !> Normal exit instruction
-                if (N + 1 > LastRecord - FirstRecord + 1) exit record_loop2
+                if (N > LastRecord - FirstRecord) exit record_loop2
                  !> Read one line of data (skipping ulong values if present)
                 do j = 1, FileInterpreter%ulongs
                     read(udf, rec = rec_num + j, iostat = read_status) int2_fp2
@@ -180,7 +187,13 @@ subroutine ImportTOB1(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nrow, nco
                 do j = 1, NumCol
                     read(udf, rec = rec_num + j, iostat = read_status) int2_fp2
                     if(read_status /= 0) then
-                        close(udf,  status = 'delete')
+                        FileEndReached = .true.
+                        if (DeleteFile) then
+                            close(udf,  status = 'delete')
+                        else
+                            close(udf)
+                        end if
+
                         exit record_loop2
                     end if
                     if (int2_fp2 >= 0) then
@@ -201,9 +214,7 @@ subroutine ImportTOB1(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nrow, nco
             close(udf)
 
         case default
-            call log_msg( ' err=TOB1 data format unrecognized. Please select either "IEEE4" or "FP2"&
-                & data formats and run EddyPro again. Flux calculation aborted.')
-            call ErrorHandle(0, 0, 31)
+            call ExceptionHandler(31)
     end select
 
     !> Check if most data were imported correctly
@@ -297,12 +308,17 @@ subroutine ImportTOB1(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nrow, nco
                 record_loop3: do
                     i = i + 1
                     !> Normal exit instruction
-                    if (N + 1 > LastRecord - FirstRecord + 1) exit record_loop3
+                    if (N > LastRecord - FirstRecord) exit record_loop3
                     !> Read one line of data
                     do j = 1, NumCol
                         read(udf, rec = rec_num + j, iostat = read_status) Dataline(j)
                         if(read_status /= 0) then
-                            close(udf,  status = 'delete')
+                            FileEndReached = .true.
+                            if (DeleteFile) then
+                                close(udf,  status = 'delete')
+                            else
+                                close(udf)
+                            end if
                             exit record_loop3
                         end if
                     end do
@@ -326,7 +342,7 @@ subroutine ImportTOB1(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nrow, nco
                 record_loop4: do
                     i = i + 1
                    !> Normal exit instruction
-                    if (N + 1 > LastRecord - FirstRecord + 1) exit record_loop4
+                    if (N > LastRecord - FirstRecord) exit record_loop4
                      !> Read one line of data (skipping ulong values if present)
                     do j = 1, FileInterpreter%ulongs
                         read(udf, rec = rec_num + j, iostat = read_status) int2_fp2
@@ -335,7 +351,12 @@ subroutine ImportTOB1(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nrow, nco
                     do j = 1, NumCol
                         read(udf, rec = rec_num + j, iostat = read_status) int2_fp2
                         if(read_status /= 0) then
-                            close(udf,  status = 'delete')
+                            FileEndReached = .true.
+                            if (DeleteFile) then
+                                close(udf,  status = 'delete')
+                            else
+                                close(udf)
+                            end if
                             exit record_loop4
                         end if
                         if (int2_fp2 >= 0) then
@@ -356,9 +377,7 @@ subroutine ImportTOB1(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nrow, nco
                 close(udf)
 
             case default
-                call log_msg( ' err=TOB1 data format unrecognized. Please select either "IEEE4" or "FP2"&
-                    & data formats and run EddyPro again. Flux calculation aborted.')
-                call ErrorHandle(0, 0, 31)
+                call ExceptionHandler(31)
         end select
     end if
 

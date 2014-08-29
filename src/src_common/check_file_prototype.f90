@@ -44,5 +44,5 @@ subroutine CheckFilePrototype()
     if ( index(Pattern, 'yy') == 0 &
     .or. index(Pattern, 'dd') == 0 &
     .or. index(Pattern, 'HH') == 0 &
-    .or. index(Pattern, 'MM') == 0) call ErrorHandle(0, 0, 20)
+    .or. index(Pattern, 'MM') == 0) call ExceptionHandler(20)
 end subroutine CheckFilePrototype

@@ -41,33 +41,17 @@ subroutine WriteOutTimelagOptimization(actn, M, h2o_n, ncls, cls_size)
     integer, external :: CreateDir
     !> local variables
     integer :: cls
-    integer :: mkdir_status = 1
     integer :: open_status = 1
     character(4) :: min
     character(4) :: max
     character(9) :: txt
 
-    !> Create output directory if it does not exist
-    LogString = ' rp_mainout_dir=' // Dir%main_out(1:len_trim(Dir%main_out))
-    call DoubleCharInString(LogString, slash)
-    call log_msg(LogString)
-    mkdir_status = CreateDir('"' //Dir%main_out(1:len_trim(Dir%main_out)) // '"')
-    write(LogLogical, '(L1)') mkdir_status
-    LogString = ' mkdir_error=' // LogLogical
-    call log_msg(LogString)
 
     !> Create output file
     TimelagOpt_Path = Dir%main_out(1:len_trim(Dir%main_out)) &
               // EddyProProj%id(1:len_trim(EddyProProj%id)) &
               // TimelagOpt_FilePadding // Timestamp_FilePadding // TxtExt
-    LogString = ' to_file=' // TimelagOpt_Path(1:len_trim(TimelagOpt_Path))
-    call DoubleCharInString(LogString, slash)
-    call log_msg(LogString)
     open(uto, file = TimelagOpt_Path, iostat = open_status, encoding = 'utf-8')
-    write(LogLogical, '(L1)') open_status
-    LogString = ' create_file_error=' // LogLogical
-    call log_msg(LogString)
-
 
     !> Write on output file time lag optimization results
     write(uto, '(a)') 'Time-lag_optimisation_results'
@@ -114,9 +98,9 @@ subroutine WriteOutTimelagOptimization(actn, M, h2o_n, ncls, cls_size)
         write(uto,'(a)')             'class     RH-range       med_h2o       min_h2o       max_h2o     class_num'
         do cls = 1, ncls
             write(min, '(i4)') nint((cls - 1) * cls_size)
-            call SchrinkString(min)
+            call ShrinkString(min)
             write(max, '(i4)') nint(cls * cls_size)
-            call SchrinkString(max)
+            call ShrinkString(max)
             txt = min(1:len_trim(min)) // ' - ' // max(1:len_trim(max)) // '%'
             write(uto,'(i5, 5x, a9, 3(f13.2,1x), i13)') cls,  txt, toH2O(cls)%def, toH2O(cls)%min, toH2O(cls)%max, h2o_n(cls)
         end do

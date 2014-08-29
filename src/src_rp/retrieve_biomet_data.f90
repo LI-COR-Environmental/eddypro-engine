@@ -31,17 +31,22 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine RetrieveBiometData(EmbBiometDataExist, LastBiometFile, LastBiometRecord, &
-        InitialTimestamp, FinalTimestamp, bN)
+subroutine RetrieveBiometData(EmbBiometDataExist, BiometFileList, &
+        NumBiometFiles, LastBiometFile, LastBiometRecord, InitialTimestamp, &
+        FinalTimestamp, bN, BiometDataFound, printout)
     use m_rp_global_var
     implicit none
     !> in/out variables
     integer, intent(in) :: bN
+    integer, intent(in) :: NumBiometFiles
+    type (FileListType), intent(in) :: BiometFileList(NumBiometFiles)
     type (DateType), intent(in) :: InitialTimestamp
     type (DateType), intent(in) :: FinalTimestamp
     integer, intent(inout) :: LastBiometFile
     integer, intent(inout) :: LastBiometRecord
     logical, intent(in) :: EmbBiometDataExist
+    logical, intent(in) :: printout
+    logical, intent(out) :: BiometDataFound
     !> local variables
     integer :: i
     integer :: rep
@@ -85,7 +90,8 @@ subroutine RetrieveBiometData(EmbBiometDataExist, LastBiometFile, LastBiometReco
     !> If requested, read external file containing biomet measurements
     BiometDataExist = .false.
     if (index(EddyProProj%biomet_data, 'ext_') /= 0) then
-        call ReadExtBiometFiles(BiometDataExist, LastBiometFile, LastBiometRecord, FinalTimestamp, N)
+        call ReadExtBiometFiles(BiometDataExist, BiometFileList, NumBiometFiles, &
+            LastBiometFile, LastBiometRecord, FinalTimestamp, N, printout)
     else
         N = bN
     end if
@@ -113,6 +119,7 @@ subroutine RetrieveBiometData(EmbBiometDataExist, LastBiometFile, LastBiometReco
         CountBiomet = NullCountBiomet
         !E2Profile = NullProfile
         !CountProfile = NullCountProfile
+        BiometDataFound = .False.
         BiometVar = BiometVarType(error, error, error, error, error, error, error, error, &
             error, error, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0)
 
@@ -123,6 +130,9 @@ subroutine RetrieveBiometData(EmbBiometDataExist, LastBiometFile, LastBiometReco
             !> Check if BiometTimestamp is strictly within the averaging period
             if (BiometTimestamp <= FinalTimestamp + tol .and. &
                 BiometTimestamp >= FinalTimestamp - win + tol) then
+
+                !> Flag that biomet data were found
+                BiometDataFound = .True.
                 do rep = 1, MaxBiometRep
                     if (BiometUnits%Ta(rep) /= 'none') then
                         if(Biomet(i)%Ta(rep) >= Tmin .and. Biomet(i)%Ta(rep) <= Tmax) then
@@ -353,7 +363,7 @@ subroutine RetrieveBiometData(EmbBiometDataExist, LastBiometFile, LastBiometReco
                         end if
                     end if
                     if (BiometUnits%Ts(rep) /= 'none') then
-                        if(Biomet(i)%Ts(rep) > Tmin .and. Biomet(i)%Ts(rep) < Tmax) then
+                        if(Biomet(i)%Ts(rep) >= Tmin .and. Biomet(i)%Ts(rep) <= Tmax) then
                             E2Biomet%Ts(rep) = E2Biomet%Ts(rep) + Biomet(i)%Ts(rep)
                             CountBiomet%Ts(rep) = CountBiomet%Ts(rep) + 1
                         end if
@@ -396,38 +406,41 @@ subroutine RetrieveBiometData(EmbBiometDataExist, LastBiometFile, LastBiometReco
 !                    end if
 !                end do
 
-!                    !> Concentrations
-!                    if (BiometSetup%CO2 > 0) then
-!                        if (Profile(i)%CO2(co2_ii, co2_jj) /= error) then
-!                        tslow(1) = tslow(1)  + Profile(i)%CO2(co2_ii, co2_jj)
-!                        cslow(1) = cslow(1) + 1
-!                        end if
-!                    end if
-!                    if (BiometSetup%H2O > 0) then
-!                        if (Profile(i)%H2O(h2o_ii, h2o_jj) /= error) then
-!                        tslow(2) = tslow(2)  + Profile(i)%H2O(h2o_ii, h2o_jj)
-!                        cslow(2) = cslow(2) + 1
-!                        end if
-!                    end if
-!                    if (BiometSetup%CH4 > 0) then
-!                        if (Profile(i)%CH4(ch4_ii, ch4_jj) /= error) then
-!                        tslow(3) = tslow(3)  + Profile(i)%CH4(ch4_ii, ch4_jj)
-!                        cslow(3) = cslow(3) + 1
-!                        end if
-!                    end if
-!                    if (BiometSetup%GAS4 > 0) then
-!                        if (Profile(i)%GAS4(gas4_ii, gas4_jj) /= error) then
-!                        tslow(4) = tslow(4)  + Profile(i)%GAS4(gas4_ii, gas4_jj)
-!                        cslow(4) = cslow(4) + 1
-!                        end if
-!                    end if
+!				!> Concentrations
+!				if (BiometSetup%CO2 > 0) then
+!					if (Profile(i)%CO2(co2_ii, co2_jj) /= error) then
+!					tslow(1) = tslow(1)  + Profile(i)%CO2(co2_ii, co2_jj)
+!					cslow(1) = cslow(1) + 1
+!					end if
+!				end if
+!				if (BiometSetup%H2O > 0) then
+!					if (Profile(i)%H2O(h2o_ii, h2o_jj) /= error) then
+!					tslow(2) = tslow(2)  + Profile(i)%H2O(h2o_ii, h2o_jj)
+!					cslow(2) = cslow(2) + 1
+!					end if
+!				end if
+!				if (BiometSetup%CH4 > 0) then
+!					if (Profile(i)%CH4(ch4_ii, ch4_jj) /= error) then
+!					tslow(3) = tslow(3)  + Profile(i)%CH4(ch4_ii, ch4_jj)
+!					cslow(3) = cslow(3) + 1
+!					end if
+!				end if
+!				if (BiometSetup%GAS4 > 0) then
+!					if (Profile(i)%GAS4(gas4_ii, gas4_jj) /= error) then
+!					tslow(4) = tslow(4)  + Profile(i)%GAS4(gas4_ii, gas4_jj)
+!					cslow(4) = cslow(4) + 1
+!					end if
+!				end if
 
-                    !> Custom variables
-                    if (n_cstm_biomet > 0) then
-                        ncstm = ncstm + 1
-                        CstmBiomet(1:n_cstm_biomet) = &
-                            CstmBiomet(1:n_cstm_biomet) + CstmBiometSet(i, 1:n_cstm_biomet)
-                    end if
+                !> Custom variables
+                if (n_cstm_biomet > 0) then
+                    ncstm = ncstm + 1
+                    CstmBiomet(1:n_cstm_biomet) = &
+                        CstmBiomet(1:n_cstm_biomet) + CstmBiometSet(i, 1:n_cstm_biomet)
+                end if
+            else
+                !> If past end of current period, exit cycle
+                if (BiometTimestamp > FinalTimestamp + tol) exit
             end if
         end do
 
@@ -622,7 +635,7 @@ subroutine RetrieveBiometData(EmbBiometDataExist, LastBiometFile, LastBiometReco
         elsewhere
             E2Biomet%SHF(:) = error
         end where
-        where (CountBiomet%SHF(:) /= 0)
+        where (CountBiomet%TS(:) /= 0)
             E2Biomet%TS(:) = E2Biomet%TS(:) / CountBiomet%TS(:)
         elsewhere
             E2Biomet%TS(:) = error

@@ -35,13 +35,14 @@ subroutine InitEnv()
     implicit none
     include 'version_and_date.inc'
     !> local variables
-    integer, parameter :: n_cmdpar = 3
     integer :: i
     integer :: make_dir
+    integer :: io_status
     integer :: aux
     character(32) :: timestring
-    character(8) :: switch
-    character(256) :: value
+    character(256) :: switch
+    character(256) :: projPath
+    character(256) :: arg
     character(32) :: tmpDirPadding
     character(3), parameter :: OS_default = 'win'
     integer, external :: CreateDir
@@ -60,33 +61,66 @@ subroutine InitEnv()
     OS = ''
     homedir = ''
     EddyProProj%run_env = ''
-    do i = 1, n_cmdpar
-        call get_command_argument(2*(i-1)+1, switch)
-        call get_command_argument(2*(i-1)+2, value)
-        if (switch(1:len_trim(switch)) == '-s') then
-            !> Switch for "system", the host operating system
-            OS = trim(value)
-            if (OS(1:1) == '-') OS = ''
-        elseif (switch(1:len_trim(switch)) == '-e') then
-            !> Switch for "environment", the 'home' working directory
-            homedir = trim(value)
-            if (homedir(1:1) == '-') homedir = ''
-        elseif (switch(1:len_trim(switch)) == '-m') then
+    EddyProProj%caller = ''
+    projPath = ''
+    i = 1
+    arg_loop: do
+        !> Read switch
+        call get_command_argument(i, value=switch, status=io_status)
+        if (io_status > 0 .or. len_trim(switch) == 0) exit arg_loop
+        i = i + 1
+        call get_command_argument(i, value=arg, status=io_status)
+        i = i + 1
+
+        if (switch(1:1) == '-') then
+            select case(trim(adjustl(switch)))
+
+                !> Switch for "system", the host operating system
+                case('-s', '--system')
+                    if (io_status > 0 .or. len_trim(switch) == 0) exit arg_loop
+                    OS = trim(arg)
+                    if (OS(1:1) == '-') OS = ''
+
+                !> Switch for "environment", the 'home' working directory
+                case('-e', '--environment')
+                    if (io_status > 0 .or. len_trim(switch) == 0) exit arg_loop
+                    homedir = trim(arg)
+                    if (homedir(1:1) == '-') homedir = ''
+
                 !> Switch for "mode", whether "embedded" or "desktop" mode
-                EddyProProj%run_env = trim(value)
-                if (EddyProProj%run_env(1:1) == '-') EddyProProj%run_env = ''
-        elseif (switch(1:len_trim(switch)) == '-v') then
-            call InformOfSoftwareVersion(sw_ver, build_date)
-        elseif (switch(1:len_trim(switch)) == '-h') then
-            call CommandLineHelp(sw_ver, build_date)
+                case('-m', '--mode')
+                    if (io_status > 0 .or. len_trim(switch) == 0) exit arg_loop
+                    EddyProProj%run_env = trim(arg)
+                    if (EddyProProj%run_env(1:1) == '-') EddyProProj%run_env = ''
+
+                !> Switch for "caller", whether "gui" or "console"
+                case('-c', '--caller')
+                    if (io_status > 0 .or. len_trim(switch) == 0) exit arg_loop
+                    EddyProProj%caller = trim(arg)
+                    if (EddyProProj%caller(1:1) == '-') EddyProProj%caller = ''
+
+                !> Software version
+                case('-v', '--version')
+                    call InformOfSoftwareVersion(sw_ver, build_date)
+
+                !> Minimal command line help
+                case('-h', '--help')
+                    call CommandLineHelp(sw_ver, build_date)
+            end select
+        else
+            projPath = trim(switch)
+            if (index(projPath, '.eddypro') == 0) projPath = ''
         end if
-    end do
+    end do arg_loop
 
     !> Set OS-dependent parameters
     if (len_trim(OS) == 0) OS = OS_default
     call SetOSEnvironment()
+
+    !> Default values if args are not passed
     if (len_trim(homedir) == 0) homedir = '..'
     if (len_trim(EddyProProj%run_env) == 0) EddyProProj%run_env = 'desktop'
+    if (len_trim(EddyProProj%caller) == 0)  EddyProProj%caller  = 'console'
 
     !> Define default unit number (udf), run specific
     call hms_current_hms(aux, aux, aux, udf)
@@ -97,7 +131,11 @@ subroutine InitEnv()
     call AdjDir(homedir, slash)
     IniDir = trim(homedir) // 'ini' // slash
     LogDir = trim(homedir) // 'log' // slash
-    PrjPath = trim(IniDir) // trim(PrjFile)
+    if (projPath == '') then
+        PrjPath = trim(IniDir) // trim(PrjFile)
+    else
+        PrjPath = projPath
+    end if
 
     !> Define TmpDir differently if it's in desktop or embedded mode
     if (EddyProProj%run_env == 'desktop') then
@@ -106,28 +144,9 @@ subroutine InitEnv()
         TmpDir = trim(homedir) // 'tmp' // slash
     end if
 
-    select case (app)
-        case ('EddyPro-RP')
-        LogPath = trim(LogDir) // trim(LogFileRP)
-        case ('EddyPro-FCC')
-        LogPath = trim(LogDir) // trim(LogFileFX)
-    end select
-
     !> Create log dir in case it doesn't exist (for use from command line)
     make_dir = CreateDir('"' // trim(LogDir) // '"')
     make_dir = CreateDir('"' // trim(TmpDir) // '"')
-
-    !> Initialize log file with append disabled.
-    call log_startup(trim(LogPath), .false.)
-    call log_configure("timestamp", .false.)
-    call log_configure("writeonstdout", .false.)
-    call log_configure("stoponerror", .false.)
-    call log_delimiter(LOG_LEVEL_VOLUME)
-    call log_msg(' inf=executing ' // trim(app))
-    call log_delimiter(LOG_LEVEL_VOLUME)
-    LogString = ' inf=hosting operating system: ' // trim(OS)
-    call log_msg(LogString)
-    call clearstr(LogString)
 end subroutine InitEnv
 
 !***************************************************************************
@@ -157,10 +176,8 @@ subroutine InformOfSoftwareVersion(sw_ver, build_date)
 end subroutine InformOfSoftwareVersion
 
 !***************************************************************************
-! \file        src/init_env.f90
+!
 ! \brief       Provide software version on demand (switch "-v")
-! \version     4.2.0
-! \date        2013-07-02
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -175,20 +192,33 @@ subroutine CommandLineHelp(sw_ver, build_date)
     !> In/out variables
     character(*), intent(in) :: sw_ver
     character(*), intent(in) :: build_date
+    !> Local variables
+    character(11) :: prog
 
+
+    if (app == 'EddyPro-RP') then
+        prog = 'eddypro_rp'
+    else
+        prog = 'eddypro_fcc'
+    end if
 
     write(*, '(a)') ' Help for ' // trim(adjustl(app))
     write(*, '(a)') ' --------------------'
     write (*, '(a)') ' ' // trim(adjustl(app)) // ', version ' // trim(adjustl(sw_ver)) // &
         &', build ' // trim(adjustl(build_date)) // '.'
     write(*,*)
-    write(*, '(a)') ' USAGE: eddypro_rp [OPTION [ARG]]'
+    write(*, '(a)') ' USAGE: ' // trim(prog) // ' [OPTION [ARG]] [PROJ_FILE]'
     write(*,*)
     write(*, '(a)') ' OPTIONS:'
-    write(*, '(a)') '   -s [win | linux | mac]    Operating system; if not provided assumes "win"'
-    write(*, '(a)') '   -m [embbeded | desktop]   Running mode; if not provided assumes "desktop"'
-    write(*, '(a)') '   -e [DIRECTORY]            Working directory, to be provided in embedded mode; if not provided assumes \.'
-    write(*, '(a)') '   -h                        Display this help and exit'
-    write(*, '(a)') '   -v                        Output version information and exit'
+    write(*, '(a)') '   [-s | --system [win | linux | mac]]  Operating system; if not provided assumes "win"'
+    write(*, '(a)') '   [-m | --mode [embedded | desktop]]   Running mode; if not provided assumes "desktop"'
+    write(*, '(a)') '   [-c | --caller [gui | console]]      Caller; if not provided assumes "console"'
+    write(*, '(a)') '   [-e | --environment [DIRECTORY]]     Working directory, to be provided in embedded mode;&
+                                                             & if not provided assumes \.'
+    write(*, '(a)') '   [-h | --help]                        Display this help and exit'
+    write(*, '(a)') '   [-v | --version]                     Output version information and exit'
+    write(*, '(a)')
+    write(*, '(a)') ' PROJ_FILE                              Path of project (*.eddypro) file;&
+                                                             & if not provided, assumes ..\ini\processing.eddypro'
     stop
 end subroutine CommandLineHelp

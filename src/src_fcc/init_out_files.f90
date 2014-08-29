@@ -52,7 +52,6 @@ subroutine InitOutFiles()
     character(10000) :: dataline = ''
     integer, external :: CreateDir
 
-    call log_msg(' inf=creating output directory and file..')
 
     e2sg(u)    = 'u_'
     e2sg(v)    = 'v_'
@@ -67,9 +66,6 @@ subroutine InitOutFiles()
     if (EddyProProj%out_full) then
         !> Create output directory if it does not exist
         mkdir_status = CreateDir('"' // Dir%main_out(1:len_trim(Dir%main_out)) // '"')
-        write(LogLogical, '(L1)') mkdir_status
-        LogString = ' mkdir_error=' // LogLogical
-        call log_msg(LogString)
 
         !> Open full output file and writes header
         Test_Path = Dir%main_out(1:len_trim(Dir%main_out)) &
@@ -77,13 +73,7 @@ subroutine InitOutFiles()
                   // FullOut_FilePadding // Timestamp_FilePadding // CsvExt
         dot = index(Test_Path, CsvExt, .true.) - 1
         FullOut_Path = Test_Path(1:dot) // CsvTmpExt
-        LogString = ' fullout_file=' // FullOut_Path(1:len_trim(FullOut_Path))
-        call DoubleCharInString(LogString, slash)
-        call log_msg(LogString)
         open(uflx, file = FullOut_Path, iostat = open_status, encoding = 'utf-8')
-        write(LogLogical, '(L1)') open_status
-        LogString = ' create_file_error=' // LogLogical
-        call log_msg(LogString)
 
         !> Initialize header strings to void
         call clearstr(header1)
@@ -515,13 +505,7 @@ subroutine InitOutFiles()
                   // GHGEUROPE_FilePadding // Timestamp_FilePadding // CsvExt
         dot = index(Test_Path, CsvExt, .true.) - 1
         GHGEUROPE_Path = Test_Path(1:dot) // CsvTmpExt
-        LogString = ' flxnt_file=' // GHGEUROPE_Path(1:len_trim(GHGEUROPE_Path))
-        call DoubleCharInString(LogString, slash)
-        call log_msg(LogString)
         open(ughgeu, file = GHGEUROPE_Path, iostat = open_status, encoding = 'utf-8')
-        write(LogLogical, '(L1)') open_status
-        LogString = ' create_file_error=' // LogLogical
-        call log_msg(LogString)
 
         !> Initialize header strings to void
         call clearstr(header1)
@@ -532,14 +516,9 @@ subroutine InitOutFiles()
         call Clearstr(head3_utf8)
 
         !> Initial common part
-        call AddDatum(header1,'file_info,,', separator)
-        call AddDatum(header2,'filename,date,time', separator)
-        call AddDatum(header3,',yyyy-mm-dd,HH:MM', separator)
-
-        !> Another common part
-        call AddDatum(header1, 'air_properties,,', separator)
-        call AddDatum(header2,'Ta_1_1_1,Pa_1_1_1,RH_1_1_1', separator)
-        call AddDatum(header3,'[°C],[kPa],[%]', separator)
+        call AddDatum(header1,'timestamp', separator)
+        call AddDatum(header2,'ISOdate', separator)
+        call AddDatum(header3,'yyyymmddHHMM', separator)
 
         !> Average gas concentrations
         call AddDatum(header1,'gas_concentrations', separator)
@@ -608,10 +587,10 @@ subroutine InitOutFiles()
             call AddDatum(header3, '[' // char(181) // 'mol+1s-1m-2]', separator)
         end if
         !> Turbulence and footprint
-        call AddDatum(header1, 'turbulence,,,,,footprint,,', separator)
-        call AddDatum(header2,'WS_1_1_1,WD_1_1_1,ustar_1_1_1,MO_length_1_1_1,ZL_1_1_1,&
+        call AddDatum(header1, 'turbulence,,,footprint,,', separator)
+        call AddDatum(header2,'ustar_1_1_1,MO_length_1_1_1,ZL_1_1_1,&
             &Fetchmax_1_1_1,Fetch70_1_1_1,Fetch90_1_1_1', separator)
-        call AddDatum(header3,'[m+1s-1],[deg],[m+1s-1],[m],[#],[m],[m],[m]', separator)
+        call AddDatum(header3,'[m+1s-1],[m],[#],[m],[m],[m]', separator)
 
         call latin1_to_utf8(header1, head1_utf8)
         call latin1_to_utf8(header2, head2_utf8)
@@ -634,13 +613,7 @@ subroutine InitOutFiles()
                   // MetaData_FilePadding // Timestamp_FilePadding // CsvExt
         dot = index(Test_Path, CsvExt, .true.) - 1
         Metadata_Path = Test_Path(1:dot) // CsvTmpExt
-        LogString = ' md_file=' // Metadata_Path(1:len_trim(Metadata_Path))
-        call DoubleCharInString(LogString, slash)
-        call log_msg(LogString)
         open(umd, file = Metadata_Path, iostat = open_status, encoding = 'utf-8')
-        write(LogLogical, '(L1)') open_status
-        LogString = ' create_file_error=' // LogLogical
-        call log_msg(LogString)
         call Clearstr(header1)
         call AddDatum(header1,'filename,date,time,latitude,longitude,altitude,canopy_height,displacement_height,&
             &roughness_length,file_length,acquisition_frequency,&
@@ -690,13 +663,7 @@ subroutine InitOutFiles()
                   // AmeriFlux_FilePadding // Timestamp_FilePadding // CsvExt
         dot = index(Test_Path, CsvExt, .true.) - 1
         AmeriFlux_Path = Test_Path(1:dot) // CsvTmpExt
-        LogString = ' flxnt_file=' // AmeriFlux_Path(1:len_trim(AmeriFlux_Path))
-        call DoubleCharInString(LogString, slash)
-        call log_msg(LogString)
         open(uaflx, file = AmeriFlux_Path)
-        write(LogLogical, '(L1)') open_status
-        LogString = ' create_file_error=' // LogLogical
-        call log_msg(LogString)
         write(uaflx, '(a)') 'Sitename:' // Metadata%sitename(1:len_trim(Metadata%sitename))
         write(uaflx, '(a, f12.7, a, f12.7, a, f6.0)') 'Location: Latitude: ', Metadata%lat, &
             ' - Longitude: ', Metadata%lon, ' - Elevation (masl): ', Metadata%alt
@@ -748,5 +715,8 @@ subroutine InitOutFiles()
             &W/m2,W/m2,W/m2,mmol/mol,umol/m2/s,&
             &umol/m2/s,umol/mol,m,umol/m2/s,umol/m2/s,%,unitless'
     end if
+
+    !>*********************************************************************************************
+    !>*********************************************************************************************
 
 end subroutine InitOutFiles

@@ -1,7 +1,6 @@
 !***************************************************************************
 ! read_biomet_file.f90
 ! --------------------
-! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
 ! Copyright (C) 2011-2014, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
@@ -62,14 +61,17 @@ subroutine ReadBiometFile(BiometFile, bN, M, skip_file)
     !> Read data file
     bN = 0
     BiometSet = error
-    if (BiometMeta%BiometCol(1)%var == 'DATE' .and. BiometMeta%BiometCol(2)%var == 'TIME') then
+    if (BiometMeta%BiometCol(1)%var == 'DATE' &
+        .and. BiometMeta%BiometCol(2)%var == 'TIME') then
         !> Read file with both date and time in first columns
         do
             bN = bN + 1
             if (len_trim(BiometMeta%data_label) == 0) then
-                read(udf, *, iostat = io_status) dvec(bN), timestring, BiometSet(bN, 1:M)
+                read(udf, *, iostat = io_status) &
+                    dvec(bN), timestring, BiometSet(bN, 1:M)
             else
-                read(udf, *, iostat = io_status) caux, dvec(bN), timestring, BiometSet(bN, 1:M)
+                read(udf, *, iostat = io_status) &
+                    caux, dvec(bN), timestring, BiometSet(bN, 1:M)
             end if
             if (io_status < 0 .or. io_status == 5001) exit
             if (io_status == 5010) then
@@ -84,14 +86,17 @@ subroutine ReadBiometFile(BiometFile, bN, M, skip_file)
         end do
         bN = bN - 1
         dvec(1:bN) = dvec(1:bN)(1:10)
+
     elseif (BiometMeta%BiometCol(1)%var == 'DATE') then
         !> Read file with only date in first column
         do
             bN = bN + 1
             if (len_trim(BiometMeta%data_label) == 0) then
-                read(udf, *, iostat = io_status) dvec(bN), BiometSet(bN, 1:M)
+                read(udf, *, iostat = io_status) &
+                    dvec(bN), BiometSet(bN, 1:M)
             else
-                read(udf, *, iostat = io_status) caux, dvec(bN), BiometSet(bN, 1:M)
+                read(udf, *, iostat = io_status) &
+                    caux, dvec(bN), BiometSet(bN, 1:M)
             end if
             if (io_status < 0 .or. io_status == 5001) exit
             if (io_status == 5010) then
@@ -106,14 +111,17 @@ subroutine ReadBiometFile(BiometFile, bN, M, skip_file)
         bN = bN - 1
         dvec(1:bN) = dvec(1:bN)(1:10)
         call BuildDvecTvecFromBiometFileName(BiometFile, .false., .true., bN)
+
     elseif (BiometMeta%BiometCol(1)%var == 'TIME') then
         !> Read file with only time in first column
         do
             bN = bN + 1
             if (len_trim(BiometMeta%data_label) == 0) then
-                read(udf, *, iostat = io_status) tvec(bN), BiometSet(bN, 1:M)
+                read(udf, *, iostat = io_status) &
+                    tvec(bN), BiometSet(bN, 1:M)
             else
-                read(udf, *, iostat = io_status) caux, tvec(bN), BiometSet(bN, 1:M)
+                read(udf, *, iostat = io_status) &
+                    caux, tvec(bN), BiometSet(bN, 1:M)
             end if
             if (io_status < 0 .or. io_status == 5001) exit
             if (io_status == 5010) then
@@ -128,6 +136,7 @@ subroutine ReadBiometFile(BiometFile, bN, M, skip_file)
         bN = bN - 1
         tvec(1:bN) = tvec(1:bN)(1:5)
         call BuildDvecTvecFromBiometFileName(BiometFile, .true., .false., bN)
+
     else
         !> Read file without timestamp
         do
@@ -181,7 +190,8 @@ subroutine BuildDvecTvecFromBiometFileName(fname, dvecIsNeeded, tvecIsNeeded, bN
     character(5) :: time
     character(13) :: datestring
 
-    datestring = fname(1:4) // fname(6:7) // fname(9:10) // '-' // fname(12:13) // fname(14:15)
+    datestring = fname(1:4) // fname(6:7) // fname(9:10) &
+        // '-' // fname(12:13) // fname(14:15)
     call DateStringToTimestamp(datestring, .true., init_ld_date)
     BiometMeta%step = 1d0 / BiometMeta%rate / 60d0 !< time step in minutes
     do i = 1, bN

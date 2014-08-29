@@ -36,11 +36,11 @@ subroutine OverrideSettings()
     implicit none
 
     !> Cross wind correction must be applied for R2
-    if (E2Col(u)%Instr%model(1:len_trim(E2Col(u)%Instr%model) - 2) == 'r2') &
+    if (E2Col(ts)%Instr%model(1:len_trim(E2Col(ts)%Instr%model) - 2) == 'r2') &
         RPsetup%calib_cw = .true.
 
     !> Cross wind correction should not be applied for CSAT3
-    if (E2Col(u)%Instr%model(1:len_trim(E2Col(u)%Instr%model) - 2) == 'csat3') &
+    if (E2Col(ts)%Instr%model(1:len_trim(E2Col(ts)%Instr%model) - 2) == 'csat3') &
         RPsetup%calib_cw = .false.
 
     !> If biomet measurements are not to be used, they are also not to be output

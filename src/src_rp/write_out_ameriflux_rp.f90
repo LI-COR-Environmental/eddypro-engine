@@ -1,7 +1,6 @@
 !***************************************************************************
 ! write_out_ameriflux_rp.f90
-! --------------------------
-!
+! --------------------------!
 ! Copyright (C) 2011-2014, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
@@ -53,9 +52,9 @@ subroutine WriteOutAmeriFlux_rp(date, time)
     call AddDatum(dataline, datum, separator)
     if(time(1:1) == '0') call AddDatum(dataline, time(2:2) // time(4:5), separator)
     if(time(1:1) /= '0') call AddDatum(dataline, time(1:2) // time(4:5), separator)
-    write(datum, *) LitePar%us
+    write(datum, *) Ambient%us
     call AddDatum(dataline, datum, separator)
-    write(datum, *) LitePar%Ta - 273.16d0
+    write(datum, *) Ambient%Ta - 273.16d0
     call AddDatum(dataline, datum, separator)
     write(datum, *) Stats4%wind_dir
     call AddDatum(dataline, datum, separator)
@@ -98,13 +97,13 @@ subroutine WriteOutAmeriFlux_rp(date, time)
     call AddDatum(dataline, datum, separator)
     write(datum, *) Stats%chi(co2)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) LitePar%VPD  * 1d-3
+    write(datum, *) Ambient%VPD  * 1d-3
     call AddDatum(dataline, datum, separator)
     call AddDatum(dataline, '-6999.,-6999.,-6999.,-6999.,-6999.,-6999.,-6999.,-6999.,-6999.,-6999.', separator)
     write(datum, *) Stats%chi(h2o)
     call AddDatum(dataline, datum, separator)
     call AddDatum(dataline, '-6999.,-6999.,-6999.,-6999.,-6999.,-6999.,-6999.', separator)
-    write(datum, *) LitePar%zL
+    write(datum, *) Ambient%zL
     call AddDatum(dataline, datum, separator)
     write(uaflx,*) dataline(1:len_trim(dataline) - 1)
 end subroutine WriteOutAmeriFlux_rp

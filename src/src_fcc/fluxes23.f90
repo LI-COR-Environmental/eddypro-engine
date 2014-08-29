@@ -831,7 +831,7 @@ subroutine Fluxes23(lEx)
     end if
 
     !> Potential temperature
-    !> If condition fails, previous value (from Fluxes0) holds for z/LitePar%L
+    !> If condition fails, previous value (from Fluxes0) holds for z/Ambient%L
     if (lEx%Pa > 0d0) then
         Tp = lEx%Ta * (1d5 / lEx%Pa)**(.286d0)
     else

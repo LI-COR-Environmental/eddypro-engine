@@ -38,15 +38,12 @@ subroutine IntegralTurbulenceScale(Set, nrow, ncol)
     !> Local variables
     integer :: lag
     integer :: var
-    integer :: nn
     integer :: LagMax
     real(kind = dbl) :: dt
     real(kind = dbl) :: ITS_bill
-    real(kind = dbl) :: cov(ncol, ncol)
-    real(kind = dbl), allocatable :: xs(:,:)
     real(kind = dbl), allocatable :: w_cross_corr(:,:)
     logical :: w_cross_corr_failed(ncol)
-
+    real(kind = dbl), external :: LaggedCovarianceNoError
 
     write(*, '(a)', advance = 'no') '   Estimating integral turbulence scale..'
 
@@ -56,21 +53,12 @@ subroutine IntegralTurbulenceScale(Set, nrow, ncol)
     dt = 1d0 / Metadata%ac_freq
 
     !> Cross-correlation (w and all variables) functions
-    do lag = 0, LagMax
-        nn = nrow - lag
-        allocate(xs(nn, ncol))
-        !> Copy dataset, translated for all variables but w
-        xs(1:nn, w) = set(1:nn, w)
-        do var = u, gas4
-            if (var /= w .and. E2Col(var)%present) xs(1:nn, var) = set(1+lag: nn+lag, var)
-        end do
-
-        !> Cross-correlation function
-        call CovarianceMatrixNoError(xs, size(xs, 1), size(xs, 2), cov, error)
-        where (E2Col(u:gas4)%present)
-            w_cross_corr(lag, u:gas4) = cov(w, u:gas4)
-        end where
-        deallocate(xs)
+    do var = u, gas4
+        if (E2Col(var)%present) then
+            do lag = 0, LagMax
+                w_cross_corr(lag, var) = LaggedCovarianceNoError(Set(:, w), Set(:, var), size(Set, 1), lag, error)
+            end do
+        end if
     end do
 
     !> Normalize cross-correlation function
@@ -122,7 +110,7 @@ subroutine IntegralTurbulenceScale(Set, nrow, ncol)
                 end if
             end do
         case('full_integral')
-            !> Intgrate over the full range of variation of time lag
+            !> Integrate over the full range of variation of time lag
             do var = u, gas4
                 if (var /= w .and. E2Col(var)%present) then
                     if (.not. w_cross_corr_failed(var)) then
@@ -140,9 +128,6 @@ subroutine IntegralTurbulenceScale(Set, nrow, ncol)
     deallocate(w_cross_corr)
 
     !> Filter reasonable values of ITS, in case anything went wrong.
-    !> ITS shouldn't be higher than the integral of "1" over the whole time lag period.
-    !> Use a factor of 2 to account for anomalies.
-
     !> For badly estimated ITS, uses simple formula from Wyngaard (1973), as cited in Billesbach (2012):
     !> "The integraltimescale can be estimated (under neutral stability) as the
     !> instrument height divided by the mean wind speed".
@@ -151,7 +136,8 @@ subroutine IntegralTurbulenceScale(Set, nrow, ncol)
     else
         ITS_bill = error
     end if
-
+    !> ITS shouldn't be higher than the integral of "1" over the whole time lag period.
+    !> Use a factor of 2 to account for anomalies.
     where (ITS(u:gas4) > 2. * RUsetup%tlag_max .or. ITS(u:gas4) == error)
        ITS(u:gas4) = ITS_bill
     end where

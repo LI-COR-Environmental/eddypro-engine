@@ -48,25 +48,25 @@ subroutine AirAndCellParameters()
 
     !> Ambient air molar volume [m+3 mol-1] and air mass density [kg m-3]
     if (Stats%Pr > 0d0 .and. Stats%T /= error) then
-        LitePar%Va = Ru * Stats%T / Stats%Pr
+        Ambient%Va = Ru * Stats%T / Stats%Pr
     else
-        LitePar%Va = error
+        Ambient%Va = error
     end if
 
     !> Cell Temperature, if applicable \n
     if (Stats%Mean(tc) /= error) then
-        LitePar%Tcell = Stats%Mean(tc)
+        Ambient%Tcell = Stats%Mean(tc)
     else
-        LitePar%Tcell = Stats%T
+        Ambient%Tcell = Stats%T
     end if
 
     !> Cell pressure, if applicable \n
     if(Stats%Mean(pi) /= error) then
-        LitePar%Pcell = Stats%Mean(pi)
+        Ambient%Pcell = Stats%Mean(pi)
     elseif (Stats%Pr /= error) then
-        LitePar%Pcell = Stats%Pr
+        Ambient%Pcell = Stats%Pr
     else
-        LitePar%Pcell = Metadata%bar_press
+        Ambient%Pcell = Metadata%bar_press
     end if
 
     !> Using cell temperature, for each gas column related to a closed-path analyser,
@@ -75,8 +75,8 @@ subroutine AirAndCellParameters()
     E2Col%Va = error
     do gas = co2, gas4
         if (E2Col(gas)%instr%path_type == 'closed') then
-            if (LitePar%Pcell > 0d0 .and. LitePar%Tcell /= error) then
-                E2Col(gas)%Va = Ru * LitePar%Tcell / LitePar%Pcell
+            if (Ambient%Pcell > 0d0 .and. Ambient%Tcell /= error) then
+                E2Col(gas)%Va = Ru * Ambient%Tcell / Ambient%Pcell
             else
                 E2Col(gas)%Va = error
             end if

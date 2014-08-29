@@ -86,12 +86,16 @@ subroutine ImportSLTEddySoft(FirstRecord, LastRecord, LocCol, fRaw, nrow, ncol, 
     IntRec = nint(error)
     record_loop: do
         i = i + 1
+        read(unat, rec = i + 1, iostat = io_status) (IntRec(j), j = 1, ncol)
+        !> In case of binary files, any problem in reading the file
+        !> causes EP to skip it until its end.
+        if (io_status /= 0) then
+            FileEndReached = .true.
+            exit record_loop
+        end if
 
         !> Normal exit
-        if (N + 1 > LastRecord - FirstRecord + 1) exit record_loop
-
-        read(unat, rec = i + 1, iostat = io_status) (IntRec(j), j = 1, ncol)
-        if (io_status /= 0) exit record_loop
+        if (N > LastRecord - FirstRecord) exit record_loop
 
         !> Cycle until FirstRecord.
         if (i < FirstRecord) cycle record_loop
@@ -107,7 +111,6 @@ subroutine ImportSLTEddySoft(FirstRecord, LastRecord, LocCol, fRaw, nrow, ncol, 
             end if
         end do
     end do record_loop
-    N = N - 1
 
     !> Store only hot columns
     TmpCol = NullCol

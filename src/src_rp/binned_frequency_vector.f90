@@ -52,9 +52,7 @@ subroutine BinnedFrequencyVector(binned_freq, N, flux_avrg_length, ac_freq)
                     (dlog(binned_freq(N + 1)) - dlog(binned_freq(1))) / dble(N))
         end do
     else
-        call log_msg(' err=acquisition frequency seems to be <= 0. &
-                     &low-pass spectral correction not applied.')
-        call ErrorHandle(2, 0, 5)
+        call ExceptionHandler(66)
         Meth%spec%lptf = 'none'
     end if
 end subroutine BinnedFrequencyVector

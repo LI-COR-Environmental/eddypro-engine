@@ -58,8 +58,7 @@ subroutine RetrieveDynamicMetadata(FinalTimestamp, LocCol, ncol)
     !> Open dynamic metadata file
     open(udf, file = AuxFile%DynMD, status = 'old', iostat = open_status)
     if (open_status /= 0) then
-        call log_msg(' err=error while reading dynamic metadata file. dynamic metadata not imported.')
-        call ErrorHandle(0, 1, 1)
+        call ExceptionHandler(68)
         return
     end if
 

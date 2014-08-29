@@ -44,18 +44,9 @@ subroutine ReadPlanarFitFile()
     character(64) :: strg
 
 
-    call log_msg(' inf=reading planar fit file.')
-    LogString = ' pf_file_in=' // AuxFile%pf(1:len_trim(AuxFile%pf))
-    call DoubleCharInString(LogString, slash)
-    call log_msg(LogString)
-
     !> Open planar fit file and read rotation matrices
     write(*,'(a)') ' Reading planar-fit file: ' // AuxFile%pf(1:len_trim(AuxFile%pf))
     open(udf, file = AuxFile%pf, status = 'old', iostat = open_status)
-
-    write(LogLogical, '(L1)') open_status
-    LogString = ' open_error=' //Loglogical
-    call log_msg(LogString)
 
     if (open_status == 0) then
         write(*, '(a)') ' planar fit file found, reading rotation matrices..'
@@ -65,9 +56,7 @@ subroutine ReadPlanarFitFile()
             read(udf, '(a)', iostat = io_status) datastring
             if (io_status /= 0) then
                 Meth%rot = 'double_rotation'
-                call log_msg( ' err=error while reading planar-fit rotation &
-                              &matrices from file. switching to double rotations.')
-                call ErrorHandle(0, 0, 29)
+                call ExceptionHandler(29)
                 return
             end if
             if (index(datastring, 'Number_of_selected_wind_sectors') == 0) cycle
@@ -80,9 +69,7 @@ subroutine ReadPlanarFitFile()
             read(udf, '(a)', iostat = io_status) datastring
             if (io_status /= 0) then
                 Meth%rot = 'double_rotation'
-                call log_msg( ' err=error while reading planar-fit rotation &
-                              &matrices from file. switching to double rotations.')
-                call ErrorHandle(0, 0, 29)
+                call ExceptionHandler(29)
                 return
             end if
             if (index(datastring, 'Rotation matrices') == 0) cycle
@@ -95,9 +82,7 @@ subroutine ReadPlanarFitFile()
             read(udf, '(a)', iostat = io_status) strg
             if (io_status /= 0) then
                 Meth%rot = 'double_rotation'
-                call log_msg( ' err=error while reading planar-fit rotation &
-                              &matrices from file. switching to double rotations.')
-                call ErrorHandle(0, 0, 29)
+                call ExceptionHandler(29)
                 return
             end if
 
@@ -115,9 +100,7 @@ subroutine ReadPlanarFitFile()
             read(strg(32:35), '(i4)', iostat = io_status) PFSetup%wsect_end(sec)
             if (io_status /= 0) then
                 Meth%rot = 'double_rotation'
-                call log_msg( ' err=error while reading planar-fit rotation &
-                              &matrices from file. switching to double rotations.')
-                call ErrorHandle(0, 0, 29)
+                call ExceptionHandler(29)
                 return
             end if
             !> Determine whether sector is to be excluded
@@ -127,24 +110,17 @@ subroutine ReadPlanarFitFile()
                 read(udf, *, iostat = io_status) (PFMat(i, j, sec), j = 1, 3)
                 if (io_status /= 0) then
                     Meth%rot = 'double_rotation'
-                    call log_msg( ' err=error while reading planar-fit rotation &
-                                  &matrices from file. switching to double rotations.')
-                    call ErrorHandle(0, 0, 29)
+                    call ExceptionHandler(29)
                     return
                 end if
             enddo inloop
         end do
         write(LogInteger, '(i6)') PFSetup%num_sec
-        call SchrinkString(LogInteger)
-        LogString = ' pf_nsec=' // LogInteger(1:len_trim(LogInteger))
-        call log_msg(LogString)
-        write(*,'(a)') '  ' // LogInteger(1:len_trim(LogInteger)) // ' sector(s) found.'
-
+        write(*,'(a)') '  ' // trim(adjustl(LogInteger)) // ' sector(s) found.'
     else
        !> If the specified planar-fit file is not found or is empty, switches to double rotations
-        call log_msg(' err=error while opening planar-fit file. axis rotation method switched to double rotations.')
         Meth%rot = 'double_rotation'
-        call ErrorHandle(0, 0, 30)
+        call ExceptionHandler(30)
     end if
 
     write(*,'(a)')   ' Done.'

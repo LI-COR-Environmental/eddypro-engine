@@ -1,7 +1,7 @@
 !***************************************************************************
-! flush_output.f90
-! ----------------
-!Copyright (C) 2011, LI-COR Biosciences
+! copy_file.f90
+! -------------
+!Copyright (C) 2014, LI-COR Biosciences
 !
 !This file is part of EddyPro (TM).
 !
@@ -18,12 +18,8 @@
 !You should have received a copy of the GNU General Public License
 !along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
 !***************************************************************************
-
-!***************************************************************************
-! \file        src/flush_output.f90
-! \brief       Write stored output results on output files
-! \version     3.0.0
-! \date        2011-10-21
+!
+! \brief       Copy a text file by reading/writing content line by line
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -32,22 +28,27 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine FlushOutput(N)
-    use m_fx_global_var
-    implicit none
-    !> in/out variables
-    integer, intent(in) :: N
-    !> local variables
-    integer :: j
+subroutine CopyFile(ifname, ofname)
+    use m_common_global_var
+    !> In/out variables
+    character(*), intent(in) :: ifname
+    character(*), intent(in) :: ofname
+    !> Local variables
+    integer :: io_error
+    character(1024) :: row
 
-    do j = 1, N
-        if (EddyProProj%out_full) &
-            write(uflx, '(a)')   chunk_rich(j)(1:len_trim(chunk_rich(j)) - 1)
-        if (EddyProProj%out_ghg_eu) &
-            write(ughgeu, '(a)') chunk_eu(j)(1:len_trim(chunk_eu(j)) - 1)
-        if (EddyProProj%out_amflux) &
-            write(uaflx,*) chunk_amflux(j)(1:len_trim(chunk_amflux(j)) - 1)
-        if (EddyProProj%out_md) &
-            write(umd,*) chunk_md(j)(1:len_trim(chunk_md(j)) - 1)
+    !> Open existing file
+    open(10, file = trim(ifname), status = 'old', iostat = io_error)
+    if (io_error /= 0) return
+
+    !> Open new file
+    open(11, file = trim(ofname), status = 'new', iostat = io_error)
+    if (io_error /= 0) return
+
+    !> Copy file line by line
+    io_error = 0
+    do while (io_error == 0)
+        read(10, '(a)', iostat = io_error) row
+        write(11, '(a)') trim(row)
     end do
-end subroutine FlushOutput
+end subroutine CopyFile

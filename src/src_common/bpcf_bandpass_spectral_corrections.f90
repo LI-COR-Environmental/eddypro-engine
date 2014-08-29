@@ -31,7 +31,7 @@
 !***************************************************************************
 subroutine BandPassSpectralCorrections(measuring_height, displ_height, loc_var_present, wind_speed, t_air, zL, &
     ac_frequency, avrg_length, detrending_method, detrending_time_constant, nfull, printout, LocInstr, &
-    LocFileList, lEx, LocSetup)
+    LocFileList, nrow_full, lEx, LocSetup)
     use m_common_global_var
     implicit none
     !> In/out variables
@@ -44,6 +44,7 @@ subroutine BandPassSpectralCorrections(measuring_height, displ_height, loc_var_p
     real(kind = dbl), intent(in) :: zL
     real(kind = dbl), intent(in) :: ac_frequency
     integer, intent(in) :: avrg_length
+    integer, intent(in) :: nrow_full
     character(8), intent(in) :: detrending_method
     integer, intent(in) :: detrending_time_constant
     logical, intent(in) :: printout
@@ -61,7 +62,7 @@ subroutine BandPassSpectralCorrections(measuring_height, displ_height, loc_var_p
     !> Checks that parameters are passed correctly
     if (app == 'EddyPro-FCC') then
         if (.not. present(lEx) .or. .not. present(LocSetup) .or. .not. present(LocFileList)) &
-        call ErrorHandle(0, 0, 52)
+        call ExceptionHandler(52)
     end if
 
     !> Spectral correction factors for anemometric fluxes (tau, H)
@@ -84,17 +85,25 @@ subroutine BandPassSpectralCorrections(measuring_height, displ_height, loc_var_p
             case('horst_97', 'ibrom_07', 'fratini_12')
                 call char2int(lEx%date(6:7), month, 2)
                 if(lEx%var_present(h2o) .and. (RegPar(dum, dum)%e1 == error &
-                    .or. RegPar(dum, dum)%e2 == error .or. RegPar(dum, dum)%e3 == error)) actual_hf_method = 'moncrieff_97'
-                do gas = co2, gas4
-                    if(gas /= h2o .and. lEx%var_present(gas)) then
-                        if(RegPar(gas,  LocSetup%SA%class(gas, month))%fc == error) then
-                            actual_hf_method = 'moncrieff_97'
-                            exit
+                    .or. RegPar(dum, dum)%e2 == error .or. RegPar(dum, dum)%e3 == error)) then
+                    actual_hf_method = 'moncrieff_97'
+                    write(*,*)
+                    call ExceptionHandler(69)
+                end if
+                if (actual_hf_method /= 'moncrieff_97') then
+                    do gas = co2, gas4
+                        if(gas /= h2o .and. lEx%var_present(gas)) then
+                            if(RegPar(gas,  LocSetup%SA%class(gas, month))%fc == error) then
+                                actual_hf_method = 'moncrieff_97'
+                                call ExceptionHandler(69)
+                                exit
+                            end if
                         end if
-                    end if
-                end do
+                    end do
+                end if
         end select
     end if
+    EddyProProj%hf_meth = actual_hf_method
 
     select case(trim(adjustl(actual_hf_method)))
         case('none', 'not')
@@ -138,7 +147,7 @@ subroutine BandPassSpectralCorrections(measuring_height, displ_height, loc_var_p
             if (app == 'EddyPro-FCC') then
                 !> Correction after Fratini et al. 2012, AFM
                 call BPCF_Fratini12(loc_var_present, LocInstr, wind_speed, t_air, ac_frequency, avrg_length, &
-                    detrending_time_constant, detrending_method, nfull, LocFileList, lEx, LocSetup)
+                    detrending_time_constant, detrending_method, nfull, nrow_full, LocFileList, lEx, LocSetup)
 
                 if (LocSetup%SA%horst_lens09 /= 'none') then
                     call CF_HorstLenschow09(lEx, LocSetup)

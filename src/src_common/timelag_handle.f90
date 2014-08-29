@@ -251,6 +251,7 @@ subroutine CovMax(TlagMeth, lagctr, lagmin, lagmax, Col1, Col2, nrow, TLag, RLag
         end if
         deallocate(ShLocSet)
     end do
+
     !> If no max cov has been detected within the interval, \n
     !> sets the time lag to the suggested values
     if (TlagMeth == 'maxcov&default') then
@@ -274,7 +275,6 @@ end subroutine CovMax
 ! \test
 ! \todo
 !***************************************************************************
-
 subroutine CovarianceW(col1, col2, nrow, lag, cov)
     use m_common_global_var
     implicit none

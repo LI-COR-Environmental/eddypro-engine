@@ -454,6 +454,7 @@ module m_typedef
         character(32) :: err_label
         character(32) :: run_mode
         character(32) :: run_env
+        character(32) :: caller
         character(32) :: biomet_data
         character(64) :: biomet_tail
         logical :: biomet_dir
@@ -586,11 +587,6 @@ module m_typedef
         real(kind = dbl) :: x70
         real(kind = dbl) :: x90
     end type FootType
-
-    type :: FullCospType
-        real(kind = dbl) :: fn(MaxNumRow)
-        real(kind = dbl) :: wt(MaxNumRow)
-    end type FullCospType
 
     type FPCheckType
         integer :: outliers
@@ -914,7 +910,7 @@ module m_typedef
         real(kind = dbl) :: hf_lim
     end type NSType
 
-    type :: ParType
+    type :: AmbientStateType
         real(kind = dbl) :: VPD
         real(kind = dbl) :: Va
         real(kind = dbl) :: Vd
@@ -938,7 +934,7 @@ module m_typedef
         real(kind = dbl) :: L
         real(kind = dbl) :: zL
         real(kind = dbl) :: alpha
-    end type ParType
+    end type AmbientStateType
 
    type :: PFSetupType
         integer :: num_sec
@@ -1240,14 +1236,8 @@ module m_typedef
         real(kind = dbl) :: gas4_min_flux
         real(kind = dbl) :: le_min_flux
         real(kind = dbl) :: pg_range
-        real(kind = dbl) :: co2_min_lag
-        real(kind = dbl) :: co2_max_lag
-        real(kind = dbl) :: h2o_min_lag
-        real(kind = dbl) :: h2o_max_lag
-        real(kind = dbl) :: ch4_min_lag
-        real(kind = dbl) :: ch4_max_lag
-        real(kind = dbl) :: gas4_min_lag
-        real(kind = dbl) :: gas4_max_lag
+        real(kind = dbl) :: min_lag(GHGNumVar)
+        real(kind = dbl) :: max_lag(GHGNumVar)
         character(10) :: start_date
         character(10) :: end_date
     end type TOSetupType

@@ -44,10 +44,11 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
     integer :: gas
     integer :: j
     integer :: i
-    integer :: rep
 !    integer :: prof
     character(10000) :: dataline
     character(64) :: datum
+    character(64) :: tmp_init_string
+    character(12) :: iso_basic
     logical, external :: NewerSwVer
 
     !> write Essentials output file (csv) for communication
@@ -162,13 +163,13 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
         call AddDatum(dataline, datum, separator)
         write(datum, *) Stats5%Mean(w)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) LitePar%WS
+        write(datum, *) Ambient%WS
         call AddDatum(dataline, datum, separator)
-        write(datum, *) LitePar%MWS
+        write(datum, *) Ambient%MWS
         call AddDatum(dataline, datum, separator)
         write(datum, *) Stats4%wind_dir
         call AddDatum(dataline, datum, separator)
-        write(datum, *) LitePar%us
+        write(datum, *) Ambient%us
         call AddDatum(dataline, datum, separator)
         write(datum, *) Stats7%TKE
         call AddDatum(dataline, datum, separator)
@@ -176,9 +177,9 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
         call AddDatum(dataline, datum, separator)
         write(datum, *) Essentials%zL
         call AddDatum(dataline, datum, separator)
-        write(datum, *) LitePar%bowen
+        write(datum, *) Ambient%bowen
         call AddDatum(dataline, datum, separator)
-        write(datum, *) LitePar%Ts
+        write(datum, *) Ambient%Ts
         call AddDatum(dataline, datum, separator)
 
         !> Gas concentrations, densities and timelags
@@ -196,46 +197,46 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
         !> Air properties
         write(datum, *) Stats7%Mean(ts)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) LitePar%Ta
+        write(datum, *) Ambient%Ta
         call AddDatum(dataline, datum, separator)
         write(datum, *) Stats%Pr
         call AddDatum(dataline, datum, separator)
         write(datum, *) Stats%RH
         call AddDatum(dataline, datum, separator)
-        write(datum, *) LitePar%Va
+        write(datum, *) Ambient%Va
         call AddDatum(dataline, datum, separator)
         write(datum, *) RHO%a
         call AddDatum(dataline, datum, separator)
-        write(datum, *) LitePar%RhoCp
+        write(datum, *) Ambient%RhoCp
         call AddDatum(dataline, datum, separator)
         write(datum, *) RHO%w
         call AddDatum(dataline, datum, separator)
-        write(datum, *) LitePar%e
+        write(datum, *) Ambient%e
         call AddDatum(dataline, datum, separator)
-        write(datum, *) LitePar%es
+        write(datum, *) Ambient%es
         call AddDatum(dataline, datum, separator)
-        write(datum, *) LitePar%Q
+        write(datum, *) Ambient%Q
         call AddDatum(dataline, datum, separator)
-        write(datum, *) LitePar%VPD
+        write(datum, *) Ambient%VPD
         call AddDatum(dataline, datum, separator)
-        write(datum, *) LitePar%Td
+        write(datum, *) Ambient%Td
         call AddDatum(dataline, datum, separator)
         !> Dry air properties
-        write(datum, *) LitePar%p_d
+        write(datum, *) Ambient%p_d
         call AddDatum(dataline, datum, separator)
         write(datum, *) RHO%d
         call AddDatum(dataline, datum, separator)
-        write(datum, *) LitePar%Vd
+        write(datum, *) Ambient%Vd
         call AddDatum(dataline, datum, separator)
         !> Others
-        write(datum, *) LitePar%lambda
+        write(datum, *) Ambient%lambda
         call AddDatum(dataline, datum, separator)
-        write(datum, *) LitePar%sigma
+        write(datum, *) Ambient%sigma
         call AddDatum(dataline, datum, separator)
         !> Cell parameters
-        write(datum, *) LitePar%Tcell
+        write(datum, *) Ambient%Tcell
         call AddDatum(dataline, datum, separator)
-        write(datum, *) LitePar%Pcell
+        write(datum, *) Ambient%Pcell
         call AddDatum(dataline, datum, separator)
         !> Cell molar volume for each gas
         do gas = co2, gas4
@@ -551,331 +552,6 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
     !>***************************************************************
     !>***************************************************************
 
-    !>Write out Biomet measurement file
-    if (EddyProProj%out_biomet .and. NumBiometVar > 0) then
-        call clearstr(dataline)
-        call AddDatum(dataline, init_string(index(init_string, ',') + 1:len_trim(init_string)), separator)
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%Ta(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%Ta(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%Pa(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%Pa(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%RH(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%RH(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        !> Radiations
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%Rg(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%Rg(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%Rn(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%Rn(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%Rd(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%Rd(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%Rr(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%Rr(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%Ruva(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%Ruva(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%Ruvb(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%Ruvb(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%LWin(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%LWin(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%LWout(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%LWout(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%SWin(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%SWin(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%SWout(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%SWout(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%SWbc(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%SWbc(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%SWdif(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%SWdif(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        !> Related to radiations
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%ALB(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%ALB(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%PRI(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%PRI(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%LAI(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%LAI(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        !> PPFD's
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%PPFD(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%PPFD(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%PPFDd(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%PPFDd(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%PPFDr(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%PPFDr(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%PPFDbc(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%PPFDbc(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%APAR(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%APAR(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        !> Temperatures
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%Tc(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%Tc(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%Tbole(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%Tbole(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%Tbc(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%Tbc(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%Tr(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%Tr(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        !> Precipitations
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%P(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%P(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%Prain(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%Prain(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%Psnow(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%Psnow(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%SNOWD(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%SNOWD(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        !> Others
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%WS(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%WS(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%MWS(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%MWS(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%WD(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%WD(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%SAPFLOW(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%SAPFLOW(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%STEMFLOW(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%STEMFLOW(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%SWC(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%SWC(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%SHF(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%SHF(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        do rep = 1, MaxBiometRep
-            if (BiometUnits%TS(rep) /= 'none') then
-                call WriteDatumFloat(E2Biomet%TS(rep), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-
-        !> Profiles
-!        do rep = 1, MaxProfRep
-!            if (ProfileUnits%SWC(rep) /= 'none') then
-!                do prof = 1, MaxProfNodes
-!                    call WriteDatumFloat(E2Profile%SWC(rep, prof), datum, EddyProProj%err_label)
-!                    call AddDatum(dataline, datum, separator)
-!                end do
-!            end if
-!        end do
-!        do rep = 1, MaxProfRep
-!            if (ProfileUnits%SHF(rep) /= 'none') then
-!                do prof = 1, MaxProfNodes
-!                    call WriteDatumFloat(E2Profile%SHF(rep, prof), datum, EddyProProj%err_label)
-!                    call AddDatum(dataline, datum, separator)
-!                end do
-!            end if
-!        end do
-!        do rep = 1, MaxProfRep
-!            if (ProfileUnits%ST(rep) /= 'none') then
-!                do prof = 1, MaxProfNodes
-!                    call WriteDatumFloat(E2Profile%ST(rep, prof), datum, EddyProProj%err_label)
-!                    call AddDatum(dataline, datum, separator)
-!                end do
-!            end if
-!        end do
-!        do rep = 1, MaxProfRep
-!            if (ProfileUnits%T(rep) /= 'none') then
-!                do prof = 1, MaxProfNodes
-!                    call WriteDatumFloat(E2Profile%T(rep, prof), datum, EddyProProj%err_label)
-!                    call AddDatum(dataline, datum, separator)
-!                end do
-!            end if
-!        end do
-!        do rep = 1, MaxProfRep
-!            if (ProfileUnits%CO2(rep) /= 'none') then
-!                do prof = 1, MaxProfNodes
-!                    call WriteDatumFloat(E2Profile%CO2(rep, prof), datum, EddyProProj%err_label)
-!                    call AddDatum(dataline, datum, separator)
-!                end do
-!            end if
-!        end do
-!        do rep = 1, MaxProfRep
-!            if (ProfileUnits%H2O(rep) /= 'none') then
-!                do prof = 1, MaxProfNodes
-!                    call WriteDatumFloat(E2Profile%H2O(rep, prof), datum, EddyProProj%err_label)
-!                    call AddDatum(dataline, datum, separator)
-!                end do
-!            end if
-!        end do
-!        do rep = 1, MaxProfRep
-!            if (ProfileUnits%CH4(rep) /= 'none') then
-!                do prof = 1, MaxProfNodes
-!                    call WriteDatumFloat(E2Profile%CH4(rep, prof), datum, EddyProProj%err_label)
-!                    call AddDatum(dataline, datum, separator)
-!                end do
-!            end if
-!        end do
-!        do rep = 1, MaxProfRep
-!            if (ProfileUnits%GAS4(rep) /= 'none') then
-!                do prof = 1, MaxProfNodes
-!                    call WriteDatumFloat(E2Profile%GAS4(rep, prof), datum, EddyProProj%err_label)
-!                    call AddDatum(dataline, datum, separator)
-!                end do
-!            end if
-!        end do
-        !> Custom variables
-        if (n_cstm_biomet > 0) then
-            do i = 1, n_cstm_biomet
-                call WriteDatumFloat(CstmBiomet(i), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end do
-        end if
-
-        write(uslow, '(a)') dataline(1:len_trim(dataline) - 1)
-    end if
-
-
-    !>***************************************************************
-    !>***************************************************************
-
     !>Write out full output file (main express output)
     if (EddyProProj%out_full) then
         !> Preliminary file and timestamp information
@@ -1068,19 +744,19 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
         !> Air properties
         call WriteDatumFloat(Stats7%Mean(ts), datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(LitePar%Ta, datum, EddyProProj%err_label)
+        call WriteDatumFloat(Ambient%Ta, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
         call WriteDatumFloat(Stats%Pr, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
         call WriteDatumFloat(RHO%a, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
         if (RHO%a /= 0d0 .and. RHO%a /= error) then
-            call WriteDatumFloat(LitePar%RhoCp / RHO%a, datum, EddyProProj%err_label)
+            call WriteDatumFloat(Ambient%RhoCp / RHO%a, datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         else
             call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
         end if
-        call WriteDatumFloat(LitePar%Va, datum, EddyProProj%err_label)
+        call WriteDatumFloat(Ambient%Va, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
         if (Flux3%h2o /= error) then
             call WriteDatumFloat(Flux3%h2o * 0.0648d0, datum, EddyProProj%err_label)
@@ -1090,17 +766,17 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
         end if
         call WriteDatumFloat(RHO%w, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(LitePar%e, datum, EddyProProj%err_label)
+        call WriteDatumFloat(Ambient%e, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(LitePar%es, datum, EddyProProj%err_label)
+        call WriteDatumFloat(Ambient%es, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(LitePar%Q, datum, EddyProProj%err_label)
+        call WriteDatumFloat(Ambient%Q, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
         call WriteDatumFloat(Stats%RH, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(LitePar%VPD, datum, EddyProProj%err_label)
+        call WriteDatumFloat(Ambient%VPD, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(LitePar%Td, datum, EddyProProj%err_label)
+        call WriteDatumFloat(Ambient%Td, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
 
         !> Unrotated and rotated wind components
@@ -1116,9 +792,9 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
         call AddDatum(dataline, datum, separator)
         call WriteDatumFloat(Stats5%Mean(w), datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(LitePar%WS, datum, EddyProProj%err_label)
+        call WriteDatumFloat(Ambient%WS, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(LitePar%MWS, datum, EddyProProj%err_label)
+        call WriteDatumFloat(Ambient%MWS, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
         call WriteDatumFloat(Stats4%wind_dir, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
@@ -1131,17 +807,17 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
         call AddDatum(dataline, datum, separator)
 
         !> turbulence
-        call WriteDatumFloat(LitePar%us, datum, EddyProProj%err_label)
+        call WriteDatumFloat(Ambient%us, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
         call WriteDatumFloat(Stats7%TKE, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(LitePar%L, datum, EddyProProj%err_label)
+        call WriteDatumFloat(Ambient%L, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(LitePar%zL, datum, EddyProProj%err_label)
+        call WriteDatumFloat(Ambient%zL, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(LitePar%bowen, datum, EddyProProj%err_label)
+        call WriteDatumFloat(Ambient%bowen, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(LitePar%Ts, datum, EddyProProj%err_label)
+        call WriteDatumFloat(Ambient%Ts, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
 
         !> footprint
@@ -1403,7 +1079,8 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
                 call WriteDatumFloat(Stats%Cov(w, gas), datum, EddyProProj%err_label)
                 call AddDatum(dataline, datum, separator)
             elseif(EddyProProj%fix_out_format) then
-                call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
+                call AddDatum(dataline, &
+                EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
             end if
         enddo
 
@@ -1420,112 +1097,107 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
 
     !>****************************************************************
     !>****************************************************************
-
     if (EddyProProj%out_ghg_eu) then
         !> write to GHG-Europe style output file
-        call clearstr(dataline)
-        call AddDatum(dataline, init_string(1:index(init_string, ',', .true.) - 1), separator)
 
-        !> Air properties
-        write(datum, *) LitePar%Ta - 273.16d0     !< celsius
-        call AddDatum(dataline, datum, separator)
-        write(datum, *) Stats%Pr * 1d-3           !< kPa
-        call AddDatum(dataline, datum, separator)
-        write(datum, *) Stats%RH                  !< %
-        call AddDatum(dataline, datum, separator)
+        !> Edit init_string to fit GHG-Europe format
+        !> Strip file name and DOY
+        tmp_init_string = &
+            init_string(index(init_string, ',') +1: &
+                        index(init_string, ',', .true.) - 1)
+
+        !> derive ISO basic format timestamp
+        iso_basic = tmp_init_string(1:4) // tmp_init_string(6:7) &
+            // tmp_init_string(9:10) // tmp_init_string(12:13)  &
+            // tmp_init_string(15:16)
+
+        call clearstr(dataline)
+        call AddDatum(dataline, trim(adjustl(iso_basic)), separator)
 
         !> Gas concentrations
         do gas = co2, h2o
             if (OutVarPresent(gas)) then
-                write(datum, *) Stats%chi(gas)
+                call WriteDatumFloat(Stats%chi(gas), datum, '-9999.')
                 call AddDatum(dataline, datum, separator)
             end if
         end do
         do gas = ch4, gas4
             if (OutVarPresent(gas)) then
-                write(datum, *) Stats%chi(gas) * 1d3  !< expressed here in ppb
+                call WriteDatumFloat(Stats%chi(gas) * 1d3, datum, '-9999.')
                 call AddDatum(dataline, datum, separator)
             end if
         end do
 
         !> Corrected fluxes (Level 3)
         !> Tau
-        write(datum, *) Flux3%tau
+        call WriteDatumFloat(Flux3%tau, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
-        write(datum, *) QCFlag%tau
+        call WriteDatumInt(QCFlag%tau, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
         !> H
-        write(datum, *) Flux3%H
+        call WriteDatumFloat(Flux3%H, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
-        write(datum, *) QCFlag%H
+        call WriteDatumInt(QCFlag%H, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
         !> LE
         if(OutVarPresent(h2o)) then
-            write(datum, *) Flux3%LE
+            call WriteDatumFloat(Flux3%LE, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
-            write(datum, *) QCFlag%h2o
+            call WriteDatumInt(QCFlag%h2o, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
         end if
         !> Gases
         if(OutVarPresent(co2)) then
-            write(datum, *) Flux3%co2
+            call WriteDatumFloat(Flux3%co2, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
-            write(datum, *) QCFlag%co2
+            call WriteDatumInt(QCFlag%co2, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
         end if
         if(OutVarPresent(h2o)) then
-            write(datum, *) Flux3%h2o
+            call WriteDatumFloat(Flux3%h2o, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
-            write(datum, *) QCFlag%h2o
+            call WriteDatumInt(QCFlag%h2o, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
         end if
         if(OutVarPresent(ch4)) then
-            write(datum, *) Flux3%ch4 * 1d3  !< expressed here in nmol+1m-2s-1
+            call WriteDatumFloat(Flux3%ch4 * 1d3, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
-            write(datum, *) QCFlag%ch4
+            call WriteDatumInt(QCFlag%ch4, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
         end if
         if(OutVarPresent(gas4)) then
-            write(datum, *) Flux3%gas4 * 1d3  !< expressed here in nmol+1m-2s-1
+            call WriteDatumFloat(Flux3%gas4 * 1d3, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
-            write(datum, *) QCFlag%gas4
+            call WriteDatumInt(QCFlag%gas4, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
         end if
 
         !> Storage
-        write(datum, *) Stor%H
+        call WriteDatumFloat(Stor%H, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
         if(OutVarPresent(h2o)) then
-            write(datum, *) Stor%LE
+            call WriteDatumFloat(Stor%LE, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
         end if
         if(OutVarPresent(co2)) then
-            write(datum, *) Stor%of(co2)
+            call WriteDatumFloat(Stor%of(co2), datum, '-9999.')
             call AddDatum(dataline, datum, separator)
         end if
 
         !> Turbulence
-        write(datum, *) Stats5%Mean(u)
+        call WriteDatumFloat(Ambient%us, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
-        write(datum, *) Stats4%wind_dir
+        call WriteDatumFloat(Ambient%L, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
-        write(datum, *) LitePar%us
-        call AddDatum(dataline, datum, separator)
-        if (LitePar%zL /= error .and. LitePar%zL /= 0d0) then
-            write(datum, *) (E2Col(u)%Instr%height - Metadata%d) / LitePar%zL
-            call AddDatum(dataline, datum, separator)
-        else
-            call AddDatum(dataline, 'error', separator)
-        end if
-        write(datum, *) LitePar%zL
+        call WriteDatumFloat(Ambient%zL, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
 
         !> footprint
-        write(datum, *) Foot%peak
+        call WriteDatumFloat(Foot%peak, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
-        write(datum, *) Foot%x70
+        call WriteDatumFloat(Foot%x70, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
-        write(datum, *) Foot%x90
+        call WriteDatumFloat(Foot%x90, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
 
         write(ughgeu, '(a)') dataline(1:len_trim(dataline) - 1)

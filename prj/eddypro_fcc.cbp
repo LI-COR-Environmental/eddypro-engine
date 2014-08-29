@@ -135,7 +135,7 @@
 		<Unit filename="../src/src_common/dir_sub.f90">
 			<Option weight="3" />
 		</Unit>
-		<Unit filename="../src/src_common/error_handle.f90">
+		<Unit filename="../src/src_common/exception_handler.f90">
 			<Option weight="0" />
 		</Unit>
 		<Unit filename="../src/src_common/extract_column_from_essentials.f90">
@@ -152,6 +152,9 @@
 		</Unit>
 		<Unit filename="../src/src_common/filter_spectra_by_thresholds.f90">
 			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_common/footprint_handle.f90">
+			<Option weight="3" />
 		</Unit>
 		<Unit filename="../src/src_common/init_continuous_dataset.f90">
 			<Option weight="3" />
@@ -178,9 +181,6 @@
 			<Option weight="0" />
 		</Unit>
 		<Unit filename="../src/src_common/m_libdate.f90">
-			<Option weight="0" />
-		</Unit>
-		<Unit filename="../src/src_common/m_logger.f90">
 			<Option weight="0" />
 		</Unit>
 		<Unit filename="../src/src_common/m_methane_tables.f90">
@@ -240,9 +240,6 @@
 		<Unit filename="../src/src_fcc/available_mean_spectra_cospectra.f90">
 			<Option weight="4" />
 		</Unit>
-		<Unit filename="../src/src_fcc/binned_frequency_vector_fcc.f90">
-			<Option weight="4" />
-		</Unit>
 		<Unit filename="../src/src_fcc/correction_factor_model.f90">
 			<Option weight="4" />
 		</Unit>
@@ -268,9 +265,6 @@
 			<Option weight="4" />
 		</Unit>
 		<Unit filename="../src/src_fcc/fluxes23.f90">
-			<Option weight="4" />
-		</Unit>
-		<Unit filename="../src/src_fcc/footprint_handle.f90">
 			<Option weight="4" />
 		</Unit>
 		<Unit filename="../src/src_fcc/init_ex_vars.f90">

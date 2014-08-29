@@ -153,7 +153,6 @@ end subroutine PartialFlagLF
 ! \test
 ! \todo
 !***************************************************************************
-
 !subroutine GhgEuropeFlagLF(STFlg, DTFlg, OAFlag)
 !    use m_rp_global_var
 !    implicit none

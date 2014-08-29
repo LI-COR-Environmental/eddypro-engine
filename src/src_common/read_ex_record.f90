@@ -50,11 +50,7 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
     !> If rec_num > 0,open file and moves to the requested record
     if (rec_num > 0) then
         open(udf, file = trim(adjustl(FilePath)), status = 'old', iostat = open_status)
-        if (open_status /= 0) then
-            call log_msg( ' err=error while reading "essentials" file. execution aborted.')
-            call ErrorHandle(2, 0, 1)
-        end if
-
+        if (open_status /= 0) call ExceptionHandler(60)
         unt = udf
         !> Skip header and all records until the requested one
         do i = 1, rec_num

@@ -30,8 +30,7 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine FileListByExt(DirIn, Ext, MatchPrototype, Prototype, doy_format, &
-    GetTimestamp, Recurse, FileList, nrow, logout, indent)
+subroutine FileListByExt(DirIn, Ext, MatchTemplate, Template, doy_format, GetTimestamp, Recurse, FileList, nrow, logout, indent)
     use m_common_global_var
     implicit none
     !> in/out variables
@@ -39,8 +38,8 @@ subroutine FileListByExt(DirIn, Ext, MatchPrototype, Prototype, doy_format, &
     character(*), intent(in) :: indent
     character(*), intent(in) :: Ext
     character(*), intent(in) :: DirIn
-    character(*), intent(in) :: Prototype
-    logical, intent(in) :: MatchPrototype
+    character(*), intent(in) :: Template
+    logical, intent(in) :: MatchTemplate
     logical, intent(in) :: doy_format
     logical, intent(in) :: GetTimestamp
     logical, intent(in) :: Recurse
@@ -55,12 +54,8 @@ subroutine FileListByExt(DirIn, Ext, MatchPrototype, Prototype, doy_format, &
     character(1024) :: comm
     character(256) :: String
     character(64) :: TmpFileName
-    logical, external :: NameMatchesPrototype
+    logical, external :: NameMatchesTemplate
 
-    call log_msg(' inf=creating list of files to be processed')
-    LogString = ' data_path=' // DirIn(1:len_trim(DirIn))
-    call DoubleCharInString(LogString, slash)
-    call log_msg(LogString)
 
     if (logout) then
         if (Recurse) then
@@ -86,22 +81,15 @@ subroutine FileListByExt(DirIn, Ext, MatchPrototype, Prototype, doy_format, &
     end select
     dir_status = system(comm)
 
-    write(LogLogical, '(L1)') dir_status
-    LogString = ' dir_error=' // LogLogical
-    call log_msg(LogString)
-
     call system(comm_copy // '"' // trim(adjustl(TmpDir)) // 'flist.tmp" ' // '"' // trim(adjustl(TmpDir)) // 'flist2.tmp" ' &
         // comm_out_redirect // comm_err_redirect)
 
     open(udf, file = trim(adjustl(TmpDir)) // 'flist2.tmp', iostat = open_status)
     !> control on temporary file
-    write(LogLogical, '(L1)') open_status
-    LogString = ' open_flist_error=' // LogLogical
-    call log_msg(LogString)
     if (open_status /= 0) then
         close(udf)
         call system(comm_del // '"' // trim(adjustl(TmpDir)) // 'flist*.tmp"')
-        call ErrorHandle(0, 0, 1)
+        call ExceptionHandler(1)
         cnt = 0
         return
     end if
@@ -114,8 +102,8 @@ subroutine FileListByExt(DirIn, Ext, MatchPrototype, Prototype, doy_format, &
             if (read_status /= 0) exit
             String = trim(adjustl(String))
             TmpFileName =  String(index(String, slash, .true.) + 1: len_trim(String))
-            if (MatchPrototype) then
-                if (NameMatchesPrototype(TmpFileName, Prototype)) then
+            if (MatchTemplate) then
+                if (NameMatchesTemplate(TmpFileName, Template)) then
                     cnt = cnt + 1
                     FileList(cnt)%path = trim(adjustl(String))
                 end if
@@ -131,8 +119,8 @@ subroutine FileListByExt(DirIn, Ext, MatchPrototype, Prototype, doy_format, &
             if(String(1:index(String, slash, .true.)) /= DirIn(1:len_trim(DirIn))) cycle
             String = trim(adjustl(String))
             TmpFileName =  String(index(String, slash, .true.) + 1: len_trim(String))
-            if (MatchPrototype) then
-                if (NameMatchesPrototype(TmpFileName, Prototype)) then
+            if (MatchTemplate) then
+                if (NameMatchesTemplate(TmpFileName, Template)) then
                     cnt = cnt + 1
                     FileList(cnt)%path = trim(adjustl(String))
                 end if
@@ -144,6 +132,9 @@ subroutine FileListByExt(DirIn, Ext, MatchPrototype, Prototype, doy_format, &
     end if
     close(udf)
 
+    !> Control on number of files found
+    if (cnt == 0) call ExceptionHandler(8)
+
     !> Define file names and timestamp if requested
     do i = 1, cnt
         FileList(i)%name = FileList(i)%path &
@@ -151,27 +142,19 @@ subroutine FileListByExt(DirIn, Ext, MatchPrototype, Prototype, doy_format, &
     end do
 
     !> Some logging
-    write(LogInteger, '(i6)') cnt
-    call SchrinkString(LogInteger)
-    LogString = ' num_file=' // LogInteger(1:len_trim(LogInteger))
-    call log_msg(LogString)
-    if (logout) write(*,'(a)') indent // '  ' // LogInteger(1:len_trim(LogInteger)) // ' files found.'
+    if (logout) then
+        write(LogInteger, '(i8)') cnt
+        write(*,'(a)') indent // '  ' // trim(adjustl(LogInteger)) // ' files found.'
+    end if
 
     !> Retrieve timestamps from file names if requested
     if(GetTimestamp) then
         if (logout) write(*, '(a)', advance = 'no') '  Retrieving timestamps from &
             &file names..'
         do i = 1, cnt
-            call FilenameToTimestamp(FileList(i)%name, Prototype, doy_format, FileList(i)%Timestamp)
+            call FilenameToTimestamp(FileList(i)%name, Template, doy_format, FileList(i)%Timestamp)
         end do
         if (logout) write(*, '(a)') ' Done.'
-    end if
-
-    !> Control on number of files found
-    if (cnt == 0) then
-        call log_msg(' stop=no files to process. terminating execution.')
-        call log_shutdown
-        call ErrorHandle(0, 0, 8)
     end if
 
     !> Delete temporary file
@@ -179,75 +162,3 @@ subroutine FileListByExt(DirIn, Ext, MatchPrototype, Prototype, doy_format, &
 
     if (logout) write(*,'(a)')   indent // ' Done.'
 end subroutine FileListByExt
-
-!***************************************************************************
-!
-! \brief       Test if file name matches prototype
-! \author      Gerardo Fratini
-! \note
-! \sa
-! \bug
-! \deprecated
-! \test
-! \todo
-!***************************************************************************
-logical function NameMatchesPrototype(FileName, Pattern)
-    use m_common_global_var
-    implicit none
-    !> In/out variables
-    character(*), intent(in) :: Filename
-    character(*), intent(in) :: Pattern
-    !> Local variables
-    integer :: start
-
-
-    !> Initialization
-    NameMatchesPrototype = .false.
-
-    !> Check on the length of the file name
-    if(EddyProProj%ftype /= 'licor_ghg' .and. len_trim(FileName) /= len_trim(Pattern)) return
-
-    !> Year must be done by numbers
-    if (index(Pattern, 'yyyy') /= 0) then
-        start = index(Pattern, 'yyyy')
-        if(FileName(start:start) > '9' .or. FileName(start:start) < '0') return
-        if(FileName(start + 1 :start + 1) > '9' .or. FileName(start + 1 :start + 1) < '0') return
-        if(FileName(start + 2 :start + 2) > '9' .or. FileName(start + 2 :start + 2) < '0') return
-        if(FileName(start + 3 :start + 3) > '9' .or. FileName(start + 3 :start + 3) < '0') return
-    else if (index(Pattern, 'yy') /= 0) then
-        start = index(Pattern, 'yy')
-        if(FileName(start:start) > '9' .or. FileName(start:start) < '0') return
-        if(FileName(start + 1 :start + 1) > '9' .or. FileName(start + 1 :start + 1) < '0') return
-    end if
-    !> Month must be done by numbers
-    if (index(Pattern, 'mm') /= 0) then
-        start = index(Pattern, 'mm')
-        if(FileName(start:start) > '9' .or. FileName(start:start) < '0') return
-        if(FileName(start + 1 :start + 1) > '9' .or. FileName(start + 1 :start + 1) < '0') return
-    end if
-    !> Day or DOY must be done by numbers
-    if (index(Pattern, 'ddd') /= 0) then
-        start = index(Pattern, 'ddd')
-        if(FileName(start:start) > '9' .or. FileName(start:start) < '0') return
-        if(FileName(start + 1 :start + 1) > '9' .or. FileName(start + 1 :start + 1) < '0') return
-        if(FileName(start + 2 :start + 2) > '9' .or. FileName(start + 2 :start + 2) < '0') return
-    else if (index(Pattern, 'dd') /= 0) then
-        start = index(Pattern, 'dd')
-        if(FileName(start:start) > '9' .or. FileName(start:start) < '0') return
-        if(FileName(start + 1 :start + 1) > '9' .or. FileName(start + 1 :start + 1) < '0') return
-    end if
-    !> Hour must be done by numbers
-    if (index(Pattern, 'HH') /= 0) then
-        start = index(Pattern, 'HH')
-        if(FileName(start:start) > '9' .or. FileName(start:start) < '0') return
-        if(FileName(start + 1 :start + 1) > '9' .or. FileName(start + 1 :start + 1) < '0') return
-    end if
-    !> Minute must be done by numbers
-    if (index(Pattern, 'MM') /= 0) then
-        start = index(Pattern, 'MM')
-        if(FileName(start:start) > '9' .or. FileName(start:start) < '0') return
-        if(FileName(start + 1 :start + 1) > '9' .or. FileName(start + 1 :start + 1) < '0') return
-    end if
-    NameMatchesPrototype = .true.
-
-end function NameMatchesPrototype

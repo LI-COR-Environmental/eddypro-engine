@@ -30,29 +30,38 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine ReadFullCosWT(CospFile, FullCospectrum, N)
+subroutine ImportFullCospectra(CospFile, cospectra, nfreq, wanted, skip)
     use m_common_global_var
     implicit none
     !> in/out variables
     type(FilelistType), intent(in) :: CospFile
-    integer, intent(out) :: N
-    type(FullCospType), intent(out) :: FullCospectrum
+    logical, intent(in) :: wanted(GHGNumVar)
+    integer, intent(in) :: nfreq
+    logical, intent(out) :: skip
+    type(SpectraSetType), intent(out) :: cospectra(nfreq)
     !> local variables
     integer :: io_status
     integer :: read_status
     integer :: nvar
-    integer :: ord
+    integer :: ord(GHGNumVar)
     integer :: i
+    integer :: j
     real(kind = dbl), allocatable :: aux(:)
     character(1024) :: string
     character(32) :: var
-    real(kind = dbl) :: cov_w_ts
+    character(11) :: covlabs(GHGNumVar)
+    real(kind = dbl) :: cov(GHGNumVar)
+    data covlabs / 'cov(w_u)', 'cov(w_v)', 'cov(w_w)', 'cov(w_ts)', &
+                   'cov(w_co2)', 'cov(w_h2o)', 'cov(w_ch4)', 'cov(w_gas4)' /
+
+
+    skip = .false.
 
     open(udf, file = CospFile%path, iostat = io_status)
     if (io_status /= 0) then
-        FullCospectrum%fn(:) = error
-        FullCospectrum%wt(:) = error
-        call ErrorHandle(2, 0, 14)
+        cospectra = ErrSpec
+        skip = .true.
+        call ExceptionHandler(63)
         return
     end if
 
@@ -61,8 +70,8 @@ subroutine ReadFullCosWT(CospFile, FullCospectrum, N)
         read(udf, *)
     end do
 
-    !> Detects if H cospectrum is available in the file, if not exit with error code
-    !> The control is done on the presence of the label "cov(w_ts)"
+    !> Detects cospectra available in the file, if none of those wanted, exit with error code
+    !> The control is done on the presence of the label "cov(w_xx)"
     ord = 0
     nvar = 0
     read(udf, '(a)') string
@@ -70,67 +79,121 @@ subroutine ReadFullCosWT(CospFile, FullCospectrum, N)
         if (index(string, ',') /= 0) then
             var = string(1:index(string, ',') - 1)
             nvar = nvar + 1
-            if (var == 'cov(w_ts)') ord = nvar
+            do j = 1, GHGNumVar
+                if (var == covlabs(j)) ord(j) = nvar
+            end do
             string = string(index(string, ',') + 1:len_trim(string))
         else
             var = string(1:len_trim(string))
             nvar = nvar + 1
-            if (var == 'cov(w_ts)') ord = nvar
-            exit
-        end if
-    end do
-
-    if (ord > 0) then
-        !> Read w/ts covariance from first line
-        if (.not. allocated(aux)) allocate (aux(nvar))
-        read(udf, *, iostat = read_status) aux(1:nvar)
-        cov_w_ts = aux(ord)
-
-        !> Read natural frequencies and full co-spectrum
-        if (cov_w_ts /= error .and. cov_w_ts /= 0d0) then
-            !> Skip one line
-            read(udf, *)
-            N = 0
-            do
-                N = N + 1
-                read(udf, *, iostat = read_status) aux(1:nvar)
-                if (read_status > 0) then
-                    N = N - 1
-                    cycle
-                end if
-                if (read_status < 0) exit
-                FullCospectrum%fn(N) = aux(1)
-                FullCospectrum%wt(N) = aux(ord)
+            do j = 1, GHGNumVar
+                if (var == covlabs(j)) ord(j) = nvar
             end do
-            N = N - 1
-            FullCospectrum%fn(N + 1: MaxNumRow) = error
-
-            !> Un-normalize cospectrum
-            where (FullCospectrum%fn(1:N) /= 0d0 .and. FullCospectrum%fn(1:N) /= error)
-                FullCospectrum%wt(1:N) = &
-                    FullCospectrum%wt(1:N) /  FullCospectrum%fn(1:N) * cov_w_ts
-            elsewhere
-                FullCospectrum%wt(1:N) = error
-                FullCospectrum%fn(1:N) = error
-            end where
-        else
-            N = nint(error)
-        end if
-    else
-        N = nint(error)
-    end if
-    close(udf)
-    if (allocated(aux)) deallocate (aux)
-
-
-    !> Check that cospectrum values are within reasonable values (not too high).
-    !> Discard spectrum if this is the case
-    !> This is somewhat arbitrary, introduced to eliminate observed implausible cospectra
-    !> It's very strict: one only outranged value will eliminate the whole cospectrum
-    do i = 1, N
-        if (dabs(FullCospectrum%wt(i)) > MaxSpecValue) then
-            N = nint(error)
             exit
         end if
     end do
-end subroutine ReadFullCosWT
+
+    if (nvar == 0) then
+        cospectra = ErrSpec
+        skip = .true.
+        call ExceptionHandler(63)
+        return
+    end if
+
+    if (any(ord>0 .and. wanted)) then
+        !> Import covariances
+        if (.not. allocated(aux)) allocate (aux(nvar))
+        aux = 0d0
+        cov = error
+        read(udf, *, iostat = read_status) aux(1:nvar)
+        where (ord > 0) cov = aux(ord)
+        !> Skip one line
+        read(udf, *)
+        !> Read natural frequencies and full co-spectra
+        i = 0
+        do
+            read(udf, *, iostat = read_status) aux(1:nvar)
+            if (read_status > 0) cycle
+            if (read_status < 0) exit
+            i = i + 1
+            if (i > nfreq) exit
+            cospectra(i)%fn = aux(1)
+            where (ord > 0) cospectra(i)%of(:) = aux(ord)
+        end do
+        close(udf)
+        if (allocated(aux)) deallocate (aux)
+
+        !> Un-normalize cospectra
+        do j = w_u, w_gas4
+            where (wanted(j) .and. cospectra(:)%fn /= 0d0 .and. cospectra(:)%fn /= error)
+                cospectra(:)%of(j) = cospectra(:)%of(j) /  cospectra(:)%fn * cov(j)
+            elsewhere
+                cospectra(:)%of(j) = error
+            end where
+        end do
+
+        !> Check that cospectra values are within reasonable values (not too high).
+        !> Discard co-spectra if this is the case
+        !> This is somewhat arbitrary, introduced to eliminate observed implausible cospectra
+        !> It's very strict: one only outranged value will eliminate the whole cospectra set
+        do j = w_u, w_gas4
+            if (wanted(j) .and. any(dabs(cospectra(:)%of(j)) > MaxSpecValue)) then
+                cospectra = ErrSpec
+                skip = .true.
+                exit
+            end if
+        end do
+    else
+        skip = .true.
+    end if
+
+end subroutine ImportFullCospectra
+
+!***************************************************************************
+! \brief       read file with full cospectrum wT, for spectral correction
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+subroutine FullCospectraLength(Filepath, N)
+    use m_common_global_var
+    implicit none
+    !> in/out variables
+    character(*), intent(in) :: Filepath
+    integer, intent(out) :: N
+    !> local variables
+    integer :: io_status
+    integer :: i
+    character(1024) :: string
+    character(11) :: covlabs(GHGNumVar)
+    data covlabs / 'cov(w_u)', 'cov(w_v)', 'cov(w_w)', 'cov(w_ts)', &
+                   'cov(w_co2)', 'cov(w_h2o)', 'cov(w_ch4)', 'cov(w_gas4)' /
+
+
+    open(udf, file = Filepath, iostat = io_status)
+    if (io_status /= 0) then
+        N = nint(error)
+        return
+    end if
+
+    !> Skip 10 header lines
+    do i = 1, 13
+        read(udf, *, iostat = io_status)
+        if (io_status /= 0) then
+            N = nint(error)
+            return
+        end if
+    end do
+
+    N = 0
+    do
+        read(udf, '(a)', iostat = io_status) string
+        if (io_status > 0) cycle
+        if (io_status < 0) exit
+        N = N + 1
+    end do
+end subroutine FullCospectraLength

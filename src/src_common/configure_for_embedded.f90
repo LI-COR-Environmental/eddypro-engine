@@ -94,6 +94,12 @@ subroutine ConfigureForEmbedded()
             EddyProProj%out_ghg_eu  = .false.
             EddyProProj%out_amflux  = .false.
             EddyProProj%out_md      = .false.
+            if (EddyProProj%biomet_data /= 'none') then
+                EddyProProj%out_biomet = .true.
+            else
+                EddyProProj%out_biomet = .false.
+            end if
+
 
         !> EddyPro-FCC
         case ('EddyPro-FCC')

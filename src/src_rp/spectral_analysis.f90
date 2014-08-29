@@ -86,6 +86,7 @@ subroutine SpectralAnalysis(date, time, bf, Set, N, M)
     do i = 1, N/2
         nf(i) = dble(i) * Metadata%ac_freq / dble(N)
     end do
+
     !> Use "Aux" variables to calculate degraded covariances and to
     !> output full co-spectrum wT. "Aux" variables are not tapered
     AuxSet = Set
@@ -95,6 +96,7 @@ subroutine SpectralAnalysis(date, time, bf, Set, N, M)
 
     !> Fft and calculate cospectra
     call FourierTransform(AuxSet, N, M)
+
     call AllCospectra(AuxSet, auxsumw, AuxSpectrum, AuxCospectrum, &
         DoSpectrum, DoCospectrum, N, M)
 
@@ -321,7 +323,7 @@ subroutine AllCospectra(Set, sumw, Spectrum, Cospectrum, DoSpectrum, DoCospectru
     do j = u, GHGNumVar
         if (DoSpectrum(j)) then
             xx(1:N) = Set(1:N, j)
-            call SpectralDensity(xx, xx, Metadata%ac_freq, sumw, Spectrum%of(j), N)
+            call OneSidedPowerSpectrum(xx, xx, Metadata%ac_freq, sumw, Spectrum%of(j), N)
         end if
     end do
 
@@ -331,7 +333,7 @@ subroutine AllCospectra(Set, sumw, Spectrum, Cospectrum, DoSpectrum, DoCospectru
             if (DoCospectrum(j)) then
                 xx(1:N) = Set(1:N, w)
                 yy(1:N) = Set(1:N, j)
-                call SpectralDensity(xx, yy, Metadata%ac_freq, sumw, Cospectrum%of(j), N)
+                call OneSidedPowerSpectrum(xx, yy, Metadata%ac_freq, sumw, Cospectrum%of(j), N)
             end if
         end if
     end do
@@ -622,7 +624,7 @@ subroutine WriteOutBinnedCoSpectra(String, bnf, bcnt, BinnedSpectrum, BinnedCosp
     write(udf, '(a)')       'y-axis_->_natural_frequency_*_(co)spectrum_/_(co)variance'
     write(udf, '(a, f7.3)') 'acquisition_frequency_[Hz]_=_', Metadata%ac_freq
     write(udf, '(a, f7.3)') 'measuring_height_(z-d)_[m]_=_', (SpecCol(u)%Instr%height - Metadata%d)
-    write(udf, '(a, f7.3)') 'wind_speed_[m+1s-1]_=_', LitePar%WS
+    write(udf, '(a, f7.3)') 'wind_speed_[m+1s-1]_=_', Ambient%WS
     write(udf, '(a, i7)')   'averaging_interval_[min]_=_', RPsetup%avrg_len
     write(udf, '(a, i4)')   'number_of_bins_=_', Meth%spec%nbins
     write(udf, '(a, a)')    'tapering_window_=_', RPsetup%tap_win(1:len_trim(RPsetup%tap_win))
@@ -640,8 +642,8 @@ subroutine WriteOutBinnedCoSpectra(String, bnf, bcnt, BinnedSpectrum, BinnedCosp
         call AddDatum(dataline, datum, separator)
         call WriteDatumFloat(bnf(i), datum, '-9999.0')
         call AddDatum(dataline, datum, separator)
-        if (bnf(i) /= error .and. LitePar%WS /= 0d0) then
-            call WriteDatumFloat(bnf(i) * (SpecCol(u)%Instr%height - Metadata%d) / LitePar%WS, datum, '-9999.0')
+        if (bnf(i) /= error .and. Ambient%WS /= 0d0) then
+            call WriteDatumFloat(bnf(i) * (SpecCol(u)%Instr%height - Metadata%d) / Ambient%WS, datum, '-9999.0')
             call AddDatum(dataline, datum, separator)
         else
             call AddDatum(dataline, '-9999.0', separator)
@@ -716,7 +718,7 @@ subroutine WriteOutBinnedOgives(String, bnf, bcnt, BinnedOgive, BinnedCoOgive &
     write(udf, '(a)')       'y-axis_->_ogive'
     write(udf, '(a, f7.3)') 'acquisition_frequency_[Hz]_=_', Metadata%ac_freq
     write(udf, '(a, f7.3)') 'measuring_height_(z-d)_[m]_=_', (SpecCol(u)%Instr%height - Metadata%d)
-    write(udf, '(a, f7.3)') 'wind_speed_[m+1s-1]_=_', LitePar%WS
+    write(udf, '(a, f7.3)') 'wind_speed_[m+1s-1]_=_', Ambient%WS
     write(udf, '(a, i7)')   'averaging_interval_[min]_=_', RPsetup%avrg_len
     write(udf, '(a, i4)')   'number_of_bins_=_', Meth%spec%nbins
     write(udf, '(a, a)')    'tapering_window_=_', RPsetup%tap_win(1:len_trim(RPsetup%tap_win))
@@ -732,8 +734,8 @@ subroutine WriteOutBinnedOgives(String, bnf, bcnt, BinnedOgive, BinnedCoOgive &
         call AddDatum(dataline, datum, separator)
         call WriteDatumFloat(bnf(i), datum, '-9999.0')
         call AddDatum(dataline, datum, separator)
-        if (bnf(i) /= error .and. LitePar%WS /= 0d0) then
-            call WriteDatumFloat(bnf(i) * (SpecCol(u)%Instr%height - Metadata%d) / LitePar%WS, datum, '-9999.0')
+        if (bnf(i) /= error .and. Ambient%WS /= 0d0) then
+            call WriteDatumFloat(bnf(i) * (SpecCol(u)%Instr%height - Metadata%d) / Ambient%WS, datum, '-9999.0')
             call AddDatum(dataline, datum, separator)
         else
             call AddDatum(dataline, '-9999.0', separator)
@@ -821,7 +823,7 @@ subroutine WriteOutFullCoSpectra(String, nf, Spectrum, Cospectrum, &
     write(udf, '(a)')       'y-axis_->_natural_frequency_*_(co)spectrum_/_(co)variance'
     write(udf, '(a, f7.3)') 'acquisition_frequency_[Hz]_=_', Metadata%ac_freq
     write(udf, '(a, f7.3)') 'measuring_height_(z-d)_[m]_=_', (SpecCol(u)%Instr%height - Metadata%d)
-    write(udf, '(a, f7.3)') 'wind_speed_[m+1s-1]_=_', LitePar%WS
+    write(udf, '(a, f7.3)') 'wind_speed_[m+1s-1]_=_', Ambient%WS
     write(udf, '(a, i7)')   'averaging_interval_[min]_=_', RPsetup%avrg_len
     write(udf, '(a)')       'tapering_window_=_SQUARED_(no_tapering_forced_by_EddyPro.&
                             &_Tapering_is_only_applied_for_binned_(co)spectra)'
@@ -859,8 +861,8 @@ subroutine WriteOutFullCoSpectra(String, nf, Spectrum, Cospectrum, &
         !> Frequencies
         call WriteDatumFloat(nf(i), datum, '-9999.0')
         call AddDatum(dataline, datum, separator)
-        if (nf(i) /= error .and. LitePar%WS /= 0d0) then
-            call WriteDatumFloat(nf(i) * (SpecCol(u)%Instr%height - Metadata%d) / LitePar%WS, datum, '-9999.0')
+        if (nf(i) /= error .and. Ambient%WS /= 0d0) then
+            call WriteDatumFloat(nf(i) * (SpecCol(u)%Instr%height - Metadata%d) / Ambient%WS, datum, '-9999.0')
             call AddDatum(dataline, datum, separator)
         else
             call AddDatum(dataline, '-9999.0', separator)

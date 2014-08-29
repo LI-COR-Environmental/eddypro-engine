@@ -43,6 +43,7 @@ subroutine WriteOutputFiles(lEx)
     integer :: gas
     integer :: igas
     character(64) :: datum
+    character(12) :: iso_basic
 
     !>***************************************************************
     !>***************************************************************
@@ -532,110 +533,98 @@ subroutine WriteOutputFiles(lEx)
     !> write to GHG-Europe style output file
     if (EddyProProj%out_ghg_eu) then
         call clearstr(dataline)
-        !> Preliminary timestmap information
-        write(datum, *) lEx%fname(1:len_trim(lEx%fname))
-        call AddDatum(dataline, datum, separator)
-        write(datum, *) lEx%date(1:10)
-        call AddDatum(dataline, datum, separator)
-        write(datum, *) lEx%time(1:5)
-        call AddDatum(dataline, datum, separator)
 
-        !> Air properties
-        write(datum, *) lEx%Ta - 273.16d0     !< celsius
-        call AddDatum(dataline, datum, separator)
-        write(datum, *) lEx%Pa * 1d-3           !< kPa
-        call AddDatum(dataline, datum, separator)
-        write(datum, *) lEx%RH                  !< %
-        call AddDatum(dataline, datum, separator)
+        !> derive ISO basic format timestamp
+        iso_basic = lEx%date(1:4) // lEx%date(6:7) &
+            // lEx%date(9:10) // lEx%time(1:2) // lEx%time(4:5)
+
+        call clearstr(dataline)
+        call AddDatum(dataline, trim(adjustl(iso_basic)), separator)
 
         !> Gas concentrations
-        do gas = co2, gas4
+        do gas = co2, h2o
             if (fcc_var_present(gas)) then
-                write(datum, *) lEx%chi(gas)
+                call WriteDatumFloat(lEx%chi(gas), datum, '-9999.')
                 call AddDatum(dataline, datum, separator)
             end if
         end do
         do gas = ch4, gas4
             if (fcc_var_present(gas)) then
-                write(datum, *) lEx%chi(gas) * 1d3
+                call WriteDatumFloat(lEx%chi(gas) * 1d3, datum, '-9999.')
                 call AddDatum(dataline, datum, separator)
             end if
         end do
 
         !> Corrected fluxes (Level 3)
         !> Tau
-        write(datum, *) Flux3%tau
+        call WriteDatumFloat(Flux3%tau, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
-        write(datum, *) QCFlag%tau
+        call WriteDatumInt(QCFlag%tau, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
         !> H
-        write(datum, *) Flux3%H
+        call WriteDatumFloat(Flux3%H, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
-        write(datum, *) QCFlag%H
+        call WriteDatumInt(QCFlag%H, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
         !> LE
         if(fcc_var_present(h2o)) then
             write(datum, *) Flux3%LE
             call AddDatum(dataline, datum, separator)
-            write(datum, *) QCFlag%h2o
+            call WriteDatumInt(QCFlag%h2o, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
         end if
         !> Gases
         if(fcc_var_present(co2)) then
-            write(datum, *) Flux3%co2
+            call WriteDatumFloat(Flux3%co2, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
-            write(datum, *) QCFlag%co2
+            call WriteDatumInt(QCFlag%co2, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
         end if
         if(fcc_var_present(h2o)) then
-            write(datum, *) Flux3%h2o
+            call WriteDatumFloat(Flux3%h2o, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
-            write(datum, *) QCFlag%h2o
+            call WriteDatumInt(QCFlag%h2o, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
         end if
         if(fcc_var_present(ch4)) then
-            write(datum, *) Flux3%ch4 * 1d3  !< expressed here in nmol+1m-2s-1
+            call WriteDatumFloat(Flux3%ch4 * 1d3, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
-            write(datum, *) QCFlag%ch4
+            call WriteDatumInt(QCFlag%ch4, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
         end if
         if(fcc_var_present(gas4)) then
-            write(datum, *) Flux3%gas4 * 1d3  !< expressed here in nmol+1m-2s-1
+            call WriteDatumFloat(Flux3%gas4 * 1d3, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
-            write(datum, *) QCFlag%gas4
+            call WriteDatumInt(QCFlag%gas4, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
         end if
 
         !> Storage
-        write(datum, *) lEx%Stor%H
+        call WriteDatumFloat(lEx%Stor%H, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
         if(fcc_var_present(h2o)) then
-            write(datum, *) lEx%Stor%LE
+            call WriteDatumFloat(lEx%Stor%LE, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
         end if
         if(fcc_var_present(co2)) then
-            write(datum, *) lEx%Stor%of(co2)
+            call WriteDatumFloat(lEx%Stor%of(co2), datum, '-9999.')
             call AddDatum(dataline, datum, separator)
         end if
 
         !> Turbulence
-        write(datum, *) lEx%WS
+        call WriteDatumFloat(lEx%ustar, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
-        write(datum, *) lEx%WD
+        call WriteDatumFloat(lEx%L, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
-        write(datum, *) lEx%ustar
-        call AddDatum(dataline, datum, separator)
-        write(datum, *) lEx%L
-        call AddDatum(dataline, datum, separator)
-        write(datum, *) lEx%zL
+        call WriteDatumFloat(lEx%zL, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
 
         !> footprint
-        write(datum, *) Foot%peak
+        call WriteDatumFloat(Foot%peak, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
-        write(datum, *) Foot%x70
+        call WriteDatumFloat(Foot%x70, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
-        write(datum, *) Foot%x90
+        call WriteDatumFloat(Foot%x90, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
 
         write(ughgeu, '(a)') dataline(1:len_trim(dataline) - 1)

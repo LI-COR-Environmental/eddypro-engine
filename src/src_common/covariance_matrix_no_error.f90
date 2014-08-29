@@ -72,3 +72,71 @@ subroutine CovarianceMatrixNoError(Set, nrow, ncol, Cov, err_float)
         end do
     end do
 end subroutine CovarianceMatrixNoError
+
+!***************************************************************************
+!
+! \brief       Calculates covariance matrix of given arrays applying \n
+!              given lag, ignoring provided error code
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+double precision function LaggedCovarianceNoError(col1, col2, nrow, rlag, err_float)
+    use m_common_global_var
+    implicit none
+    !> In/out variables
+    integer, intent(in) :: nrow
+    integer, intent(in) :: rlag
+    real(kind=dbl), intent(in) :: col1(nrow)
+    real(kind=dbl), intent(in) :: col2(nrow)
+    real(kind=dbl), intent(in) :: err_float
+    !> Local variables
+    integer :: lag
+    integer :: i
+    integer :: n
+    real(kind=dbl) :: cov
+    real(kind=dbl) :: sumi
+    real(kind=dbl) :: sumj
+
+
+    sumi = 0d0
+    sumj = 0d0
+    cov = 0d0
+    n = 0
+    if (rlag >= 0) then
+        !> Positive lags are interpreted as col2 being "late"
+        do i = 1, nrow - rlag
+            if (col1(i) /= err_float .and. col2(i+rlag) /= err_float) then
+                n = n + 1
+                cov = cov + col1(i) * col2(i+rlag)
+                sumi = sumi + col1(i)
+                sumj = sumj + col2(i+rlag)
+            end if
+        end do
+    else
+        !> Positive lags are interpreted as col1 being "late"
+        lag = -rlag
+        do i = 1, nrow - lag
+            if (col2(i) /= err_float .and. col1(i+lag) /= err_float) then
+                n = n + 1
+                cov = cov + col2(i) * col1(i+lag)
+                sumi = sumi + col2(i)
+                sumj = sumj + col1(i+lag)
+            end if
+        end do
+    end if
+
+    !> Finish up
+    if (n /= 0) then
+        sumi = sumi / dble(n)
+        sumj = sumj / dble(n)
+        cov = cov / dble(n)
+        LaggedCovarianceNoError = cov - sumi * sumj
+    else
+        LaggedCovarianceNoError = err_float
+    end if
+end function LaggedCovarianceNoError

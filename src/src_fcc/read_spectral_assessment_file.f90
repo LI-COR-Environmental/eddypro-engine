@@ -41,25 +41,16 @@ subroutine ReadSpectralAssessmentFile()
     character(512) :: string
 
 
-    call log_msg(' inf=reading spectral assessment file.')
-    LogString = ' sa_file_in=' // AuxFile%sa(1:len_trim(AuxFile%sa))
-    call DoubleCharInString(LogString, slash)
-    call log_msg(LogString)
-
     !> Open planar fit file and read rotation matrices
     write(*,'(a)') ' Reading spectral assessment file: '
     write(*,'(a)') '  ' // AuxFile%sa(1:len_trim(AuxFile%sa))
     open(udf, file = AuxFile%sa, status = 'old', iostat = open_status)
 
-    write(LogLogical, '(L1)') open_status
-    LogString = ' open_error=' //Loglogical
-    call log_msg(LogString)
-
     RegPar%Fn = 0d0
     RegPar%fc = 0d0
     RegPar%f2 = 0d0
     if (open_status == 0) then
-        write(*, '(a)', advance = 'no') ' Spectral assessment file found, importing content..'
+        write(*, '(a)') '  Spectral assessment file found, importing content..'
         !> skip 7 lines
         do i = 1, 7
             read(udf, *)
@@ -104,11 +95,10 @@ subroutine ReadSpectralAssessmentFile()
         string = string(index(string, '=') + 1: len_trim(string))
         read(string, *)  StPar(1), StPar(2)
         close(udf)
-        write(*,*) ' Done.'
+        write(*, '(a)') ' Done.'
     else
        !> If the specified file was not found or is empty,m switches to an analytic method
-        call log_msg(' err=error while opening spectral assessment file. switching to analytic corrections.')
         EddyProProj%hf_meth = 'moncrieff_97'
-        call ErrorHandle(2, 0, 6)
+        call ExceptionHandler(65)
     end if
 end subroutine ReadSpectralAssessmentFile

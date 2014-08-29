@@ -38,13 +38,8 @@ subroutine InitDynamicMetadata(N)
     integer :: open_status
     integer :: io_status
 
-    !> Some logging
-    call log_msg(' inf=auxiliary file selected for dynamic (time-varying) metadata')
-    call log_msg(' inf=initializing dynamic metadata usage.')
+
     write(*, '(a)', advance = 'no') ' Initializing dynamic metadata usage..'
-    LogString = ' dyn_md_file_in=' // AuxFile%DynMD(1:len_trim(AuxFile%DynMD))
-    call DoubleCharInString(LogString, slash)
-    call log_msg(LogString)
 
     !> Open file
     open(udf, file = AuxFile%DynMD, status = 'old', iostat = open_status)
@@ -53,7 +48,7 @@ subroutine InitDynamicMetadata(N)
     if (open_status == 0) then
         call ReadDynamicMetadataHeader(udf)
     else
-        call ErrorHandle(0, 1, 1)
+        call ExceptionHandler(68)
         EddyProProj%use_dynmd_file = .false.
     end if
 

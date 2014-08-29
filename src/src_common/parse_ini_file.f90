@@ -62,7 +62,7 @@ subroutine ParseIniFile(IniFile, key, NumTags, CharTags, nnum, nchar,&
              NumTagFound, CharTagFound)
              return
     else
-        call ErrorHandle(0, 0, 7)
+        call ExceptionHandler(7)
         IniFileNotFound = .true.
     end if
 end subroutine ParseIniFile

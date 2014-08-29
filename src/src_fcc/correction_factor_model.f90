@@ -69,9 +69,7 @@ subroutine CorrectionFactorModel(ExFilename, NumExRecords)
     data f_co(1:Nt) /1.626d0, 0.614d0, 0.277d0, 0.133d0, 6.5d-2, 3.2d-2, 1.6d-2, 8d-3, 4d-3/
 
 
-    call log_msg(' inf=fitting low-pass correction factor model as from Ibrom et al. (2007).')
     write(*, '(a)') ' Fitting low-pass correction factor model as from Ibrom et al. (2007)..'
-
     allocate(DegWT(NumExRecords, Nt + 3))
 
     !> Retrieve "degraded" w'T' covariances from essentials file
@@ -193,8 +191,6 @@ subroutine CorrectionFactorModel(ExFilename, NumExRecords)
     deallocate(fvec, fjac)
 
     if (allocated (DegWT)) deallocate (DegWT)
-
-    call log_msg(' inf=low-pass correction factor model fitted correctly.')
 end subroutine CorrectionFactorModel
 
 !***************************************************************************

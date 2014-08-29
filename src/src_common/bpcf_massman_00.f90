@@ -110,7 +110,7 @@ subroutine bpcf_Massman00(measuring_height, displ_height, loc_var_present, LocIn
             if (lambda(var) /= error) then
                 t_tube(var) = dsqrt(lambda(var) * LocInstr(var)%tube_d / 2d0 * LocInstr(var)%tube_l) / (0.83d0 * TubeVel)
             else
-                call ErrorHandle(0, 0, 47)
+                call ExceptionHandler(51)
                 t_tube(var) = 1d-10 !< a very small value.
             end if
         else

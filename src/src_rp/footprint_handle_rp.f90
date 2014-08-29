@@ -1,6 +1,6 @@
 !***************************************************************************
 ! footprint_handle_rp.f90
-! --------------------------
+! -----------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
 ! Copyright (C) 2011-2014, LI-COR Biosciences
 !
@@ -21,7 +21,8 @@
 !
 !***************************************************************************
 !
-! \brief       Driver to footprint estimation based on selected model
+! \brief       Hub to and implementation of to several cross-wind \n
+!              integrated footprint models
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -41,8 +42,8 @@ subroutine FootprintHandle_rp()
     !> If Kljun model was chosen, but conditions are outside those stated at Pag. 512 of the paper
     !> shift to Kormann and Meixner model.
     if (foot_model_used == 'kljun_04' .and. &
-        (Stats%Cov(w, w) <= 0d0 .or. LitePar%us < kj_us_min .or. &
-        LitePar%zL < kj_zL_min .or. LitePar%zL > kj_zL_max .or. E2Col(u)%Instr%height < 1d0)) &
+        (Stats%Cov(w, w) <= 0d0 .or. Ambient%us < kj_us_min .or. &
+        Ambient%zL < kj_zL_min .or. Ambient%zL > kj_zL_max .or. E2Col(u)%Instr%height < 1d0)) &
         foot_model_used = 'kormann_meixner_01'
 
     select case(foot_model_used)
@@ -124,28 +125,28 @@ subroutine Kljun04()
         sigma_w = error
     end if
 
-    if (sigma_w == error .or. LitePar%us < kj_us_min .or. LitePar%zL < kj_zL_min .or. LitePar%zL > kj_zL_max) then
+    if (sigma_w == error .or. Ambient%us < kj_us_min .or. Ambient%zL < kj_zL_min .or. Ambient%zL > kj_zL_max) then
         Foot = FootType(error, error, error, error, error, error, error)
     else
         !> Calculate location of peak influence
         xstarmax = c - d
-        Foot%peak = xstarmax * zm *(sigma_w / LitePar%us)**(-0.8d0)
+        Foot%peak = xstarmax * zm *(sigma_w / Ambient%us)**(-0.8d0)
 
         !> Calculate offset from tower: location of 1% contribution
         xstar = L(2) * c - d
-        Foot%offset = xstar * zm *(sigma_w / LitePar%us)**(-0.8d0)
+        Foot%offset = xstar * zm *(sigma_w / Ambient%us)**(-0.8d0)
 
         !> Calculate distances including increasing percentages of the footprint
         xstar = L(11) * c - d
-        Foot%x10 = xstar * zm *(sigma_w / LitePar%us)**(-0.8d0)
+        Foot%x10 = xstar * zm *(sigma_w / Ambient%us)**(-0.8d0)
         xstar = L(31) * c - d
-        Foot%x30 = xstar * zm *(sigma_w / LitePar%us)**(-0.8d0)
+        Foot%x30 = xstar * zm *(sigma_w / Ambient%us)**(-0.8d0)
         xstar = L(51) * c - d
-        Foot%x50 = xstar * zm *(sigma_w / LitePar%us)**(-0.8d0)
+        Foot%x50 = xstar * zm *(sigma_w / Ambient%us)**(-0.8d0)
         xstar = L(71) * c - d
-        Foot%x70 = xstar * zm *(sigma_w / LitePar%us)**(-0.8d0)
+        Foot%x70 = xstar * zm *(sigma_w / Ambient%us)**(-0.8d0)
         xstar = L(91) * c - d
-        Foot%x90 = xstar * zm *(sigma_w / LitePar%us)**(-0.8d0)
+        Foot%x90 = xstar * zm *(sigma_w / Ambient%us)**(-0.8d0)
     end if
 end subroutine Kljun04
 
@@ -191,42 +192,41 @@ subroutine KormannMeixner01()
     Foot = FootType(error, error, error, error, error, error, error)
 
     zm = E2Col(u)%Instr%height - Metadata%d
-    u_mean = LitePar%WS
+    u_mean = Ambient%WS
     !> ALTERNATIVE u(z) for z=zm (Monin-Obukhov similarity profile)
-    !u_mean = LitePar%us *(dlog(zm / Metadata%z0) + psi_m) / vk
+    !u_mean = Ambient%us *(dlog(zm / Metadata%z0) + psi_m) / vk
 
     !> Similarity relations (Paulson, 1970)
-    if (LitePar%zL > 0) then
-        phi_m = 1d0 + 5d0 * LitePar%zL
+    if (Ambient%zL > 0) then
+        phi_m = 1d0 + 5d0 * Ambient%zL
         phi_c = phi_m
-        psi_m = - 5d0 * LitePar%zL
+        psi_m = - 5d0 * Ambient%zL
     else
-        phi_m = (1d0 - 16d0 * LitePar%zL)**(-1d0 / 4d0)
-        phi_c = (1d0 - 16d0 * LitePar%zL)**(-1d0 / 2d0)
-        !phi_c = phi_m **2
-        eta = (1d0 - 16d0 * LitePar%zL)**(1d0 / 4d0)
+        phi_m = (1d0 - 16d0 * Ambient%zL)**(-1d0 / 4d0)
+        phi_c = (1d0 - 16d0 * Ambient%zL)**(-1d0 / 2d0)
+        eta = (1d0 - 16d0 * Ambient%zL)**(1d0 / 4d0)
         psi_m = 2d0 * dlog((1d0 + eta) / 2d0) + dlog((1d0 + eta**2) / 2d0) - 2d0 * datan(eta) + p / 2d0  !< K&M2001
-        !psi_m = 0.0954d0 - 1.86d0 * (zm/LitePar%L) - 1.07d0 * (zm/LitePar%L)**2 - 0.249 * (zm/LitePar%L)**3  !< Zhang & Anthes 1983, polynomial interpolation
+        !psi_m = 0.0954d0 - 1.86d0 * (zm/Ambient%L) - 1.07d0 * (zm/Ambient%L)**2 - 0.249 * (zm/Ambient%L)**3  !< Zhang & Anthes 1983, polynomial interpolation
         !psi_m = dlog(((1 + eta) / 2d0)**2 * (1d0 + eta**2) / 2d0) - 2d0 * datan(eta) + p / 2d0 !< alternative
     end if
     psi_m = -1d0 * psi_m  !< change sign to conform with K&M usage
 
     !> Intermediate parameters for K&M2001
     !> exponent of the diffusivity power law
-    if (LitePar%zL > 0) then
+    if (Ambient%zL > 0) then
         n  = 1d0 / phi_m
     else
-        n = (1d0 - 24d0 * LitePar%zL) / (1d0 - 16d0 * LitePar%zL)
+        n = (1d0 - 24d0 * Ambient%zL) / (1d0 - 16d0 * Ambient%zL)
     end if
 
     !> proportionality constant of the diffusivity power law (Eqs. 11 and 32)
-    key  = vk * LitePar%us * zm / (phi_c * zm**n)
+    key  = vk * Ambient%us * zm / (phi_c * zm**n)
 
     !> exponent of the wind speed power law
-    m = LitePar%us * phi_m / (vk * u_mean)
+    m = Ambient%us * phi_m / (vk * u_mean)
 
     !> proportionality constant of the wind speed power law (Eqs. 11 and 31)
-!    UU = LitePar%us * (dlog(zm / Metadata%z0) + psi_m) / (vk * zm**m)
+!    UU = Ambient%us * (dlog(zm / Metadata%z0) + psi_m) / (vk * zm**m)
     UU = u_mean / zm**m
 
     !> Intermediate parameters
@@ -319,7 +319,7 @@ subroutine Hsieh00()
     p1 = 0.86d0
     z0m = Metadata%z0
     zu = zm * (dlog(zm/Metadata%z0) - 1d0 + Metadata%z0/zm)
-    zL = zu / LitePar%L
+    zL = zu / Ambient%L
 
     !> Parameters D and P in Eq. 17
     DD = 0.97d0
@@ -346,7 +346,7 @@ subroutine Hsieh00()
     do70 = .true.
     do i = 1, 10000
         !> Cross-wind integrated 1D function
-        fact = DD * zu**PP * dabs(LitePar%L)**(1d0 - PP) / (vk**2 * (i * di))
+        fact = DD * zu**PP * dabs(Ambient%L)**(1d0 - PP) / (vk**2 * (i * di))
         int_foot = dexp(-fact)
         if (do_offset .and. int_foot > 0.01d0) then
             Foot%offset = i * di
@@ -374,5 +374,5 @@ subroutine Hsieh00()
         end if
     end do
     !> Peak distance
-    Foot%peak = DD * zu**PP * dabs(LitePar%L)**(1d0 - PP) / (2d0 * vk**2)
+    Foot%peak = DD * zu**PP * dabs(Ambient%L)**(1d0 - PP) / (2d0 * vk**2)
 end subroutine Hsieh00

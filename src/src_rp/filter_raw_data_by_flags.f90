@@ -43,6 +43,7 @@ subroutine FilterRawDataByFlags(LocCol, Raw, nrow, ncol)
     integer :: j
     logical :: filtered(nrow)
 
+
     filtered = .false.
     !> External cycle on all columns
     do j = 1, ncol

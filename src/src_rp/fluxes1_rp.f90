@@ -1,29 +1,27 @@
 !***************************************************************************
 ! fluxes1_rp.f90
 ! --------------
-!Copyright (C) 2011, LI-COR Biosciences
+! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
+! Copyright (C) 2011-2014, LI-COR Biosciences
 !
-!This file is part of EddyPro (TM).
+! This file is part of EddyPro (TM).
 !
-!EddyPro (TM) is free software: you can redistribute it and/or modify
-!it under the terms of the GNU General Public License as published by
-!the Free Software Foundation, either version 3 of the License, or
-!(at your option) any later version.
+! EddyPro (TM) is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
 !
-!EddyPro (TM) is distributed in the hope that it will be useful,
-!but WITHOUT ANY WARRANTY; without even the implied warranty of
-!MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-!GNU General Public License for more details.
+! EddyPro (TM) is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
 !
-!You should have received a copy of the GNU General Public License
-!along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
+! You should have received a copy of the GNU General Public License
+! along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
+!
 !***************************************************************************
-
-!***************************************************************************
-! \file        src/fluxes1_rp.f90
+!
 ! \brief       Calculates fluxes at Level 1. Mainly spectral corrections
-! \version     3.0.0
-! \date        2011-03-24
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -46,17 +44,17 @@ subroutine Fluxes1_rp()
     !> according to van Dijk et al. (2003, JAOT, eq. 13b)
     select case (E2Col(h2o)%Instr%model(1:len_trim(E2Col(h2o)%Instr%model) - 2))
         case('open_path_krypton','closed_path_krypton', 'open_path_lyman','closed_path_lyman')
-            if (E2Col(h2o)%Instr%kw /= 0d0 .and. LitePar%Ta > 0d0 &
-                .and. LitePar%Bowen /= error .and. LitePar%lambda > 0) then
+            if (E2Col(h2o)%Instr%kw /= 0d0 .and. Ambient%Ta > 0d0 &
+                .and. Ambient%Bowen /= error .and. Ambient%lambda > 0) then
                 Cox = 1d0 + 0.23d0 * E2Col(h2o)%Instr%ko / E2Col(h2o)%Instr%kw &
-                    * LitePar%Bowen * LitePar%lambda / LitePar%Ta
+                    * Ambient%Bowen * Ambient%lambda / Ambient%Ta
                 Stats%Cov(w, h2o) = Cox * Stats%Cov(w, h2o)
                 Stats%Cov(h2o, h2o) = Cox**2 * Stats%Cov(h2o, h2o)
                 !> Alternative formulation by T.W. Horst
                 !> http://www.eol.ucar.edu/instrumentation/sounding/isfs/isff-support-center&
                 !> &/how-tos/corrections-to-sensible-and-latent-heat-flux-measurements
                 !Stats%Cov(w, h2o) = Stats%Cov(w, h2o) / (1 - 8d0 * 0.23d0 * E2Col(h2o)%Instr%ko &
-                ! / E2Col(h2o)%Instr%kw * LitePar%bowen)
+                ! / E2Col(h2o)%Instr%kw * Ambient%bowen)
             endif
     end select
 
@@ -143,7 +141,7 @@ subroutine Fluxes1_rp()
     !> Momentum flux [kg m-1 s-2] and friction velocity [m s-1]
     if (BPCF%of(w_u) /= error) then
         Flux1%tau = Flux0%tau * BPCF%of(w_u)
-        LitePar%us    = LitePar%us * dsqrt(BPCF%of(w_u))
+        Ambient%us    = Ambient%us * dsqrt(BPCF%of(w_u))
     else
         Flux1%tau = Flux0%tau
     end if

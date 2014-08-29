@@ -58,6 +58,80 @@ integer function CreateDir(directory)
 end function CreateDir
 
 !***************************************************************************
+! \file        src/dir_subs.f90
+! \brief       Test if file name matches Template
+! \version     5.2.0
+! \date        2013-03-12
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+logical function NameMatchesTemplate(FileName, Pattern)
+    use m_common_global_var
+    implicit none
+    !> In/out variables
+    character(*), intent(in) :: Filename
+    character(*), intent(in) :: Pattern
+    !> Local variables
+    integer :: start
+
+
+    !> Initialization
+    NameMatchesTemplate = .false.
+
+    !> Check on the length of the file name
+    if(EddyProProj%ftype /= 'licor_ghg' .and. len_trim(FileName) /= len_trim(Pattern)) return
+
+    !> Year must be done by numbers
+    if (index(Pattern, 'yyyy') /= 0) then
+        start = index(Pattern, 'yyyy')
+        if(FileName(start:start) > '9' .or. FileName(start:start) < '0') return
+        if(FileName(start + 1 :start + 1) > '9' .or. FileName(start + 1 :start + 1) < '0') return
+        if(FileName(start + 2 :start + 2) > '9' .or. FileName(start + 2 :start + 2) < '0') return
+        if(FileName(start + 3 :start + 3) > '9' .or. FileName(start + 3 :start + 3) < '0') return
+    else if (index(Pattern, 'yy') /= 0) then
+        start = index(Pattern, 'yy')
+        if(FileName(start:start) > '9' .or. FileName(start:start) < '0') return
+        if(FileName(start + 1 :start + 1) > '9' .or. FileName(start + 1 :start + 1) < '0') return
+    end if
+    !> Month must be done by numbers
+    if (index(Pattern, 'mm') /= 0) then
+        start = index(Pattern, 'mm')
+        if(FileName(start:start) > '9' .or. FileName(start:start) < '0') return
+        if(FileName(start + 1 :start + 1) > '9' .or. FileName(start + 1 :start + 1) < '0') return
+    end if
+    !> Day or DOY must be done by numbers
+    if (index(Pattern, 'ddd') /= 0) then
+        start = index(Pattern, 'ddd')
+        if(FileName(start:start) > '9' .or. FileName(start:start) < '0') return
+        if(FileName(start + 1 :start + 1) > '9' .or. FileName(start + 1 :start + 1) < '0') return
+        if(FileName(start + 2 :start + 2) > '9' .or. FileName(start + 2 :start + 2) < '0') return
+    else if (index(Pattern, 'dd') /= 0) then
+        start = index(Pattern, 'dd')
+        if(FileName(start:start) > '9' .or. FileName(start:start) < '0') return
+        if(FileName(start + 1 :start + 1) > '9' .or. FileName(start + 1 :start + 1) < '0') return
+    end if
+    !> Hour must be done by numbers
+    if (index(Pattern, 'HH') /= 0) then
+        start = index(Pattern, 'HH')
+        if(FileName(start:start) > '9' .or. FileName(start:start) < '0') return
+        if(FileName(start + 1 :start + 1) > '9' .or. FileName(start + 1 :start + 1) < '0') return
+    end if
+    !> Minute must be done by numbers
+    if (index(Pattern, 'MM') /= 0) then
+        start = index(Pattern, 'MM')
+        if(FileName(start:start) > '9' .or. FileName(start:start) < '0') return
+        if(FileName(start + 1 :start + 1) > '9' .or. FileName(start + 1 :start + 1) < '0') return
+    end if
+    NameMatchesTemplate = .true.
+
+end function NameMatchesTemplate
+
+!***************************************************************************
 !
 ! \brief       Counts the number of files in a dir \n
 !               (and its subfolders if requested)
@@ -69,12 +143,14 @@ end function CreateDir
 ! \test
 ! \todo
 !***************************************************************************
-subroutine NumberOfFilesInDir(DirIn, ext, N, rN)
+subroutine NumberOfFilesInDir(DirIn, ext, MatchTemplate, Template, N, rN)
     use m_common_global_var
     implicit none
     !> in/out variables
     character(*), intent(in) :: DirIn
     character(*), intent(in) :: Ext
+    character(*), intent(in) :: Template
+    logical, intent(in) :: MatchTemplate
     integer, intent(out) :: N
     integer, intent(out) :: rN
     !> local variables
@@ -82,6 +158,8 @@ subroutine NumberOfFilesInDir(DirIn, ext, N, rN)
     integer :: open_status
     character(1024) :: comm
     character(256) :: string
+    character(64) :: TmpFileName
+    logical, external :: NameMatchesTemplate
 
     !> List files, recursively in all cases
     select case (OS(1:len_trim(OS)))
@@ -96,9 +174,6 @@ subroutine NumberOfFilesInDir(DirIn, ext, N, rN)
                 // Ext(1:len_trim(Ext)) // ' > ' // '"' // trim(adjustl(TmpDir)) // 'flist.tmp" ' // comm_err_redirect
     end select
     dir_status = system(comm)
-    write(LogLogical, '(L1)') dir_status
-    LogString = ' dir_error=' // LogLogical
-    call log_msg(LogString)
 
     call system(comm_copy // '"' // trim(adjustl(TmpDir)) // 'flist.tmp" ' // '"' // trim(adjustl(TmpDir)) // 'flist2.tmp" ' &
         // comm_out_redirect // comm_err_redirect)
@@ -106,13 +181,10 @@ subroutine NumberOfFilesInDir(DirIn, ext, N, rN)
     open(udf, file = trim(adjustl(TmpDir)) // 'flist2.tmp', iostat = open_status)
 
     !> control on temporary file
-    write(LogLogical, '(L1)') open_status
-    LogString = ' open_flist_error=' // LogLogical
-    call log_msg(LogString)
     if (open_status /= 0) then
         close(udf)
         call system(comm_del // '"' // trim(adjustl(TmpDir)) // '"flist*.tmp')
-        call ErrorHandle(0, 0, 1)
+        call ExceptionHandler(1)
         N = 0
         rN = 0
         return
@@ -124,8 +196,16 @@ subroutine NumberOfFilesInDir(DirIn, ext, N, rN)
     do
         read(udf, '(a)', iostat = open_status) string
         if (open_status /= 0) exit
-        N = N + 1
-        if (string(1:index(string, slash, .true.)) == trim(adjustl(DirIn))) rN = rN + 1
+            TmpFileName =  string(index(string, slash, .true.) + 1: len_trim(string))
+            if (MatchTemplate) then
+                if (NameMatchesTemplate(TmpFileName, Template)) then
+                    N = N + 1
+                    if (string(1:index(string, slash, .true.)) == trim(adjustl(DirIn))) rN = rN + 1
+                end if
+            else
+                N = N + 1
+                if (string(1:index(string, slash, .true.)) == trim(adjustl(DirIn))) rN = rN + 1
+            end if
     end do
     close(udf)
     call system(comm_del // '"' // trim(adjustl(TmpDir)) // '"*.tmp' // comm_err_redirect)
@@ -219,6 +299,30 @@ subroutine AdjDir(LocDir, slash)
     if(LocDir(dirlen(LocDir):dirlen(LocDir)) /= slash) &
         LocDir(dirlen(LocDir) + 1:dirlen(LocDir) + 1) = slash
 end subroutine AdjDir
+
+!***************************************************************************
+!
+! \brief       Forces backslashes to slashes
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+subroutine ForceForwardSlash(string)
+    implicit none
+    !> in/out variables
+    character(*), intent(inout) :: string
+    !> local variables
+    integer :: i = 0
+
+
+    do i = 1, len_trim(string)
+        if(string(i:i) == '\') string(i:i) = '/'
+    end do
+end subroutine ForceForwardSlash
 
 !***************************************************************************
 !

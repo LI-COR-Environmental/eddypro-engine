@@ -1,7 +1,6 @@
 !***************************************************************************
 ! read_licor_ghg_archive.f90
 ! --------------------------
-! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
 ! Copyright (C) 2011-2014, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
@@ -30,8 +29,9 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine ReadLicorGhgArchive(ZipFile, FirstRecord, LastRecord, LocCol, LocBypassCol, MetaIsNeeded, &
-    BiometIsNeeded, DataIsNeeded, ValidateMetadata, fRaw, nrow, ncol, skip_file, passed, faulty_col, N, bN, FileEndReached)
+subroutine ReadLicorGhgArchive(ZipFile, FirstRecord, LastRecord, LocCol, &
+    LocBypassCol, MetaIsNeeded, BiometIsNeeded, DataIsNeeded, ValidateMetadata, &
+    fRaw, nrow, ncol, skip_file, passed, faulty_col, N, bN, FileEndReached)
 
     use m_common_global_var
     implicit none
@@ -66,18 +66,38 @@ subroutine ReadLicorGhgArchive(ZipFile, FirstRecord, LastRecord, LocCol, LocBypa
     skip_file = .false.
     passed = .true.
     !> Unzip archive
-    call UnZipArchive(ZipFile, 'metadata','data', MetaFile, DataFile, BiometFile, BiometMetaFile, skip_file)
+    call UnZipArchive(ZipFile, 'metadata','data', MetaFile, DataFile, &
+        BiometFile, BiometMetaFile, skip_file)
     if (skip_file) return
 
-    if (MetaFile /= 'none')       MetaFile = trim(adjustl(TmpDir)) // trim(Metafile)
-    if (DataFile /= 'none')       DataFile = trim(adjustl(TmpDir)) // trim(DataFile)
-    if (BiometMetaFile /= 'none') BiometMetaFile = trim(adjustl(TmpDir)) // trim(BiometMetaFile)
-    if (BiometFile /= 'none')     BiometFile = trim(adjustl(TmpDir)) // trim(BiometFile)
+    if (MetaFile /= 'none') &
+        MetaFile = trim(adjustl(TmpDir)) // trim(Metafile)
+    if (DataFile /= 'none') &
+        DataFile = trim(adjustl(TmpDir)) // trim(DataFile)
+    if (BiometMetaFile /= 'none') &
+        BiometMetaFile = trim(adjustl(TmpDir)) // trim(BiometMetaFile)
+    if (BiometFile /= 'none') &
+        BiometFile = trim(adjustl(TmpDir)) // trim(BiometFile)
+
+    !> First, handle biomet data and metadata files
+    if (BiometIsNeeded) then
+        if (BiometFile == 'none' .or. BiometMetaFile == 'none') then
+            call ExceptionHandler(5)
+        else
+            call ReadBiometMetaFile(BiometMetaFile, skip_biomet_file)
+            if (.not. skip_biomet_file) &
+                call ReadBiometFile(BiometFile, bN, &
+                NumBiometVar, skip_biomet_file)
+
+            if (skip_biomet_file) &
+                call ExceptionHandler(44)
+        end if
+    end if
 
     !> Handle metadata file
     if (MetaIsNeeded) then
         if (MetaFile == 'none') then
-            call ErrorHandle(0, 0, 3)
+            call ExceptionHandler(3)
             skip_file = .true.
             return
         end if
@@ -89,9 +109,13 @@ subroutine ReadLicorGhgArchive(ZipFile, FirstRecord, LastRecord, LocCol, LocBypa
             call RetrieveVarsSelection(LocBypassCol, LocCol)
         else
             !> In the preamble phase
-            !> Embedded mode: define variables to be used, based on availability in the metadata file
-            if (EddyProProj%run_env == 'embedded' .and. EddyProProj%run_mode == 'express') call DefaultVarsSelection(LocCol)
-            !> Desktop mode: define used variables based on user selection at processing-time from GUI
+            !> Embedded mode: define variables to be used,
+            !> based on availability in the metadata file
+            if (EddyProProj%run_env == 'embedded' &
+                .and. EddyProProj%run_mode == 'express') &
+                call DefaultVarsSelection(LocCol)
+            !> Desktop mode: define used variables based on user selection
+            !> at processing-time from GUI
             call DefineUsedVariables(LocCol)
         end if
         if (ValidateMetadata) then
@@ -105,32 +129,22 @@ subroutine ReadLicorGhgArchive(ZipFile, FirstRecord, LastRecord, LocCol, LocBypa
     !> Handle raw data file
     if (DataIsNeeded) then
         if (DataFile == 'none') then
-            call ErrorHandle(0, 0, 4)
+            call ExceptionHandler(4)
             skip_file = .true.
             return
         end if
         call ImportNativeData(DataFile, FirstRecord, LastRecord, &
-            LocCol, fRaw, size(fRaw, 1), size(fRaw, 2), skip_file, N, FileEndReached)
+            LocCol, fRaw, size(fRaw, 1), size(fRaw, 2), &
+            skip_file, N, FileEndReached)
         if (skip_file) return
     end if
 
-    !> Handle biomet data and metadata files
-    if (BiometIsNeeded) then
-        if (BiometFile == 'none' .or. BiometMetaFile == 'none') then
-            call ErrorHandle(0, 0, 5)
-            return
-        end if
-        call ReadBiometMetaFile(BiometMetaFile, skip_biomet_file)
-        if (.not. skip_biomet_file) call ReadBiometFile(BiometFile, bN, NumBiometVar, skip_biomet_file)
-        if (skip_biomet_file) then
-            call ErrorHandle(0, 0, 44)
-        end if
-    end if
-
     !> Delete data and metadata files
-    comm = (comm_del // DataFile(1:len_trim(DataFile)) // ' ' // MetaFile(1:len_trim(MetaFile)) &
-                     // ' ' // BiometFile(1:len_trim(BiometFile)) // ' ' // BiometMetaFile(1:len_trim(BiometMetaFile)) &
-                     // ' *.status ' // comm_err_redirect)
+    comm = (comm_del // DataFile(1:len_trim(DataFile)) // ' ' &
+        // trim(adjustl(MetaFile)) // ' ' &
+        // trim(adjustl(BiometFile)) // ' ' &
+        // trim(adjustl(BiometMetaFile)) &
+        // ' *.status ' // comm_err_redirect)
     del_status = system(comm)
 
 end subroutine ReadLicorGhgArchive

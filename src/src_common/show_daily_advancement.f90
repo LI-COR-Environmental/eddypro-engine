@@ -1,6 +1,6 @@
 !***************************************************************************
-! show_daily_advancement.f90
-! --------------------------
+! display_progress.f90
+! --------------------
 ! Copyright (C) 2011-2014, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
@@ -29,43 +29,31 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine ShowDailyAdvancement(init_message, date)
+subroutine DisplayProgress(progress_type, init_message, tstamp, adv)
     use m_common_global_var
     implicit none
     !> in/out variables
     character(*) :: init_message
-    type (DateType), intent(in) :: date
+    character(*) :: progress_type
+    character(*) :: adv
+    type (DateType), intent(in) :: tstamp
     !> local variables
-    character(4) :: lyear
-    character(2) :: cday
+    character(10) :: date
+    character(5) :: time
+    character(15) :: months(12)
+    data months(1:12) / 'January', 'February', 'March', &
+        'April', 'May', 'June', 'July', 'August', &
+        'September', 'October', 'November', 'December' /
 
 
-    write(lyear, '(i4)') date%year
-    write(cday, '(i2)') date%day
-    select case (date%month)
-        case(1)
-            write(*, *) init_message // '  ' // cday // ' January ' // lyear
-        case(2)
-            write(*, *) init_message // '  ' // cday // ' February ' // lyear
-        case(3)
-            write(*, *) init_message // '  ' // cday // ' March ' // lyear
-        case(4)
-            write(*, *) init_message // '  ' // cday // ' April ' // lyear
-        case(5)
-            write(*, *) init_message // '  ' // cday // ' May ' // lyear
-        case(6)
-            write(*, *) init_message // '  ' // cday // ' June ' // lyear
-        case(7)
-            write(*, *) init_message // '  ' // cday // ' July ' // lyear
-        case(8)
-            write(*, *) init_message // '  ' // cday // ' August ' // lyear
-        case(9)
-            write(*, *) init_message // '  ' // cday // ' September ' // lyear
-        case(10)
-            write(*, *) init_message // '  ' // cday // ' October ' // lyear
-        case(11)
-            write(*, *) init_message // '  ' // cday // ' November ' // lyear
-        case(12)
-            write(*, *) init_message // '  ' // cday // ' December ' // lyear
+    call DateTypeToDateTime(tstamp, date, time)
+    select case(trim(adjustl(progress_type)))
+    case ('daily')
+        write(*, '(a)', advance = adv) init_message // date(9:10) // ' ' // &
+            trim(adjustl(months(tstamp%month))) // ' ' // date(1:4) // ' '
+
+    case ('avrg_interval')
+        write(*, '(a)', advance = adv) init_message // time(1:5)
     end select
-end subroutine ShowDailyAdvancement
+
+end subroutine DisplayProgress

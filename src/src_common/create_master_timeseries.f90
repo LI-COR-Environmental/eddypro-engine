@@ -41,12 +41,9 @@ subroutine CreateMasterTimeSeries(StartTimestamp, EndTimestamp, Step, MasterTime
     type(DateType), intent(out) :: MasterTimeSeries(nrow)
     !> in/out variables
     integer :: cnt
-    character(10) :: date
-    character(10) :: time
 
 
     write(*, '(a)', advance = 'no') ' Creating master time series for the selected time period.. '
-    call log_msg( ' inf=creating master time series for selected time period')
 
     !> create master timestamps array
     MasterTimeSeries(1) = StartTimestamp
@@ -58,16 +55,7 @@ subroutine CreateMasterTimeSeries(StartTimestamp, EndTimestamp, Step, MasterTime
         MasterTimeSeries(cnt) = MasterTimeSeries(cnt - 1) + Step
     end do
 
-    !> Some logging
-    call DateTypeToDateTime(StartTimestamp, date, time)
-    LogString = ' start_date=' // date
-    call log_msg(LogString)
-    call DateTypeToDateTime(EndTimestamp, date, time)
-    LogString = ' end_date=' // date
-    call log_msg(LogString)
-
     write(*, '(a)') ' done.'
-    call log_msg( ' inf=master time series created correctly.')
 end subroutine CreateMasterTimeSeries
 
 !***************************************************************************

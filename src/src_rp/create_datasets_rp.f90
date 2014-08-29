@@ -48,77 +48,62 @@ subroutine CreateDatasetsRP(MasterTimeSeries, nrow, rpStartIndx, rpEndIndx)
 
     !> L1 statistics
     if (RPsetup%out_st(1)) then
-        call log_msg(' inf=creating L1 statistics dataset.')
         write(*,'(a)', advance = 'no') '  Creating Level 1 Statistics dataset..'
         call MakeDataset(St1_Path(1:len_trim(St1_Path)), &
             MasterTimeSeries, size(MasterTimeSeries), rpStartIndx, rpEndIndx, .true., 2)
         write(*,'(a)') ' Done.'
-        call log_msg(' inf=L1 statistics file processed correctly.')
     end if
 
     !> L2 statistics
     if (RPsetup%out_st(2)) then
-        call log_msg(' inf=creating L2 statistics dataset.')
         write(*,'(a)', advance = 'no') '  Creating Level 2 Statistics dataset..'
         call MakeDataset(St2_Path(1:len_trim(St2_Path)), &
             MasterTimeSeries, size(MasterTimeSeries), rpStartIndx, rpEndIndx, .true., 2)
         write(*,'(a)') ' Done.'
-        call log_msg(' inf=L2 statistics file processed correctly.')
     end if
 
     !> L3 statistics
     if (RPsetup%out_st(3)) then
-        call log_msg(' inf=creating L3 statistics dataset.')
         write(*,'(a)', advance = 'no') '  Creating Level 3 Statistics dataset..'
         call MakeDataset(St3_Path(1:len_trim(St3_Path)), &
             MasterTimeSeries, size(MasterTimeSeries), rpStartIndx, rpEndIndx, .true., 2)
         write(*,'(a)') ' Done.'
-        call log_msg(' inf=L3 statistics file processed correctly.')
     end if
 
     !> L4 statistics
     if (RPsetup%out_st(4)) then
-        call log_msg(' inf=creating L4 statistics dataset.')
         write(*,'(a)', advance = 'no') '  Creating Level 4 Statistics dataset..'
         call MakeDataset(St4_Path(1:len_trim(St4_Path)), &
             MasterTimeSeries, size(MasterTimeSeries), rpStartIndx, rpEndIndx, .true., 2)
         write(*,'(a)') ' Done.'
-        call log_msg(' inf=L4 statistics file processed correctly.')
     end if
 
     !> L5 statistics
     if (RPsetup%out_st(5)) then
-        call log_msg(' inf=creating L5 statistics dataset.')
         write(*,'(a)', advance = 'no') '  Creating Level 5 Statistics dataset..'
         call MakeDataset(St5_Path(1:len_trim(St5_Path)), &
             MasterTimeSeries, size(MasterTimeSeries), rpStartIndx, rpEndIndx, .true., 2)
         write(*,'(a)') ' Done.'
-        call log_msg(' inf=L5 statistics file processed correctly.')
     end if
 
     !> L6 statistics
     if (RPsetup%out_st(6)) then
-        call log_msg(' inf=creating L6 statistics dataset.')
         write(*,'(a)', advance = 'no') '  Creating Level 6 Statistics dataset..'
         call MakeDataset(St6_Path(1:len_trim(St6_Path)), &
             MasterTimeSeries, size(MasterTimeSeries), rpStartIndx, rpEndIndx, .true., 2)
         write(*,'(a)') ' Done.'
-        call log_msg(' inf=L6 statistics file processed correctly.')
     end if
 
     !> L7 statistics
     if (RPsetup%out_st(7)) then
-    call log_msg(' inf=creating L7 statistics dataset.')
         write(*,'(a)', advance = 'no') '  Creating Level 7 Statistics dataset..'
         call MakeDataset(St7_Path(1:len_trim(St7_Path)), &
             MasterTimeSeries, size(MasterTimeSeries), rpStartIndx, rpEndIndx, .true., 2)
         write(*,'(a)') ' Done.'
-        call log_msg(' inf=L7 statistics file processed correctly.')
     end if
 
     if (NumUserVar > 0) then
         !> L1 to L7 user statistics
-        call log_msg(' inf=creating L1-L7 user statistics dataset.')
         if (RPsetup%out_st(1)) then
             write(*,'(a)', advance = 'no') '  Creating Level 1 Statistics dataset for user variables..'
             call MakeDataset(UserSt1_Path(1:len_trim(UserSt1_Path)), &
@@ -167,7 +152,6 @@ subroutine CreateDatasetsRP(MasterTimeSeries, nrow, rpStartIndx, rpEndIndx)
                 MasterTimeSeries, size(MasterTimeSeries), rpStartIndx, rpEndIndx, .true., 2)
             write(*,'(a)') ' Done.'
         end if
-        call log_msg(' inf=L1-L7 statistics file processed correctly.')
     end if
 
     !> Essentials file is not filled (useless waste of time)
@@ -181,22 +165,18 @@ subroutine CreateDatasetsRP(MasterTimeSeries, nrow, rpStartIndx, rpEndIndx)
 
     !> QC file
     if(RPsetup%out_qc_details .and. Meth%qcflag /= 'none') then
-        call log_msg(' inf=creating QC details dataset.')
         write(*,'(a)', advance = 'no') '  Creating QC details dataset..'
         call MakeDataset(QCdetails_Path(1:len_trim(QCdetails_Path)), &
             MasterTimeSeries, size(MasterTimeSeries), rpStartIndx, rpEndIndx, .true., 3)
         write(*,'(a)') ' Done.'
-        call log_msg(' inf=QC details file processed correctly.')
     end if
 
     !> Biomet measurements file
     if (EddyProProj%out_biomet .and. NumBiometVar > 0) then
-        call log_msg(' inf=creating biomet dataset.')
         write(*,'(a)', advance = 'no') '  Creating Biomet dataset..'
         call MakeDataset(Slow_Path(1:len_trim(Slow_Path)), &
             MasterTimeSeries, size(MasterTimeSeries), rpStartIndx, rpEndIndx, .false., 2)
         write(*,'(a)') ' Done.'
-        call log_msg(' inf=biomet file processed correctly.')
     end if
 
     !> Remove temporary output file
