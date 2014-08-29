@@ -553,8 +553,15 @@ program EddyproRP
                 call EliminateCorruptedVariables(E2Set, size(E2Set, 1), &
                     size(E2Set, 2), skip_period, .false.)
 
-                !> If either u, v or w have been eliminated, stops processing this period
+                !> If either u, v or w or ALL have been eliminated, stops processing this period
+                !>
                 if (skip_period) then
+                    if(allocated(E2Set)) deallocate(E2Set)
+                    if(allocated(E2Primes)) deallocate(E2Primes)
+                    cycle to_periods_loop
+                end if
+
+                if (.not. any(E2Col(co2:gas4)%present)) then
                     if(allocated(E2Set)) deallocate(E2Set)
                     if(allocated(E2Primes)) deallocate(E2Primes)
                     cycle to_periods_loop
@@ -1585,8 +1592,13 @@ Calib(1)%ri(h2o) = 34703.78d0
             if (allocated(mask)) deallocate(mask)
 
             !> Period skip control
-            MissingRecords = dfloat(MaxPeriodNumRecords - PeriodActualRecords) / dfloat(MaxPeriodNumRecords) * 100d0
+            MissingRecords = dfloat(MaxPeriodNumRecords - PeriodActualRecords) &
+                / dfloat(MaxPeriodNumRecords) * 100d0
             if (MissingRecords > RPsetup%max_lack) then
+                if(allocated(E2Set)) deallocate(E2Set)
+                if(allocated(E2Primes)) deallocate(E2Primes)
+                if(allocated(UserSet)) deallocate(UserSet)
+                if(allocated(UserPrimes)) deallocate(UserPrimes)
                 call ExceptionHandler(58)
                 write(*, *)
                 call hms_delta_print(PeriodSkipMessage,'')

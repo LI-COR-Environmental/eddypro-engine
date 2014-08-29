@@ -85,7 +85,6 @@ subroutine ReadLicorGhgArchive(ZipFile, FirstRecord, LastRecord, LocCol, &
             call ExceptionHandler(5)
         else
             call ReadBiometMetaFile(BiometMetaFile, skip_biomet_file)
-
             if (.not. skip_biomet_file) &
                 call ReadBiometFile(BiometFile, bN, &
                 NumBiometVar, skip_biomet_file)

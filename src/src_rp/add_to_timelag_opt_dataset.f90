@@ -41,37 +41,34 @@ subroutine AddToTimelagOptDataset(TimelagOpt, nrow, n)
 
 
     !> Passive gases
-    if (E2Col(co2)%present) then
-        if (dabs(Flux0%co2) > TOSetup%co2_min_flux &
-            .and. Essentials%timelag(co2) /= E2Col(co2)%max_tl &
-            .and. Essentials%timelag(co2) /= E2Col(co2)%min_tl) then
+    if (E2Col(co2)%present &
+        .and. dabs(Flux0%co2) > TOSetup%co2_min_flux &
+        .and. Essentials%timelag(co2) /= E2Col(co2)%max_tl &
+        .and. Essentials%timelag(co2) /= E2Col(co2)%min_tl) then
             TimelagOpt(n)%tlag(co2) = Essentials%timelag(co2)
-        else
-            TimelagOpt(n)%tlag(co2) = error
-        end if
+    else
+        TimelagOpt(n)%tlag(co2) = error
     end if
 
-    if (E2Col(ch4)%present) then
-        if (Flux0%ch4 > TOSetup%ch4_min_flux &
-            .and. Essentials%timelag(ch4) /= E2Col(ch4)%max_tl &
-            .and. Essentials%timelag(ch4) /= E2Col(ch4)%min_tl) then
-            TimelagOpt(n)%tlag(ch4) = Essentials%timelag(ch4)
-        else
-            TimelagOpt(n)%tlag(ch4) = error
-        end if
+    if (E2Col(ch4)%present &
+        .and. Flux0%ch4 > TOSetup%ch4_min_flux &
+        .and. Essentials%timelag(ch4) /= E2Col(ch4)%max_tl &
+        .and. Essentials%timelag(ch4) /= E2Col(ch4)%min_tl) then
+        TimelagOpt(n)%tlag(ch4) = Essentials%timelag(ch4)
+    else
+        TimelagOpt(n)%tlag(ch4) = error
     end if
 
-    if (E2Col(gas4)%present) then
-        if (Flux0%gas4 > TOSetup%gas4_min_flux &
-            .and. Essentials%timelag(gas4) /= E2Col(gas4)%max_tl &
-            .and. Essentials%timelag(gas4) /= E2Col(gas4)%min_tl) then
-            TimelagOpt(n)%tlag(gas4) = Essentials%timelag(gas4)
-        else
-            TimelagOpt(n)%tlag(gas4) = error
-        end if
+    if (E2Col(gas4)%present &
+        .and. Flux0%gas4 > TOSetup%gas4_min_flux &
+        .and. Essentials%timelag(gas4) /= E2Col(gas4)%max_tl &
+        .and. Essentials%timelag(gas4) /= E2Col(gas4)%min_tl) then
+        TimelagOpt(n)%tlag(gas4) = Essentials%timelag(gas4)
+    else
+        TimelagOpt(n)%tlag(gas4) = error
     end if
 
-    !> Water vapour and RH
+    !> Water vapor and RH
     if (E2Col(h2o)%present) then
         if (Flux0%LE > TOSetup%le_min_flux &
             .and. Essentials%timelag(h2o) /= E2Col(h2o)%max_tl &
@@ -85,5 +82,8 @@ subroutine AddToTimelagOptDataset(TimelagOpt, nrow, n)
         else
             TimelagOpt(n)%RH = error
         end if
+    else
+        TimelagOpt(n)%tlag(h2o) = error
+        TimelagOpt(n)%RH = error
     end if
 end subroutine AddToTimelagOptDataset

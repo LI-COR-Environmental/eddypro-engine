@@ -55,13 +55,17 @@ subroutine AdjustTimelagOptSettings()
 
     !> Transit time in cell and sampling lines of closed path instruments
     where (E2Col(co2:gas4)%instr%path_type == 'closed')
-        tube_volume(co2:gas4) = (p * (E2Col(co2:gas4)%instr%tube_d / 2d0)**2 * &
-                                E2Col(co2:gas4)%instr%tube_l)
-        tube_time(co2:gas4) =  tube_volume(co2:gas4) / E2Col(co2:gas4)%instr%tube_f
+        tube_volume(co2:gas4) = &
+            (p * (E2Col(co2:gas4)%instr%tube_d / 2d0)**2 * &
+            E2Col(co2:gas4)%instr%tube_l)
+        tube_time(co2:gas4) =  tube_volume(co2:gas4) &
+            / E2Col(co2:gas4)%instr%tube_f
 
-        cell_volume(co2:gas4) = (p * (E2Col(co2:gas4)%instr%hpath_length / 2d0)**2 * &
+        cell_volume(co2:gas4) = &
+            (p * (E2Col(co2:gas4)%instr%hpath_length / 2d0)**2 * &
                                 E2Col(co2:gas4)%instr%vpath_length)
-        cell_time(co2:gas4) = cell_volume(co2:gas4) / E2Col(co2:gas4)%instr%tube_f
+        cell_time(co2:gas4) = cell_volume(co2:gas4) &
+            / E2Col(co2:gas4)%instr%tube_f
     elsewhere
         tube_time(co2:gas4) = 0d0
         cell_time(co2:gas4) = 0d0
@@ -71,16 +75,20 @@ subroutine AdjustTimelagOptSettings()
     !> and distances for open path
     do gas = co2, gas4
         if (E2Col(gas)%present) then
-            if (TOSetup%min_lag(gas) < gui_tlag_threshold .or. TOSetup%max_lag(gas) < gui_tlag_threshold) then
+            if (TOSetup%min_lag(gas) < gui_tlag_threshold &
+                .or. TOSetup%max_lag(gas) < gui_tlag_threshold) then
                 if (E2Col(gas)%instr%path_type == 'closed') then
                     !> Closed path
                     nominal = tube_time(gas) + cell_time(gas)
                     E2Col(gas)%min_tl = max(0d0, nominal - 2d0)
-                    E2Col(gas)%max_tl = min(nominal + mult(gas) * nominal, RPsetup%avrg_len * 60d0) + safety
+                    E2Col(gas)%max_tl = min(nominal + mult(gas) * nominal, &
+                        RPsetup%avrg_len * 60d0) + safety
                 else
                     !> Open path
-                    E2Col(gas)%min_tl = - dsqrt(E2Col(gas)%instr%hsep**2 + E2Col(gas)%instr%vsep**2) * 2d0 - safety
-                    E2Col(gas)%max_tl = + dsqrt(E2Col(gas)%instr%hsep**2 + E2Col(gas)%instr%vsep**2) * 2d0 + safety
+                    E2Col(gas)%min_tl = - dsqrt(E2Col(gas)%instr%hsep**2 &
+                        + E2Col(gas)%instr%vsep**2) * 2d0 - safety
+                    E2Col(gas)%max_tl = + dsqrt(E2Col(gas)%instr%hsep**2 &
+                        + E2Col(gas)%instr%vsep**2) * 2d0 + safety
                 end if
             else
                 E2Col(gas)%min_tl = TOSetup%min_lag(gas)

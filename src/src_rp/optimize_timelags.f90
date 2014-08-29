@@ -63,6 +63,7 @@ subroutine OptimizeTimelags(toSet, nrow, actn, M, h2o_n, MM, cls_size)
     real(kind = dbl) :: mvec
     real(kind = dbl) :: sdvec
     real(kind = dbl) :: tmpvec(nrow)
+    real(kind = dbl) ,parameter :: min_range = 0.3d0
 
 !TO REFINE integer :: read_status
 !TO REFINE integer :: h2on
@@ -80,32 +81,24 @@ subroutine OptimizeTimelags(toSet, nrow, actn, M, h2o_n, MM, cls_size)
             call median(tmpx, N, medx)
             devx(1:N) = dabs(toSet(1:N)%tlag(gas) - medx)
             call median(devx, N, MAD)
-            if (MAD < 0.1 ) MAD = 0.1 !< Set a minimum value for MAD, to create a minimum range around the median (which depends on "pg_range")
+            if (MAD < 0.1 ) MAD = 0.1 !< Set a minimum value for MAD
             toPasGas(gas)%def = medx
             toPasGas(gas)%max = medx + (TOSetup%pg_range * MAD / 0.6745d0)
             toPasGas(gas)%min = medx - (TOSetup%pg_range * MAD / 0.6745d0)
             deallocate (tmpx, devx)
+
             !> If H2O was split in classes, now make H2O calculations
-!TO REFINE            if (gas /= h2o) cycle
             if (gas == h2o .and. MM > 1) then
                 !> Water vapour, the same as above, but for RH classes
                 toH2O%def=error
                 toH2O%min=error
                 toH2O%max=error
-!TO REFINE open(udf, file = 'C:\path\to\tlag_vs_rh\file')
-!TO REFINE i = 1
-!TO REFINE do
-!TO REFINE    read(udf, *, iostat = read_status) toSet(i)%RH, toSet(i)%tlag(h2o)
-!TO REFINE    if (read_status /= 0) exit
-!TO REFINE    i = i + 1
-!TO REFINE end do
-!TO REFINE h2on = i - 1
                 do cls = 1, MM
                     h2o_n(cls) = 0
                     tmpvec = 0d0
                     do i = 1, actn(gas)
-!TO REFINEdo i = 1, h2on
-                        if(toSet(i)%RH >= dfloat(cls - 1) * cls_size .and. toSet(i)%RH <= dfloat(cls) * cls_size) then
+                        if(toSet(i)%RH >= dfloat(cls - 1) * cls_size &
+                            .and. toSet(i)%RH <= dfloat(cls) * cls_size) then
                             h2o_n(cls) = h2o_n(cls) + 1
                             tmpvec(h2o_n(cls)) = toSet(i)%tlag(h2o)
                         end if
@@ -132,10 +125,6 @@ subroutine OptimizeTimelags(toSet, nrow, actn, M, h2o_n, MM, cls_size)
                     tmpx(1:N) = tmpvec(1:N)
                     call median(tmpx, N, medx)
                     devx(1:N) = tmpvec(1:N) - medx
-!OLD                    call median(dabs(devx), N, MAD)
-!OLD                    toH2O(cls)%def = medx
-!OLD                    toH2O(cls)%max = medx + (TOSetup%pg_range * MAD / 0.6745d0)
-!OLD                    toH2O(cls)%min = medx - (TOSetup%pg_range * MAD / 0.6745d0)
                     nup = 0
                     ndw = 0
                     do i = 1, N
@@ -156,8 +145,10 @@ subroutine OptimizeTimelags(toSet, nrow, actn, M, h2o_n, MM, cls_size)
                     toH2O(cls)%def = medx
                     toH2O(cls)%max = medx + (TOSetup%pg_range * MADup / 0.6745d0)
                     toH2O(cls)%min = medx - (TOSetup%pg_range * MADdw / 0.6745d0)
-                    if (TOSetup%pg_range * MADup / 0.6745d0 < 0.7d0) toH2O(cls)%max = medx + 0.7d0
-                    if (TOSetup%pg_range * MADdw / 0.6745d0 < 0.7d0) toH2O(cls)%min = max(0d0, medx - 0.7d0)
+                    if (TOSetup%pg_range * MADup / 0.6745d0 < min_range) &
+                        toH2O(cls)%max = medx + min_range
+                    if (TOSetup%pg_range * MADdw / 0.6745d0 < min_range) &
+                        toH2O(cls)%min = medx - min_range
                     deallocate (tmpx, devx)
                     deallocate (tmpup, tmpdw)
                     deallocate (devup, devdw)
@@ -209,8 +200,4 @@ subroutine OptimizeTimelags(toSet, nrow, actn, M, h2o_n, MM, cls_size)
         call ExceptionHandler(43)
         Meth%tlag = 'maxcov'
     end if
-!TO REFINEdo cls = 1, MM
-!TO REFINEwrite(124,*) (cls - 1) * 10, toH2O(cls)%def, toH2O(cls)%min, toH2O(cls)%max
-!TO REFINEend do
-!TO REFINEstop
 end subroutine OptimizeTimelags
