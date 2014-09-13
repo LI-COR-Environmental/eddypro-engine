@@ -1379,26 +1379,30 @@ program EddyproRP
             !> Retrieve embedded biomet data if they exist (the option was
             !> selected and data was successfully read with at least one
             !> valid biomet record)
-            if (EddyProProj%biomet_data == 'embedded' &
-                .and. EmbBiometDataExist) then
+            if (EddyProProj%biomet_data == 'embedded') then
+                if (EmbBiometDataExist) then
+                    call ExtractEmbeddedBiometData(bRaw, size(bRaw, 1), &
+                        size(bRaw, 2), bN)
 
-                call ExtractEmbeddedBiometData(bRaw, size(bRaw, 1), &
-                    size(bRaw, 2), bN)
+                    !> Retrieve biomet data for current period
+                    call RetrieveBiometData(EmbBiometDataExist, BiometFileList, &
+                        size(BiometFileList), LastBiometFile, LastBiometRecord, &
+                        InitialTimestamp, FinalTimestamp, bN, BiometDataFound, &
+                        .true.)
 
-                !> Retrieve biomet data for current period
-                call RetrieveBiometData(EmbBiometDataExist, BiometFileList, &
-                    size(BiometFileList), LastBiometFile, LastBiometRecord, &
-                    InitialTimestamp, FinalTimestamp, bN, BiometDataFound, &
-                    .true.)
+                    !> Open biomet output file in case of embedded biomet files
+                    if(initializeBiometOut .and. NumBiometVar > 0) then
+                        call InitBiometOut()
+                        initializeBiometOut  = .false.
+                    end if
 
-                !> Open biomet output file in case of embedded biomet files
-                if(initializeBiometOut .and. NumBiometVar > 0) then
-                    call InitBiometOut()
-                    initializeBiometOut  = .false.
+                    !> Write biomet output
+                    call WriteOutBiomet(BgnOutStrg)
+                else
+                    BiometVar = BiometVarType(error, error, error, error, error, &
+                        error, error, error, error, error, 0d0, 0d0, 0d0, 0d0, 0d0, &
+                        0d0, 0d0, 0d0)
                 end if
-
-                !> Write biomet output
-                call WriteOutBiomet(BgnOutStrg)
             end if
 
             !> Period skip control
@@ -1522,7 +1526,7 @@ program EddyproRP
 !                InitialTimestamp, FinalTimestamp, bN, BiometDataFound, .true.)
 
             !> Copy relevant information in variables used in the following
-            !> to be updated by elimianting Stats%mT etc..
+            !> to be updated by eliminating Stats%mT etc..
             Stats%mT    = BiometVar%Ta
             Stats%mPr   = BiometVar%Pa
             Stats%mRH   = BiometVar%RH
