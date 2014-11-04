@@ -579,12 +579,12 @@ program EddyproRP
                     InitialTimestamp, FinalTimestamp, bN, BiometDataFound, .false.)
 
                 !> Copy relevant information in variables used in the following
-                !> to be updated by elimianting Stats%mT etc..
+                !> to be updated by eliminating Stats%mT etc..
                 Stats%mT    = BiometVar%Ta
                 Stats%mPr   = BiometVar%Pa
                 Stats%mRH   = BiometVar%RH
 
-                !> Calculate relative separations between the analysers and the anemometer used
+                !> Calculate relative separations between the analyzers and the anemometer used
                 call DefineRelativeSeparations()
 
                 !> Override users choices if needed
@@ -609,11 +609,11 @@ program EddyproRP
                 call BasicStats(E2Set, size(E2Set, 1), size(E2Set, 2), 1, .false.)
                 Stats1 = Stats
 
-                !> Calculate raw screening flags and despike data if requeste
+                !> Calculate raw screening flags and despike data if requested
                 auxTest = TestType(.true., .false., .false., .true., .false., .false., .false., .false., .false.)
                 call StatisticalScreening(E2Set, size(E2Set, 1), size(E2Set, 2), auxTest, .false.)
 
-                !> Define as not present, variables for which too many values are outranged
+                !> Define as not present, variables for which too many values are out-ranged
                 call EliminateCorruptedVariables(E2Set, size(E2Set, 1), size(E2Set, 2), skip_period, .false.)
 
                 !> If either u, v or w have been eliminated, stops processing this period
@@ -740,7 +740,7 @@ program EddyproRP
 
             allocate(toH2On(TOSetup%h2o_nclass))
 
-!> Improve readibility of this subroutine call
+!> Improve readability of this subroutine call
             !> Optimize time lags
             call OptimizeTimelags(toSet, size(toSet), tlagn, E2NumVar, toH2On, &
                 TOSetup%h2o_nclass, TOSetup%h2o_class_size)
@@ -790,7 +790,7 @@ program EddyproRP
             call DateTimeToDateType(PFSetup%start_date, '00:00', auxStartTimestamp)
             call DateTimeToDateType(PFSetup%end_date, '23:59', auxEndTimestamp)
 
-            !> In MasterTimeSeries, detect indices of first and last files
+            !> In MasterTimeSeries, detect indexes of first and last files
             !> relevant to planar fit
             call tsExtractSubperiodIndexes(MasterTimeSeries, size(MasterTimeSeries), auxStartTimestamp, &
                 auxEndTimestamp, pfStartTimestampIndx, pfEndTimestampIndx)
@@ -1404,6 +1404,11 @@ program EddyproRP
                         0d0, 0d0, 0d0)
                 end if
             end if
+
+            if (EddyProProj%biomet_data == 'none') &
+                BiometVar = BiometVarType(error, error, error, error, error, &
+                error, error, error, error, error, 0d0, 0d0, 0d0, 0d0, 0d0, &
+                0d0, 0d0, 0d0)
 
             !> Period skip control
             if (skip_period) then
