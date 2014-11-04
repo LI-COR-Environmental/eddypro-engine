@@ -77,6 +77,7 @@ subroutine ReadExtBiometFiles(BiometDataExist, BiometFileList, NumBiometFiles, &
     !> Initialization
     Biomet(1:MaxNumBiometRow) = ErrBiomet
     Profile(1:MaxNumBiometRow) = ErrProfile
+    CstmBiometSet = error
 
     i = 0
     nbiomet = 0

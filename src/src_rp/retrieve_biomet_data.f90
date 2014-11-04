@@ -852,5 +852,6 @@ subroutine RetrieveBiometData(EmbBiometDataExist, BiometFileList, &
     else
         E2Biomet = ErrBiomet
         BiometVar = ErrBiometVar
+        CstmBiomet = error
     end if
 end subroutine RetrieveBiometData
