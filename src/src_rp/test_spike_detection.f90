@@ -94,6 +94,8 @@ subroutine TestSpikeDetection(Set, N, printout)
     !> Set different threshold for different variables. Specifically, w, ch4 and gas4 have their own tresholds
     adv_lim(u:pe) = sr%lim_u
     adv_lim(w)    = sr%lim_w
+    adv_lim(co2)  = sr%lim_co2
+    adv_lim(h2o)  = sr%lim_h2o
     adv_lim(ch4)  = sr%lim_ch4
     adv_lim(gas4)  = sr%lim_gas4
 
