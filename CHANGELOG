@@ -1,3 +1,122 @@
+5.2.0 (2014-11-20)
+
+    Engine
+    - Added: Analytic spectra correction after Massman (2000, 2001).
+    - Added: Now biomet outputs are provided also for periods when
+      corresponding high-frequency data are not available or are corrupted.
+    - Added: eddypro_rp now edits .eddypro file, so that eddypro_fcc can be
+      launched when eddypro_rp completes, without further interventions.
+      This improves portability and facilitate usages from command line and
+      automation.
+    - Added: option to run engine with command-line specificied .eddypro
+      file (full path). See help for usage (run "$eddypro_rp -h")
+    - Fixed: bug causing off-season uptake correction to switch to
+      'simple linear' and stick there, if radiation measurements were
+      missing for just one half-hour.
+    - Fixed: management of external biomet files (1 file, files in folder,
+      1 minute time-step).
+    - Fixed: bug causing TOB1 files without header (rare case) to be deleted
+      from the data folder, if they happened to contain less data than expected.
+    - Fixed: bug causing soil temperature not to be duly treated as a
+      biomet variable.
+    - Fixed: call to CorrectionFactorsIbrom07 in BPCF_Fratini12. The wrong call
+      prevented use of backup solution (Ibrom model) in periods of too-low
+      fluxes. So, the correction was always using the direct method of
+      Fratini et al. 2012, also in low-flux conditions.
+    - Fixed: functioning of metadata retriever, that got broken after
+      refactoring for 5.0.
+    - Fixed: bug in footprint model of Kormann and Meixner 2001, as implemented
+      in 'eddypro_fcc' (no corresponding bug in 'eddypro_rp')
+    - Fixed: missing exception could cause timelag optimization to associate a
+      timelag instances to first RH class, which were erroneous. The problem 
+      would occur if, for a given period, not enough H2O data were available.
+    - Fixed: bug causing cross-wind correction to be applied to
+      'fast temperature' measurements, but only if those were used in
+      conjunction with an R2 anemometer.
+    - Fixed: exit condition for subs importing ASCII data. Was crashing in some
+      conditions, if a file contained more records than expected.
+    - Fixed: module call to m_common_global_var in RenameTmpFilesCommon.
+      The bug was not causing problems because the same module is called by
+      the module that was mistakenly called.
+    - Fixed: duplicated biomet outputs when raw biomet data are missing.
+    - Refinement: eliminated squared root operating on the transfer function H,
+      in Fratini et al. (2012) spectral correction method. This refinement
+      shall be made publicly available in the form of a corrigendum to the
+      paper. Thanks a lot to Johannes Laubach for suggesting the change,
+      demonstrating its foundation and verifying the new implementation in
+      EddyPro.
+    - Refinement: minimum timelag searching window for H2O in timelag optimizer
+      reduced from +/-0.7s to +/-0.3s, which fits better to short-tube set-ups.
+    - Refinement: refined format of GHG-Europe output file after
+      specifications from European Database managers:
+        * Eliminated date/time columns: now only ISOdate remains as a timestamp
+        * Eliminated WS and WD
+        * Eliminated raw file name from output strings
+        * Eliminated Pa, Ta, RH from file to avoid conflicts with meteo files
+        * Added ISO basic format timestamp
+    - Refinement: in timelag optimization session and in main raw data
+      processing session, moved call to retrieve_sensor_params before time-lag
+      estimations to have instruments properties available for refined
+      "starting time-lags" definition.
+    - Refinement: moved 'normal exit instruction' in all subs importing raw data,
+      in such a way that the exception of reaching the end of the file is caught
+      in most (possibly all) occasions.
+    - Refinement: implementation of random error after Finkelstein and
+      Sims (2001):
+        * Improved code quality and readability.
+        * Improved speed in calculating the ITS.
+    - Refinement: revised retrieval of files in list, to safely skip files that
+      do not comply the raw file name format.
+    - Refinement: eliminated N = N - 1 at the end of sub ReadSLTEddySoft.
+    - Refinement: completely rewritten subroutine to import full cospectra and
+      modified approach in FCC to get the size of cospectra from the first file
+      instead of allocating in advance.
+    - Refinement: improved control over missing lines, with an additional control
+      after statistical screening, so that period is skipped if not enough data
+      remain after the screening, also including native missing data such as -9999.
+    - Refinement: improved format and function calls related to exception
+      handling and corresponding output messages.
+    - Refinement: Simplified ShowDailyAdvancement and introduced advancement
+      marks on output, to allow for GUI estimates of processing time.
+    - Refinement: revised the text displayed when running engines with option -h.
+    - Refinement: in "filelist_by_ext", anticipated exception handling if no
+      files are found in folder.
+    - Refinement: proper setting of FileEndReached in ReadSLTEddySoft and
+      ReadSLTEdisol.
+    - Refinement: adjusted algorithms to calculated default timelags, which now
+      include "tube time", "cell time" and a "safety margin".
+    - Refinement: eliminated useless "+1" on both sides of a "greater than" test,
+      in subs importing all binary files (TOB1, generic binary).
+    - Refinement: eliminated useless "+1" on both sides of a "greater than" test,
+      in subs importing SLT files.
+    - Refinement: Removed the usage of auxiliary folder ..\mod in both RPP and
+      FCC projects, to ease and streamline the port to other OS.
+    - Refinement: in case of space separation in raw file with non-numeric field,
+      defaults to considering multiple consecutive separations as only one.
+    - Refinement: calculation of cutoff frequencies and dependence cutoff/RH
+      when data for very few RH classes are available.
+    - Refinement: Moved definition of 'null' spectra from fx to common module.
+    - Refinement: moved function NameMatchesTemplate into
+      src_common/dir_sub.f90 file.
+    - Refinement: eliminated useless output 'Verifying time series integrity'
+      during planar fit data import.
+    - Refinement: corrected the spelling of subroutine ShrinkString.
+
+    GUI
+    - Improve information available in Run page (for example, show warnings and
+      errors, computate time estimates, etc).
+    - Improve progress bars in Run page.
+    - Add separation of Standard variables and Custom variables in the Metadata
+      editor Raw file description. Provide a Clear button for the Custom
+      variables.
+    - Integrate Massman 2000/2001 correction.
+    - Implement testing of ancillary files (Spectral correction assessment,
+      Planar fit and Time lag optimization) at loading time.
+    - Add a dialog to inform about the Angle of attack automatic selection.
+    - Add an 'Open output directory' button in Run page.
+    - Add keyboard shortcuts to navigate between pages (Alt+1...Alt+5).
+    - Fix minor bugs.
+
 5.1.1 (2014-03-04)
 
     Engine
