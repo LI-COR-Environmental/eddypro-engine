@@ -15,7 +15,7 @@ the ECO<sub>2</sub>S development team, the [University of Tuscia](www.unitus.it)
 and scientists around the world who assisted with development and testing of
 the original version of this software.
 
-![EddyPro](docs/img/app-logo-small.png)
+![EddyPro](img/app-logo-small.png)
 
 ## Overview
 
@@ -159,6 +159,7 @@ You can run EddyPro using sample data files available in the LI-COR
   - Analytic high-pass filtering correction (Moncrieff et al., 2004)
   - Low-pass filtering, select and configure:
   - Moncrieff et al. (1997)
+  - Massmann (2000)
   - Horst (1997)
   - Ibrom et al. (2007b)
   - Horst and Lenschow (2009)
