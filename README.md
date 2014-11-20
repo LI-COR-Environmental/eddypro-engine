@@ -19,7 +19,7 @@ the original version of this software.
 
 ## Overview
 
-You can use the EddyPro installation program to install the following components:
+The EddyPro installer installs the following components:
 
 - EddyPro Engine, the core engine, a command line software
 - EddyPro GUI, the graphical user interface to configure and run the engine
@@ -38,14 +38,14 @@ command line programs and a graphical user interface (GUI).
 The source code is developed using two independent Git repositories, namely:
 
 
-  - git-engine
-  - git-gui
+  - eddypro-engine
+  - eddypro-gui
 
 
 ## Installing EddyPro
 
 You can download EddyPro from the LI-COR
-[EddyPro website](http://www.licor.com/env/products/eddy_covariance/software.html).
+[EddyPro website](http://www.licor.com/eddypro).
 The site provides download links for all supported platforms.
 
 Start the installation program like any executable on the development platform.
@@ -108,7 +108,7 @@ License: Code Project Open License,
 ## Using EddyPro sample data
 
 You can run EddyPro using sample data files available in the LI-COR
-[EddyPro website](http://www.licor.com/env/products/eddy_covariance/software.html).
+[EddyPro website](http://www.licor.com/eddypro).
 
 
 ## Data Processing Options in EddyPro
@@ -218,7 +218,7 @@ use of the EddyPro wordmark and logo.
 
 More information is available at:
 
-  - http://www.licor.com/env/products/eddy_covariance/software.html
+  - http://www.licor.com/eddyro
   - http://envsupport.licor.com/help/EddyPro5/index.htm
 
 Be sure to check out the
