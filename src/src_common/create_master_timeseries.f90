@@ -84,7 +84,7 @@ integer function NumOfPeriods(StartTimestamp, EndTimestamp, Step)
     Timestamp = StartTimestamp
     cnt = 1
     do
-        if (Timestamp > EndTimestamp) exit
+        if (Timestamp >= EndTimestamp) exit
         cnt = cnt + 1
         Timestamp = Timestamp + Step
     end do
