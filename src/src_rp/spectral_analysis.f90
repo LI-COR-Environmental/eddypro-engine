@@ -166,126 +166,22 @@ subroutine DetectFeasibleSpectraAndCospectra(DoSpectrum, DoCospectrum)
     !> in/out variables
     logical, intent(inout) :: DoSpectrum(GHGNumVar)
     logical, intent(inout) :: DoCospectrum(GHGNumVar)
-    !> local variables
-    integer :: i
-    character(9) :: hf_sr
-    character(9) :: hf_do
-    character(9) :: hf_sk, sf_sk
-    character(9) :: hf_ds, sf_ds
 
 
-    !> Spikes test (only if not despiked)
-    if (RPsetup%filter_spectra_by_qc) then
-        if (.not. RPsetup%filter_sr) then
-            call int2char(IntHF%sr, hf_sr, 9)
-            hf_sr(1:8) = hf_sr(2:9)
-        else
-            hf_sr = '000000000'
-        end if
-
-        !> Drop out test
-        call int2char(IntHF%do, hf_do, 9)
-        hf_do(1:8) = hf_do(2:9)
-
-        !> Skewness/kurtosis test
-        call int2char(IntHF%sk, hf_sk, 9)
-        call int2char(IntSF%sk, sf_sk, 9)
-        hf_sk(1:8) = hf_sk(2:9)
-        sf_sk(1:8) = sf_sk(2:9)
-
-        !> Discontinuities test
-        call int2char(IntHF%ds, hf_ds, 9)
-        call int2char(IntSF%ds, sf_ds, 9)
-        hf_ds(1:8) = hf_ds(2:9)
-        sf_ds(1:8) = sf_ds(2:9)
-    else
-        hf_sr = '000000000'
-        hf_do = '000000000'
-        hf_sk = '000000000'
-        sf_sk = '000000000'
-        hf_ds = '000000000'
-        sf_ds = '000000000'
-    end if
-
-    !> Decision based on variables availability and on results of statistical tests (if the case)
+    !> Decision based on variables availability
     !> Spectra
     DoSpectrum = .false.
-    do i = u, w
-        if (SpecCol(i)%present &
-            .and. hf_sr(i:i) /= '1' .and. hf_do(i:i) /= '1' &
-            .and. hf_sk(i:i) /= '1' .and. sf_sk(i:i) /= '1' &
-            .and. hf_ds(i:i) /= '1' .and. sf_ds(i:i) /= '1') &
-            DoSpectrum(i) = .true.
-    end do
-    do i = ts, GHGNumVar
-        !> NOTE: Control on soft flags eliminated for the scalars
-        if (SpecCol(i)%present &
-            .and. hf_sr(i:i) /= '1' .and. hf_do(i:i) /= '1' &
-            .and. hf_sk(i:i) /= '1' .and. hf_ds(i:i) /= '1') &
-            DoSpectrum(i) = .true.
-    end do
+    where (SpecCol(u:GHGNumVar)%present)
+        DoSpectrum(u:GHGNumVar) = .true.
+    end where
 
     !> Cospectra
     DoCospectrum = .false.
-    if (SpecCol(w)%present .and. SpecCol(u)%present &
-        .and. hf_sr(w:w) /= '1' .and. hf_do(w:w) /= '1' &
-        .and. hf_sr(u:u) /= '1' .and. hf_do(u:u) /= '1' &
-        .and. hf_sk(w:w) /= '1' .and. sf_sk(w:w) /= '1' &
-        .and. hf_sk(u:u) /= '1' .and. sf_sk(u:u) /= '1' &
-        .and. hf_ds(w:w) /= '1' .and. sf_ds(w:w) /= '1' &
-        .and. hf_ds(u:u) /= '1' .and. sf_ds(u:u) /= '1') &
-         DoCospectrum(w_u)   = .true.
-
-    if (SpecCol(w)%present .and. SpecCol(v)%present &
-        .and. hf_sr(w:w) /= '1' .and. hf_do(w:w) /= '1' &
-        .and. hf_sr(v:v) /= '1' .and. hf_do(v:v) /= '1' &
-        .and. hf_sk(w:w) /= '1' .and. sf_sk(w:w) /= '1' &
-        .and. hf_sk(v:v) /= '1' .and. sf_sk(v:v) /= '1' &
-        .and. hf_ds(w:w) /= '1' .and. sf_ds(w:w) /= '1' &
-        .and. hf_ds(v:v) /= '1' .and. sf_ds(v:v) /= '1') &
-        DoCospectrum(w_v)   = .true.
-
-    !> NOTE: Control on soft flags not used for scalars (Ts and gases)
-    if (SpecCol(w)%present .and. SpecCol(ts)%present &
-        .and. hf_sr(w:w) /= '1' .and. hf_sr(ts:ts) /= '1' &
-        .and. hf_do(w:w) /= '1' .and. hf_do(ts:ts) /= '1' &
-        .and. hf_sk(w:w) /= '1' .and. hf_sk(ts:ts) /= '1' &
-        .and. hf_ds(w:w) /= '1' .and. hf_ds(ts:ts) /= '1' &
-        .and. sf_sk(w:w) /= '1' .and. sf_ds(w:w) /= '1') &
-        DoCospectrum(w_ts) = .true.
-
-    if (SpecCol(w)%present .and. SpecCol(co2)%present &
-        .and. hf_sr(w:w) /= '1' .and. hf_sr(co2:co2) /= '1' &
-        .and. hf_do(w:w) /= '1' .and. hf_do(co2:co2) /= '1' &
-        .and. hf_sk(w:w) /= '1' .and. hf_sk(co2:co2) /= '1' &
-        .and. hf_ds(w:w) /= '1' .and. hf_ds(co2:co2) /= '1' &
-        .and. sf_sk(w:w) /= '1' .and. sf_ds(w:w) /= '1') &
-         DoCospectrum(w_co2) = .true.
-
-    if (SpecCol(w)%present .and. SpecCol(h2o)%present &
-        .and. hf_sr(w:w) /= '1' .and. hf_sr(h2o:h2o) /= '1' &
-        .and. hf_do(w:w) /= '1' .and. hf_do(h2o:h2o) /= '1' &
-        .and. hf_sk(w:w) /= '1' .and. hf_sk(h2o:h2o) /= '1' &
-        .and. hf_ds(w:w) /= '1' .and. hf_ds(h2o:h2o) /= '1' &
-        .and. sf_sk(w:w) /= '1' .and. sf_ds(w:w) /= '1') &
-        DoCospectrum(w_h2o) = .true.
-
-    if (SpecCol(w)%present .and. SpecCol(ch4)%present &
-        .and. hf_sr(w:w) /= '1' .and. hf_sr(ch4:ch4) /= '1' &
-        .and. hf_do(w:w) /= '1' .and. hf_do(ch4:ch4) /= '1' &
-        .and. hf_sk(w:w) /= '1' .and. hf_sk(ch4:ch4) /= '1' &
-        .and. hf_ds(w:w) /= '1' .and. hf_ds(ch4:ch4) /= '1' &
-        .and. sf_sk(w:w) /= '1' .and. sf_ds(w:w) /= '1') &
-        DoCospectrum(w_ch4) = .true.
-
-    if (SpecCol(w)%present .and. SpecCol(gas4)%present &
-        .and. hf_sr(w:w) /= '1' .and. hf_sr(gas4:gas4) /= '1' &
-        .and. hf_do(w:w) /= '1' .and. hf_do(gas4:gas4) /= '1' &
-        .and. hf_sk(w:w) /= '1' .and. hf_sk(gas4:gas4) /= '1' &
-        .and. hf_ds(w:w) /= '1' .and. hf_ds(gas4:gas4) /= '1' &
-        .and. sf_sk(w:w) /= '1' .and. sf_ds(w:w) /= '1') &
-        DoCospectrum(w_n2o) = .true.
-
+    if (SpecCol(w)%present) then
+        where (SpecCol(u:GHGNumVar)%present)
+            DoCospectrum(u:GHGNumVar) = .true.
+        end where
+    end if
 end subroutine DetectFeasibleSpectraAndCospectra
 
 !***************************************************************************

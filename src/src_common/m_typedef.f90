@@ -470,6 +470,7 @@ module m_typedef
         logical :: out_amflux
         logical :: out_md
         logical :: out_avrg_cosp
+        logical :: out_avrg_spec
         logical :: out_biomet
         logical :: fcc_follows
         logical :: fix_out_format
@@ -488,13 +489,25 @@ module m_typedef
         integer :: min_smpl
         real(kind = dbl) :: fmin(E2NumVar)
         real(kind = dbl) :: fmax(E2NumVar)
-        real(kind = dbl) :: trshld_H
-        real(kind = dbl) :: trshld_LE
-        real(kind = dbl) :: trshld_co2
-        real(kind = dbl) :: trshld_ch4
-        real(kind = dbl) :: trshld_gas4
         real(kind = dbl) :: hfn_fmin(GHGNumVar)
-        real(kind = dbl) :: f12_trshld(GHGNumVar)
+        real(kind = dbl) :: min_un_ustar
+        real(kind = dbl) :: min_un_H
+        real(kind = dbl) :: min_un_LE
+        real(kind = dbl) :: min_un_co2
+        real(kind = dbl) :: min_un_ch4
+        real(kind = dbl) :: min_un_gas4
+        real(kind = dbl) :: min_st_ustar
+        real(kind = dbl) :: min_st_H
+        real(kind = dbl) :: min_st_LE
+        real(kind = dbl) :: min_st_co2
+        real(kind = dbl) :: min_st_ch4
+        real(kind = dbl) :: min_st_gas4
+        real(kind = dbl) :: max_ustar
+        real(kind = dbl) :: max_H
+        real(kind = dbl) :: max_LE
+        real(kind = dbl) :: max_co2
+        real(kind = dbl) :: max_ch4
+        real(kind = dbl) :: max_gas4
         integer :: nclass(E2NumVar)
         integer :: class(E2NumVar, 12)
         character(32) :: lptf
@@ -503,6 +516,7 @@ module m_typedef
         character(32) :: horst_lens09
         character(10) :: start_date
         character(10) :: end_date
+        logical :: filter_cosp_by_vm_flags
         logical :: add_sonic_lptf
         logical :: ibrom_model
         logical :: in_situ
@@ -977,7 +991,6 @@ module m_typedef
         logical :: bu_multi
         logical :: filter_al
         logical :: filter_sr
-        logical :: filter_spectra_by_qc
         logical :: filter_by_raw_flags
         logical :: calib_cw
         logical :: despike

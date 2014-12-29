@@ -41,8 +41,8 @@ module m_fx_global_var
     type(FCCMetadataType) :: FCCMetadata
 
     !> tags of the setup ".ini" file for eccoce
-    integer, parameter :: Nsn = 96
-    integer, parameter :: Nsc = 22
+    integer, parameter :: Nsn = 108
+    integer, parameter :: Nsc = 23
     logical            :: SNTagFound(Nsn)
     logical            :: SCTagFound(Nsc)
     type (Numerical)   :: SNTags(Nsn)
@@ -57,11 +57,11 @@ module m_fx_global_var
          SNTags(8)%Label   / 'sa_fmax_ch4'      / &
          SNTags(9)%Label   / 'sa_fmin_gas4'     / &
          SNTags(10)%Label  / 'sa_fmax_gas4'     / &
-         SNTags(11)%Label  / 'sa_min_co2'       / &
-         SNTags(12)%Label  / 'sa_min_ch4'       / &
-         SNTags(13)%Label  / 'sa_min_gas4'      / &
-         SNTags(14)%Label  / 'sa_min_le'        / &
-         SNTags(15)%Label  / 'sa_min_h'         / &
+         SNTags(11)%Label  / 'sa_min_co2'       / &  !< Depracted from 5.3
+         SNTags(12)%Label  / 'sa_min_ch4'       / &  !< Depracted from 5.3
+         SNTags(13)%Label  / 'sa_min_gas4'      / &  !< Depracted from 5.3
+         SNTags(14)%Label  / 'sa_min_le'        / &  !< Depracted from 5.3
+         SNTags(15)%Label  / 'sa_min_h'         / &  !< Depracted from 5.3
          SNTags(16)%Label  / 'sa_hfn_co2_fmin'  / &
          SNTags(17)%Label  / 'sa_hfn_h2o_fmin'  / &
          SNTags(18)%Label  / 'sa_hfn_ch4_fmin'  / &
@@ -138,11 +138,24 @@ module m_fx_global_var
          SNTags(89)%Label  / 'sa_gas4_g11_stop'  / &
          SNTags(90)%Label  / 'sa_gas4_g12_start' / &
          SNTags(91)%Label  / 'sa_gas4_g12_stop'  / &
-         SNTags(92)%Label  / 'f10_co2_trshld'    / &
-         SNTags(93)%Label  / 'f10_ch4_trshld'    / &
-         SNTags(94)%Label  / 'f10_gas4_trshld'   / &
-         SNTags(95)%Label  / 'f10_h_trshld'    / &
-         SNTags(96)%Label  / 'f10_le_trshld'   /
+         SNTags(92)%Label   / 'sa_min_un_ustar' / &
+         SNTags(93)%Label   / 'sa_min_un_co2'   / &
+         SNTags(94)%Label   / 'sa_min_un_ch4'   / &
+         SNTags(95)%Label   / 'sa_min_un_gas4'  / &
+         SNTags(96)%Label   / 'sa_min_un_le'    / &
+         SNTags(92)%Label   / 'sa_min_un_h'     / &
+         SNTags(97)%Label   / 'sa_min_st_ustar' / &
+         SNTags(98)%Label   / 'sa_min_st_co2'   / &
+         SNTags(99)%Label   / 'sa_min_st_ch4'   / &
+         SNTags(100)%Label  / 'sa_min_st_gas4'  / &
+         SNTags(101)%Label  / 'sa_min_st_le'    / &
+         SNTags(102)%Label  / 'sa_min_st_h'     / &
+         SNTags(103)%Label  / 'sa_max_ustar'    / &
+         SNTags(104)%Label  / 'sa_max_co2'      / &
+         SNTags(105)%Label  / 'sa_max_ch4'      / &
+         SNTags(106)%Label  / 'sa_max_gas4'     / &
+         SNTags(107)%Label  / 'sa_max_le'       / &
+         SNTags(108)%Label  / 'sa_max_h'        /
 
     data SCTags(1)%Label  / 'sa_start_date'     / &
          SCTags(2)%Label  / 'sa_start_time'     / &       !> not used
@@ -165,5 +178,6 @@ module m_fx_global_var
          SCTags(19)%Label / 'sa_mode'           / &
          SCTags(20)%Label / 'sa_file'           / &
          SCTags(21)%Label / 'horst_lens'        / &
-         SCTags(22)%Label / 'sa_subset'         /
+         SCTags(22)%Label / 'sa_subset'         / &
+         SCTags(23)%Label / 'sa_use_vm_flags'   /
 end module m_fx_global_var

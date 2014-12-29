@@ -150,9 +150,6 @@
 		<Unit filename="../src/src_common/files_in_chronological_order.f90">
 			<Option weight="3" />
 		</Unit>
-		<Unit filename="../src/src_common/filter_spectra_by_thresholds.f90">
-			<Option weight="4" />
-		</Unit>
 		<Unit filename="../src/src_common/footprint_handle.f90">
 			<Option weight="3" />
 		</Unit>
@@ -241,6 +238,9 @@
 			<Option weight="4" />
 		</Unit>
 		<Unit filename="../src/src_fcc/correction_factor_model.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_fcc/cospectra_qaqc.f90">
 			<Option weight="4" />
 		</Unit>
 		<Unit filename="../src/src_fcc/cospectra_sorting_and_averaging.f90">

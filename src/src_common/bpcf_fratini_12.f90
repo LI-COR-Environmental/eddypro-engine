@@ -169,23 +169,23 @@ subroutine BPCF_Fratini12(loc_var_present, LocInstr, wind_speed, t_air, ac_frequ
         !> approach of Ibrom et al. 2007 (or Fratini et al. 2012, Eq. 4) in the following cases:
         !> 1) Fluxes too low (either sensible heat or concerned gas)
         !> 2) Unrealistic correction factors calculated from direct method
-        if ((loc_var_present(co2) .and. dabs(lEx%Flux0%H) < LocSetup%SA%f12_trshld(ts) &
-            .or. dabs(lEx%Flux0%co2) < LocSetup%SA%f12_trshld(co2)) &
+        if ((loc_var_present(co2) .and. dabs(lEx%Flux0%H) < LocSetup%SA%min_un_H &
+            .or. dabs(lEx%Flux0%co2) < LocSetup%SA%min_un_co2) &
             .or. BPCF%of(co2) <= min_bpcf_f12(co2) .or. BPCF%of(co2) >= max_bpcf_f12(co2)) &
             call CorrectionFactorsIbrom07(.true., .false., .false., .false., BPCF, lEx)
 
-        if ((loc_var_present(h2o) .and. dabs(lEx%Flux0%H) < LocSetup%SA%f12_trshld(ts) &
-            .or. dabs(lEx%Flux0%LE) < LocSetup%SA%f12_trshld(h2o))  &
+        if ((loc_var_present(h2o) .and. dabs(lEx%Flux0%H) < LocSetup%SA%min_un_H &
+            .or. dabs(lEx%Flux0%LE) < LocSetup%SA%min_un_LE)  &
             .or. BPCF%of(h2o) <= min_bpcf_f12(h2o) .or. BPCF%of(h2o) >= max_bpcf_f12(h2o)) &
             call CorrectionFactorsIbrom07(.false., .true., .false., .false., BPCF, lEx)
 
-        if ((loc_var_present(ch4) .and. dabs(lEx%Flux0%H) < LocSetup%SA%f12_trshld(ts) &
-            .or. dabs(lEx%Flux0%ch4) < LocSetup%SA%f12_trshld(ch4)) &
+        if ((loc_var_present(ch4) .and. dabs(lEx%Flux0%H) < LocSetup%SA%min_un_H &
+            .or. dabs(lEx%Flux0%ch4) < LocSetup%SA%min_un_ch4) &
             .or. BPCF%of(ch4) <= min_bpcf_f12(ch4) .or. BPCF%of(ch4) >= max_bpcf_f12(ch4)) &
             call CorrectionFactorsIbrom07(.false., .false., .true., .false., BPCF, lEx)
 
-        if ((loc_var_present(gas4) .and. dabs(lEx%Flux0%H) < LocSetup%SA%f12_trshld(ts) &
-            .or. dabs(lEx%Flux0%gas4) < LocSetup%SA%f12_trshld(gas4)) &
+        if ((loc_var_present(gas4) .and. dabs(lEx%Flux0%H) < LocSetup%SA%min_un_H &
+            .or. dabs(lEx%Flux0%gas4) < LocSetup%SA%min_un_gas4) &
             .or. BPCF%of(gas4) <= min_bpcf_f12(gas4) .or. BPCF%of(gas4) >= max_bpcf_f12(gas4)) &
             call CorrectionFactorsIbrom07(.false., .false., .false., .true., BPCF, lEx)
 

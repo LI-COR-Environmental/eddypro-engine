@@ -201,8 +201,10 @@ subroutine WriteProcessingProjectVariables()
     EddyProProj%out_full = EPPrjCTags(21)%value(1:1) == '1'
     !> select whether to use fixed or dynamic output format
     EddyProProj%out_md = EPPrjCTags(39)%value(1:1) == '1'
-    !> select whether to create average spectra and cospectra
+    !> select whether to output average cospectra
     EddyProProj%out_avrg_cosp = EPPrjCTags(41)%value(1:1) == '1'
+    !> select whether to output average spectra
+    EddyProProj%out_avrg_spec = EPPrjCTags(43)%value(1:1) == '1'
     !> select whether to output biomet average values
     EddyProProj%out_biomet = EPPrjCTags(42)%value(1:1) == '1'
     !> select whether to use fixed or dynamic output format

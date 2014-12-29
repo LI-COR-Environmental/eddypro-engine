@@ -105,7 +105,8 @@ Program EddyproFCC
     if (EddyProProj%run_env == 'embedded') call ConfigureForEmbedded('EddyPro-FCC')
 
     !> Preliminarily read essential files and retrieve a few information
-    call InitExVars(fxStartTimestamp, fxEndTimestamp, NumExRecords, NumValidExRecords)
+    call InitExVars(fxStartTimestamp, fxEndTimestamp, &
+        NumExRecords, NumValidExRecords)
 
     !> If no good records are found stop execution
     if (NumValidExRecords <= 0) call ExceptionHandler(61)
@@ -115,8 +116,10 @@ Program EddyproFCC
     allocate(MasterTimeSeries(NumberOfPeriods))
 
     !> Timestamps of selected subperiod
-    call DateTimeToDateType(EddYProProj%start_date, EddYProProj%start_time, SelectedStartTimestamp)
-    call DateTimeToDateType(EddYProProj%end_date, EddYProProj%end_time, SelectedEndTimestamp)
+    call DateTimeToDateType(EddYProProj%start_date, EddYProProj%start_time, &
+        SelectedStartTimestamp)
+    call DateTimeToDateType(EddYProProj%end_date, EddYProProj%end_time, &
+        SelectedEndTimestamp)
     SelectedEndTimestamp = SelectedEndTimestamp - DateStep
 
     !> Create timestamp array for full dataset
@@ -124,8 +127,9 @@ Program EddyproFCC
         MasterTimeSeries, size(MasterTimeSeries))
 
     !> Detect indexes of selected sub-period
-    call tsExtractSubperiodIndexes(MasterTimeSeries, size(MasterTimeSeries), SelectedStartTimestamp, &
-        SelectedEndTimestamp, fxStartTimestampIndx, fxEndTimestampIndx)
+    call tsExtractSubperiodIndexes(MasterTimeSeries, size(MasterTimeSeries), &
+        SelectedStartTimestamp, SelectedEndTimestamp, &
+        fxStartTimestampIndx, fxEndTimestampIndx)
 
     if (fxStartTimestampIndx == nint(error) .or. fxEndTimestampIndx == nint(error)) &
         call ExceptionHandler(50)
@@ -137,12 +141,13 @@ Program EddyproFCC
 
     !> Initialize import of full cospectra files
     if (FCCsetup%import_full_cospectra) then
-        call NumberOfFilesInDir(Dir%full, '.csv', .false., '', NumFullFiles, NumFullFilesNoRecurse)
+        call NumberOfFilesInDir(Dir%full, '.csv', .false., '', &
+            NumFullFiles, NumFullFilesNoRecurse)
         allocate(FullFileList(NumFullFiles))
 
         !> Read names of full cospectra files
-        call FileListByExt(Dir%full, '.csv', .true., FullFilePrototype, .true., .true., .true., &
-            FullFilelist, size(FullFilelist), .true., '')
+        call FileListByExt(Dir%full, '.csv', .true., FullFilePrototype, &
+            .true., .true., .true., FullFilelist, size(FullFilelist), .true., '')
 
         !> Retrieve length of full cospectra for later allocation
         call FullCospectraLength(FullFilelist(1)%path, nrow_full)
@@ -154,14 +159,15 @@ Program EddyproFCC
     !****************************************************************
     !****************************************************************
 
-    !> Create convenient variable
     DoSpectralAssessment = FCCsetup%sa_onthefly .and. FCCsetup%SA%in_situ
 
     !> If spectral analysis must be performed or cospectral output are requested,
     !> start loop on cospectra files
     if (DoSpectralAssessment .or. EddyProProj%out_avrg_cosp) then
-        if (DoSpectralAssessment) write(*, '(a)') ' Starting "spectral assessment" session..'
-        if (EddyProProj%out_avrg_cosp) write(*, '(a)') ' Reading (co)spectra for ensemble averaging..'
+        if (DoSpectralAssessment) write(*, '(a)') &
+            ' Starting "spectral assessment" session..'
+        if (EddyProProj%out_avrg_cosp) write(*, '(a)') &
+            ' Reading (co)spectra for ensemble averaging..'
 
         !> Convert start/end to timestamps
         call DateTimeToDateType(FCCsetup%SA%start_date, '00:00', saStartTimestamp)
@@ -173,28 +179,32 @@ Program EddyproFCC
         allocate(BinnedFileList(NumBinnedFiles))
 
         !> Create list of binned spectra file names
-        call FileListByExt(Dir%binned, '.csv', .true., BinnedFilePrototype, .true., .true., .true., &
-        BinnedFileList, size(BinnedFileList), .true., ' ')
+        call FileListByExt(Dir%binned, '.csv', .true., BinnedFilePrototype, &
+            .true., .true., .true., BinnedFileList, size(BinnedFileList), &
+            .true., ' ')
 
-        !> Files in chronological order
-        call FilesInChronologicalOrder(BinnedFileList, size(BinnedFileList), binStartTimestamp, binEndTimestamp)
+        !> Set file list in chronological order
+        call FilesInChronologicalOrder(BinnedFileList, size(BinnedFileList), &
+            binStartTimestamp, binEndTimestamp)
 
-        !> Detect first and last binned files to be used for spectral assessment based on
-        !> user's dates selection
-        call tsExtractSubperiodIndexesFromFilelist(BinnedFileList, size(BinnedFileList), &
-            saStartTimestamp, saEndTimestamp, saStartTimestampIndx, saEndTimestampIndx)
+        !> Detect first and last binned files to be used for spectral \n
+        !> assessment based on user's dates selection
+        call tsExtractSubperiodIndexesFromFilelist(BinnedFileList, &
+            size(BinnedFileList), saStartTimestamp, saEndTimestamp, &
+            saStartTimestampIndx, saEndTimestampIndx)
 
-        !> Loop to import binned spectra files and sort them
+        !> Some logging
         write(LogInteger, '(i8)') saEndTimestampIndx - saStartTimestampIndx + 1
         write(*, '(a)') '  Importing and sorting up to ' &
-            // trim(adjustl(LogInteger)) // ' binned spectra from files.. '
+            // trim(adjustl(LogInteger)) // ' binned (co)spectra from files.. '
 
-        !> Create an exponentially spaced frequency array in a range wide enough to accommodate
-        !> any possible normalized frequency
+        !> Create an exponentially spaced frequency array in a range \n
+        !> wide enough to accommodate any possible normalized frequency
         dkf(1) = 1d0 / (60d0 * 60d0 * 4d0)     !< 1 / (4 hours in seconds)
-        dkf(ndkf + 1) = 200d0 / 2d0            !< Simulates max normalized frequency of 200 Hz
+        dkf(ndkf + 1) = 200d0 / 2d0            !< Max normalized freq of 200 Hz
         do i = 2, ndkf
-            dkf(i) = dkf(1) * dexp(dble(i - 1) * (dlog(dkf(ndkf + 1)) - dlog(dkf(1))) / dble(ndkf))
+            dkf(i) = dkf(1) * dexp(dble(i - 1) &
+                * (dlog(dkf(ndkf + 1)) - dlog(dkf(1))) / dble(ndkf))
         end do
 
         !> Open Ex file to keep it ready for reading
@@ -204,7 +214,7 @@ Program EddyproFCC
         !> Skip header in Ex file
         read(uex, *)
 
-        !> Initialize sorted mean spectra
+        !> Loop to import binned (co)spectra
         month = 0
         day   = 0
         nfit = 0
@@ -217,18 +227,23 @@ Program EddyproFCC
             if (fcount > saEndTimestampIndx) exit binned_loop
 
             !> Read (co)spectra from file
-            call ReadBinnedFile(BinnedFileList(fcount), BinSpec, BinCosp, size(BinSpec), nbins, skip)
+            call ReadBinnedFile(BinnedFileList(fcount), BinSpec, BinCosp, &
+                size(BinSpec), nbins, skip)
             if (skip) cycle binned_loop
 
             !> Show advancement
-            if (day /= BinnedFileList(fcount)%timestamp%Day .or. month /= BinnedFileList(fcount)%timestamp%Month) then
+            if (day /= BinnedFileList(fcount)%timestamp%Day &
+                .or. month /= BinnedFileList(fcount)%timestamp%Month) then
                 month = BinnedFileList(fcount)%timestamp%Month
                 day   = BinnedFileList(fcount)%timestamp%Day
-                call DisplayProgress('daily', '  Importing binned spectra for ', BinnedFileList(fcount)%timestamp, 'yes')
+                call DisplayProgress('daily', &
+                    '  Importing binned spectra for ', &
+                    BinnedFileList(fcount)%timestamp, 'yes')
             end if
 
-            !> Retrieve essentials information for current spectra
-            call RetrieveExVarsByTimestamp(uex, BinnedFileList(fcount)%timestamp, lEx, exEndReached, skip)
+            !> Retrieve ex information for current spectra
+            call RetrieveExVarsByTimestamp(uex, &
+                BinnedFileList(fcount)%timestamp, lEx, exEndReached, skip)
             if (exEndReached) exit binned_loop
             if (skip) cycle binned_loop
 
@@ -246,10 +261,8 @@ Program EddyproFCC
                 FitStable   = NullFitCosp
             end if
 
-
-            !> Ignore spectra if not everything is available and within specified limits
-            !> NOTE: cospectra are not filtered out based on availability of same stuff
-            call FilterSpectraByThresholds(BinSpec, BinCosp, size(BinSpec), lEx, &
+            !> Eliminate (co)spectra based on user-selected quality criteria
+            call CospectraQAQC(BinSpec, BinCosp, size(BinSpec), lEx, &
                 BinCospForStable, BinCospForUnstable, skip_spectra, skip_cospectra)
 
             !> Sort current spectra in relevant classes

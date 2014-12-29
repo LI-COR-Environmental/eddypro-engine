@@ -186,12 +186,6 @@ module m_common_global_var
     real(kind = dbl), parameter :: MaxSpecValue = 1d4 !< maximum plausible value for an un-normalized spectral value
     real(kind = dbl), parameter :: MaxWindIntensity = 5d2 !< maximum plausible value for wind speed
     real(kind = dbl), parameter :: MaxWTCov = 100d0 !< maximum plausible value for wind speed
-    real(kind = dbl), parameter :: MaxHFlux = 2d3 !< maximum plausible value for H (for spectra consideration)
-    real(kind = dbl), parameter :: MaxLEFlux = 2d3 !< maximum plausible value for LE (for spectra consideration)
-    real(kind = dbl), parameter :: MaxCO2Flux = 1d2 !< maximum plausible value for CO2 flux (for spectra consideration)
-    real(kind = dbl), parameter :: MaxCH4Flux = 1d3 !< maximum plausible value for CH4 flux (for spectra consideration)
-    real(kind = dbl), parameter :: MaxGAS4Flux = 1d3 !< maximum plausible value for GAS4 flux (for spectra consideration)
-    real(kind = dbl), parameter :: MinUstar = 0.2d0 !< minimum value for ustar (for cospectra consideration)
     !> Co-spectral model parameters (Runkle et al. 2012, Eq. 3)
     real (kind = dbl), parameter :: beta1 = 1.05d0
     real (kind = dbl), parameter :: beta2 = 1.33d0
@@ -1846,7 +1840,7 @@ module m_common_global_var
 
     !> tags of the [Project] group of processing.eddypro file
     integer, parameter :: Npn = 18
-    integer, parameter :: Npc = 42
+    integer, parameter :: Npc = 43
     logical :: EPPrjNTagFound(Npn)
     logical :: EPPrjCTagFound(Npc)
     type (Numerical) :: EPPrjNTags(Npn)
@@ -1911,7 +1905,8 @@ module m_common_global_var
          EPPrjCTags(39)%Label / 'out_metadata'     / &
          EPPrjCTags(40)%Label / 'pr_subset'        / &
          EPPrjCTags(41)%Label / 'out_mean_cosp'    / &
-         EPPrjCTags(42)%Label / 'out_biomet'       /
+         EPPrjCTags(42)%Label / 'out_biomet'       / &
+         EPPrjCTags(43)%Label / 'out_mean_spec'    /
 
     !> tags of the metadata file created by GHG software
     integer, parameter :: Nan = 884

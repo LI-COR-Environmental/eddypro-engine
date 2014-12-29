@@ -560,7 +560,6 @@ subroutine WriteVariablesRP()
     !> Wheter to filter for spikes and abolute limits
     RPsetup%filter_sr = SCTags(63)%value(1:1) == '1'
     RPsetup%filter_al = SCTags(64)%value(1:1) == '1'
-    RPsetup%filter_spectra_by_qc = SCTags(95)%value(1:1) == '1'
 
     !> Burba correction params
     RPsetup%bu_corr = 'none'

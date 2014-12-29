@@ -152,6 +152,11 @@ subroutine WriteVariablesFX()
         if (len_trim(AuxFile%sa) == 0) AuxFile%sa = 'none'
     end if
 
+    !> If user selected "Ensembled averaged spectra" as an output, then the
+    !> spectral assessment procedure is performed and mean spectra are provided
+    !> as an output
+    FCCsetup%sa_onthefly = FCCsetup%sa_onthefly .or. EddyProProj%out_avrg_spec
+
     FCCsetup%SA%lptf = 'none'
     if (EddyProProj%hf_meth == 'custom') then
         !> select low-pass transfer function (LPTF) definition method
@@ -212,13 +217,32 @@ subroutine WriteVariablesFX()
         i = i + 2
     end do
 
-    !> Thresholds for fluxes, for considering their spectra in the assessment
-    FCCsetup%SA%trshld_co2  = dble(SNTags(11)%value)
-    FCCsetup%SA%trshld_ch4  = dble(SNTags(12)%value)
-    FCCsetup%SA%trshld_gas4 = dble(SNTags(13)%value)
-    FCCsetup%SA%trshld_LE   = dble(SNTags(14)%value)
-    FCCsetup%SA%trshld_H    = dble(SNTags(15)%value)
+    !> Flux thresholds, used to include/exclude corresponding (co)spectra in
+    !> ensemble averages and model fits. Also used to discriminate between
+    !> direct method and model in spectral correction after Fratini et al. (2012).
+    FCCsetup%SA%min_un_ustar = dble(SNTags(92)%value)
+    FCCsetup%SA%min_un_co2   = dble(SNTags(93)%value)
+    FCCsetup%SA%min_un_ch4   = dble(SNTags(94)%value)
+    FCCsetup%SA%min_un_gas4  = dble(SNTags(95)%value)
+    FCCsetup%SA%min_un_LE    = dble(SNTags(96)%value)
+    FCCsetup%SA%min_un_H     = dble(SNTags(92)%value)
+    FCCsetup%SA%min_st_ustar = dble(SNTags(97)%value)
+    FCCsetup%SA%min_st_co2   = dble(SNTags(98)%value)
+    FCCsetup%SA%min_st_ch4   = dble(SNTags(99)%value)
+    FCCsetup%SA%min_st_gas4  = dble(SNTags(100)%value)
+    FCCsetup%SA%min_st_LE    = dble(SNTags(101)%value)
+    FCCsetup%SA%min_st_H     = dble(SNTags(102)%value)
+    FCCsetup%SA%max_ustar    = dble(SNTags(103)%value)
+    FCCsetup%SA%max_co2      = dble(SNTags(104)%value)
+    FCCsetup%SA%max_ch4      = dble(SNTags(105)%value)
+    FCCsetup%SA%max_gas4     = dble(SNTags(106)%value)
+    FCCsetup%SA%max_LE       = dble(SNTags(107)%value)
+    FCCsetup%SA%max_H        = dble(SNTags(108)%value)
 
+    !> Whether to use results of Vickers and Mahrt tests to eliminate (co)spectra
+    FCCsetup%SA%filter_cosp_by_vm_flags = SCTags(23)%value(1:1) == '1'
+
+    !> Minimum frequency for high-frequency noise detection and elimination
     FCCsetup%SA%hfn_fmin(co2)  = dble(SNTags(16)%value)
     FCCsetup%SA%hfn_fmin(h2o)  = dble(SNTags(17)%value)
     FCCsetup%SA%hfn_fmin(ch4)  = dble(SNTags(18)%value)
@@ -266,13 +290,6 @@ subroutine WriteVariablesFX()
         end if
     end do
     FCCsetup%SA%nclass(gas4) = 12 - skipped_classes
-
-    !> Threshold values between model and in-situ CF, in Fratini et al. 2010
-    FCCsetup%SA%f12_trshld(co2)  = SNTags(92)%value
-    FCCsetup%SA%f12_trshld(ch4)  = SNTags(93)%value
-    FCCsetup%SA%f12_trshld(gas4) = SNTags(94)%value
-    FCCsetup%SA%f12_trshld(ts)   = SNTags(95)%value
-    FCCsetup%SA%f12_trshld(h2o)  = SNTags(96)%value
 
     !> adjust Dirs
     call AdjDir(Dir%binned, slash)

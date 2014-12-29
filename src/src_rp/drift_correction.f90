@@ -78,8 +78,8 @@ subroutine DriftCorrection(Set, nrow, ncol, locCol, ncol2, nCalibEvents, Initial
             !> Temperature dependency (LI-7200 manual REv5, Eq. 3-32)
 
             if (Ambient%Tcell > 0d0) then
-                TempFact = 0.6d0 + 0.4d0 / (1d0 
-					+ DriftCorr%b * dexp(DriftCorr%c * (Ambient%Tcell - 273.16d0)))
+                TempFact = 0.6d0 + 0.4d0 / (1d0 &
+                    + DriftCorr%b * dexp(DriftCorr%c * (Ambient%Tcell - 273.16d0)))
             else
                 TempFact = 1d0
             end if
@@ -191,7 +191,7 @@ tmp2 = Set(1, h2o)
         where (Set(:, h2o) /= error)
             Set(:, h2o) = Set(:, h2o) * (Ambient%Pcell / 1d3)
         end where
-    end if 
+    end if
 
 !> ONLY FOR DEBUG, ELIMINATE!
 write(124,*) InitialTimestamp, &
