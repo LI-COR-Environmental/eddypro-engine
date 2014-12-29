@@ -21,7 +21,7 @@
 !***************************************************************************
 !
 ! \brief       Calculate spectral correction factors according to \n
-!              Fratini et al. 2011 (AFM)
+!              Fratini et al. 2012 (AFM)
 ! \author      Gerardo Fratini
 ! \note
 ! \sa

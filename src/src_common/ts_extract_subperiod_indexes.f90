@@ -64,12 +64,10 @@ subroutine tsExtractSubperiodIndexes(TimeSeries, nrow, StartTimestamp, EndTimest
     !> Search EndTimestamp
     if (EndTimestamp >= TimeSeries(nrow)) then
         EndIndex = nrow - 1
-        !EndIndex = nrow
     else
         do i = StartIndex, nrow
             if (TimeSeries(i) > EndTimestamp) then
                 EndIndex = i - 1
-                !EndIndex = i
                 exit
             end if
         end do

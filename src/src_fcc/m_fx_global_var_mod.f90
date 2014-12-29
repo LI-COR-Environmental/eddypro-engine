@@ -41,7 +41,7 @@ module m_fx_global_var
     type(FCCMetadataType) :: FCCMetadata
 
     !> tags of the setup ".ini" file for eccoce
-    integer, parameter :: Nsn = 108
+    integer, parameter :: Nsn = 109
     integer, parameter :: Nsc = 23
     logical            :: SNTagFound(Nsn)
     logical            :: SCTagFound(Nsc)
@@ -143,19 +143,19 @@ module m_fx_global_var
          SNTags(94)%Label   / 'sa_min_un_ch4'   / &
          SNTags(95)%Label   / 'sa_min_un_gas4'  / &
          SNTags(96)%Label   / 'sa_min_un_le'    / &
-         SNTags(92)%Label   / 'sa_min_un_h'     / &
-         SNTags(97)%Label   / 'sa_min_st_ustar' / &
-         SNTags(98)%Label   / 'sa_min_st_co2'   / &
-         SNTags(99)%Label   / 'sa_min_st_ch4'   / &
-         SNTags(100)%Label  / 'sa_min_st_gas4'  / &
-         SNTags(101)%Label  / 'sa_min_st_le'    / &
-         SNTags(102)%Label  / 'sa_min_st_h'     / &
-         SNTags(103)%Label  / 'sa_max_ustar'    / &
-         SNTags(104)%Label  / 'sa_max_co2'      / &
-         SNTags(105)%Label  / 'sa_max_ch4'      / &
-         SNTags(106)%Label  / 'sa_max_gas4'     / &
-         SNTags(107)%Label  / 'sa_max_le'       / &
-         SNTags(108)%Label  / 'sa_max_h'        /
+         SNTags(97)%Label   / 'sa_min_un_h'     / &
+         SNTags(98)%Label   / 'sa_min_st_ustar' / &
+         SNTags(99)%Label   / 'sa_min_st_co2'   / &
+         SNTags(100)%Label   / 'sa_min_st_ch4'   / &
+         SNTags(101)%Label  / 'sa_min_st_gas4'  / &
+         SNTags(102)%Label  / 'sa_min_st_le'    / &
+         SNTags(103)%Label  / 'sa_min_st_h'     / &
+         SNTags(104)%Label  / 'sa_max_ustar'    / &
+         SNTags(105)%Label  / 'sa_max_co2'      / &
+         SNTags(106)%Label  / 'sa_max_ch4'      / &
+         SNTags(107)%Label  / 'sa_max_gas4'     / &
+         SNTags(108)%Label  / 'sa_max_le'       / &
+         SNTags(109)%Label  / 'sa_max_h'        /
 
     data SCTags(1)%Label  / 'sa_start_date'     / &
          SCTags(2)%Label  / 'sa_start_time'     / &       !> not used

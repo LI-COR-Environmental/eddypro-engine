@@ -81,7 +81,7 @@ subroutine TestSpikeDetection(Set, N, printout)
     nn = idint(dble(win_len) * Metadata%ac_freq * 60.d0) !> win length in samples
     wdw_num = idint(dble(N - nn) / 1d2) + 1              !> number of wins for the current file
 
-    !> initialisations
+    !> initializations
     allocate(XX(nn, E2NumVar))
     LocMean = 0d0
     LocStDev = 0d0
@@ -91,7 +91,8 @@ subroutine TestSpikeDetection(Set, N, printout)
     tot_spikes = 0
     tot_spikes_sng = 0
 
-    !> Set different threshold for different variables. Specifically, w, ch4 and gas4 have their own tresholds
+    !> Set different threshold for different variables.
+    !> Specifically, w, co2, h2o, ch4 and gas4 have their own thresholds
     adv_lim(u:pe) = sr%lim_u
     adv_lim(w)    = sr%lim_w
     adv_lim(co2)  = sr%lim_co2

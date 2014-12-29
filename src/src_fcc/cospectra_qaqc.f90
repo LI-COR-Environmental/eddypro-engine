@@ -57,12 +57,13 @@ subroutine CospectraQAQC(BinSpec, BinCosp, nrow, lEx, &
     BinCospForStable = BinCosp
     BinCospForUnstable = BinCosp
 
-    !> Razor blade on spectra and cospectra for unstable case, \n
-    !> based on corresponding fluxes
-    if (lEx%Flux0%H > FCCsetup%SA%min_un_H &
+    !> Razor blade on spectra and co-spectra for unstable case, \n
+    !> based on corresponding fluxes.
+    !> Unstable case
+    if (dabs(lEx%Flux0%H) > FCCsetup%SA%min_un_H &
         .and. dabs(lEx%Flux0%H) < FCCsetup%SA%max_H) then
 
-        if (lEx%Flux0%LE < FCCsetup%SA%min_un_LE &
+        if (dabs(lEx%Flux0%LE) < FCCsetup%SA%min_un_LE &
             .or. dabs(lEx%Flux0%LE) > FCCsetup%SA%max_LE) then
             BinSpec%of(h2o) = error
             BinCospForUnstable%of(h2o) = error
@@ -83,7 +84,7 @@ subroutine CospectraQAQC(BinSpec, BinCosp, nrow, lEx, &
             BinCospForUnstable%of(gas4) = error
         end if
 
-        if (lEx%Flux0%LE < FCCsetup%SA%min_un_LE .and. &
+        if (dabs(lEx%Flux0%LE) < FCCsetup%SA%min_un_LE .and. &
             dabs(lEx%Flux0%co2) < FCCsetup%SA%min_un_co2 .and. &
             dabs(lEx%Flux0%ch4) < FCCsetup%SA%min_un_ch4 .and. &
             dabs(lEx%Flux0%gas4) < FCCsetup%SA%min_un_gas4) then
@@ -97,17 +98,18 @@ subroutine CospectraQAQC(BinSpec, BinCosp, nrow, lEx, &
         skip_spectra = .true.
     end if
 
-    !> Further filter on u* for cospectra
+    !> Filter co-spectra for u*
     if (lEx%ustar < FCCsetup%SA%min_un_ustar &
         .or. lEx%ustar > FCCsetup%SA%max_ustar) then
         BinCospForUnstable = ErrSpec
+        BinSpec = ErrSpec
     end if
 
-    !> Milder razor blade for stable cospectra
+    !> Stable case
     if (dabs(lEx%Flux0%H) > FCCsetup%SA%min_st_H &
         .and. dabs(lEx%Flux0%H) < FCCsetup%SA%max_H) then
 
-        if (lEx%Flux0%LE < FCCsetup%SA%min_st_LE &
+        if (dabs(lEx%Flux0%LE) < FCCsetup%SA%min_st_LE &
             .or. dabs(lEx%Flux0%LE) > FCCsetup%SA%max_LE) &
             BinCospForStable%of(h2o) = error
 
@@ -123,7 +125,7 @@ subroutine CospectraQAQC(BinSpec, BinCosp, nrow, lEx, &
             .or. dabs(lEx%Flux0%gas4) > FCCsetup%SA%max_gas4) &
             BinCospForStable%of(gas4) = error
 
-        if (lEx%Flux0%LE < FCCsetup%SA%min_st_LE .and. &
+        if (dabs(lEx%Flux0%LE) < FCCsetup%SA%min_st_LE .and. &
             dabs(lEx%Flux0%co2) < FCCsetup%SA%min_un_co2 .and. &
             dabs(lEx%Flux0%ch4) < FCCsetup%SA%min_un_ch4 .and. &
             dabs(lEx%Flux0%gas4) < FCCsetup%SA%min_un_gas4) then
@@ -136,7 +138,7 @@ subroutine CospectraQAQC(BinSpec, BinCosp, nrow, lEx, &
     end if
 
 
-    !> Further filter on u* for cospectra
+    !> Filter co-spectra for u*
     if (lEx%ustar < FCCsetup%SA%min_st_ustar &
         .or. lEx%ustar > FCCsetup%SA%max_ustar) then
         BinCospForStable = ErrSpec
