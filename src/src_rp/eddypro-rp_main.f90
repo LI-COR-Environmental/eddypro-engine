@@ -380,7 +380,7 @@ program EddyproRP
 
     !> Retrieve NumberOfPeriods and allocate MasterTimeSeries
     NumberOfPeriods = NumOfPeriods(StartTimestamp, EndTimestamp, DateStep)
-    allocate(MasterTimeSeries(NumberOfPeriods))
+    allocate(MasterTimeSeries(NumberOfPeriods + 1))
 
     !> Create timestamp array for full dataset
     call CreateMasterTimeSeries(StartTimestamp, EndTimestamp, DateStep, &
@@ -388,7 +388,7 @@ program EddyproRP
 
     !> Check the dynamic metadata file for calibration data. If found, builds up time series
     !> of absorptance drifts
-    allocate(tsDrifts(NumberOfPeriods))
+    allocate(tsDrifts(NumberOfPeriods + 1))
     allocate(Calib(0:NumDynRecords))  !< element 0 is to allocate values at the beginning of period to be processed
     allocate(tmpCalib(0:NumDynRecords))
     if (EddyProProj%use_dynmd_file) call driftRetrieveCalibrationEvents(nCalibEvents)
@@ -460,7 +460,7 @@ program EddyproRP
                 end if
 
                 !> Normal exit instruction: either the last period was dealt with, or raw files are finished
-                if (LatestRawFileIndx > NumRawFiles .or. pcount >= toEndTimestampIndx) exit to_periods_loop
+                if (LatestRawFileIndx > NumRawFiles .or. pcount > toEndTimestampIndx) exit to_periods_loop
 
                 !> Define initial/final timestamps of current period, say [8:00 - 8:30)
                 InitialTimestamp = MasterTimeSeries(pcount)
@@ -825,7 +825,7 @@ program EddyproRP
                 end if
 
                 !> Normal exit instruction: either the last period was dealt with, or raw files are finished
-                if (LatestRawFileIndx > NumRawFiles .or. pcount >= pfEndTimestampIndx) exit pf_periods_loop
+                if (LatestRawFileIndx > NumRawFiles .or. pcount > pfEndTimestampIndx) exit pf_periods_loop
 
                 !> Define initial/final timestamps of current period, say [8:00 - 8:30)
                 InitialTimestamp = MasterTimeSeries(pcount)
@@ -1113,7 +1113,6 @@ program EddyproRP
     call tsExtractSubperiodIndexes(MasterTimeSeries, size(MasterTimeSeries), SelectedStartTimestamp, &
         SelectedEndTimestamp, rpStartTimestampIndx, rpEndTimestampIndx)
 
-    !> In MasterTimeSeries, detect indices of first and last files to be processed
     if (rpStartTimestampIndx == nint(error) .or. rpEndTimestampIndx == nint(error)) &
         call ExceptionHandler(46)
 
@@ -1290,9 +1289,9 @@ program EddyproRP
             write(*, '(a)') ' Processing time period:'
             call DateTypeToDateTime(MasterTimeSeries(rpStartTimestampIndx), tmpDate, tmpTime)
             write(*, '(a)') '  Start: ' // tmpDate // ' ' // tmpTime
-            call DateTypeToDateTime(MasterTimeSeries(rpEndTimestampIndx), tmpDate, tmpTime)
+            call DateTypeToDateTime(MasterTimeSeries(rpEndTimestampIndx) + DateStep , tmpDate, tmpTime)
             write(*, '(a)') '    End: ' // tmpDate // ' ' // tmpTime
-            write(TmpString1, '(i7)') rpEndTimestampIndx - rpStartTimestampIndx
+            write(TmpString1, '(i7)') rpEndTimestampIndx - rpStartTimestampIndx + 1
             write(*, '(a)') '  Total number of flux averaging periods: ' // trim(adjustl(TmpString1))
             write(*, '(a)')
         end if
@@ -1307,7 +1306,7 @@ program EddyproRP
 
         !> Normal exit instruction: either the last period was dealt with, or raw files are finished
         if (LatestRawFileIndx > NumRawFiles &
-            .or. pcount >= rpEndTimestampIndx) exit periods_loop
+            .or. pcount > rpEndTimestampIndx) exit periods_loop
 
         !> Define initial/final timestamps of current period (say, 8:00 to 8:29)
         InitialTimestamp = MasterTimeSeries(pcount)
@@ -1625,7 +1624,6 @@ program EddyproRP
                 call hms_delta_print(PeriodSkipMessage,'')
                 cycle periods_loop
             end if
-            NumberOfOkPeriods = NumberOfOkPeriods + 1
 
             !> Count number of records actually used for the current flux
             !> Note that this is the max number, and accounts only for entire records set to error code
@@ -1650,6 +1648,7 @@ program EddyproRP
                 call hms_delta_print(PeriodSkipMessage,'')
                 cycle periods_loop
             end if
+            NumberOfOkPeriods = NumberOfOkPeriods + 1
 
             !> Output raw dataset second level
             if (RPsetup%out_raw(2)) call OutRawData(Stats%date, Stats%time, E2Set, size(E2Set, 1), size(E2Set, 2), 2)

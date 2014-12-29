@@ -63,7 +63,7 @@ subroutine InitContinuousDataset(PathIn, ErrString, hnrow)
     !> Now import first valid Datastring
     do
         read(udf, '(a)', iostat = read_status) Datastring
-        if (read_status /= 0) cycle
+        if (read_status > 0) cycle
         exit
     end do
 
