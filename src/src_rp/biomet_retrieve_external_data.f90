@@ -76,6 +76,10 @@ subroutine BiometRetrieveExternalData(bFileList, bnFiles, bLastFile, &
     !>Start from last visited file in bFileList
     cnt = 0
     file_loop: do nfl = bLastFile, bnFiles
+
+        !> Cycle if current bFile does not have timestamp attached to it
+        if (bFileList(nfl)%timestamp == nullTimestamp) cycle file_loop
+
         !> Log
         if (printout) then
             if (nfl == bLastFile) write(*, '(a)') &
@@ -88,20 +92,20 @@ subroutine BiometRetrieveExternalData(bFileList, bnFiles, bLastFile, &
         inquire(udf, opened=isopen)
         if (isopen) close(udf)
         open(udf, file = bFileList(nfl)%path, iostat = io_status)
-        if (io_status /= 0) return
+        if (io_status /= 0) cycle file_loop
 
         !> Skip header if necessary
         if (bFileMetadata%nhead > 0) then
             do i = 1, bFileMetadata%nhead
                 read(udf, *, iostat = io_status)
-                if (io_status /= 0) return
+                if (io_status /= 0) cycle file_loop
             end do
         end if
 
         !> Skip first part of the file
         do i = 1, bLastRec
             read(udf, *, iostat = io_status)
-            if (io_status /= 0) return
+            if (io_status /= 0) cycle file_loop
         end do
 
         !> Search for first biomet record within current averaging period

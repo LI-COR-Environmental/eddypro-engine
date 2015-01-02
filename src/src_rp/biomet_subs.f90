@@ -1047,4 +1047,83 @@ subroutine BiometAggretate(Set, nrow, ncol, Aggr)
 end subroutine BiometAggretate
 
 
+!***************************************************************************
+!
+! \brief       Put biomet file names in chronological order in BiometFileList
+!              (sum, average, etc..)
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+!***************************************************************************
+subroutine BiometFileListInChronologicalOrder(FileList, nrow)
+    use m_rp_global_var
+    implicit none
+    !> in/out variables
+    integer, intent(in) :: nrow
+    type (FilelistType), intent(inout) :: FileList(nrow)
+    !> local variables
+    integer :: i
+    integer :: nfl
+    integer :: cnt
+    integer :: io_status
+    integer :: rank(nrow)
+    character(64) :: tsString
+    character(1024) :: record
+    logical :: skip_record
+    type(DateType) :: bTimestamp
+    type(FileListType) :: TmpFileList(nrow)
+
+
+    TmpFileList= FileListType('none', 'none', nullTimestamp)
+
+    !> Associate a timestamp to each file, by reading the first valid
+    !> record and interpreting the timestamp
+    files_loop: do nfl = 1, nrow
+        !> Open biomet file
+        open(udf, file=FileList(nfl)%path, status = 'old', iostat=io_status)
+        !> If a problem occurred while opening file, tag file with
+        !> default timestamp so that it can be later eliminated from list
+        if (io_status /= 0) then
+            FileList(nfl)%timestamp = nullTimestamp
+            cycle files_loop
+        end if
+
+        !> Retrieve timestamp from first valid record
+        recs_loop: do
+            read(udf, '(a)', iostat = io_status) record
+            if (io_status > 0) cycle recs_loop
+            if (io_status < 0) then
+                FileList(nfl)%timestamp = nullTimestamp
+                cycle files_loop
+            end if
+
+            !> Retrieve timestamp info from record
+            call tsStringFromRec(record, nbItems, tsString)
+            call BiometTimestamp(trim(adjustl(bFileMetadata%tsPattern)), &
+                    tsString, bTimestamp, skip_record)
+            if (skip_record) cycle recs_loop
+
+            !> Associate timestamp to file in FileList
+            FileList(nfl)%timestamp = bTimestamp
+            cycle files_loop
+        end do recs_loop
+    end do files_loop
+
+    !> Sort timestamps in a chronological sequence
+    call rank_dates(FileList%timestamp, rank, nrow)
+
+    cnt = 0
+    do i = 1, nrow
+        if (FileList(rank(i))%timestamp /= nullTimestamp) then
+            cnt = cnt + 1
+            TmpFileList(cnt) = FileList(rank(i))
+        end if
+    end do
+    FileList = TmpFileList
+end subroutine BiometFileListInChronologicalOrder
+
+
 

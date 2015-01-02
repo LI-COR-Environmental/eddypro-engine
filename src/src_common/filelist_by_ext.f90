@@ -30,7 +30,8 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine FileListByExt(DirIn, Ext, MatchTemplate, Template, doy_format, GetTimestamp, Recurse, FileList, nrow, logout, indent)
+subroutine FileListByExt(DirIn, Ext, MatchTemplate, Template, &
+        doy_format, GetTimestamp, Recurse, FileList, nrow, logout, indent)
     use m_common_global_var
     implicit none
     !> in/out variables

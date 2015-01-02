@@ -60,6 +60,7 @@ module m_common_global_var
     integer :: NumCol
     integer :: NumBiometCol
     integer :: nbVars
+    integer :: nbItems
     integer :: NumAllVar
     integer :: NumVar
     integer :: NumDiag

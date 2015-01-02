@@ -29,22 +29,21 @@
 ! \deprecated
 ! \test
 !***************************************************************************
-subroutine InitExternalBiomet(BiometFileList, N)
+subroutine InitExternalBiomet(bFileList, N)
     use m_rp_global_var
     implicit none
     !> In/out variables
     integer, intent(in) :: N
-    type (FilelistType), intent(out) :: BiometFileList(N)
+    type (FilelistType), intent(out) :: bFileList(N)
     !> Local variables
     integer :: cnt
     integer :: nRec, fnRec
     integer :: fnbItems
-    integer :: nbItems
     integer :: lastcnt
     integer :: nfl
     integer :: io_status
-    character(1024) :: row
-    character(1024) :: row2
+    character(1024) :: record
+    character(1024) :: record2
     character(64) :: tsString
     logical :: failed
     logical :: init_bVars
@@ -53,19 +52,19 @@ subroutine InitExternalBiomet(BiometFileList, N)
     integer, external :: tsInferTimestep
     integer, external :: SplitCount
     integer, external :: countsubstring
-    character(len(row)), external :: Replace
+    character(len(record)), external :: replace
 
 
     write(*, '(a)', advance = 'no') ' Initializing external biomet usage..'
 
     !> Retrieve list of biomet files
     if (EddyProProj%biomet_data == 'ext_file') then
-        BiometFileList(1)%path = AuxFile%biomet
-        call basename(BiometFileList(1)%path, BiometFileList(1)%name, slash)
+        bFileList(1)%path = AuxFile%biomet
+        call basename(bFileList(1)%path, bFileList(1)%name, slash)
     elseif (EddyProProj%biomet_data == 'ext_dir') then
         call FileListByExt(Dir%biomet, trim(adjustl(EddyProProj%biomet_tail)), &
             .false., 'none', .false., .false., EddyProProj%biomet_recurse, &
-            BiometFileList, size(BiometFileList), .false., ' ')
+            bFileList, size(bFileList), .false., ' ')
     end if
 
     !> Loop to retrieve number of rows and cols, so that biomet variables
@@ -74,7 +73,8 @@ subroutine InitExternalBiomet(BiometFileList, N)
     size_loop: do nfl = 1, N
 
         !> Count number of items and rows in file
-        call scanCsvFile(BiometFileList(nfl)%path, ',', 1, fnRec, fnbItems, failed)
+        call scanCsvFile(bFileList(nfl)%path, ',', 1, &
+            fnRec, fnbItems, failed)
 
         !> If above failed, pass to next one
         if (failed) then
@@ -119,7 +119,7 @@ subroutine InitExternalBiomet(BiometFileList, N)
     files_loop: do nfl = 1, N
 
         !> Open biomet file
-        open(udf, file = BiometFileList(nfl)%path, status = 'old', &
+        open(udf, file = bFileList(nfl)%path, status = 'old', &
             iostat = io_status)
 
         !> If above failed, pass to next one
@@ -132,17 +132,17 @@ subroutine InitExternalBiomet(BiometFileList, N)
         if (init_bVars) then
 
             !> Read header lines
-            read(udf, '(a)', iostat = io_status) row
-            read(udf, '(a)', iostat = io_status) row2
+            read(udf, '(a)', iostat = io_status) record
+            read(udf, '(a)', iostat = io_status) record2
 
             !> If timestamp labels are 'Date' and 'Time', replace with
             !> 'Timestamp_1' and 'Timestamp_2', e.g. Sutron case
-            row = replace(row, 'Date', 'TIMESTAMP_1')
-            row = replace(row, 'Time,', 'TIMESTAMP_2,')
+            record = replace(record, 'Date', 'TIMESTAMP_1')
+            record = replace(record, 'Time,', 'TIMESTAMP_2,')
 
             !> Retrieve number of biomet variables excluding
-            !> TIMESTAMP-related items from row
-            nbVars = SplitCount(row, bFileMetadata%separator, 'TIMESTAMP', .false.)
+            !> TIMESTAMP-related items from record
+            nbVars = SplitCount(record, bFileMetadata%separator, 'TIMESTAMP', .false.)
 
             !> Allocate and initialize bVars
             if (allocated(bVars)) deallocate(bVars)
@@ -154,7 +154,7 @@ subroutine InitExternalBiomet(BiometFileList, N)
 
             !> Retrieve variables and timestamp prototype from
             !> header (labels and units rows)
-            call RetrieveExtBiometVars(row, row2, nbItems)
+            call RetrieveExtBiometVars(record, record2, nbItems)
 
             init_bVars = .false.
         else
@@ -166,12 +166,12 @@ subroutine InitExternalBiomet(BiometFileList, N)
         !> Start loop on file rows
         cnt = lastcnt
         recs_loop: do
-            read(udf, '(a)', iostat = io_status) row
+            read(udf, '(a)', iostat = io_status) record
             if (io_status > 0) cycle recs_loop
             if (io_status < 0) exit recs_loop
 
             !> Retrieve timestamp info from rec
-            call tsStringFromRec(row, nbItems, tsString)
+            call tsStringFromRec(record, nbItems, tsString)
             cnt = cnt + 1
 
             !> Retrieve timestamp from timestamp string
@@ -215,6 +215,9 @@ subroutine InitExternalBiomet(BiometFileList, N)
 
     !> No data label is allowed in external biomet files
     call BiometUpdateSelectionOrder()
+
+    !> Put biomet files in chronological order, regardless of file names
+    call BiometFileListInChronologicalOrder(bFileList, N)
 
     !> Put biomet vars in order (by variable label and secondary by profile)
     !> NOT DONE FOR THE MOMENT

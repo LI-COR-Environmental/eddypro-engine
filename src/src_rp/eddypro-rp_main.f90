@@ -307,7 +307,8 @@ program EddyproRP
     !> If running with EXP settings, now that master sonic is known
     !> also in embedded mode it's time to set the aoa correction
     if (EddyProProj%run_mode == 'express') then
-        select case(EddyProProj%master_sonic(1:len_trim(EddyProProj%master_sonic) - 2))
+        select case(&
+            EddyProProj%master_sonic(1:len_trim(EddyProProj%master_sonic) - 2))
             case ('r3_50','r3_100', 'r2')
                 RPsetup%calib_aoa = 'nakai_06'
             case ('wm','wmpro')
@@ -2083,7 +2084,7 @@ program EddyproRP
     if (allocated(bf)) deallocate(bf)
 
     !***************************************************************************
-    !**** FLUX COMPUTATION FINISHES HERE.                       *****************
+    !**** FLUX COMPUTATION FINISHES HERE.                      *****************
     !**** NOW STARTS DATASET CREATION AND OUTPUT FILE HANDLING *****************
     !***************************************************************************
 
