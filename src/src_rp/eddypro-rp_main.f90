@@ -368,7 +368,7 @@ program EddyproRP
     if (NumUserVar > 0) call InitUserOutFiles()
 
     !> Retrieve timestamp array in chronological order and
-    !> order Filelists, also in chronological order
+    !> order RawFileList, also in chronological order
     call FilesInChronologicalOrder(RawFileList, size(RawFileList), &
         tsDatasetStart, tsDatasetEnd)
 

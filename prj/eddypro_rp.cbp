@@ -280,7 +280,7 @@
 			<Option weight="3" />
 		</Unit>
 		<Unit filename="../src/src_common/read_biomet_file.f90">
-			<Option weight="3" />
+			<Option weight="4" />
 		</Unit>
 		<Unit filename="../src/src_common/read_biomet_meta_file.f90">
 			<Option weight="3" />
@@ -313,6 +313,9 @@
 			<Option weight="3" />
 		</Unit>
 		<Unit filename="../src/src_common/string_sub.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/sum_no_error.f90">
 			<Option weight="3" />
 		</Unit>
 		<Unit filename="../src/src_common/timelag_handle.f90">
@@ -366,6 +369,15 @@
 		<Unit filename="../src/src_rp/binned_frequency_vector.f90">
 			<Option weight="4" />
 		</Unit>
+		<Unit filename="../src/src_rp/biomet_retrieve_embedded_data.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/biomet_retrieve_external_data.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/biomet_subs.f90">
+			<Option weight="4" />
+		</Unit>
 		<Unit filename="../src/src_rp/burba_terms.f90">
 			<Option weight="4" />
 		</Unit>
@@ -403,9 +415,6 @@
 			<Option weight="4" />
 		</Unit>
 		<Unit filename="../src/src_rp/eliminate_corrupted_variables.f90">
-			<Option weight="4" />
-		</Unit>
-		<Unit filename="../src/src_rp/extract_biomet_data.f90">
 			<Option weight="4" />
 		</Unit>
 		<Unit filename="../src/src_rp/fft4/rfftb.F">
@@ -461,9 +470,6 @@
 		<Unit filename="../src/src_rp/init_biomet_out.f90">
 			<Option weight="4" />
 		</Unit>
-		<Unit filename="../src/src_rp/init_biomet_out.f90">
-			<Option weight="4" />
-		</Unit>
 		<Unit filename="../src/src_rp/init_dynamic_medata.f90">
 			<Option weight="4" />
 		</Unit>
@@ -506,9 +512,6 @@
 		<Unit filename="../src/src_rp/random_error_handle.f90">
 			<Option weight="4" />
 		</Unit>
-		<Unit filename="../src/src_rp/read_ext_biomet_files.f90">
-			<Option weight="4" />
-		</Unit>
 		<Unit filename="../src/src_rp/read_ini_rp.f90">
 			<Option weight="4" />
 		</Unit>
@@ -519,9 +522,6 @@
 			<Option weight="4" />
 		</Unit>
 		<Unit filename="../src/src_rp/rename_tmp_files_rp.f90">
-			<Option weight="4" />
-		</Unit>
-		<Unit filename="../src/src_rp/retrieve_biomet_data.f90">
 			<Option weight="4" />
 		</Unit>
 		<Unit filename="../src/src_rp/retrieve_dynamic_metadata.f90">
