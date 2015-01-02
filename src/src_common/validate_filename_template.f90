@@ -1,8 +1,8 @@
 !***************************************************************************
-! check_file_prototype.f90
-! ------------------------
+! validate_filename_template.f90
+! ------------------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -30,7 +30,7 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine CheckFilePrototype()
+subroutine ValidateFilenameTemplate()
     use m_common_global_var
     implicit none
     !> local variables
@@ -38,11 +38,11 @@ subroutine CheckFilePrototype()
 
     !date patterns: yyyy, yy, ddd, dd, mm
     !time patterns: HH MM
-    Pattern = EddyProProj%fproto(1:len_trim(EddyProProj%fproto))
+    Pattern = trim(adjustl(EddyProProj%fname_template))
 
     !> Weak test
     if ( index(Pattern, 'yy') == 0 &
     .or. index(Pattern, 'dd') == 0 &
     .or. index(Pattern, 'HH') == 0 &
     .or. index(Pattern, 'MM') == 0) call ExceptionHandler(20)
-end subroutine CheckFilePrototype
+end subroutine ValidateFilenameTemplate

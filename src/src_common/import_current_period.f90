@@ -84,7 +84,7 @@ subroutine ImportCurrentPeriod(InitialTimestamp, FinalTimestamp, FileList, &
     !> Timestamp of beginning of current period, as an
     !> initialization to check files contiguity
     call FilenameToTimestamp(FileList(FirstFile)%name, &
-        EddyProProj%fproto, EddyProLog%iso_format, CurrentTimestamp)
+        EddyProProj%fname_template, EddyProLog%iso_format, CurrentTimestamp)
 
     !> Loop on all files relevant to current period
     InitialMetaIsNeeded = MetaIsNeeded
@@ -109,7 +109,7 @@ subroutine ImportCurrentPeriod(InitialTimestamp, FinalTimestamp, FileList, &
 
             !> Check file contiguity, if not contiguous, exit cycle
             call FilenameToTimestamp(FileList(CurrentFile)%name, &
-                EddyProProj%fproto, EddyProLog%iso_format, FollowingTimestamp)
+                EddyProProj%fname_template, EddyProLog%iso_format, FollowingTimestamp)
             !> To account for file names
             if (FollowingTimestamp > CurrentTimestamp + DatafileDateStep) then
                 N = pN

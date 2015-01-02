@@ -239,12 +239,12 @@ program EddyproRP
     if (EddyProProj%run_env == 'embedded') call ConfigureForEmbedded()
     if (EddyProProj%run_env == 'embedded') RPsetup%out_st = .false.
 
-    !> Check on file prototype
-    call CheckFilePrototype()
+    !> Check on filename template
+    call ValidateFilenameTemplate()
 
     !> Detect number of raw files and allocate RawFileList
     call NumberOfFilesInDir(Dir%main_in, '.'//EddyProProj%fext, .true., &
-        EddyProProj%fproto, TotNumFile, NumFileNoRecurse)
+        EddyProProj%fname_template, TotNumFile, NumFileNoRecurse)
 
     if (RPsetup%recurse) then
         NumRawFiles = TotNumFile
@@ -255,8 +255,8 @@ program EddyproRP
 
      !> Store names of data files in RawFileList
     call FileListByExt(Dir%main_in, '.'//EddyProProj%fext, .true., &
-        EddyProProj%fproto, EddyProLog%iso_format, .true., RPsetup%recurse, &
-        RawFileList, size(RawFileList), .true., indent0)
+        EddyProProj%fname_template, EddyProLog%iso_format, .true., &
+        RPsetup%recurse, RawFileList, size(RawFileList), .true., indent0)
 
     if (EddyProProj%use_extmd_file) then
         !> If requested, read external metadata file \n

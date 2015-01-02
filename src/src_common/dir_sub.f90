@@ -58,10 +58,8 @@ integer function CreateDir(directory)
 end function CreateDir
 
 !***************************************************************************
-! \file        src/dir_subs.f90
-! \brief       Test if file name matches Template
-! \version     5.2.0
-! \date        2013-03-12
+! \file
+! \brief       Returns whether FileName matches Template
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -70,63 +68,95 @@ end function CreateDir
 ! \test
 ! \todo
 !***************************************************************************
-logical function NameMatchesTemplate(FileName, Pattern)
+logical function NameMatchesTemplate(FileName, Template)
     use m_common_global_var
     implicit none
     !> In/out variables
     character(*), intent(in) :: Filename
-    character(*), intent(in) :: Pattern
+    character(*), intent(in) :: Template
     !> Local variables
-    integer :: start
+    integer :: s
+    integer :: s_year, s_month, s_day, s_hour, s_minute
+    integer :: e_year, e_month, e_day, e_hour, e_minute
+    integer :: s_ts, e_ts
+    logical, external :: is_not_numeric
+    logical, external :: strings_match
 
 
     !> Initialization
     NameMatchesTemplate = .false.
 
-    !> Check on the length of the file name
-    if(EddyProProj%ftype /= 'licor_ghg' .and. len_trim(FileName) /= len_trim(Pattern)) return
+    !> Check on the length of filename
+    if(EddyProProj%ftype /= 'licor_ghg' &
+        .and. len_trim(FileName) /= len_trim(Template)) return
 
+    !> Check timestamp
     !> Year must be done by numbers
-    if (index(Pattern, 'yyyy') /= 0) then
-        start = index(Pattern, 'yyyy')
-        if(FileName(start:start) > '9' .or. FileName(start:start) < '0') return
-        if(FileName(start + 1 :start + 1) > '9' .or. FileName(start + 1 :start + 1) < '0') return
-        if(FileName(start + 2 :start + 2) > '9' .or. FileName(start + 2 :start + 2) < '0') return
-        if(FileName(start + 3 :start + 3) > '9' .or. FileName(start + 3 :start + 3) < '0') return
-    else if (index(Pattern, 'yy') /= 0) then
-        start = index(Pattern, 'yy')
-        if(FileName(start:start) > '9' .or. FileName(start:start) < '0') return
-        if(FileName(start + 1 :start + 1) > '9' .or. FileName(start + 1 :start + 1) < '0') return
+    if (index(Template, 'yyyy') /= 0) then
+        s = index(Template, 'yyyy')
+        s_year = index(Template, 'yyyy')
+        e_year = index(Template, 'yyyy') + 3
+        if (is_not_numeric(Filename(s:s+3))) return
+    else if (index(Template, 'yy') /= 0) then
+        s = index(Template, 'yy')
+        s_year = index(Template, 'yy')
+        e_year = index(Template, 'yy') + 1
+        if (is_not_numeric(Filename(s:s+1))) return
     end if
+
     !> Month must be done by numbers
-    if (index(Pattern, 'mm') /= 0) then
-        start = index(Pattern, 'mm')
-        if(FileName(start:start) > '9' .or. FileName(start:start) < '0') return
-        if(FileName(start + 1 :start + 1) > '9' .or. FileName(start + 1 :start + 1) < '0') return
+    if (index(Template, 'mm') /= 0) then
+        s = index(Template, 'mm')
+        s_month = index(Template, 'mm')
+        e_month = index(Template, 'mm') + 1
+        if (is_not_numeric(Filename(s:s+1))) return
+    else
+        s_month = nint(error)
+        e_month = - nint(error)
     end if
+
     !> Day or DOY must be done by numbers
-    if (index(Pattern, 'ddd') /= 0) then
-        start = index(Pattern, 'ddd')
-        if(FileName(start:start) > '9' .or. FileName(start:start) < '0') return
-        if(FileName(start + 1 :start + 1) > '9' .or. FileName(start + 1 :start + 1) < '0') return
-        if(FileName(start + 2 :start + 2) > '9' .or. FileName(start + 2 :start + 2) < '0') return
-    else if (index(Pattern, 'dd') /= 0) then
-        start = index(Pattern, 'dd')
-        if(FileName(start:start) > '9' .or. FileName(start:start) < '0') return
-        if(FileName(start + 1 :start + 1) > '9' .or. FileName(start + 1 :start + 1) < '0') return
+    if (index(Template, 'ddd') /= 0) then
+        s = index(Template, 'ddd')
+        s_day = index(Template, 'ddd')
+        e_day = index(Template, 'ddd') + 2
+        if (is_not_numeric(Filename(s:s+2))) return
+    else if (index(Template, 'dd') /= 0) then
+        s = index(Template, 'dd')
+        s_day = index(Template, 'dd')
+        e_day = index(Template, 'dd') + 1
+        if (is_not_numeric(Filename(s:s+1))) return
     end if
+
     !> Hour must be done by numbers
-    if (index(Pattern, 'HH') /= 0) then
-        start = index(Pattern, 'HH')
-        if(FileName(start:start) > '9' .or. FileName(start:start) < '0') return
-        if(FileName(start + 1 :start + 1) > '9' .or. FileName(start + 1 :start + 1) < '0') return
+    if (index(Template, 'HH') /= 0) then
+        s = index(Template, 'HH')
+        s_hour = index(Template, 'HH')
+        e_hour = index(Template, 'HH') + 1
+        if (is_not_numeric(Filename(s:s+1))) return
     end if
+
     !> Minute must be done by numbers
-    if (index(Pattern, 'MM') /= 0) then
-        start = index(Pattern, 'MM')
-        if(FileName(start:start) > '9' .or. FileName(start:start) < '0') return
-        if(FileName(start + 1 :start + 1) > '9' .or. FileName(start + 1 :start + 1) < '0') return
+    if (index(Template, 'MM') /= 0) then
+        s = index(Template, 'MM')
+        s_minute = index(Template, 'MM')
+        e_minute = index(Template, 'MM') + 1
+        if (is_not_numeric(Filename(s:s+1))) return
     end if
+
+    !> Check prefix
+    s_ts = min(s_year, s_month, s_day, s_hour, s_minute)
+    if (s_ts > 1 &
+        .and. .not. strings_match(Template(1:s_ts-1), &
+        Filename(1:s_ts-1), '*')) return
+
+    !> Check suffix
+    e_ts = max(e_year, e_month, e_day, e_hour, e_minute)
+    if (e_ts < len_trim(Template) - 1 &
+        .and. .not. strings_match(Template(e_ts+1:len_trim(Template)), &
+        Filename(e_ts+1:len_trim(Filename)), '*')) return
+
+    !> If all tests were passed, filename matches template
     NameMatchesTemplate = .true.
 
 end function NameMatchesTemplate

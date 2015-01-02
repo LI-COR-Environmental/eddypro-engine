@@ -476,7 +476,7 @@ module m_typedef
         character(5)  :: end_time
         character(32) :: title
         character(32) :: id
-        character(64) :: fproto
+        character(64) :: fname_template
         character(32) :: ftype
         character(32) :: fext
         character(32) :: master_sonic

@@ -42,7 +42,7 @@ subroutine WriteProcessingProjectVariables()
     Auxfile%biomet     = 'none'
     Dir%biomet         = 'none'
     Dir%main_out       = 'none'
-    EddyProProj%fproto = 'none'
+    EddyProProj%fname_template = 'none'
 
     !> Project general info
     select case (EPPrjCTags(16)%value(1:1))
@@ -68,7 +68,7 @@ subroutine WriteProcessingProjectVariables()
         EddyProProj%ftype = 'licor_ghg'
         EddyProProj%fext = 'ghg'
         EddyProLog%iso_format = .true.
-        EddyProProj%fproto = 'yyyy-mm-ddTHHMM'
+        EddyProProj%fname_template = 'yyyy-mm-ddTHHMM'
         case ('1')
         EddyProProj%ftype = 'generic_ascii'
         case ('2')
@@ -90,13 +90,13 @@ subroutine WriteProcessingProjectVariables()
 
     !> File names prototype and related (for non-ENE, non-LICOR files)
     if (EddyProProj%ftype /= 'licor_ghg') then
-        EddyProProj%fproto = EPPrjCTags(7)%value(1:len_trim(EPPrjCTags(7)%value))
-        if (index(EddyProProj%fproto, '.') /= 0) then
+        EddyProProj%fname_template = EPPrjCTags(7)%value(1:len_trim(EPPrjCTags(7)%value))
+        if (index(EddyProProj%fname_template, '.') /= 0) then
             !> File extensions
-            dot = index(EddyProProj%fproto, '.', .true.)
-            EddyProProj%fext = EddyProProj%fproto(dot + 1:len_trim(EddyProProj%fproto))
+            dot = index(EddyProProj%fname_template, '.', .true.)
+            EddyProProj%fext = EddyProProj%fname_template(dot + 1:len_trim(EddyProProj%fname_template))
             !> ISO format
-            EddyProLog%iso_format = index(EddyProProj%fproto, 'mm') /= 0
+            EddyProLog%iso_format = index(EddyProProj%fname_template, 'mm') /= 0
         end if
     end if
 

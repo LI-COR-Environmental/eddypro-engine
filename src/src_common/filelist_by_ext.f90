@@ -71,21 +71,26 @@ subroutine FileListByExt(DirIn, Ext, MatchTemplate, Template, &
     !> List files, recursively in all cases
     select case (OS(1:len_trim(OS)))
         case('win')
-            comm = 'dir "' // DirIn(1:len_trim(DirIn)) // '*'// Ext(1:len_trim(Ext)) &
-                // '" ' // ' /O:N /S /B > ' // '"' // trim(adjustl(TmpDir)) // 'flist.tmp" ' // comm_err_redirect
+            comm = 'dir "' // DirIn(1:len_trim(DirIn)) // '*' &
+                // Ext(1:len_trim(Ext)) // '" ' // ' /O:N /S /B > ' // '"' &
+                // trim(adjustl(TmpDir)) // 'flist.tmp" ' // comm_err_redirect
         case('linux')
             comm = 'find "' // DirIn(1:len_trim(DirIn)) // '" -iname *' &
-                // Ext(1:len_trim(Ext)) // ' > ' // '"' // trim(adjustl(TmpDir)) // 'flist.tmp" ' // comm_err_redirect
+                // Ext(1:len_trim(Ext)) // ' > ' // '"' // trim(adjustl(TmpDir)) &
+                // 'flist.tmp" ' // comm_err_redirect
         case('mac')
             comm = 'find "' // DirIn(1:len_trim(DirIn)) // '" -iname *' &
-                // Ext(1:len_trim(Ext)) // ' > ' // '"' // trim(adjustl(TmpDir)) // 'flist.tmp" ' // comm_err_redirect
+                // Ext(1:len_trim(Ext)) // ' > ' // '"' // trim(adjustl(TmpDir)) &
+                // 'flist.tmp" ' // comm_err_redirect
     end select
     dir_status = system(comm)
 
-    call system(comm_copy // '"' // trim(adjustl(TmpDir)) // 'flist.tmp" ' // '"' // trim(adjustl(TmpDir)) // 'flist2.tmp" ' &
+    call system(comm_copy // '"' // trim(adjustl(TmpDir)) // 'flist.tmp" ' &
+        // '"' // trim(adjustl(TmpDir)) // 'flist2.tmp" ' &
         // comm_out_redirect // comm_err_redirect)
 
-    open(udf, file = trim(adjustl(TmpDir)) // 'flist2.tmp', iostat = open_status)
+    open(udf, file = trim(adjustl(TmpDir)) // 'flist2.tmp', &
+        iostat = open_status)
     !> control on temporary file
     if (open_status /= 0) then
         close(udf)
@@ -102,7 +107,8 @@ subroutine FileListByExt(DirIn, Ext, MatchTemplate, Template, &
             read(udf, '(a)', iostat = read_status) String
             if (read_status /= 0) exit
             String = trim(adjustl(String))
-            TmpFileName =  String(index(String, slash, .true.) + 1: len_trim(String))
+            TmpFileName =  &
+                String(index(String, slash, .true.) + 1: len_trim(String))
             if (MatchTemplate) then
                 if (NameMatchesTemplate(TmpFileName, Template)) then
                     cnt = cnt + 1
@@ -117,9 +123,11 @@ subroutine FileListByExt(DirIn, Ext, MatchTemplate, Template, &
         do
             read(udf, '(a)', iostat = read_status) String
             if (read_status /= 0) exit
-            if(String(1:index(String, slash, .true.)) /= DirIn(1:len_trim(DirIn))) cycle
+            if(String(1:index(String, slash, .true.)) &
+                /= DirIn(1:len_trim(DirIn))) cycle
             String = trim(adjustl(String))
-            TmpFileName =  String(index(String, slash, .true.) + 1: len_trim(String))
+            TmpFileName =  &
+                String(index(String, slash, .true.) + 1: len_trim(String))
             if (MatchTemplate) then
                 if (NameMatchesTemplate(TmpFileName, Template)) then
                     cnt = cnt + 1
@@ -144,21 +152,25 @@ subroutine FileListByExt(DirIn, Ext, MatchTemplate, Template, &
     !> Some logging
     if (logout) then
         write(LogInteger, '(i8)') cnt
-        write(*,'(a)') indent // '  ' // trim(adjustl(LogInteger)) // ' files found.'
+        write(*,'(a)') indent // '  ' // trim(adjustl(LogInteger)) &
+            // ' files found.'
     end if
 
     !> Retrieve timestamps from file names if requested
     if(GetTimestamp) then
-        if (logout) write(*, '(a)', advance = 'no') '  Retrieving timestamps from &
+        if (logout) write(*, '(a)', advance = 'no') &
+            '  Retrieving timestamps from &
             &file names..'
         do i = 1, cnt
-            call FilenameToTimestamp(FileList(i)%name, Template, doy_format, FileList(i)%Timestamp)
+            call FilenameToTimestamp(FileList(i)%name, Template, doy_format, &
+                FileList(i)%Timestamp)
         end do
         if (logout) write(*, '(a)') ' Done.'
     end if
 
     !> Delete temporary file
-    call system(comm_del // '"' // trim(adjustl(TmpDir)) // 'flist*.tmp"' // comm_err_redirect)
+    call system(comm_del // '"' // trim(adjustl(TmpDir)) // 'flist*.tmp"' &
+        // comm_err_redirect)
 
     if (logout) write(*,'(a)')   indent // ' Done.'
 end subroutine FileListByExt

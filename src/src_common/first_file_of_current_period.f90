@@ -91,7 +91,7 @@ logical function FileIsRelevantToCurrentPeriod(Filename, InitialTimestamp, Final
 
     !> Retrieve timestamp of beginning of current file
     FileIsRelevantToCurrentPeriod = .false.
-    call FilenameToDateTime(Filename, EddyProProj%fproto, EddyProLog%iso_format, date, time)
+    call FilenameToDateTime(Filename, EddyProProj%fname_template, EddyProLog%iso_format, date, time)
     call DateTimeToDateType(date, time, Timestamp)
     if (EddyProLog%tstamp_end) Timestamp = Timestamp - DatafileDateStep
     !> 2. Now check if file contains data relevant to the current period

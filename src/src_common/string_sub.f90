@@ -845,7 +845,7 @@ end function
 
 !***************************************************************************
 !
-! \brief
+! \brief       Return whether passed string s is (not) numeric
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -866,9 +866,21 @@ logical function is_numeric(s)
     is_numeric = e == 0
 end function is_numeric
 
+logical function is_not_numeric(s)
+    use m_numeric_kinds
+    implicit none
+    !> In/out variables
+    character(*),intent(in) :: s
+    !> Local variables
+    logical, external :: is_numeric
+
+
+    is_not_numeric = .not. is_numeric(s)
+end function is_not_numeric
+
 !***************************************************************************
 !
-! \brief
+! \brief       Returns whether a string has format dddd-dd-dd with d a digit
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -893,7 +905,7 @@ end function is_date
 
 !***************************************************************************
 !
-! \brief
+! \brief       Returns whether a string has format dd:dd with d a digit
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -914,3 +926,43 @@ logical function is_time(s)
         .and. is_numeric(s(4:5)) &
         .and. s(3:3) == ':'
 end function is_time
+
+!***************************************************************************
+!
+! \brief       Returns whether two strings match except for passed wildcard
+!              which is intended to be in s1 (the template)
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+!***************************************************************************
+logical function strings_match(s1, s2, wcard)
+    use m_numeric_kinds
+    implicit none
+    !> In/out variables
+    character(*),intent(in) :: s1
+    character(*),intent(in) :: s2
+    character(*),intent(in) :: wcard
+    !> Local variables
+    integer :: i
+
+
+    !> Check on strings length
+    if (len_trim(s1) /= len_trim(s2)) then
+        strings_match = .false.
+        return
+    end if
+
+    !> Check on strings content
+    do i = 1, len(s1)
+        if (s1(i:i) == s2(i:i) .or. s1(i:i) == wcard(1:1)) then
+            cycle
+        else
+            strings_match = .false.
+            return
+        end if
+    end do
+    strings_match = .true.
+end function strings_match
