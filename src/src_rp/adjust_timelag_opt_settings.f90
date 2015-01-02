@@ -51,7 +51,7 @@ subroutine AdjustTimelagOptSettings()
     !> Initialize multiplier
     mult(:) = 2d0     !< For passive gases
     mult(h2o) = 10d0  !< For active gases
-    safety = 0.3d0  !< Safety margin for min/max setting, should nominal tlag be very close to zero
+    safety = 0.3d0    !< Safety margin for min/max setting
 
     !> Transit time in cell and sampling lines of closed path instruments
     where (E2Col(co2:gas4)%instr%path_type == 'closed')

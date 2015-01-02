@@ -344,5 +344,69 @@ subroutine StripFilename(filename)
     if (filename(1:2) == './') filename = filename(3:len_trim(filename))
 end subroutine StripFilename
 
+!***************************************************************************
+!
+! \brief       Quick look at CSV file to provide (max) number of rows and cols
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+subroutine scanCsvFile(fpath, separator, cols_from_header, nrow, ncol, failed)
+    implicit none
+    !> in/out variables
+    integer, intent(in) :: cols_from_header
+    character(*), intent(in) :: fpath
+    character(*), intent(in) :: separator
+    integer, intent(out) :: ncol
+    integer, intent(out) :: nrow
+    logical, intent(out) :: failed
+    !> Local variables
+    integer :: i
+    integer :: tncol
+    integer :: io_status
+    logical :: count_cols
+    character(2048) :: row
+    integer, external :: countsubstring
+    integer, external :: SplitCount
+
+
+    failed = .false.
+
+    !> Open file
+    open(10, file=fpath, iostat=io_status)
+    if (io_status /=0) then
+        failed = .true.
+        return
+    end if
+
+   !> Read number of columns, from provided header row if any
+    nrow = 0
+    ncol = 0
+    i = 0
+    count_cols = .true.
+    do
+        read(10, '(a)', iostat = io_status) row
+        i = i + 1
+        if (io_status > 0) cycle
+        if (io_status < 0) exit
+        nrow = nrow + 1
+        if (count_cols) then
+            tncol = SplitCount(trim(row), separator, '', .false.)
+            ncol = max(tncol, ncol)
+            if (i == cols_from_header) then
+                ncol = tncol
+                count_cols = .false.
+            end if
+        end if
+    end do
+    close(10)
+
+    if (ncol * nrow == 0) failed = .true.
+end subroutine scanCsvFile
+
 
 

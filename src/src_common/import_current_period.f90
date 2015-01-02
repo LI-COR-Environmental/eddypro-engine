@@ -33,8 +33,8 @@
 !***************************************************************************
 subroutine ImportCurrentPeriod(InitialTimestamp, FinalTimestamp, FileList, &
     NumFiles, FirstFile, LocBypassCol, MaxNumFileRecords, MetaIsNeeded, &
-    BiometIsNeeded, logout, Raw, nrow, ncol, bRaw, nbrow, nbcol, N, bN, &
-    BiometDataExist, skip_period, NextFile, LocCol)
+    BiometIsNeeded, logout, Raw, nrow, ncol, bRaw, nbrow, nbcol, N, &
+    bDataFound, skip_period, NextFile, LocCol)
 
     use m_common_global_var
     implicit none
@@ -51,16 +51,14 @@ subroutine ImportCurrentPeriod(InitialTimestamp, FinalTimestamp, FileList, &
     type(DateType), intent(in) :: InitialTimestamp
     type(DateType), intent(in) :: FinalTimestamp
     integer, intent(out) :: N
-    integer, intent(out) :: bN
     integer, intent(out) :: NextFile
     real(kind = sgl), intent(out) :: Raw(nrow, ncol)
     real(kind = dbl), intent(out) :: bRaw(nbrow, nbcol)
-    logical, intent(out) :: BiometDataExist
+    logical, intent(out) :: bDataFound
     logical, intent(out) :: skip_period
     logical, intent(inout) :: MetaIsNeeded
     !> local variables
     integer :: pN
-    integer :: pbN
     integer :: faulty_col
     integer :: CurrentFile
     integer :: FirstRecord
@@ -78,7 +76,7 @@ subroutine ImportCurrentPeriod(InitialTimestamp, FinalTimestamp, FileList, &
 
 
     !> Initializations
-    BiometDataExist = .false.
+    bDataFound = .false.
     skip_period = .false.
     Raw = error
     bRaw = error
@@ -91,7 +89,7 @@ subroutine ImportCurrentPeriod(InitialTimestamp, FinalTimestamp, FileList, &
     !> Loop on all files relevant to current period
     InitialMetaIsNeeded = MetaIsNeeded
     pN = 0
-    pbN = 0
+    if (EddyProProj%biomet_data == 'embedded') nbRecs = 0
     Raw = 0.d0
     CurrentFile = FirstFile
     rawfile_loop: do
@@ -106,7 +104,6 @@ subroutine ImportCurrentPeriod(InitialTimestamp, FinalTimestamp, FileList, &
             if(.not. FileIsRelevantToCurrentPeriod(FileList(CurrentFile)%name, &
                 InitialTimestamp, FinalTimestamp)) then
                 N = pN
-                bN = pbN
                 exit rawfile_loop
             end if
 
@@ -116,7 +113,6 @@ subroutine ImportCurrentPeriod(InitialTimestamp, FinalTimestamp, FileList, &
             !> To account for file names
             if (FollowingTimestamp > CurrentTimestamp + DatafileDateStep) then
                 N = pN
-                bN = pbN
                 NextFile = CurrentFile
                 if (N < 1) skip_period = .true.
                 return
@@ -165,7 +161,7 @@ subroutine ImportCurrentPeriod(InitialTimestamp, FinalTimestamp, FileList, &
                     BiometIsNeeded, EddyProProj%run_mode /= 'md_retrieval', &
                     EddyProProj%run_mode /= 'md_retrieval', &
                     fRaw, size(fRaw, 1), size(fRaw, 2), skip_file, passed, &
-                    faulty_col, N, bN, FileEndReached)
+                    faulty_col, N, FileEndReached)
 
                 !> File skip control
                 if (skip_file .or. (.not.passed(1))) then
@@ -175,7 +171,6 @@ subroutine ImportCurrentPeriod(InitialTimestamp, FinalTimestamp, FileList, &
                         call ExceptionHandler(25)
                     end if
                     N = pN
-                    bN = pbN
                     CurrentFile = CurrentFile + 1
                     if (allocated(fRaw)) deallocate(fRaw)
                     cycle rawfile_loop
@@ -213,17 +208,37 @@ subroutine ImportCurrentPeriod(InitialTimestamp, FinalTimestamp, FileList, &
             pN = pN + N
 
             !> Biomet date handling
-            if (BiometIsNeeded .and. bN > 0) then
+            if (BiometIsNeeded .and. fnbRecs > 0) then
+
                 !> substitute NaN and Inf with error code
-                where (IsNaN(BiometSet(1:bN, :)) .or. &
-                    BiometSet(1:bN, :) == 1d0 / dzero .or. &
-                    BiometSet(1:bN, :) == -1d0 / dzero) &
-                    BiometSet(1:bN, :) = error
-                !> stores all biomet data together
-                bRaw(pbN + 1: pbN + bN, :) = BiometSet(1:bN, :)
-                ddvec(pbN + 1: pbN + bN)   = dvec(1:bN)
-                ttvec(pbN + 1: pbN + bN)   = tvec(1:bN)
-                pbN = pbN + bN
+                where (IsNaN(fbSet(:, :)) .or. &
+                    fbSet(:, :) == 1d0 / dzero .or. &
+                    fbSet(:, :) == -1d0 / dzero) &
+                    fbSet(:, :) = error
+
+                !> Extend size of bSet to accommodate new data
+                if (nbRecs == 0) then
+                    allocate(bSet(fnbRecs, nbVars))
+                    allocate(bTs(fnbRecs))
+                else
+                    allocate(auxbSet(size(bSet, 1)+fnbRecs, size(bSet, 2)))
+                    allocate(auxbTs(size(bTs)+fnbRecs))
+                    auxbSet(1:size(bSet, 1), :) = bSet(:, :)
+                    auxbTs(1:size(bTs)) = bTs(:)
+                    deallocate(bSet)
+                    deallocate(bTs)
+                    allocate(bSet(size(auxbSet, 1), size(auxbSet, 2)))
+                    allocate(bTs(size(auxbTs)))
+                    bSet = auxbSet
+                    bTs = auxbTs
+                    deallocate(auxbSet)
+                    deallocate(auxbTs)
+                end if
+
+                !> Append new biomet data to bSet
+                bSet(nbRecs + 1: nbRecs + fnbRecs, :) = fbSet(1:fnbRecs, :)
+                bTs(nbRecs + 1: nbRecs + fnbRecs) = fbTs(1:fnbRecs)
+                nbRecs = nbRecs + fnbRecs
             end if
         end if
 
@@ -247,12 +262,12 @@ subroutine ImportCurrentPeriod(InitialTimestamp, FinalTimestamp, FileList, &
     !> Define NextFile
     NextFile = CurrentFile
     N = pN
-    bN = pbN
 
     MetaIsNeeded = InitialMetaIsNeeded
-    if (bN > 0) BiometDataExist = .true.
+    if (nbRecs > 0) bDataFound = .true.
 
     !> Define an overall flag to determine whether there are enough
     !> raw data for the current period
     if (N < 1) skip_period = .true.
+
 end subroutine ImportCurrentPeriod

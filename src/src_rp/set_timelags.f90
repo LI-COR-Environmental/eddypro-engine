@@ -63,9 +63,9 @@ subroutine SetTimelags()
                     !> For water vapor, if requested adjust time lag to current RH
                     !> either taken from meteo or estimated locally from raw data
                     if (TOSetup%h2o_nclass > 1) then
-                        if (Stats%mRH > 0d0 .and. Stats%mRH < RHmax) then
+                        if (biomet%val(bRH) > 0d0 .and. biomet%val(bRH) < RHmax) then
                             !> If meteo RH is available, uses that one
-                            lRH = Stats%mRH
+                            lRH = biomet%val(bRH)
                         else
                             !> If meteo RH is not available, calculate one
                             call LocalRhEstimate(lRH)
@@ -134,13 +134,13 @@ subroutine LocalRhEstimate(lRH)
     !> Air temperature and pressure estimates
     !> Last true condition determines which temperature is used
     locT = Stats%Mean(ts)
-    if(Stats%Mean(te) > 220d0 .and. Stats%Mean(te) < 340d0) locT = Stats%Mean(te)
-    if(Stats%mT       > 220d0 .and. Stats%mT       < 340d0) locT = Stats%mT
+    if(Stats%Mean(te)  > 220d0 .and. Stats%Mean(te) < 340d0) locT = Stats%Mean(te)
+    if(biomet%val(bTa) > 220d0 .and. biomet%val(bTa) < 340d0) locT = biomet%val(bTa)
 
     !> Last true condition determines which pressure is used
     locPr = Metadata%bar_press
-    if(Stats%Mean(pe) > 80000 .and. Stats%Mean(pe) < 110000) locPr = Stats%Mean(pe)
-    if(Stats%mPr      > 80000 .and. Stats%mPr      < 110000) locPr = Stats%mPr
+    if(Stats%Mean(pe)  > 40000 .and. Stats%Mean(pe)  < 110000) locPr = Stats%Mean(pe)
+    if(biomet%val(bPa) > 40000 .and. biomet%val(bPa) < 110000) locPr = biomet%val(bPa)
 
     !> Ambient air molar volume [m+3 mol-1] and air mass density [kg m-3]
     if (locPr > 0d0 .and. locT /= error) then

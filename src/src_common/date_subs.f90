@@ -503,3 +503,82 @@ subroutine tsRelaxedMatch(tsTest, tsList, nrow, tsRange, side, imatch)
     end select
 
 end subroutine tsRelaxedMatch
+
+
+!***************************************************************************
+!
+! \brief       Infer time step (in seconds) from array of timestamps
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+!***************************************************************************
+integer function tsInferTimestep(timestamps, nrow) result(tstep)
+    use m_common_global_var
+    implicit none
+    !> in/out variables
+    integer, intent(in) :: nrow
+    type(DateType) :: timestamps(nrow)
+    !> local variables
+    integer :: i
+    integer :: step
+    !integer, allocatable :: Steps(:), tmpSteps(:)
+    integer :: maxTimes
+    integer :: nsteps
+
+    type StepsType
+        integer :: v
+        integer :: cnt
+    end type StepsType
+    type(StepsType), allocatable :: Steps(:), tmpSteps(:)
+    type(StepsType), parameter :: nullSteps = StepsType(0, 0)
+
+
+    !> First, count how many different time steps are in the array
+    do i = 2, nrow
+        !> Calculate current time step
+        step = nint(timelag(timestamps(i), timestamps(i-1)) * 24d0 * 60d0 * 60d0)
+
+        !> Special case of first value
+        if (i == 2) then
+            allocate(Steps(1))
+            Steps = nullSteps
+            Steps(1)%v = step
+            Steps(1)%cnt = Steps(1)%cnt + 1
+        end if
+
+        !> Check if step is new or already contained in Steps
+        if (.not. any(Steps%v == step)) then
+            !> A bit involved way to extend size of array
+            allocate(tmpSteps(size(Steps)+1))
+            tmpSteps(1:size(Steps)) = Steps
+            deallocate(Steps)
+            !move_alloc(tmpSteps, Steps)
+            allocate(Steps(size(tmpSteps)))
+            Steps=tmpSteps
+            deallocate(tmpSteps)
+            !> Add new step to array
+            Steps(size(Steps):size(Steps))%v = step
+            Steps(size(Steps):size(Steps))%cnt = 1
+        else
+            where(Steps%v == step)
+                Steps%cnt = Steps%cnt + 1
+            end where
+        end if
+    end do
+    nsteps = size(Steps)
+
+    !> Find the occurrences of the most recurring step
+    maxTimes = maxval(Steps%cnt)
+
+    tstep = nint(error)
+    do i = 1, maxTimes
+        if (Steps(i)%cnt .eq. maxTimes) then
+            tstep = Steps(i)%v
+            exit
+        endif
+    end do
+    if (allocated(Steps)) deallocate(Steps)
+end function tsInferTimestep

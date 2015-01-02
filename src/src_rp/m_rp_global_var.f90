@@ -130,66 +130,16 @@ module m_rp_global_var
     integer :: DynamicMetadataOrder(256)
 
     !> biomet data related variables
-    type(BiometSetupType) :: BiometSetup
-
-    type(BiometType) :: Biomet(MaxNumBiometRow)
-    type(ProfileType) :: Profile(MaxNumBiometRow)
-    real(kind = dbl) :: CstmBiometSet(MaxNumBiometRow, MaxNumCstmBiometCol)
-    real(kind = dbl) :: CstmBiomet(MaxNumCstmBiometCol)
-
-    type(BiometType) :: E2Biomet
-    type(ProfileType) :: E2Profile
-    type(BiometCountType) :: CountBiomet
-    type(ProfileCountType) :: CountProfile
-
-    type(BiometVarType) :: BiometVar
-    type(BiometVarType) :: PrevSlowVar
+    type(BiometSetupType) :: bSetup
+    type(BiometType) :: biomet
+    type(BiometType) :: prevBiomet
 
     type(BiometUnitsType) :: BiometUnits
     type(ProfileUnitsType) :: ProfileUnits
 
-    type(OrdType) :: BiometOrd(300)
-    type(OrdType) :: ProfileOrd(300)
-    type(OrdType) :: CstmOrd(300)
-
-    type(OrdType), parameter :: &
-        NullOrd = OrdType('none', 'none')
-
     type(DynMDType), parameter :: &
         ErrDynamicMetadata = DynMDType('none', error, error, &
             error, error, error, error, error, error, NullInstrument)
-
-    type(BiometType), parameter :: &
-        ErrBiomet = BiometType('none', 'none', error, error, &
-            error, error, error, error, error, error, error, error, error, error, error, &
-            error, error, error, error, error, error, error, error, error, error, error, &
-            error, error, error, error, error, error, error, error, error, error, error, &
-            error, error, error, error, .false., .false., .false.)
-
-    type(BiometVarType), parameter :: &
-        ErrBiometVar = BiometVarType(error, error, error, error, error, error, error, error, error, error, &
-            error, error, error, error, error, error, error, error)
-
-    type(ProfileType), parameter :: &
-        ErrProfile = ProfileType(error, error, error, error, error, &
-            error, error, error)
-
-    type(BiometType), parameter :: &
-        NullBiomet = BiometType('none', 'none', 0d0, 0d0, &
-            0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, &
-            0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, &
-            0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, &
-            0d0, 0d0, 0d0, 0d0, .false., .false., .false.)
-
-    type(ProfileType), parameter :: &
-        NullProfile = ProfileType(0d0, 0d0, 0d0, 0d0, 0d0, &
-            0d0, 0d0, 0d0)
-
-    type(BiometCountType), parameter :: &
-        NullCountBiomet = BiometCountType(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, &
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-    type(ProfileCountType), parameter :: &
-        NullCountProfile = ProfileCountType(0, 0, 0, 0, 0, 0, 0, 0)
 
     type(BiometUnitsType), parameter :: &
         NullBiometUnits = BiometUnitsType('none', 'none', 'none', &
@@ -197,6 +147,7 @@ module m_rp_global_var
             'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', &
             'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', &
             'none', 'none', 'none')
+
     type(ProfileUnitsType), parameter :: &
         NullProfileUnits = ProfileUnitsType('none', 'none', 'none', 'none', 'none', &
             'none', 'none', 'none')

@@ -172,7 +172,7 @@ subroutine CreateDatasetsRP(MasterTimeSeries, nrow, rpStartIndx, rpEndIndx)
     end if
 
     !> Biomet measurements file
-    if (EddyProProj%out_biomet .and. NumBiometVar > 0) then
+    if (EddyProProj%out_biomet .and. nbVars > 0) then
         write(*,'(a)', advance = 'no') '  Creating Biomet dataset..'
         call MakeDataset(Slow_Path(1:len_trim(Slow_Path)), &
             MasterTimeSeries, size(MasterTimeSeries), rpStartIndx, rpEndIndx, .false., 2)
@@ -183,7 +183,7 @@ subroutine CreateDatasetsRP(MasterTimeSeries, nrow, rpStartIndx, rpEndIndx)
     if (len_trim(QCdetails_Path) /= 0 .and. RPsetup%out_qc_details .and. Meth%qcflag /= 'none') &
         del_status = system(comm_del // '"' // QCdetails_Path(1:len_trim(QCdetails_Path)) // '"')
 
-    if (len_trim(Slow_Path) /= 0 .and. EddyProProj%out_biomet .and. NumBiometVar > 0) &
+    if (len_trim(Slow_Path) /= 0 .and. EddyProProj%out_biomet .and. nbVars > 0) &
         del_status = system(comm_del // '"' // Slow_Path(1:len_trim(Slow_Path)) // '"')
 
     if (len_trim(St1_Path) /= 0 .and. RPsetup%out_st(1)) &

@@ -196,6 +196,36 @@ module m_typedef
         logical :: little_endian
     end type BinaryType
 
+    type :: BiometFileMetadataType
+        integer :: tsCols(7)
+        integer :: numTsCol
+        integer :: nhead
+        integer :: time_step
+        integer :: tolerance
+        real(kind = dbl) :: duration
+        character(1)     :: separator
+        character(32)    :: tstamp_ref
+        character(32)    :: tsPattern
+        character(32)    :: data_label
+    end type BiometFileMetadataType
+
+    type :: BiometVarsType
+        integer :: loc
+        integer :: profile
+        integer :: rep
+        real(kind = dbl) :: gain
+        real(kind = dbl) :: offset
+        character(32) :: label
+        character(32) :: id
+        character(32) :: name
+        character(32) :: accumul_type
+        character(32) :: nature
+        character(32) :: instr
+        character(32) :: unit_in
+        character(32) :: unit_out
+        character(32) :: pretty_unit_out
+    end type BiometVarsType
+
     type :: BiometColType
         character(32) :: var
         character(32) :: id
@@ -648,30 +678,7 @@ module m_typedef
     end type LongSpectraType
 
     type :: BiometSetupType
-        character(1) :: separator
-        character(64) :: tstamp_prototype
-        integer :: head_lines
-        integer :: tstep
-        logical :: use_header
-        character(16) :: tstamp_ref
-        integer :: Ta
-        integer :: Pa
-        integer :: RH
-        integer :: PPFD
-        integer :: LWin
-        integer :: Rg
-        integer :: CO2
-        integer :: H2O
-        integer :: CH4
-        integer :: GAS4
-        integer :: prof_swc
-        integer :: prof_shf
-        integer :: prof_ts
-        integer :: prof_t
-        integer :: prof_co2
-        integer :: prof_h2o
-        integer :: prof_ch4
-        integer :: prof_gas4
+        integer :: sel(6)
         real(kind = dbl) :: zT(MaxProfNodes)
         real(kind = dbl) :: zCO2(MaxProfNodes)
         real(kind = dbl) :: zH2O(MaxProfNodes)
@@ -690,94 +697,22 @@ module m_typedef
         logical :: add_sonic_lptf
     end type SpecMethType
 
+    type :: BiometMeasType
+        real(kind = dbl) :: val
+        character(32) :: label
+        character(32) :: id
+        character(32) :: sensor
+        character(32) :: units
+        character(32) :: integration_type
+        type(DateType) :: timestamp
+    end type BiometMeasType
+
     type :: BiometType
-        character(10) :: date
-        character(5) :: time
-        real(kind = dbl) :: Ta(MaxBiometRep)
-        real(kind = dbl) :: Ts(MaxBiometRep)
-        real(kind = dbl) :: Tbc(MaxBiometRep)
-        real(kind = dbl) :: Tc(MaxBiometRep)
-        real(kind = dbl) :: Tbole(MaxBiometRep)
-        real(kind = dbl) :: Pa(MaxBiometRep)
-        real(kind = dbl) :: RH(MaxBiometRep)
-        real(kind = dbl) :: Rg(MaxBiometRep)
-        real(kind = dbl) :: Ruva(MaxBiometRep)
-        real(kind = dbl) :: Ruvb(MaxBiometRep)
-        real(kind = dbl) :: LWin(MaxBiometRep)
-        real(kind = dbl) :: LWout(MaxBiometRep)
-        real(kind = dbl) :: SWin(MaxBiometRep)
-        real(kind = dbl) :: SWout(MaxBiometRep)
-        real(kind = dbl) :: SWdif(MaxBiometRep)
-        real(kind = dbl) :: SWbc(MaxBiometRep)
-        real(kind = dbl) :: P(MaxBiometRep)
-        real(kind = dbl) :: Prain(MaxBiometRep)
-        real(kind = dbl) :: Psnow(MaxBiometRep)
-        real(kind = dbl) :: SNOWD(MaxBiometRep)
-        real(kind = dbl) :: Rn(MaxBiometRep)
-        real(kind = dbl) :: Rd(MaxBiometRep)
-        real(kind = dbl) :: Rr(MaxBiometRep)
-        real(kind = dbl) :: PPFD(MaxBiometRep)
-        real(kind = dbl) :: PPFDd(MaxBiometRep)
-        real(kind = dbl) :: PPFDr(MaxBiometRep)
-        real(kind = dbl) :: PPFDbc(MaxBiometRep)
-        real(kind = dbl) :: APAR(MaxBiometRep)
-        real(kind = dbl) :: Alb(MaxBiometRep)
-        real(kind = dbl) :: PRI(MaxBiometRep)
-        real(kind = dbl) :: LAI(MaxBiometRep)
-        real(kind = dbl) :: WS(MaxBiometRep)
-        real(kind = dbl) :: MWS(MaxBiometRep)
-        real(kind = dbl) :: WD(MaxBiometRep)
-        real(kind = dbl) :: StemFlow(MaxBiometRep)
-        real(kind = dbl) :: SapFlow(MaxBiometRep)
-        real(kind = dbl) :: TR(MaxBiometRep)
-        real(kind = dbl) :: SWC(MaxBiometRep)
-        real(kind = dbl) :: SHF(MaxBiometRep)
+        real(kind = dbl) :: val(6)
         logical :: Pused
         logical :: RHused
         logical :: Tused
     end type BiometType
-
-    type :: BiometCountType
-        integer :: Ta(MaxBiometRep)
-        integer :: Ts(MaxBiometRep)
-        integer :: Tbc(MaxBiometRep)
-        integer :: Tc(MaxBiometRep)
-        integer :: Tbole(MaxBiometRep)
-        integer :: Pa(MaxBiometRep)
-        integer :: RH(MaxBiometRep)
-        integer :: Rg(MaxBiometRep)
-        integer :: Ruva(MaxBiometRep)
-        integer :: Ruvb(MaxBiometRep)
-        integer :: LWin(MaxBiometRep)
-        integer :: LWout(MaxBiometRep)
-        integer :: SWin(MaxBiometRep)
-        integer :: SWout(MaxBiometRep)
-        integer :: SWdif(MaxBiometRep)
-        integer :: SWbc(MaxBiometRep)
-        integer :: P(MaxBiometRep)
-        integer :: Prain(MaxBiometRep)
-        integer :: Psnow(MaxBiometRep)
-        integer :: SNOWD(MaxBiometRep)
-        integer :: Rn(MaxBiometRep)
-        integer :: Rd(MaxBiometRep)
-        integer :: Rr(MaxBiometRep)
-        integer :: PPFD(MaxBiometRep)
-        integer :: PPFDd(MaxBiometRep)
-        integer :: PPFDr(MaxBiometRep)
-        integer :: PPFDbc(MaxBiometRep)
-        integer :: APAR(MaxBiometRep)
-        integer :: Alb(MaxBiometRep)
-        integer :: PRI(MaxBiometRep)
-        integer :: LAI(MaxBiometRep)
-        integer :: WS(MaxBiometRep)
-        integer :: MWS(MaxBiometRep)
-        integer :: WD(MaxBiometRep)
-        integer :: StemFlow(MaxBiometRep)
-        integer :: SapFlow(MaxBiometRep)
-        integer :: TR(MaxBiometRep)
-        integer :: SWC(MaxBiometRep)
-        integer :: SHF(MaxBiometRep)
-    end type BiometCountType
 
     type :: BiometUnitsType
         character(32) :: Ta(MaxBiometRep)
@@ -821,28 +756,6 @@ module m_typedef
         character(32) :: SHF(MaxBiometRep)
     end type BiometUnitsType
 
-    type :: ProfileType
-        real(kind = dbl) :: SWC(MaxProfRep, MaxProfNodes)
-        real(kind = dbl) :: SHF(MaxProfRep, MaxProfNodes)
-        real(kind = dbl) :: ST(MaxBiometRep, MaxProfNodes)
-        real(kind = dbl) :: CO2(MaxBiometRep, MaxProfNodes)
-        real(kind = dbl) :: H2O(MaxBiometRep, MaxProfNodes)
-        real(kind = dbl) :: CH4(MaxBiometRep, MaxProfNodes)
-        real(kind = dbl) :: GAS4(MaxBiometRep, MaxProfNodes)
-        real(kind = dbl) :: T(MaxBiometRep, MaxProfNodes)
-    end type ProfileType
-
-    type :: ProfileCountType
-        integer :: SWC(MaxProfRep, MaxProfNodes)
-        integer :: SHF(MaxProfRep, MaxProfNodes)
-        integer :: ST(MaxProfRep, MaxProfNodes)
-        integer :: CO2(MaxProfRep, MaxProfNodes)
-        integer :: H2O(MaxProfRep, MaxProfNodes)
-        integer :: CH4(MaxProfRep, MaxProfNodes)
-        integer :: GAS4(MaxProfRep, MaxProfNodes)
-        integer :: T(MaxProfRep, MaxProfNodes)
-    end type ProfileCountType
-
     type :: ProfileUnitsType
         character(32) :: SWC(MaxProfRep)
         character(32) :: SHF(MaxProfRep)
@@ -853,37 +766,6 @@ module m_typedef
         character(32) :: GAS4(MaxBiometRep)
         character(32) :: T(MaxBiometRep)
     end type ProfileUnitsType
-
-    type BiometVarType
-        real(kind = dbl) :: Ta
-        real(kind = dbl) :: Pa
-        real(kind = dbl) :: RH
-        real(kind = dbl) :: Rg
-        real(kind = dbl) :: LWin
-        real(kind = dbl) :: PPFD
-        real(kind = dbl) :: CO2
-        real(kind = dbl) :: H2O
-        real(kind = dbl) :: CH4
-        real(kind = dbl) :: GAS4
-        real(kind = dbl) :: prof_swc(MaxProfNodes)
-        real(kind = dbl) :: prof_shf(MaxProfNodes)
-        real(kind = dbl) :: prof_ts(MaxProfNodes)
-        real(kind = dbl) :: prof_t(MaxProfNodes)
-        real(kind = dbl) :: prof_co2(MaxProfNodes)
-        real(kind = dbl) :: prof_h2o(MaxProfNodes)
-        real(kind = dbl) :: prof_ch4(MaxProfNodes)
-        real(kind = dbl) :: prof_gas4(MaxProfNodes)
-    end type BiometVarType
-
-    type :: OrdType
-        character(32) :: var
-        character(32) :: units
-    end type OrdType
-
-    type :: MetVarType
-        character(32) :: id
-        integer :: ord
-    end type MetVarType
 
     type :: Mul7700Type
         real(kind = dbl) :: A
@@ -1182,12 +1064,6 @@ module m_typedef
         real(kind = dbl) :: T
         real(kind = dbl) :: Pr
         real(kind = dbl) :: RH
-        real(kind = dbl) :: mT
-        real(kind = dbl) :: mPr
-        real(kind = dbl) :: mRH
-        real(kind = dbl) :: mRg
-        real(kind = dbl) :: mLWin
-        real(kind = dbl) :: mPPFD
         logical :: daytime
         integer :: nlines
         character(32) :: Filename

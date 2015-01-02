@@ -694,3 +694,223 @@ subroutine unicode_to_utf8(unicode,utf8,n)
       n=4
     end if
 end subroutine
+
+!***************************************************************************
+!
+! \brief       Counts how many times string s2 occurs in string s1
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+function countsubstring(s1, s2) result(c)
+    character(*), intent(in) :: s1, s2
+    integer :: c, p, posn
+
+    c = 0
+    if(len(s2) == 0) return
+    p = 1
+    do
+        posn = index(s1(p:), s2)
+        if(posn == 0) return
+        c = c + 1
+        p = p + posn + len(s2)
+    end do
+end function
+
+
+!***************************************************************************
+!
+! \brief       Reads row and returns number of items excluding those
+!              matching substring (case insensitive)
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+!***************************************************************************
+integer function SplitCount(string, delimiter, exclude, caseSensitive) result(cnt)
+    use m_common_global_var
+    implicit none
+    !> in/out variables
+    character(*), intent(in) :: string
+    character(*), intent(in) :: delimiter
+    character(*), intent(in) :: exclude
+    logical, intent(in) :: caseSensitive
+    !> Local variables
+    integer :: del
+    character(len(string)) :: item
+    character(len(string)) :: lstring
+    character(len(exclude)) :: lexclude
+
+
+    lstring = trim(string)
+    lexclude = trim(exclude)
+
+    !> If exclusion is not case sensitive, convert everything to upper-case
+    if (.not. caseSensitive) then
+        call uppercase(lstring)
+        call uppercase(lexclude)
+    end if
+
+    cnt = 0
+    do
+        del = index(lstring, delimiter)
+        if (del > 0 .and. (len(trim(lstring)) >= del)) then
+            item = lstring(1:del)
+            cnt = cnt + 1
+            if (len(lexclude) > 0 .and. &
+                index(item, lexclude) /= 0) cnt = cnt - 1
+            lstring = lstring(del+1: len(lstring))
+        else
+            if ((len(trim(lstring)) > del+1)) then
+                cnt = cnt + 1
+                if (len(lexclude) > 0 .and. &
+                    index(item, lexclude) /= 0) cnt = cnt - 1
+            end if
+            exit
+        end if
+    end do
+
+end function SplitCount
+
+!***************************************************************************
+!
+! \brief       In 'string', replace "replace_what" with "replace_with"
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+!***************************************************************************
+function replace(string, replace_what, replace_with) result(new_string)
+    use m_common_global_var
+    implicit none
+    !> in/out variables
+    character(*), intent(in) :: string
+    character(*), intent(in) :: replace_what
+    character(*), intent(in) :: replace_with
+!    character(len(string) - len(replace_what) + len(replace_with)) :: new_string
+    character(*) :: new_string
+    !> local variables
+    integer :: init
+
+    init = index(string, replace_what)
+    if (init /= 0) then
+        if (init == 1) then
+            new_string = trim(replace_with) &
+                // string(len(replace_what)+1:len(trim(string)))
+        else if (init + len(replace_what) == len(string)) then
+!            new_string = string(1:init-1) // trim(replace_with) &
+!                // string(init+len(replace_what):len(trim(string)))
+        else
+            new_string = string(1:init-1) // trim(replace_with) &
+                // string(init+len(replace_what):len(trim(string)))
+        end if
+    else
+        new_string = string
+    end if
+end function replace
+
+!***************************************************************************
+!
+! \brief
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+!***************************************************************************
+integer function CountCharInString(s, c) result(n)
+    use m_common_global_var
+    implicit none
+    !> In/out variables
+    character(*) :: s
+    character(*) :: c
+    !> Local variables
+    integer :: i
+
+
+    n = 0
+    do i = 1, len_trim(s)
+        if (s(i:i) == c) n = n + 1
+    end do
+end function
+
+!***************************************************************************
+!
+! \brief
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+!***************************************************************************
+logical function is_numeric(s)
+    use m_numeric_kinds
+    implicit none
+    !> In/out variables
+    character(*),intent(in) :: s
+    !> Local variables
+    real(kind=dbl) :: x
+    integer :: e
+
+    read(s, *, iostat=e) x
+    is_numeric = e == 0
+end function is_numeric
+
+!***************************************************************************
+!
+! \brief
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+!***************************************************************************
+logical function is_date(s)
+    use m_numeric_kinds
+    implicit none
+    !> In/out variables
+    character(*),intent(in) :: s
+    !> Local variables
+    logical, external :: is_numeric
+
+    is_date = len_trim(s) == 10 &
+        .and. is_numeric(s(1:4)) &
+        .and. is_numeric(s(6:7)) &
+        .and. is_numeric(s(9:10)) &
+        .and. s(5:5) == '-' .and. s(8:8) == '-'
+end function is_date
+
+!***************************************************************************
+!
+! \brief
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+!***************************************************************************
+logical function is_time(s)
+    use m_numeric_kinds
+    implicit none
+    !> In/out variables
+    character(*),intent(in) :: s
+    !> Local variables
+    logical, external :: is_numeric
+
+    is_time = len_trim(s) == 5 &
+        .and. is_numeric(s(1:2)) &
+        .and. is_numeric(s(4:5)) &
+        .and. s(3:3) == ':'
+end function is_time

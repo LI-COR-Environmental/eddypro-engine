@@ -180,14 +180,17 @@ subroutine AddErrorString(unt, Timestamp, ErrString, LenErrStr, IsGhgEuropeFile,
     if (AddNoFile) then
         if (IsGhgEuropeFile) then
             String = 'not_enough_data,' // date(1:10) // ',' // time // ',' &
-                                   // EddyProProj%err_label(1:len_trim(EddyProProj%err_label)) &
-                                   // ErrString(index(ErrString, ',,') + 1: len_trim(ErrString))
+                     // EddyProProj%err_label(1:len_trim(EddyProProj%err_label)) &
+                     // ErrString(index(ErrString, ',,') + 1: len_trim(ErrString))
         else
-            String = 'not_enough_data,' // date(1:10) // ',' // time // ',' // char_doy(1: index(char_doy, '.')+ 3) &
-                                   // ErrString(index(ErrString, ',,') + 1: len_trim(ErrString))
+            String = 'not_enough_data,' // date(1:10) // ',' // time // ',' &
+                     // char_doy(1: index(char_doy, '.')+ 3) &
+                     // ErrString(index(ErrString, ',,') + 1: len_trim(ErrString))
         end if
     else
-        String = date(1:10) // ',' // time // ',' // ErrString (index(ErrString, ',,') + 1: len_trim(ErrString))
+        String = date(1:10) // ',' // time // ',' &
+                // char_doy(1: index(char_doy, '.')+ 3) &
+                // ErrString (index(ErrString, ',,') + 1: len_trim(ErrString))
     end if
 
     !> write on file

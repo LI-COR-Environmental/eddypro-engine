@@ -29,20 +29,20 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine ReadBiometMetaFile(MetaFile, IniFileNotFound)
+subroutine ReadBiometMetaFile(MetaFile, skip_file)
     use m_common_global_var
     implicit none
     !> in/out variables
     character(*), intent(in) :: MetaFile
-    logical, intent(out) :: IniFileNotFound
+    logical, intent(out) :: skip_file
 
 
     !> parse ini file and store all numeric and character tags
     call ParseIniFile(MetaFile, '', BiometNTags, BiometCTags, size(BiometNTags), size(BiometCTags), &
-         BiometNTagFound, BiometCTagFound, IniFileNotFound)
+         BiometNTagFound, BiometCTagFound, skip_file)
 
     !> selects only tags needed in this software, and store them in relevant variables
-    call WriteBiometMetaVariables()
+    call WriteBiometMetaVariables(skip_file)
 
 end subroutine ReadBiometMetaFile
 
@@ -58,92 +58,123 @@ end subroutine ReadBiometMetaFile
 ! \test
 ! \todo
 !***************************************************************************
-subroutine WriteBiometMetaVariables()
+subroutine WriteBiometMetaVariables(skip_file)
     use m_common_global_var
     implicit none
-    !> in/out variables
-    !> local variables
+    !> In/out variables
+    logical, intent(out) :: skip_file
+    !> Local variables
     integer :: initn_col
     integer :: initc_col
     integer :: leapn_col
     integer :: leapc_col
-    integer :: i = 0
+    integer :: i
+    integer :: cnt
+    integer :: tsCnt
+    integer :: ix
+    integer :: nbTimestamp
+    character(32) :: label
 
 
     !> File general features
-    BiometMeta%nhead      = nint(BiometNTags(1001)%value)
-    BiometMeta%duration   = BiometNTags(1002)%value
-    BiometMeta%rate       = BiometNTags(1003)%value
+    skip_file = .false.
+    bFileMetadata%nhead     = nint(BiometNTags(1001)%value)
+    bFileMetadata%duration  = BiometNTags(1002)%value
+    bFileMetadata%time_step = nint(BiometNTags(1003)%value)
 
     select case (BiometCTags(1001)%value(1:len_trim(BiometCTags(1001)%value)))
         case ('tab')
-        BiometMeta%separator = char(9)
+            bFileMetadata%separator = char(9)
         case ('comma')
-        BiometMeta%separator = ','
+            bFileMetadata%separator = ','
         case ('semicolon')
-        BiometMeta%separator = ';'
+            bFileMetadata%separator = ';'
         case ('space')
-        BiometMeta%separator = ' '
+            bFileMetadata%separator = ' '
         case default
-        BiometMeta%separator = BiometCTags(1001)%value(1:1)
+            bFileMetadata%separator = BiometCTags(1001)%value(1:1)
     end select
-    BiometMeta%data_label = BiometCTags(1002)%value(1:len_trim(BiometCTags(1002)%value))
+    bFileMetadata%data_label = &
+        BiometCTags(1002)%value(1:len_trim(BiometCTags(1002)%value))
 
-    !> Initialization of column information
-    BiometMeta%BiometCol = NullBiometCol
-    BiometMeta%BiometCol(:)%var = 'IGNORE'
+    !> Determine number of biomet variables nbVars
+    leapc_col = 7
+    initc_col = 1 - leapc_col
+    nbVars = 0
+    nbTimestamp = 0
+    do i = 1, MaxNumBiometCol
+        if(BiometCTagFound(initc_col + i*leapc_col)) then
+            label = trim(adjustl(BiometCTags(initc_col + i*leapc_col)%value))
+            call uppercase(label)
+            if (label == 'DATE' .or. label == 'TIME') then
+                nbTimestamp = nbTimestamp + 1
+                cycle
+            end if
+            nbVars = nbVars + 1
+        else
+            exit
+        end if
+    end do
+
+    !> Control on number of biomet variables found
+    if (nbVars <= 0) then
+        skip_file = .true.
+        return
+    end if
+
+    !> Allocate and initialize bVars
+    if (allocated(bVars)) deallocate(bVars)
+    allocate(bVars(nbVars))
+    if (allocated(bAggr)) deallocate(bAggr)
+    allocate(bAggr(nbVars))
+    bVars = nullbVar
 
     !> Variables description
     leapn_col = 6
     leapc_col = 7
     initn_col = 1 - leapn_col
     initc_col = 1 - leapc_col
-    NumBiometCol = 0
-    do i = 1, MaxNumBiometCol
-        if(BiometCTagFound(initc_col + i*leapc_col)) then
-            NumBiometCol = NumBiometCol + 1
-            !> Textual fields
-            !> Variable name
-            BiometMeta%BiometCol(i)%var = BiometCTags(initc_col + i*leapc_col)%value &
-                (1:len_trim(BiometCTags(initc_col + i*leapc_col)%value))
-            !> Variable ID
-            BiometMeta%BiometCol(i)%id = BiometCTags(initc_col + i*leapc_col + 1)%value &
-                (1:len_trim(BiometCTags(initc_col + i*leapc_col + 1)%value))
-            !> Variable Instrument
-            BiometMeta%BiometCol(i)%instr = BiometCTags(initc_col + i*leapc_col + 2)%value &
-                (1:len_trim(BiometCTags(initc_col + i*leapc_col + 2)%value))
-            !> Variable unit in
-            BiometMeta%BiometCol(i)%unit_in = BiometCTags(initc_col + i*leapc_col + 3)%value &
-                (1:len_trim(BiometCTags(initc_col + i*leapc_col + 3)%value))
-            !> Variable unit out
-            BiometMeta%BiometCol(i)%unit_out = BiometCTags(initc_col + i*leapc_col + 4)%value &
-                (1:len_trim(BiometCTags(initc_col + i*leapc_col + 4)%value))
-            !> Numeric fields
-            !> Variable name
-            BiometMeta%BiometCol(i)%gain   = BiometNTags(initn_col + i*leapn_col)%value
-            BiometMeta%BiometCol(i)%offset = BiometNTags(initn_col + i*leapn_col + 1)%value
+    cnt = 0
+    tsCnt = 0
+    bFileMetadata%tsPattern = ''
+    do i = 1, nbVars + nbTimestamp
+        ix = initc_col + i*leapc_col
+        if(BiometCTagFound(ix)) then
+            !> if
+            label = trim(adjustl(BiometCTags(ix)%value))
+            call uppercase(label)
+            if (label == 'DATE') then
+                tsCnt = tsCnt + 1
+                bFileMetadata%tsCols(tsCnt) = i
+                bFileMetadata%tsPattern = &
+                    trim(adjustl(bFileMetadata%tsPattern)) &
+                    // 'yyyy-mm-dd'
+            else if (label == 'TIME') then
+                tsCnt = tsCnt + 1
+                bFileMetadata%tsCols(tsCnt) = i
+                bFileMetadata%tsPattern = &
+                    trim(adjustl(bFileMetadata%tsPattern)) &
+                    // 'HH:MM'
+            else
+                cnt = cnt + 1
+                bVars(cnt)%label    = trim(adjustl(BiometCTags(ix)%value))
+                bVars(cnt)%id       = trim(adjustl(BiometCTags(ix + 1)%value))
+                bVars(cnt)%instr    = trim(adjustl(BiometCTags(ix + 2)%value))
+                bVars(cnt)%unit_in  = trim(adjustl(BiometCTags(ix + 3)%value))
+            end if
         end if
     end do
+    bFileMetadata%numTsCol = tsCnt
 
-    !> Upper-case everything
-    do i = 1, NumBiometCol
-        call uppercase(BiometMeta%BiometCol(i)%var(1:len_trim(BiometMeta%BiometCol(i)%var)))
-        call uppercase(BiometMeta%BiometCol(i)%id(1:len_trim(BiometMeta%BiometCol(i)%id)))
-        call uppercase(BiometMeta%BiometCol(i)%unit_in(1:len_trim(BiometMeta%BiometCol(i)%unit_in)))
-        call uppercase(BiometMeta%BiometCol(i)%unit_out(1:len_trim(BiometMeta%BiometCol(i)%unit_out)))
-        call uppercase(BiometMeta%BiometCol(i)%instr(1:len_trim(BiometMeta%BiometCol(i)%instr)))
+    !> If variable has no label, stick ID to label
+    do i = 1, nbVars
+        if (len_trim(bVars(i)%label) == 0) bVars(i)%label = bVars(i)%id
     end do
 
-    !> Caclulate how many date-related columns are present in the files
-    numBiometDateCol = 0
-    if (BiometMeta%BiometCol(1)%var == 'DATE' .or. BiometMeta%BiometCol(1)%var == 'TIME') numBiometDateCol = 1
-    if (BiometMeta%BiometCol(1)%var == 'DATE' .and. BiometMeta%BiometCol(2)%var == 'TIME') numBiometDateCol = 2
-    NumBiometVar = NumBiometCol - numBiometDateCol
+    !> Append suffix if variables have not
+    call BiometAppendLocationSuffix()
 
-    !> Calculate time step
-    if (BiometMeta%rate > 0) then
-        BiometMeta%step = 1d0 / BiometMeta%rate / 60d0
-    else
-        BiometMeta%step = error
-    end if
+    !> Fill variables information based on label and other available fields
+    call BiometEnrichVarsDescription()
+
 end subroutine WriteBiometMetaVariables

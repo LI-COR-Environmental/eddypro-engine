@@ -1,7 +1,7 @@
 !***************************************************************************
-! write_out_biomet.f90
+! sum_no_error.f90
 ! --------------------
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -20,7 +20,8 @@
 !
 !***************************************************************************
 !
-! \brief       Write biomet data on (temporary) output files
+! \brief       Calculate column-wise sums on a 2d array \n
+!              ignoring specified error values \n
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -29,24 +30,29 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine WriteOutBiomet(init_string)
-    use m_rp_global_var
+subroutine SumNoError(Set, nrow, ncol, Summ, err_float)
+    use m_common_global_var
     implicit none
     !> in/out variables
-    character(*), intent(in) :: init_string
+    integer, intent(in) :: nrow, ncol
+    real(kind = dbl), intent(in) :: err_float
+    real(kind = dbl), intent(in) :: Set(nrow, ncol)
+    real(kind = dbl), intent(out) :: Summ(ncol)
     !> local variables
     integer :: i
-    character(2048) :: dataline
-    character(64) :: datum
+    integer :: j
+    logical :: data_exist
 
-    if (EddyProProj%out_biomet .and. nbVars > 0) then
-        call clearstr(dataline)
-        call AddDatum(dataline, init_string(index(init_string, ',') &
-            + 1:len_trim(init_string)), separator)
-        do i = 1, nbVars
-            call WriteDatumFloat(bAggr(i), datum, EddyProProj%err_label)
-            call AddDatum(dataline, datum, separator)
+    Summ = 0d0
+    do j = 1, ncol
+        data_exist = .false.
+        do i = 1, nrow
+            if (Set(i, j) /= err_float) then
+                data_exist = .true.
+                Summ(j) = Summ(j) + Set(i, j)
+            end if
         end do
-        write(uslow, '(a)') dataline(1:len_trim(dataline) - 1)
-    end if
-end subroutine WriteOutBiomet
+        if (.not. data_exist) Summ(j) = err_float
+    end do
+end subroutine SumNoError
+

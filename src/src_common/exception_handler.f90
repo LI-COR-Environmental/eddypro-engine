@@ -254,7 +254,18 @@ subroutine ExceptionHandler(error_code)
         case(69)
             write(*,*) ' Error(69)> There is a problem with results of the spectral assessment.'
             write(*,*) ' Error(69)> High-frequency spectral correction method switched to Moncrieff et al. (1997).'
-
+        case(70)
+            write(*,*) ' Error(70)> Inconsistent number of variables in biomet files.'
+            write(*,*) ' Error(70)> EddyPro cannot resolve the conflict and will thus proceed without using biomet data.'
+        case(71)
+            write(*,*) ' Error(71)> No valid biomet record imported.'
+            write(*,*) ' Error(71)> EddyPro will proceed without using biomet data.'
+        case(72)
+            write(*,*) '  Warning(72)> No valid biomet record found for this period.'
+        case(73)
+            write(*,*) '  Error(73)> The label of at least one biomet variable misses'
+            write(*,*) '  Error(73)> or has incomplete metadata indication ("_x_x_x" suffix).'
+            write(*,*) '  Error(73)> EddyPro will proceed without using biomet data.'
     end select
 end subroutine ExceptionHandler
 

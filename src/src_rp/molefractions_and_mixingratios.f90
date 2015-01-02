@@ -44,8 +44,10 @@ subroutine MoleFractionsAndMixingRatios()
         Stats%d(gas) = error
         Stats%chi(gas) = error
         Stats%r(gas) = error
-        !> Set correct air molar volume, depending on instrument path type (closed or open)
-        if (E2Col(gas)%present .and. E2Col(gas)%instr%path_type == 'closed') then
+        !> Set correct air molar volume, depending
+        !> on instrument path type (closed or open)
+        if (E2Col(gas)%present &
+            .and. E2Col(gas)%instr%path_type == 'closed') then
             LocVa(gas) = E2Col(gas)%Va
         else
             LocVa(gas) = Ambient%Va
@@ -73,8 +75,9 @@ subroutine MoleFractionsAndMixingRatios()
                 Stats%d(h2o) = error
             end if
         case('molar_density')
-            !> If water vapour is molar density [mmol_w m-3] calculate mole fraction
-            !> [mmol_w mol_a-1] by multiplication by air mole volume [m+3 mol_a-1]
+            !> If water vapour is molar density [mmol_w m-3]
+            !> calculate mole fraction [mmol_w mol_a-1] by multiplication by
+            !> air mole volume [m+3 mol_a-1]
             Stats%d(h2o) = Stats%Mean(h2o)
             if (LocVa(h2o) > 0d0) then
                 Stats%chi(h2o) = Stats%Mean(h2o) * LocVa(h2o)
@@ -96,7 +99,8 @@ subroutine MoleFractionsAndMixingRatios()
                 case('mixing_ratio')
                     Stats%r(gas)   = Stats%Mean(gas)
                     if (Stats%r(h2o) /= error) then
-                        Stats%chi(gas) = Stats%Mean(gas) / (1.d0 + Stats%r(h2o) * 1d-3)
+                        Stats%chi(gas) = Stats%Mean(gas) &
+                            / (1.d0 + Stats%r(h2o) * 1d-3)
                     else
                         Stats%chi(gas) = Stats%r(gas)
                     end if
@@ -108,7 +112,8 @@ subroutine MoleFractionsAndMixingRatios()
                 case('mole_fraction')
                     Stats%chi(gas) = Stats%Mean(gas)
                     if (Stats%chi(h2o) /= error) then
-                        Stats%r(gas) = Stats%chi(gas) / (1.d0 - Stats%chi(h2o) * 1d-3)
+                        Stats%r(gas) = Stats%chi(gas) &
+                            / (1.d0 - Stats%chi(h2o) * 1d-3)
                     else
                         Stats%r(gas) = Stats%chi(gas)
                     end if
@@ -122,7 +127,8 @@ subroutine MoleFractionsAndMixingRatios()
                     if (LocVa(gas) > 0d0) then
                         Stats%chi(gas) = Stats%Mean(gas) * LocVa(gas) * 1d3
                         if (Stats%chi(h2o) /= error) then
-                            Stats%r(gas) = Stats%chi(gas) / (1.d0 - Stats%chi(h2o) * 1d-3)
+                            Stats%r(gas) = Stats%chi(gas) &
+                                / (1.d0 - Stats%chi(h2o) * 1d-3)
                         else
                             Stats%r(gas) = Stats%chi(gas)
                         end if

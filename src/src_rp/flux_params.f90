@@ -40,12 +40,14 @@ subroutine FluxParams(printout)
     real(kind = dbl) :: Cpd
     real(kind = dbl) :: Cpv
 
-    if (printout) write(*,'(a)', advance = 'no') '  Calculating auxiliary variables..'
+    if (printout) write(*,'(a)', advance = 'no') &
+        '  Calculating auxiliary variables..'
 
     Ambient%alpha = 0.51d0
 
-    !> Water vapour partial pressure at saturation [Pa] (this formula gives same results as
-    !> that in Buck (1981), cited in Campbell and Norman (1998) - Environmental Biophysics
+    !> Water vapour partial pressure at saturation [Pa]
+    !> (this formula gives same results as that in Buck (1981),
+    !> cited in Campbell and Norman (1998) - Environmental Biophysics
     if (Stats%T > 0d0) then
         Ambient%es = (dexp(77.345d0 + 0.0057d0 * Stats%T &
                       - 7235.d0 / Stats%T)) / Stats%T**(8.2d0)
@@ -53,10 +55,10 @@ subroutine FluxParams(printout)
         Ambient%es = error
     end if
 
-    if (Stats%mRH > 0d0 .and. Stats%mRH < RHmax) then
-        !> If meteo RH is available, uses it for all slow parameters, including redefining
-        !> chi, r and d of H2O
-        Stats%RH = Stats%mRH
+    if (biomet%val(bRH) > 0d0 .and. biomet%val(bRH) < RHmax) then
+        !> If meteo RH is available, uses it for all slow parameters,
+        !> including redefining chi, r and d of H2O
+        Stats%RH = biomet%val(bRH)
         !> Water vapour partial pressure [Pa]
         if (Ambient%es /= error) then
             Ambient%e = Stats%RH * 1d-2 * Ambient%es
@@ -100,7 +102,8 @@ subroutine FluxParams(printout)
         end if
     else
         !> If meteo RH is not available or out of range, uses H2O from raw data
-        !> Molecular weight of wet air --> Ma = chi(h2o) * MW(h2o) + chi(dry_air) * Md
+        !> Molecular weight of wet air:
+        !> Ma = chi(h2o) * MW(h2o) + chi(dry_air) * Md
         !> if chi(dry_air) = 1 - chi(h2o) (assumes chi(h2o) in mmol mol_a-1)
         if (Stats%chi(h2o) > 0d0) then
             Ma = (Stats%chi(h2o) * 1d-3) * MW(h2o) &
@@ -110,7 +113,8 @@ subroutine FluxParams(printout)
         end if
 
         !> Water vapour mass density [kg_w m-3]
-        !> from mole fraction [mmol_w / mol_a] (good also when native is molar density)
+        !> from mole fraction [mmol_w / mol_a]
+        !> (good also when native is molar density)
         if (Stats%chi(h2o) > 0d0 .and. Ambient%Va > 0d0) then
             RHO%w = (Stats%chi(h2o) / Ambient%Va) * MW(h2o) * 1d-3
         else
@@ -145,15 +149,18 @@ subroutine FluxParams(printout)
         end if
     end if
 
-    !> Dew-point temperature [K], after Campbell and Norman (1998) - Environmental Biophysics
-    !> here e is in Pa, thus it must be divided by 10^3 to get kPa as in the formula.
+    !> Dew-point temperature [K], after Campbell and Norman (1998)
+    !> Environmental Biophysics. Here e is in Pa, thus it must be divided
+    !> by 10^3 to get kPa as in the formula.
     if (Ambient%e > 0d0) then
-        Ambient%Td = (240.97d0 * dlog(Ambient%e * 1d-3 /0.611d0) / (17.502d0 - dlog(Ambient%e * 1d-3 / 0.611d0))) + 273.16d0
+        Ambient%Td = (240.97d0 * dlog(Ambient%e * 1d-3 /0.611d0) &
+            / (17.502d0 - dlog(Ambient%e * 1d-3 / 0.611d0))) + 273.16d0
     else
         Ambient%Td = error
     end if
 
-    !> Dry air partial pressure [Pa], as ambient P - water vapour partial pressure
+    !> Dry air partial pressure [Pa], as:
+    !> ambient P minus water vapor partial pressure
     if (Stats%Pr > 0d0) then
         if (Ambient%e > 0d0) then
             Ambient%p_d =  Stats%Pr - Ambient%e
@@ -178,15 +185,17 @@ subroutine FluxParams(printout)
         RHO%d = error
     end if
 
-    !> Dry air heat capacity at costant pressure [J+1kg-1K-1], as a function of temperature
+    !> Dry air heat capacity at costant pressure [J+1kg-1K-1],
+    !> as a function of temperature
     Cpd = 1005d0 + (Stats%T - 273.16d0 + 23.12d0)**2 / 3364d0
 
     !> Density of wet air [kg_a m-3]
     if (RHO%d > 0d0) then
         if (RHO%w >= 0d0) then
             RHO%a = RHO%d + RHO%w
-            !> alternative: analytically derived from RHO%a = Pa * Ma / (Ru * T), gives identical result
-            !RHO%a = (Stats%Pr - (1d0 - MW(h2o) / Md) * Ambient%e) / (Rd * Stats%T)
+            !> alternative: analytically derived from RHO%a = Pa * Ma / (Ru * T)
+            !> Gives identical result.
+            !RHO%a = (Stats%Pr - (1d0-MW(h2o)/Md) * Ambient%e) / (Rd*Stats%T)
         else
             RHO%a = RHO%d
         end if
@@ -202,9 +211,9 @@ subroutine FluxParams(printout)
     end if
 
     !> Air temperature = sonic temperature (corrected for side-wind) \n
-    !> corrected for humidity (T in K), or = meteo T
-    !> Condition is posed on either external meteo T, (mT) or raw air T (Mean(te))
-    if (Stats%Mean(te) > 0d0 .or. Stats%mT > 0d0) then
+    !> corrected for humidity (T in K), or = biomet T
+    !> Condition is posed on either biomet T or raw air T (Mean(te))
+    if (Stats%Mean(te) > 0d0 .or. biomet%val(bTa) > 0d0) then
         Ambient%Ta = Stats%T
         if (Stats%Mean(ts) > 0d0) then
             !> temperature mapping factor (Van Dijk et al. 2004, eq.3.1)
@@ -213,11 +222,13 @@ subroutine FluxParams(printout)
             Ambient%Tmap = error
         end if
     elseif (E2Col(ts)%instr%category == 'fast_t_sensor') then
-            !> If Ts was actually from a fast temperature sensor, do not apply Q correction
+            !> If Ts was actually from a fast temperature sensor,
+            !> do not apply Q correction
             Ambient%Ta = Stats%Mean(ts)
             Ambient%Tmap = 1d0
     else
-        if (Ambient%Q > 0d0 .and. Ambient%alpha /= error .and. Stats%Mean(ts) > 0d0) then
+        if (Ambient%Q > 0d0 .and. Ambient%alpha /= error &
+            .and. Stats%Mean(ts) > 0d0) then
             Ambient%Ta = Stats%Mean(ts) / (1.d0 + Ambient%alpha * Ambient%Q)
             Ambient%Tmap = Ambient%Ta / Stats%Mean(ts)
         else
@@ -225,7 +236,8 @@ subroutine FluxParams(printout)
             Ambient%Tmap = 1d0
         end if
 
-        !> Iterate the calculation of main quantities, after having better estimated air T
+        !> Iterate the calculation of main quantities,
+        !> after having better estimated air T
         if (Ambient%Ta > 0d0) then
             Ambient%es = (dexp(77.345d0 + 0.0057d0 * Ambient%Ta &
                           - 7235.d0 / Ambient%Ta)) / Ambient%Ta**(8.2d0)
@@ -240,9 +252,10 @@ subroutine FluxParams(printout)
                 end if
                 if (Stats%RH > 100d0 .and. Stats%RH < RHmax) then
                     Stats%RH = 100d0 !< RH slightly higher than 100% is set to 100%
-                    Ambient%VPD = 0d0 !< RH slightly higher than 100%, VPD is set to 0
+                    Ambient%VPD = 0d0 !< RH slightly higher than 100% VPD is set to 0
                 end if
-                Ambient%Td = (240.97d0 * dlog(Ambient%e * 1d-3 /0.611d0) / (17.502d0 - dlog(Ambient%e * 1d-3 / 0.611d0))) + 273.16d0
+                Ambient%Td = (240.97d0 * dlog(Ambient%e * 1d-3 /0.611d0) &
+                    / (17.502d0 - dlog(Ambient%e * 1d-3 / 0.611d0))) + 273.16d0
                 Ambient%p_d =  Stats%Pr - Ambient%e
                 if (Ambient%p_d > 0d0) then
                     Ambient%Vd = (Stats%Pr * Ambient%Va) / Ambient%p_d
@@ -254,23 +267,26 @@ subroutine FluxParams(printout)
                 Cpd = 1005d0 + (Ambient%Ta - 273.16d0 + 23.12d0)**2 / 3364d0
                 Ambient%Q = RHO%w / RHO%a
                 if (E2Col(ts)%instr%category == 'fast_t_sensor') then
-                    !> If Ts was actually from a fast temperature sensor, do not apply Q correction
+                    !> If Ts was actually from a fast temperature sensor,
+                    !> do not apply Q correction
                     Ambient%Ta = Stats%Mean(ts)
                     Ambient%Tmap = 1d0
                 else
-                    Ambient%Ta = Stats%Mean(ts) / (1.d0 + Ambient%alpha * Ambient%Q)
+                    Ambient%Ta = Stats%Mean(ts) &
+                        / (1.d0 + Ambient%alpha * Ambient%Q)
                     Ambient%Tmap = Ambient%Ta / Stats%Mean(ts)
                 end if
             else
-                Ambient%e   = error
-                Stats%RH    = error
-                Ambient%Q   = error
-                Ambient%Td  = error
+                Ambient%e = error
+                Stats%RH = error
+                Ambient%Q = error
+                Ambient%Td = error
                 Ambient%p_d = Stats%Pr
-                Ambient%Vd  = (Stats%Pr * Ambient%Va) / Ambient%p_d
-                RHO%d       = Ambient%p_d / (Rd * Ambient%Ta)
-                RHO%a       = RHO%d
-                Cpd         = 1005d0 + (Ambient%Ta - 273.16d0 + 23.12d0)**2 / 3364d0
+                Ambient%Vd = (Stats%Pr * Ambient%Va) / Ambient%p_d
+                RHO%d = Ambient%p_d / (Rd * Ambient%Ta)
+                RHO%a = RHO%d
+                Cpd = 1005d0 + (Ambient%Ta - 273.16d0 + 23.12d0)**2 &
+                    / 3364d0
                 Ambient%Ta  = Stats%Mean(ts)
                 Ambient%Tmap = 1
             end if
@@ -284,16 +300,19 @@ subroutine FluxParams(printout)
         Ambient%Tcell = Ambient%Ta
     end if
 
-    !> Water vapour heat capacity at costant pressure [J+1kg-1K-1], as a function of temperature and RH
-    Cpv = 1859d0 + 0.13d0 * Stats%RH + (0.193d0 + 5.6d-3 * Stats%RH) * (Ambient%Ta - 273.16d0) + &
-          (1d-3 + 5d-5 * Stats%RH) * (Ambient%Ta - 273.16d0)**2
+    !> Water vapour heat capacity at costant pressure [J+1kg-1K-1],
+    !> as a function of temperature and RH
+    Cpv = 1859d0 + 0.13d0 * Stats%RH &
+        + (0.193d0 + 5.6d-3 * Stats%RH) * (Ambient%Ta - 273.16d0) &
+        + (1d-3 + 5d-5 * Stats%RH) * (Ambient%Ta - 273.16d0)**2
     !> RhoAir by Cp (this is wet air Cp), in [J+1K-1m-3]
     if (RHO%d > 0d0 .and. RHO%w >= 0d0) then
             Ambient%RhoCp = Cpv * RHO%w + Cpd * Rho%d
             !> Alternative formulation (gives identical result)
             !Ambient%RhoCp = RHO%a * (Cpd * (1d0 - Ambient%Q) + Cpv * Ambient%Q)
         elseif (RHO%d > 0d0) then
-            !> If RHO%d exists but RHO%w not, RhoCp is calculated as referred to dry air
+            !> If RHO%d exists but RHO%w not, RhoCp is
+            !> calculated as referred to dry air
             Ambient%RhoCp = Cpd * Rho%d
         else
             Ambient%RhoCp = error
@@ -301,7 +320,9 @@ subroutine FluxParams(printout)
 
     !> Specific heat of evaporation [J kg-1 K-1]
     if (Ambient%Ta > 0d0) then
-        !> give same result of lambda = − 0.0000614342*T^3 + 0.00158927*T^2 − 2.36418*T + 2500.79 in a large range (-30 to 50 °C)
+        !> Gives same result of:
+        !> lambda = − 0.0000614342*T^3 + 0.00158927*T^2 − 2.36418*T
+        !> + 2500.79 in a large range (-30 to 50 °C)
         Ambient%lambda = (3147.5d0 - 2.37d0 * Ambient%Ta) * 1d3
     else
         Ambient%lambda = error

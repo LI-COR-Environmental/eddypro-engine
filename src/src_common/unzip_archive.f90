@@ -60,7 +60,8 @@ subroutine UnZipArchive(ZipFile, MetaExt, DataExt, MetaFile, DataFile, BiometFil
 
     !> Delete residual files in tmp folder
     comm = trim(comm_del) // ' "' // trim(adjustl(TmpDir)) &
-        // '"*.*' // trim(adjustl(DataExt)) // ' ' // comm_err_redirect
+        // '"*.*' // trim(adjustl(DataExt)) &
+        // ' ' // comm_err_redirect
     del_status = system(comm)
     comm = trim(comm_del) // ' "' // trim(adjustl(TmpDir)) &
         // '"*.tmp' // ' ' // comm_err_redirect
@@ -69,8 +70,8 @@ subroutine UnZipArchive(ZipFile, MetaExt, DataExt, MetaFile, DataFile, BiometFil
     !> Extract files from archive
     comm = trim(comm_7zip) // ' ' // trim(comm_7zip_x_opt) &
         // ' "' // ZipFile(1:len_trim(ZipFile)) // '" -o"' &
-        // trim(adjustl(TmpDir)) // '"' // comm_out_redirect &
-        // comm_err_redirect
+        // trim(adjustl(TmpDir)) // '"'&
+        // comm_out_redirect // comm_err_redirect
     unzip_status = system(comm)
     if (unzip_status /= 0) then
         call ExceptionHandler(14)
@@ -80,7 +81,9 @@ subroutine UnZipArchive(ZipFile, MetaExt, DataExt, MetaFile, DataFile, BiometFil
     call clearstr(comm)
 
     !> Metadata files
-    comm = trim(adjustl(comm_dir)) // ' "' // trim(adjustl(TmpDir)) // '"*.' // trim(adjustl(MetaExt))  // &
+    comm = trim(adjustl(comm_dir)) // ' "' &
+        // trim(adjustl(TmpDir)) // '"*.' &
+        // trim(adjustl(MetaExt))  // &
         ' > "' // trim(adjustl(TmpDir)) // 'meta_flist.tmp" ' // comm_err_redirect
     dir_status = system(comm)
 
@@ -106,8 +109,11 @@ subroutine UnZipArchive(ZipFile, MetaExt, DataExt, MetaFile, DataFile, BiometFil
     call basename(TmpString, MetaFile, slash)
     TmpString = BiometMetaFile
     call basename(TmpString, BiometMetaFile, slash)
+
     !> Raw data file
-    comm = trim(adjustl(comm_dir)) // ' "' // trim(adjustl(TmpDir)) // '"*.' // trim(adjustl(DataExt))  // &
+    comm = trim(adjustl(comm_dir)) // ' "' &
+        // trim(adjustl(TmpDir)) // '"*.' &
+        // trim(adjustl(DataExt))  // &
         ' > "' // trim(adjustl(TmpDir)) // 'data_flist.tmp" ' // comm_err_redirect
     dir_status = system(comm)
 

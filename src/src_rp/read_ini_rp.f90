@@ -540,22 +540,20 @@ subroutine WriteVariablesRP()
     end if
 
     !> Biomet measurements
-    BiometSetup%use_header = SCTags(58)%value(1:1) == '1'
-
     select case (SCTags(61)%value(1:len_trim(SCTags(61)%value)))
         case('comma')
-            BiometSetup%separator = ','
+            bFileMetadata%separator = ','
         case('semicolon')
-            BiometSetup%separator = ';'
+            bFileMetadata%separator = ';'
         case('space')
-            BiometSetup%separator = ' '
+            bFileMetadata%separator = ' '
         case('tab')
-            BiometSetup%separator = char(9)
+            bFileMetadata%separator = char(9)
         case default
-            BiometSetup%separator = SCTags(61)%value(1:1)
+            bFileMetadata%separator = SCTags(61)%value(1:1)
     end select
-    BiometSetup%tstamp_ref = SCTags(62)%value(1: len_trim(SCTags(62)%value))
-    BiometSetup%head_lines = nint(SNTags(192)%value)
+    bFileMetadata%tstamp_ref = SCTags(62)%value(1: len_trim(SCTags(62)%value))
+    bFileMetadata%nhead = nint(SNTags(192)%value)
 
     !> Wheter to filter for spikes and abolute limits
     RPsetup%filter_sr = SCTags(63)%value(1:1) == '1'
@@ -578,53 +576,41 @@ subroutine WriteVariablesRP()
         magnetic_declination = nint(SNTags(193)%value)
 
     !> Biomet measurements numeric params
-    BiometSetup%prof_swc  = nint(SNTags(103)%value)
-    BiometSetup%prof_shf  = nint(SNTags(104)%value)
-    BiometSetup%prof_ts   = nint(SNTags(105)%value)
-    BiometSetup%prof_t    = nint(SNTags(106)%value)
-    BiometSetup%prof_co2  = nint(SNTags(107)%value)
-    BiometSetup%prof_h2o  = nint(SNTags(108)%value)
-    BiometSetup%prof_ch4  = nint(SNTags(109)%value)
-    BiometSetup%prof_gas4 = nint(SNTags(110)%value)
-    BiometSetup%Ta        = nint(SNTags(111)%value)
-    BiometSetup%Pa        = nint(SNTags(112)%value)
-    BiometSetup%RH        = nint(SNTags(113)%value)
-    BiometSetup%PPFD      = nint(SNTags(114)%value)
-    BiometSetup%LWin      = nint(SNTags(115)%value)
-    BiometSetup%Rg        = nint(SNTags(116)%value)
-    BiometSetup%CO2       = nint(SNTags(117)%value)
-    BiometSetup%H2O       = nint(SNTags(118)%value)
-    BiometSetup%CH4       = nint(SNTags(119)%value)
-    BiometSetup%gas4      = nint(SNTags(120)%value)
+    bSetup%sel(bTa)   = nint(SNTags(111)%value)
+    bSetup%sel(bPa)   = nint(SNTags(112)%value)
+    bSetup%sel(bRH)   = nint(SNTags(113)%value)
+    bSetup%sel(bPPFD) = nint(SNTags(114)%value)
+    bSetup%sel(bLWin) = nint(SNTags(115)%value)
+    bSetup%sel(bRg)   = nint(SNTags(116)%value)
 
     init_prof_z = 120
-    BiometSetup%zT    = error
-    BiometSetup%zCO2  = error
-    BiometSetup%zH2O  = error
-    BiometSetup%zCH4  = error
-    BiometSetup%zGAS4 = error
+    bSetup%zT    = error
+    bSetup%zCO2  = error
+    bSetup%zH2O  = error
+    bSetup%zCH4  = error
+    bSetup%zGAS4 = error
     do i = 1, MaxProfNodes
         if (nint(SNTags(init_prof_z + i)%value) >= 0) &
-            BiometSetup%zT(i) = nint(SNTags(init_prof_z + i)%value)
+            bSetup%zT(i) = nint(SNTags(init_prof_z + i)%value)
         if (nint(SNTags(init_prof_z + MaxProfNodes + i)%value) >= 0) &
-            BiometSetup%zCO2(i) = nint(SNTags(init_prof_z + MaxProfNodes + i)%value)
+            bSetup%zCO2(i) = nint(SNTags(init_prof_z + MaxProfNodes + i)%value)
         if (nint(SNTags(init_prof_z + 2 * MaxProfNodes + i)%value) >= 0) &
-            BiometSetup%zH2O(i)  = nint(SNTags(init_prof_z + 2 * MaxProfNodes + i)%value)
+            bSetup%zH2O(i)  = nint(SNTags(init_prof_z + 2 * MaxProfNodes + i)%value)
         if (nint(SNTags(init_prof_z + 3 * MaxProfNodes + i)%value) >= 0) &
-            BiometSetup%zCH4(i)  = nint(SNTags(init_prof_z + 3 * MaxProfNodes + i)%value)
+            bSetup%zCH4(i)  = nint(SNTags(init_prof_z + 3 * MaxProfNodes + i)%value)
         if (nint(SNTags(init_prof_z + 4 * MaxProfNodes + i)%value) >= 0) &
-            BiometSetup%zGAS4(i) = nint(SNTags(init_prof_z + 4 * MaxProfNodes + i)%value)
+            bSetup%zGAS4(i) = nint(SNTags(init_prof_z + 4 * MaxProfNodes + i)%value)
     end do
     do i = 1, MaxProfNodes - 1
-        if (BiometSetup%zT(i + 1) /= error .and. BiometSetup%zT(i) /= error) then
-            BiometSetup%dz(1, i) = BiometSetup%zT(i + 1) - BiometSetup%zT(i)
+        if (bSetup%zT(i + 1) /= error .and. bSetup%zT(i) /= error) then
+            bSetup%dz(1, i) = bSetup%zT(i + 1) - bSetup%zT(i)
         else
-            BiometSetup%dz(1, i) = error
+            bSetup%dz(1, i) = error
         end if
-        BiometSetup%dz(2, i) = BiometSetup%zCO2(i + 1)  - BiometSetup%zCO2(i)
-        BiometSetup%dz(3, i) = BiometSetup%zH2O(i + 1)  - BiometSetup%zH2O(i)
-        BiometSetup%dz(4, i) = BiometSetup%zCH4(i + 1)  - BiometSetup%zCH4(i)
-        BiometSetup%dz(5, i) = BiometSetup%zGAS4(i + 1) - BiometSetup%zGAS4(i)
+        bSetup%dz(2, i) = bSetup%zCO2(i + 1)  - bSetup%zCO2(i)
+        bSetup%dz(3, i) = bSetup%zH2O(i + 1)  - bSetup%zH2O(i)
+        bSetup%dz(4, i) = bSetup%zCH4(i + 1)  - bSetup%zCH4(i)
+        bSetup%dz(5, i) = bSetup%zGAS4(i + 1) - bSetup%zGAS4(i)
     end do
 
     !> Parameters for Burba correction

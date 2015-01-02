@@ -38,13 +38,13 @@ subroutine AirAndCellParameters()
     !> Air temperature/pressure estimates
     !> Last true condition determines which temperature is used
     Stats%T = Stats%Mean(ts)
-    if(Stats%Mean(te) > 220d0 .and. Stats%Mean(te) < 340d0) Stats%T = Stats%Mean(te)
-    if(Stats%mT       > 220d0 .and. Stats%mT       < 340d0) Stats%T = Stats%mT
+    if(Stats%Mean(te)  > 220d0 .and. Stats%Mean(te) < 340d0) Stats%T = Stats%Mean(te)
+    if(biomet%val(bTa) > 220d0 .and. biomet%val(bTa) < 340d0) Stats%T = biomet%val(bTa)
 
     !> Last true condition determines which pressure is used
     Stats%Pr = Metadata%bar_press
-    if(Stats%Mean(pe) > 40000 .and. Stats%Mean(pe) < 110000) Stats%Pr = Stats%Mean(pe)
-    if(Stats%mPr      > 40000 .and. Stats%mPr      < 110000) Stats%Pr = Stats%mPr
+    if(Stats%Mean(pe)  > 40000 .and. Stats%Mean(pe)  < 110000) Stats%Pr = Stats%Mean(pe)
+    if(biomet%val(bPa) > 40000 .and. biomet%val(bPa) < 110000) Stats%Pr = biomet%val(bPa)
 
     !> Ambient air molar volume [m+3 mol-1] and air mass density [kg m-3]
     if (Stats%Pr > 0d0 .and. Stats%T /= error) then

@@ -2,7 +2,7 @@
 ! average_no_error.f90
 ! --------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -21,8 +21,8 @@
 !
 !***************************************************************************
 !
-! \brief       Calculate mean value on a vector ignoring specified error values \n
-!              Mean is calculated in two steps, following Van Dijk et al. 2004, eqs. 3.22 - 3.23
+! \brief       Calculate column-wise averages on a 2d array \n
+!              ignoring specified error values \n
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -48,22 +48,18 @@ subroutine AverageNoError(Set, nrow, ncol, Mean, err_float)
 
     RawMean = 0d0
     do j = 1, ncol
-        !if (E2Col(j)%present) then
-            Nact = 0
-            do i = 1, nrow
-                if (Set(i, j) /= err_float) then
-                    Nact = Nact + 1
-                    RawMean(j) = RawMean(j) + Set(i, j)
-                end if
-            end do
-            if (Nact /= 0) then
-                RawMean(j) = RawMean(j) / dble(Nact)
-            else
-                RawMean(j) = err_float
+        Nact = 0
+        do i = 1, nrow
+            if (Set(i, j) /= err_float) then
+                Nact = Nact + 1
+                RawMean(j) = RawMean(j) + Set(i, j)
             end if
-        !else
-        !    RawMean(j) = err_float
-        !end if
+        end do
+        if (Nact /= 0) then
+            RawMean(j) = RawMean(j) / dble(Nact)
+        else
+            RawMean(j) = err_float
+        end if
     end do
     Mean = 0.d0
     do j = 1, ncol

@@ -46,6 +46,7 @@ module m_common_global_var
     integer, parameter :: MaxNumAnem = 7
     integer, parameter :: MaxNumAdc = 10
     integer, parameter :: MaxNumVar = MaxNumAnem + MaxNumAdc
+    integer, parameter :: MaxNumBiometVars = 100 * 50 * 10 * 5   !< vars * locations * heights * replicates
     integer, parameter :: NumSpecVar = 3
     integer, parameter :: MaxSpecRow = 72000
     integer, parameter :: NumPar = 3
@@ -58,7 +59,7 @@ module m_common_global_var
     integer :: NumRawFlags
     integer :: NumCol
     integer :: NumBiometCol
-    integer :: NumBiometVar
+    integer :: nbVars
     integer :: NumAllVar
     integer :: NumVar
     integer :: NumDiag
@@ -208,14 +209,6 @@ module m_common_global_var
     real(kind = dbl) :: PFb(3, MaxNumWSect) = 0.d0
     real(kind = dbl) :: ITS(E2NumVar)
 
-    !> Biomet-related variables
-    integer :: numBiometDateCol
-    real(kind = dbl) :: BiometSet(MaxNumBiometRow, MaxNumBiometCol)
-    character(10) :: dvec(MaxNumBiometRow)
-    character(5) :: tvec(MaxNumBiometRow)
-    character(10) :: ddvec(MaxNumBiometRow)
-    character(5) :: ttvec(MaxNumBiometRow)
-
     !> filename tools
     character(30), parameter :: ProgIniFile = 'eddypro_logging.ini'
     character(256) :: NativeFile
@@ -256,6 +249,8 @@ module m_common_global_var
     integer, parameter :: gTe  = 16
     integer, parameter :: gPe  = 17
 
+    type(DateType), parameter :: &
+        nullTimestamp = DateType(0, 0, 0, 0, 0)
     type(SpectraSetType), parameter :: &
         ErrSpec = SpectraSetType(0, error, error, error)
     type(SpectraSetType), parameter :: &
@@ -294,163 +289,30 @@ module m_common_global_var
                 'gas4_irga_tube_length', 'gas4_irga_tube_diameter', 'gas4_irga_tube_flowrate',  &
                 'gas4_irga_kw', 'gas4_irga_ko', 'gas4_irga_hpath_length', 'gas4_irga_vpath_length', 'gas4_irga_tau' /
 
-    integer, parameter :: NumStdSlow = 397
-    character(32) :: StdSlow(NumStdSlow)
-    data (StdSlow(mmm), mmm = 1, NumStdSlow) &
-    /'TIMESTAMP_1','TIMESTAMP_2','TIMESTAMP_3','TIMESTAMP_4', 'TIMESTAMP_5', 'TIMESTAMP_6', 'TIMESTAMP_7', &
-     'TA_1_1_1','TA_2_1_1','TA_3_1_1','TA_4_1_1','TA_5_1_1','TA_6_1_1','TA_7_1_1','TA_8_1_1','TA_9_1_1','TA_10_1_1', &
-     'PA_1_1_1','PA_2_1_1','PA_3_1_1','PA_4_1_1','PA_5_1_1','PA_6_1_1','PA_7_1_1','PA_8_1_1','PA_9_1_1','PA_10_1_1', &
-     'RH_1_1_1','RH_2_1_1','RH_3_1_1','RH_4_1_1','RH_5_1_1','RH_6_1_1','RH_7_1_1','RH_8_1_1','RH_9_1_1','RH_10_1_1', &
-     'RG_1_1_1','RG_2_1_1','RG_3_1_1','RG_4_1_1','RG_5_1_1','RG_6_1_1','RG_7_1_1','RG_8_1_1','RG_9_1_1','RG_10_1_1', &
-     'RN_1_1_1','RN_2_1_1','RN_3_1_1','RN_4_1_1','RN_5_1_1','RN_6_1_1','RN_7_1_1','RN_8_1_1','RN_9_1_1','RN_10_1_1', &
-     'RD_1_1_1','RD_2_1_1','RD_3_1_1','RD_4_1_1','RD_5_1_1','RD_6_1_1','RD_7_1_1','RD_8_1_1','RD_9_1_1','RD_10_1_1', &
-     'RR_1_1_1','RR_2_1_1','RR_3_1_1','RR_4_1_1','RR_5_1_1','RR_6_1_1','RR_7_1_1','RR_8_1_1','RR_9_1_1','RR_10_1_1', &
-     'R_UVA_1_1_1','R_UVA_2_1_1','R_UVA_3_1_1','R_UVA_4_1_1','R_UVA_5_1_1', &
-     'R_UVA_6_1_1','R_UVA_7_1_1','R_UVA_8_1_1','R_UVA_9_1_1','R_UVA_10_1_1', &
-     'R_UVB_1_1_1','R_UVB_2_1_1','R_UVB_3_1_1','R_UVB_4_1_1','R_UVB_5_1_1', &
-     'R_UVB_6_1_1','R_UVB_7_1_1','R_UVB_8_1_1','R_UVB_9_1_1','R_UVB_10_1_1', &
-     'LWIN_1_1_1','LWIN_2_1_1','LWIN_3_1_1','LWIN_4_1_1','LWIN_5_1_1', &
-     'LWIN_6_1_1','LWIN_7_1_1','LWIN_8_1_1','LWIN_9_1_1','LWIN_10_1_1', &
-     'LWOUT_1_1_1','LWOUT_2_1_1','LWOUT_3_1_1','LWOUT_4_1_1','LWOUT_5_1_1', &
-     'LWOUT_6_1_1','LWOUT_7_1_1','LWOUT_8_1_1','LWOUT_9_1_1','LWOUT_10_1_1', &
-     'TC_1_1_1','TC_2_1_1','TC_3_1_1','TC_4_1_1','TC_5_1_1','TC_6_1_1','TC_7_1_1','TC_8_1_1','TC_9_1_1','TC_10_1_1', &
-     'TBOLE_1_1_1','TBOLE_2_1_1','TBOLE_3_1_1','TBOLE_4_1_1','TBOLE_5_1_1', &
-     'TBOLE_6_1_1','TBOLE_7_1_1','TBOLE_8_1_1','TBOLE_9_1_1','TBOLE_10_1_1', &
-     'P_1_1_1','P_2_1_1','P_3_1_1','P_4_1_1','P_5_1_1','P_6_1_1','P_7_1_1','P_8_1_1','P_9_1_1','P_10_1_1', &
-     'P_RAIN_1_1_1','P_RAIN_2_1_1','P_RAIN_3_1_1','P_RAIN_4_1_1','P_RAIN_5_1_1', &
-     'P_RAIN_6_1_1','P_RAIN_7_1_1','P_RAIN_8_1_1','P_RAIN_9_1_1','P_RAIN_10_1_1', &
-     'P_SNOW_1_1_1','P_SNOW_2_1_1','P_SNOW_3_1_1','P_SNOW_4_1_1','P_SNOW_5_1_1', &
-     'P_SNOW_6_1_1','P_SNOW_7_1_1','P_SNOW_8_1_1','P_SNOW_9_1_1','P_SNOW_10_1_1', &
-     'PPFD_1_1_1','PPFD_2_1_1','PPFD_3_1_1','PPFD_4_1_1','PPFD_5_1_1', &
-     'PPFD_6_1_1','PPFD_7_1_1','PPFD_8_1_1','PPFD_9_1_1','PPFD_10_1_1', &
-     'PPFDD_1_1_1','PPFDD_2_1_1','PPFDD_3_1_1','PPFDD_4_1_1','PPFDD_5_1_1', &
-     'PPFDD_6_1_1','PPFDD_7_1_1','PPFDD_8_1_1','PPFDD_9_1_1','PPFDD_10_1_1', &
-     'PPFDR_1_1_1','PPFDR_2_1_1','PPFDR_3_1_1','PPFDR_4_1_1','PPFDR_5_1_1', &
-     'PPFDR_6_1_1','PPFDR_7_1_1','PPFDR_8_1_1','PPFDR_9_1_1','PPFDR_10_1_1', &
-     'PPFDBC_1_1_1','PPFDBC_2_1_1','PPFDBC_3_1_1','PPFDBC_4_1_1','PPFDBC_5_1_1', &
-     'PPFDBC_6_1_1','PPFDBC_7_1_1','PPFDBC_8_1_1','PPFDBC_9_1_1','PPFDBC_10_1_1', &
-     'APAR_1_1_1','APAR_2_1_1','APAR_3_1_1','APAR_4_1_1','APAR_5_1_1', &
-     'APAR_6_1_1','APAR_7_1_1','APAR_8_1_1','APAR_9_1_1','APAR_10_1_1', &
-     'ALB_1_1_1','ALB_2_1_1','ALB_3_1_1','ALB_4_1_1','ALB_5_1_1', &
-     'ALB_6_1_1','ALB_7_1_1','ALB_8_1_1','ALB_9_1_1','ALB_10_1_1', &
-     'PRI_1_1_1','PRI_2_1_1','PRI_3_1_1','PRI_4_1_1','PRI_5_1_1', &
-     'PRI_6_1_1','PRI_7_1_1','PRI_8_1_1','PRI_9_1_1','PRI_10_1_1', &
-     'SWIN_1_1_1','SWIN_2_1_1','SWIN_3_1_1','SWIN_4_1_1','SWIN_5_1_1', &
-     'SWIN_6_1_1','SWIN_7_1_1','SWIN_8_1_1','SWIN_9_1_1','SWIN_10_1_1', &
-     'SWOUT_1_1_1','SWOUT_2_1_1','SWOUT_3_1_1','SWOUT_4_1_1','SWOUT_5_1_1', &
-     'SWOUT_6_1_1','SWOUT_7_1_1','SWOUT_8_1_1','SWOUT_9_1_1','SWOUT_10_1_1', &
-     'SWBC_1_1_1','SWBC_2_1_1','SWBC_3_1_1','SWBC_4_1_1','SWBC_5_1_1', &
-     'SWBC_6_1_1','SWBC_7_1_1','SWBC_8_1_1','SWBC_9_1_1','SWBC_10_1_1', &
-     'WS_1_1_1','WS_2_1_1','WS_3_1_1','WS_4_1_1','WS_5_1_1', &
-     'WS_6_1_1','WS_7_1_1','WS_8_1_1','WS_9_1_1','WS_10_1_1', &
-     'SWDIF_1_1_1','SWDIF_2_1_1','SWDIF_3_1_1','SWDIF_4_1_1','SWDIF_5_1_1', &
-     'SWDIF_6_1_1','SWDIF_7_1_1','SWDIF_8_1_1','SWDIF_9_1_1','SWDIF_10_1_1', &
-     'MWS_1_1_1','MWS_2_1_1','MWS_3_1_1','MWS_4_1_1','MWS_5_1_1', &
-     'MWS_6_1_1','MWS_7_1_1','MWS_8_1_1','MWS_9_1_1','MWS_10_1_1', &
-     'WD_1_1_1','WD_2_1_1','WD_3_1_1','WD_4_1_1','WD_5_1_1', &
-     'WD_6_1_1','WD_7_1_1','WD_8_1_1','WD_9_1_1','WD_10_1_1', &
-     'TBC_1_1_1','TBC_2_1_1','TBC_3_1_1','TBC_4_1_1','TBC_5_1_1', &
-     'TBC_6_1_1','TBC_7_1_1','TBC_8_1_1','TBC_9_1_1','TBC_10_1_1', &
-     'TR_1_1_1','TR_2_1_1','TR_3_1_1','TR_4_1_1','TR_5_1_1', &
-     'TR_6_1_1','TR_7_1_1','TR_8_1_1','TR_9_1_1','TR_10_1_1', &
-     'LAI_1_1_1','LAI_2_1_1','LAI_3_1_1','LAI_4_1_1','LAI_5_1_1', &
-     'LAI_6_1_1','LAI_7_1_1','LAI_8_1_1','LAI_9_1_1','LAI_10_1_1', &
-     'SAPFLOW_1_1_1','SAPFLOW_2_1_1','SAPFLOW_3_1_1','SAPFLOW_4_1_1','SAPFLOW_5_1_1', &
-     'SAPFLOW_6_1_1','SAPFLOW_7_1_1','SAPFLOW_8_1_1','SAPFLOW_9_1_1','SAPFLOW_10_1_1', &
-     'STEMFLOW_1_1_1','STEMFLOW_2_1_1','STEMFLOW_3_1_1','STEMFLOW_4_1_1','STEMFLOW_5_1_1', &
-     'STEMFLOW_6_1_1','STEMFLOW_7_1_1','STEMFLOW_8_1_1','STEMFLOW_9_1_1','STEMFLOW_10_1_1', &
-     'SNOWD_1_1_1','SNOWD_2_1_1','SNOWD_3_1_1','SNOWD_4_1_1','SNOWD_5_1_1', &
-     'SNOWD_6_1_1','SNOWD_7_1_1','SNOWD_8_1_1','SNOWD_9_1_1','SNOWD_10_1_1', &
-     'SWC_1_1_1','SWC_2_1_1','SWC_3_1_1','SWC_4_1_1','SWC_5_1_1', &
-     'SWC_6_1_1','SWC_7_1_1','SWC_8_1_1','SWC_9_1_1','SWC_10_1_1', &
-     'SHF_1_1_1','SHF_2_1_1','SHF_3_1_1','SHF_4_1_1','SHF_5_1_1', &
-     'SHF_6_1_1','SHF_7_1_1','SHF_8_1_1','SHF_9_1_1','SHF_10_1_1', &
-     'TS_1_1_1','TS_2_1_1','TS_3_1_1','TS_4_1_1','TS_5_1_1', &
-     'TS_6_1_1','TS_7_1_1','TS_8_1_1','TS_9_1_1','TS_10_1_1' /
 
-    integer, parameter :: NumStdProfile = 280
-    character(32) :: StdProfile(NumStdProfile)
-    data (StdProfile(mmm), mmm = 1, NumStdProfile) &
-    /'SWC_1_1_1','SWC_2_1_1','SWC_3_1_1','SWC_4_1_1','SWC_5_1_1', &
-    'SWC_1_2_1','SWC_2_2_1','SWC_3_2_1','SWC_4_2_1','SWC_5_2_1', &
-    'SWC_1_3_1','SWC_2_3_1','SWC_3_3_1','SWC_4_3_1','SWC_5_3_1', &
-    'SWC_1_4_1','SWC_2_4_1','SWC_3_4_1','SWC_4_4_1','SWC_5_4_1', &
-    'SWC_1_5_1','SWC_2_5_1','SWC_3_5_1','SWC_4_5_1','SWC_5_5_1', &
-    'SWC_1_6_1','SWC_2_6_1','SWC_3_6_1','SWC_4_6_1','SWC_5_6_1', &
-    'SWC_1_7_1','SWC_2_7_1','SWC_3_7_1','SWC_4_7_1','SWC_5_7_1', &
-    'SHF_1_1_1','SHF_2_1_1','SHF_3_1_1','SHF_4_1_1','SHF_5_1_1', &
-    'SHF_1_2_1','SHF_2_2_1','SHF_3_2_1','SHF_4_2_1','SHF_5_2_1', &
-    'SHF_1_3_1','SHF_2_3_1','SHF_3_3_1','SHF_4_3_1','SHF_5_3_1', &
-    'SHF_1_4_1','SHF_2_4_1','SHF_3_4_1','SHF_4_4_1','SHF_5_4_1', &
-    'SHF_1_5_1','SHF_2_5_1','SHF_3_5_1','SHF_4_5_1','SHF_5_5_1', &
-    'SHF_1_6_1','SHF_2_6_1','SHF_3_6_1','SHF_4_6_1','SHF_5_6_1', &
-    'SHF_1_7_1','SHF_2_7_1','SHF_3_7_1','SHF_4_7_1','SHF_5_7_1', &
-    'TS_1_1_1','TS_2_1_1','TS_3_1_1','TS_4_1_1','TS_5_1_1', &
-    'TS_1_2_1','TS_2_2_1','TS_3_2_1','TS_4_2_1','TS_5_2_1', &
-    'TS_1_3_1','TS_2_3_1','TS_3_3_1','TS_4_3_1','TS_5_3_1', &
-    'TS_1_4_1','TS_2_4_1','TS_3_4_1','TS_4_4_1','TS_5_4_1', &
-    'TS_1_5_1','TS_2_5_1','TS_3_5_1','TS_4_5_1','TS_5_5_1', &
-    'TS_1_6_1','TS_2_6_1','TS_3_6_1','TS_4_6_1','TS_5_6_1', &
-    'TS_1_7_1','TS_2_7_1','TS_3_7_1','TS_4_7_1','TS_5_7_1', &
-    'CO2_1_1_1','CO2_2_1_1','CO2_3_1_1','CO2_4_1_1','CO2_5_1_1', &
-    'CO2_1_2_1','CO2_2_2_1','CO2_3_2_1','CO2_4_2_1','CO2_5_2_1', &
-    'CO2_1_3_1','CO2_2_3_1','CO2_3_3_1','CO2_4_3_1','CO2_5_3_1', &
-    'CO2_1_4_1','CO2_2_4_1','CO2_3_4_1','CO2_4_4_1','CO2_5_4_1', &
-    'CO2_1_5_1','CO2_2_5_1','CO2_3_5_1','CO2_4_5_1','CO2_5_5_1', &
-    'CO2_1_6_1','CO2_2_6_1','CO2_3_6_1','CO2_4_6_1','CO2_5_6_1', &
-    'CO2_1_7_1','CO2_2_7_1','CO2_3_7_1','CO2_4_7_1','CO2_5_7_1', &
-    'H2O_1_1_1','H2O_2_1_1','H2O_3_1_1','H2O_4_1_1','H2O_5_1_1', &
-    'H2O_1_2_1','H2O_2_2_1','H2O_3_2_1','H2O_4_2_1','H2O_5_2_1', &
-    'H2O_1_3_1','H2O_2_3_1','H2O_3_3_1','H2O_4_3_1','H2O_5_3_1', &
-    'H2O_1_4_1','H2O_2_4_1','H2O_3_4_1','H2O_4_4_1','H2O_5_4_1', &
-    'H2O_1_5_1','H2O_2_5_1','H2O_3_5_1','H2O_4_5_1','H2O_5_5_1', &
-    'H2O_1_6_1','H2O_2_6_1','H2O_3_6_1','H2O_4_6_1','H2O_5_6_1', &
-    'H2O_1_7_1','H2O_2_7_1','H2O_3_7_1','H2O_4_7_1','H2O_5_7_1', &
-    'CH4_1_1_1','CH4_2_1_1','CH4_3_1_1','CH4_4_1_1','CH4_5_1_1', &
-    'CH4_1_2_1','CH4_2_2_1','CH4_3_2_1','CH4_4_2_1','CH4_5_2_1', &
-    'CH4_1_3_1','CH4_2_3_1','CH4_3_3_1','CH4_4_3_1','CH4_5_3_1', &
-    'CH4_1_4_1','CH4_2_4_1','CH4_3_4_1','CH4_4_4_1','CH4_5_4_1', &
-    'CH4_1_5_1','CH4_2_5_1','CH4_3_5_1','CH4_4_5_1','CH4_5_5_1', &
-    'CH4_1_6_1','CH4_2_6_1','CH4_3_6_1','CH4_4_6_1','CH4_5_6_1', &
-    'CH4_1_7_1','CH4_2_7_1','CH4_3_7_1','CH4_4_7_1','CH4_5_7_1', &
-    'GAS4_1_1_1','GAS4_2_1_1','GAS4_3_1_1','GAS4_4_1_1','GAS4_5_1_1', &
-    'GAS4_1_2_1','GAS4_2_2_1','GAS4_3_2_1','GAS4_4_2_1','GAS4_5_2_1', &
-    'GAS4_1_3_1','GAS4_2_3_1','GAS4_3_3_1','GAS4_4_3_1','GAS4_5_3_1', &
-    'GAS4_1_4_1','GAS4_2_4_1','GAS4_3_4_1','GAS4_4_4_1','GAS4_5_4_1', &
-    'GAS4_1_5_1','GAS4_2_5_1','GAS4_3_5_1','GAS4_4_5_1','GAS4_5_5_1', &
-    'GAS4_1_6_1','GAS4_2_6_1','GAS4_3_6_1','GAS4_4_6_1','GAS4_5_6_1', &
-    'GAS4_1_7_1','GAS4_2_7_1','GAS4_3_7_1','GAS4_4_7_1','GAS4_5_7_1', &
-    'T_1_1_1','T_2_1_1','T_3_1_1','T_4_1_1','T_5_1_1', &
-    'T_1_2_1','T_2_2_1','T_3_2_1','T_4_2_1','T_5_2_1', &
-    'T_1_3_1','T_2_3_1','T_3_3_1','T_4_3_1','T_5_3_1', &
-    'T_1_4_1','T_2_4_1','T_3_4_1','T_4_4_1','T_5_4_1', &
-    'T_1_5_1','T_2_5_1','T_3_5_1','T_4_5_1','T_5_5_1', &
-    'T_1_6_1','T_2_6_1','T_3_6_1','T_4_6_1','T_5_6_1', &
-    'T_1_7_1','T_2_7_1','T_3_7_1','T_4_7_1','T_5_7_1' /
-
-    integer, parameter :: NumStdUnits = 107
-    character(32) :: StdUnits(NumStdUnits)
-    data (StdUnits(mmm), mmm = 1, NumStdUnits) &
-    /'K','PA','%','W+1M-2','UMOL+1M-2S-1','M','M+1S-1','PPM', 'PPT','PPB','DEG','NONE', &   !> standard units
-    'N+1M-2','NM^-2','N/M2','N/M^2','M/S','MS^-1','MS-1',& !> units that don't need to be changed
-    'WM^-2','W/M2','WM-2','W/M^2','WATTM^-2','WATT/M2','WATT/M^2',& !> units that don't need to be changed
-    'J/M2S','JM-2S-1','JM^-2S^-1','J/(M^2*S)', & !> units that don't need to be changed
-    'UMOLM-2S-1','UMOL/(M^2*S)','UMOLM^-2*S^-1','UMOL/M^2/S^1',  & !> units that don't need to be changed
-    'UEM-2S-1','UE/(M^2*S)','UEM^-2*S^-1',  & !> units that don't need to be changed
-    'MICROEINSTEIN+1M-2S-1','MICROEINSTEINM-2S-1','MICROEINSTEIN/(M^2*S)','MICROEINSTEINM^-2*S^-1',  &
-    'UEINSTEIN+1M-2S-1','UEINSTEINM-2S-1','UEINSTEIN/(M^2*S)','UEINSTEINM^-2*S^-1',  &
-    'PPMD','UMOLMOL-1','UMOL/MOL','UMOLMOL^-1', & !> units that don't need to be changed
-    '°','°DEG','DEGREES','DEGREESFROMNORTH', & !> units that don't need to be changed
-    '#','PERCENT','%VOL', & !> units that don't need to be changed
-    'M+3M-3','M3/M3','M^3M^-3','M^3/M^3','M3M-3',& !> units that don't need to be changed
-    'M+2M-2','M2/M2','M^2M^-2','M2M-2',& !> units that don't need to be changed
-    'NUMBER','#','DIMENSIONLESS','OTHER' ,'OTHERS', & !> units that don't need to be changed
-    'C','°C','F','°F','CK','CC','C°C','CF','C°F', & !> units that need change
-    'HPA','KPA','MMHG','PSI', 'BAR', 'ATM', 'TORR', & !> units that need change
-    'NM','UM','MM','CM','KM', & !> units that need change
-    'CM+1S-1','CM/S','CMS^-1','CMS-1','MM+1S-1','MM/S','MMS^-1','MMS-1', & !> units that need change
-    'PPTD','MMOLMOL-1','MMOL/MOL','MMOLMOL^-1', & !> units that need change
-    'PPBD','NMOLMOL-1','NMOL/MOL','NMOLMOL^-1'/ !> units that need change
+!    integer, parameter :: NumStdUnits = 107
+!    character(32) :: StdUnits(NumStdUnits)
+!    data (StdUnits(mmm), mmm = 1, NumStdUnits) &
+!    /'K','PA','%','W+1M-2','UMOL+1M-2S-1','M','M+1S-1','PPM', 'PPT','PPB','DEG','NONE', &   !> standard units
+!    'N+1M-2','NM^-2','N/M2','N/M^2','M/S','MS^-1','MS-1',& !> units that don't need to be changed
+!    'WM^-2','W/M2','WM-2','W/M^2','WATTM^-2','WATT/M2','WATT/M^2',& !> units that don't need to be changed
+!    'J/M2S','JM-2S-1','JM^-2S^-1','J/(M^2*S)', & !> units that don't need to be changed
+!    'UMOLM-2S-1','UMOL/(M^2*S)','UMOLM^-2*S^-1','UMOL/M^2/S^1',  & !> units that don't need to be changed
+!    'UE+1M-2S-1','UE/(M^2*S)','UEM^-2*S^-1',  & !> units that don't need to be changed
+!    'MICROEINSTEIN+1M-2S-1','MICROEINSTEINM-2S-1','MICROEINSTEIN/(M^2*S)','MICROEINSTEINM^-2*S^-1',  &
+!    'UEINSTEIN+1M-2S-1','UEINSTEINM-2S-1','UEINSTEIN/(M^2*S)','UEINSTEINM^-2*S^-1',  &
+!    'PPMD','UMOLMOL-1','UMOL/MOL','UMOLMOL^-1', & !> units that don't need to be changed
+!    '°','°DEG','DEGREES','DEGREESFROMNORTH', & !> units that don't need to be changed
+!    '#','PERCENT','%VOL', & !> units that don't need to be changed
+!    'M+3M-3','M3/M3','M^3M^-3','M^3/M^3','M3M-3',& !> units that don't need to be changed
+!    'M+2M-2','M2/M2','M^2M^-2','M2M-2',& !> units that don't need to be changed
+!    'NUMBER','#','DIMENSIONLESS','OTHER' ,'OTHERS', & !> units that don't need to be changed
+!    'C','°C','F','°F','CK','CC','C°C','CF','C°F', & !> units that need change
+!    'HPA','KPA','MMHG','PSI', 'BAR', 'ATM', 'TORR', & !> units that need change
+!    'NM','UM','MM','CM','KM', & !> units that need change
+!    'CM+1S-1','CM/S','CMS^-1','CMS-1','MM+1S-1','MM/S','MMS^-1','MMS-1', & !> units that need change
+!    'PPTD','MMOLMOL-1','MMOL/MOL','MMOLMOL^-1', & !> units that need change
+!    'PPBD','NMOLMOL-1','NMOL/MOL','NMOLMOL^-1'/ !> units that need change
 
     !> indentations and other strings
     character(0) :: indent0 = ''
@@ -480,7 +342,18 @@ module m_common_global_var
     type(FileType) :: AuxFile
     type(BinaryType) :: Binary
     type(MetadataType) :: Metadata
-    type(BiometMetaType) :: BiometMeta
+
+    integer :: fnbRecs, nbRecs
+    type(BiometFileMetadataType) :: bFileMetadata
+    type(BiometVarsType), allocatable :: bVars(:)
+    real(kind=dbl), allocatable :: fbSet(:, :)
+    real(kind=dbl), allocatable :: bSet(:, :), auxbSet(:, :), bAggr(:)
+    type(DateType), allocatable :: fbTs(:), auxbTs(:)
+    type(DateType), allocatable :: bTs(:)
+    type(BiometVarsType), parameter :: &
+        nullbVar = BiometVarsType(nint(error), nint(error), nint(error), &
+            error, error, 'none', 'none', 'none', 'none', 'none', 'none', &
+            'none', 'none', 'none')
 
     !> variables from metadata file
     type(RawFlagType)   :: RawFlag(MaxNumRawFlags)

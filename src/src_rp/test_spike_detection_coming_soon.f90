@@ -30,12 +30,11 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine TestSpikeDetectionComingSoon(Set, N, printout)
+subroutine TestSpikeDetectionComingSoon(Set, N)
     use m_rp_global_var
     implicit none
     !> in/out variables
     integer, intent(in) :: N
-    logical, intent(in) :: printout
     real(kind = dbl), intent(inout) :: Set(N, E2NumVar)
     !> local variables
     integer :: max_pass = 10

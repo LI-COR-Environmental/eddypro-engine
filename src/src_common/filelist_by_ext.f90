@@ -137,8 +137,7 @@ subroutine FileListByExt(DirIn, Ext, MatchTemplate, Template, doy_format, GetTim
 
     !> Define file names and timestamp if requested
     do i = 1, cnt
-        FileList(i)%name = FileList(i)%path &
-            (index(FileList(i)%path, slash, .true.) + 1: len_trim(FileList(i)%path))
+        call basename(FileList(i)%path, FileList(i)%name, slash)
     end do
 
     !> Some logging

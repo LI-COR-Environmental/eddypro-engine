@@ -41,11 +41,11 @@ subroutine AssessDaytime(date, time)
 
     Stats%daytime = .false.
     !> Based on Rg
-    if (Stats%mRg > 12d0) Stats%daytime = .true.
+    if (biomet%val(bRg) > 12d0) Stats%daytime = .true.
     !> Based on PPFD
-    if (.not. Stats%daytime .and. Stats%mPPFD > 100d0) &
+    if (.not. Stats%daytime .and. biomet%val(bPPFD) > 100d0) &
         Stats%daytime = .true.
     !> based on period timestamp and potential radiation
-    if (Stats%mRg == error .and. Stats%mPPFD == error) &
+    if (biomet%val(bRg) == error .and. biomet%val(bPPFD) == error) &
         Stats%daytime = IsDaytime(PotRad, date, time)
 end subroutine AssessDaytime
