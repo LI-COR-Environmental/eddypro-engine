@@ -30,7 +30,8 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine tsExtractSubperiodIndexes(TimeSeries, nrow, StartTimestamp, EndTimestamp, StartIndex, EndIndex)
+subroutine tsExtractSubperiodIndexes(TimeSeries, nrow, StartTimestamp, &
+    EndTimestamp, StartIndex, EndIndex)
     use m_common_global_var
     implicit none
     !> In/out variables
@@ -47,7 +48,8 @@ subroutine tsExtractSubperiodIndexes(TimeSeries, nrow, StartTimestamp, EndTimest
     EndIndex = nint(error)
 
     !> Returns errors if periods do not overlap
-    if (EndTimestamp < TimeSeries(1) .or. StartTimestamp > TimeSeries(nrow)) return
+    if (EndTimestamp < TimeSeries(1) &
+        .or. StartTimestamp > TimeSeries(nrow)) return
 
     !> Search StartTimestamp
     if (StartTimestamp < TimeSeries(1))  then
@@ -72,4 +74,4 @@ subroutine tsExtractSubperiodIndexes(TimeSeries, nrow, StartTimestamp, EndTimest
             end if
         end do
     end if
-end subroutine TsExtractSubperiodIndexes
+end subroutine tsExtractSubperiodIndexes

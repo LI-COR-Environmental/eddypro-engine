@@ -2,7 +2,7 @@
 ! make_dataset.f90
 ! ----------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -30,7 +30,8 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine MakeDataset(PathIn, MasterTimeSeries, nrow, StartIndx, EndIndx, AddNoFile, hnrow)
+subroutine MakeDataset(PathIn, MasterTimeSeries, nrow, StartIndx, &
+    EndIndx, AddNoFile, hnrow)
     use m_common_global_Var
     implicit none
     !> in/out variables
@@ -63,10 +64,12 @@ subroutine MakeDataset(PathIn, MasterTimeSeries, nrow, StartIndx, EndIndx, AddNo
     call InitContinuousDataset(PathIn, ErrString, hnrow)
 
     !> Open input file
-    open(udf, file = PathIn(1:len_trim(PathIn)), status = 'old', iostat = open_status, encoding = 'utf-8')
+    open(udf, file = PathIn(1:len_trim(PathIn)), status = 'old', &
+        iostat = open_status, encoding = 'utf-8')
     if (open_status /= 0 ) then
         write(*,'(a)')
-        write(*,'(a)') '  A problem occurred while opening file: ', PathIn(1:len_trim(PathIn))
+        write(*,'(a)') '  A problem occurred while opening file: ', &
+            trim(adjustl(PathIn))
         write(*,'(a)') '   File not imported.'
         return
     end if
@@ -85,11 +88,21 @@ subroutine MakeDataset(PathIn, MasterTimeSeries, nrow, StartIndx, EndIndx, AddNo
         write(udf2, '(a)') trim(adjustl(DataString_utf8))
     end do
 
-    !> Now creates actual dataset, inserting either actual results or ErrString depending
-    !> on whether results are available for each time step of the MasterTimeSeries
+    !> Now creates actual dataset, inserting either actual
+    !> results or ErrString depending on whether results are available
+    !> for each time step of the MasterTimeSeries
     periods_loop: do i = StartIndx, EndIndx
         !> Search for current time step in the file
         do
+
+            if (MasterTimeSeries(i) > fTimestamp + DateStep) then
+                call AddErrorString(udf2, MasterTimeSeries(i), &
+                    ErrString, len(ErrString), &
+                    PathIn == GHGEUROPE_Path(1:len_trim(GHGEUROPE_Path)), &
+                    AddNoFile)
+                cycle periods_loop
+            end if
+
             !> Read the data string
             read(udf, '(a)', iostat = read_status) DataString
 
@@ -98,17 +111,20 @@ subroutine MakeDataset(PathIn, MasterTimeSeries, nrow, StartIndx, EndIndx, AddNo
                 exit
             end if
 
-            !> Retrieve date and time from the Datastring
+            !> Retrieve date and time from Datastring
             if (AddNoFile) then
-                TmpDataString = DataString(index(DataString, separator) + 1: len_trim(DataString))
+                TmpDataString = &
+                DataString(index(DataString, separator) + 1: len_trim(DataString))
             else
                 TmpDataString = DataString
             end if
             fdate = TmpDataString(1:index(TmpDataString, separator) - 1)
-            TmpDataString = TmpDataString(index(TmpDataString, separator) + 1: len_trim(TmpDataString))
+            TmpDataString = &
+            TmpDataString(index(TmpDataString, separator) + 1: len_trim(TmpDataString))
             ftime = TmpDataString(1:index(TmpDataString, separator) - 1)
 
-            !> Convert into timestamp and take it back to the beginning of the averaging period
+            !> Convert into timestamp and take it back to the
+            !> beginning of the averaging period
             call DateTimeToDateType(fdate, ftime, fTimestamp)
             if (app == 'EddyPro-RP') fTimestamp = fTimestamp - DateStep
 
@@ -118,15 +134,20 @@ subroutine MakeDataset(PathIn, MasterTimeSeries, nrow, StartIndx, EndIndx, AddNo
                 write(udf2,'(a)') trim(adjustl(DataString))
                 cycle periods_loop
             elseif (fTimestamp > MasterTimeSeries(i)) then
-                !> If not, checks if timestamp in file is later than current in MasterTimeSeries
-                !> If so, writes error string on output, backspaces and cycle periods_loops
+                !> If not, checks if timestamp in file is later than current
+                !> in MasterTimeSeries. If so, writes error string on output,
+                !> backspaces and cycle periods_loops
                 if (i < EndIndx) then
                     if (app == 'EddyPro-RP') then
-                        call AddErrorString(udf2, MasterTimeSeries(i+1), ErrString, len(ErrString), &
-                            PathIn == GHGEUROPE_Path(1:len_trim(GHGEUROPE_Path)), AddNoFile)
+                        call AddErrorString(udf2, MasterTimeSeries(i+1), &
+                            ErrString, len(ErrString), &
+                            PathIn == GHGEUROPE_Path(1:len_trim(GHGEUROPE_Path)), &
+                            AddNoFile)
                     else
-                        call AddErrorString(udf2, MasterTimeSeries(i), ErrString, len(ErrString), &
-                            PathIn == GHGEUROPE_Path(1:len_trim(GHGEUROPE_Path)), AddNoFile)
+                        call AddErrorString(udf2, MasterTimeSeries(i), &
+                            ErrString, len(ErrString), &
+                            PathIn == GHGEUROPE_Path(1:len_trim(GHGEUROPE_Path)), &
+                            AddNoFile)
                     end if
                 end if
                 backspace(udf)
@@ -134,6 +155,7 @@ subroutine MakeDataset(PathIn, MasterTimeSeries, nrow, StartIndx, EndIndx, AddNo
             end if
         end do
     end do periods_loop
+
     close(udf)
     close(udf2)
 end subroutine MakeDataset
@@ -152,7 +174,8 @@ end subroutine MakeDataset
 ! \test
 ! \todo
 !***************************************************************************
-subroutine AddErrorString(unt, Timestamp, ErrString, LenErrStr, IsGhgEuropeFile, AddNoFile)
+subroutine AddErrorString(unt, Timestamp, ErrString, LenErrStr, &
+    IsGhgEuropeFile, AddNoFile)
     use m_common_global_Var
     implicit none
     !> in/out variables

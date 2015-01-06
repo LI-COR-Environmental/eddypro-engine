@@ -30,14 +30,14 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine CreateDatasetsCommon(MasterTimeSeries, nrow, rpStartIndx, rpEndIndx)
+subroutine CreateDatasetsCommon(RawTimeSeries, nrow, rpStartIndx, rpEndIndx)
     use m_common_global_var
     implicit none
     !> in/out variables
     integer, intent(in) :: nrow
     integer, intent(in) :: rpStartIndx
     integer, intent(in) :: rpEndIndx
-    type (DateType), intent(in) :: MasterTimeSeries(nrow)
+    type (DateType), intent(in) :: RawTimeSeries(nrow)
     !> local variables
     integer :: del_status
     integer :: tmp_indx
@@ -49,7 +49,8 @@ subroutine CreateDatasetsCommon(MasterTimeSeries, nrow, rpStartIndx, rpEndIndx)
     if (EddyProProj%out_full) then
         write(*,'(a)', advance = 'no') '  Creating Full Output dataset..'
         call MakeDataset(FullOut_Path(1:len_trim(FullOut_Path)), &
-            MasterTimeSeries, size(MasterTimeSeries), rpStartIndx, rpEndIndx, .true., 3)
+            RawTimeSeries, size(RawTimeSeries), &
+            rpStartIndx, rpEndIndx, .true., 3)
         write(*,'(a)') ' Done.'
     end if
 
@@ -57,11 +58,13 @@ subroutine CreateDatasetsCommon(MasterTimeSeries, nrow, rpStartIndx, rpEndIndx)
     if (EddyProProj%out_ghg_eu) then
         tmp_indx = index(GHGEUROPE_Path, TmpExt)
         OutFile = GHGEUROPE_Path(1: tmp_indx - 1)
-        move_status = system(comm_move // '"' // GHGEUROPE_Path(1:len_trim(GHGEUROPE_Path)) // '" "' &
-            // OutFile(1:len_trim(OutFile)) // '"' // comm_out_redirect // comm_err_redirect)
+        move_status = system(comm_move // '"' &
+            // GHGEUROPE_Path(1:len_trim(GHGEUROPE_Path)) // '" "' &
+            // OutFile(1:len_trim(OutFile)) // '"' &
+            // comm_out_redirect // comm_err_redirect)
 !        write(*,'(a)', advance = 'no') '  Creating GHG-EUROPE-style dataset..'
 !        call MakeDataset(GHGEUROPE_Path(1:len_trim(GHGEUROPE_Path)), &
-!            MasterTimeSeries, size(MasterTimeSeries), rpStartIndx, rpEndIndx, .true., 3)
+!            RawTimeSeries, size(RawTimeSeries), rpStartIndx, rpEndIndx, .true., 3)
 !        write(*,'(a)') ' Done.'
     end if
 
@@ -70,25 +73,31 @@ subroutine CreateDatasetsCommon(MasterTimeSeries, nrow, rpStartIndx, rpEndIndx)
         !> Ameriflux_Path
         tmp_indx = index(Ameriflux_Path, TmpExt)
         OutFile = Ameriflux_Path(1: tmp_indx - 1)
-        move_status = system(comm_move // '"' // Ameriflux_Path(1:len_trim(Ameriflux_Path)) // '" "' &
-                    // OutFile(1:len_trim(OutFile)) // '"' // comm_out_redirect // comm_err_redirect)
+        move_status = system(comm_move // '"' &
+            // Ameriflux_Path(1:len_trim(Ameriflux_Path)) // '" "' &
+            // OutFile(1:len_trim(OutFile)) // '"' &
+            // comm_out_redirect // comm_err_redirect)
     end if
 
     !> Metadata file
     if (EddyProProj%out_md) then
         write(*,'(a)', advance = 'no') '  Creating Metadata dataset..'
         call MakeDataset(Metadata_Path(1:len_trim(Metadata_Path)), &
-            MasterTimeSeries, size(MasterTimeSeries), rpStartIndx, rpEndIndx, .true., 1)
+            RawTimeSeries, size(RawTimeSeries), &
+            rpStartIndx, rpEndIndx, .true., 1)
         write(*,'(a)') ' Done.'
     end if
 
     !> Remove temporary output file
     if (len_trim(FullOut_Path) /= 0 .and. EddyProProj%out_full) &
-        del_status = system(comm_del // '"' // FullOut_Path(1:len_trim(FullOut_Path)) // '"')
+        del_status = system(comm_del // '"' &
+        // FullOut_Path(1:len_trim(FullOut_Path)) // '"')
 
 !    if (len_trim(GHGEUROPE_Path) /= 0 .and. EddyProProj%out_ghg_eu) &
-!        del_status = system(comm_del // '"' // GHGEUROPE_Path(1:len_trim(GHGEUROPE_Path)) // '"')
+!        del_status = system(comm_del // '"' &
+!        // GHGEUROPE_Path(1:len_trim(GHGEUROPE_Path)) // '"')
 
     if (len_trim(Metadata_Path) /= 0 .and. EddyProProj%out_md) &
-        del_status = system(comm_del // '"' // Metadata_Path(1:len_trim(Metadata_Path)) // '"')
+        del_status = system(comm_del // '"' &
+        // Metadata_Path(1:len_trim(Metadata_Path)) // '"')
 end subroutine CreateDatasetsCommon

@@ -30,7 +30,8 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine CreateMasterTimeSeries(StartTimestamp, EndTimestamp, Step, MasterTimeSeries, nrow)
+subroutine CreateTimeSeries(StartTimestamp, EndTimestamp, &
+    Step, RawTimeSeries, nrow)
     use m_common_global_var
     implicit none
     !> In/out variables
@@ -38,25 +39,26 @@ subroutine CreateMasterTimeSeries(StartTimestamp, EndTimestamp, Step, MasterTime
     type(DateType), intent(in) :: StartTimestamp
     type(DateType), intent(inout) :: EndTimestamp
     type(DateType), intent(in) :: Step
-    type(DateType), intent(out) :: MasterTimeSeries(nrow)
+    type(DateType), intent(out) :: RawTimeSeries(nrow)
     !> in/out variables
     integer :: cnt
 
 
-    write(*, '(a)', advance = 'no') ' Creating master time series for the selected time period.. '
+    write(*, '(a)', advance = 'no') ' Creating time series &
+        &for the time period covered by raw data files.. '
 
     !> create master timestamps array
-    MasterTimeSeries(1) = StartTimestamp
+    RawTimeSeries(1) = StartTimestamp
     cnt = 1
     do
-        if (MasterTimeSeries(cnt) >= EndTimestamp) exit
+        if (RawTimeSeries(cnt) >= EndTimestamp) exit
         cnt = cnt + 1
         if (cnt > nrow) exit
-        MasterTimeSeries(cnt) = MasterTimeSeries(cnt - 1) + Step
+        RawTimeSeries(cnt) = RawTimeSeries(cnt - 1) + Step
     end do
 
     write(*, '(a)') ' done.'
-end subroutine CreateMasterTimeSeries
+end subroutine CreateTimeSeries
 
 !***************************************************************************
 !

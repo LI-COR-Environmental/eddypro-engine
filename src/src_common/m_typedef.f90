@@ -491,6 +491,7 @@ module m_typedef
         logical :: biomet_dir
         logical :: biomet_recurse
         logical :: make_dataset
+        logical :: subperiod
         logical :: wpl
         logical :: out_essentials
         logical :: use_extmd_file

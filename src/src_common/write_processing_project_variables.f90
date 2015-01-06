@@ -2,7 +2,7 @@
 ! write_processing_project_variables.f90
 ! --------------------------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -21,8 +21,8 @@
 !
 !***************************************************************************
 !
-! \brief       Read EddyPro configuration file in its preliminary
-!              section, common to all sub-programs
+! \brief       Read EddyPro configuration file, section [Project]
+!              which is common to both RP and FCC
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -83,18 +83,21 @@ subroutine WriteProcessingProjectVariables()
         EddyProProj%ftype = 'alteddy_bin'
     end select
 
-    !> If file type is different from GHG, metadata retrieval mode is not feasible
-    !> so forces into advanced mode
-    if (EddyProProj%ftype /= 'licor_ghg' .and. EddyProProj%run_mode ==  'md_retrieval') &
+    !> If file type is different from GHG, metadata
+    !> retrieval mode is not feasible so forces into advanced mode
+    if (EddyProProj%ftype /= 'licor_ghg' &
+        .and. EddyProProj%run_mode ==  'md_retrieval') &
         EddyProProj%run_mode =  'advanced'
 
     !> File names prototype and related (for non-ENE, non-LICOR files)
     if (EddyProProj%ftype /= 'licor_ghg') then
-        EddyProProj%fname_template = EPPrjCTags(7)%value(1:len_trim(EPPrjCTags(7)%value))
+        EddyProProj%fname_template = &
+            EPPrjCTags(7)%value(1:len_trim(EPPrjCTags(7)%value))
         if (index(EddyProProj%fname_template, '.') /= 0) then
             !> File extensions
             dot = index(EddyProProj%fname_template, '.', .true.)
-            EddyProProj%fext = EddyProProj%fname_template(dot + 1:len_trim(EddyProProj%fname_template))
+            EddyProProj%fext = &
+            EddyProProj%fname_template(dot + 1:len_trim(EddyProProj%fname_template))
             !> ISO format
             EddyProLog%iso_format = index(EddyProProj%fname_template, 'mm') /= 0
         end if
@@ -252,25 +255,24 @@ subroutine WriteProcessingProjectVariables()
     EddyProProj%make_dataset = EPPrjCTags(24)%value(1:1) == '1'
 
     !> start/end date and time of period to be processed
-    if (EPPrjCTags(40)%value(1:1) == '1') then
-        EddYProProj%start_date = EPPrjCTags(25)%value(1:len_trim(EPPrjCTags(25)%value))
-        if (len_trim(EddYProProj%start_date) == 0) EddYProProj%start_date = 'none'
-        EddYProProj%start_time = EPPrjCTags(26)%value(1:len_trim(EPPrjCTags(26)%value))
-        if (len_trim(EddYProProj%start_time) == 0) EddYProProj%start_time = 'none'
-        EddYProProj%end_date = EPPrjCTags(27)%value(1:len_trim(EPPrjCTags(27)%value))
-        if (len_trim(EddYProProj%end_date) == 0) EddYProProj%end_date = 'none'
-        EddYProProj%end_time = EPPrjCTags(28)%value(1:len_trim(EPPrjCTags(28)%value))
-        if (len_trim(EddYProProj%end_time) == 0) EddYProProj%end_time = 'none'
-    else
-        EddYProProj%start_date = '1900-01-01'
-        EddYProProj%start_time = '00:00'
-        EddYProProj%end_date   = '2100-12-31'
-        EddYProProj%end_time   = '23:59'
+    EddyProProj%subperiod = EPPrjCTags(40)%value(1:1) == '1'
+
+    if (EddyProProj%subperiod) then
+        EddYProProj%start_date = &
+            trim(adjustl(EPPrjCTags(25)%value))
+        EddYProProj%start_time = &
+            trim(adjustl(EPPrjCTags(26)%value))
+        EddYProProj%end_date = &
+            trim(adjustl(EPPrjCTags(27)%value))
+        EddYProProj%end_time = &
+            trim(adjustl(EPPrjCTags(28)%value))
     end if
-    if (EddYProProj%start_date == 'none') EddYProProj%start_date = '1900-01-01'
-    if (EddYProProj%start_time == 'none') EddYProProj%start_time = '00:00'
-    if (EddYProProj%end_date == 'none')   EddYProProj%end_date   = '2100-12-31'
-    if (EddYProProj%end_time == 'none')   EddYProProj%end_time   = '23:59'
+
+    if (len_trim(EddYProProj%start_date) == 0 &
+        .or. len_trim(EddYProProj%start_time) == 0 &
+        .or. len_trim(EddYProProj%end_date) == 0 &
+        .or. len_trim(EddYProProj%end_time) == 0) &
+        EddyProProj%subperiod = .false.
 
     !> select whether to apply WPL correction at all
     EddyProProj%wpl = EPPrjCTags(33)%value(1:1) /= '0'

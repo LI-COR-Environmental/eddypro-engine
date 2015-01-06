@@ -143,6 +143,7 @@ program EddyproRP
 
     type (FileListType), allocatable :: RawFileList(:)
     type (FileListType), allocatable :: bFileList(:)
+    type (DateType), allocatable :: RawTimeSeries(:)
     type (DateType), allocatable :: MasterTimeSeries(:)
     type (DateType) :: tsStart, tsEnd
     type (DateType) :: LastMetadataTimestamp
@@ -374,7 +375,7 @@ program EddyproRP
         tsDatasetStart, tsDatasetEnd)
 
     !> Adjust Start/End timestamps to define the boundaries of the
-    !> MasterTimeseries. Retrieve the beginning time of first file
+    !> RawTimeSeries. Retrieve the beginning time of first file
     !> and end time of last file.
     if (EddyProLog%tstamp_end) then
         tsDatasetStart = tsDatasetStart - DatafileDateStep
@@ -383,13 +384,13 @@ program EddyproRP
     end if
     call tsRoundToMinute(tsDatasetStart, RPsetup%avrg_len, 'earlier')
 
-    !> Retrieve NumberOfPeriods and allocate MasterTimeSeries
+    !> Retrieve NumberOfPeriods and allocate RawTimeSeries
     NumberOfPeriods = NumOfPeriods(tsDatasetStart, tsDatasetEnd, DateStep)
-    allocate(MasterTimeSeries(NumberOfPeriods + 1))
+    allocate(RawTimeSeries(NumberOfPeriods + 1))
 
     !> Create timestamp array for full dataset
-    call CreateMasterTimeSeries(tsDatasetStart, tsDatasetEnd, DateStep, &
-        MasterTimeSeries, size(MasterTimeSeries))
+    call CreateTimeSeries(tsDatasetStart, tsDatasetEnd, DateStep, &
+        RawTimeSeries, size(RawTimeSeries))
 
     !> Check the dynamic metadata file for calibration data.
     !> If found, builds up time series of absorptance drifts
@@ -433,10 +434,10 @@ program EddyproRP
             call DateTimeToDateType(TOSetup%start_date, '00:00', auxStartTimestamp)
             call DateTimeToDateType(TOSetup%end_date, '23:59', auxEndTimestamp)
 
-            !> In MasterTimeSeries, detect indices of first and last files
+            !> In RawTimeSeries, detect indices of first and last files
             !> relevant to time lag optimization
-            call tsExtractSubperiodIndexes(MasterTimeSeries, &
-                size(MasterTimeSeries), auxStartTimestamp, auxEndTimestamp, &
+            call tsExtractSubperiodIndexes(RawTimeSeries, &
+                size(RawTimeSeries), auxStartTimestamp, auxEndTimestamp, &
                 toStartTimestampIndx, toEndTimestampIndx)
 
             if (toStartTimestampIndx == nint(error) &
@@ -481,8 +482,8 @@ program EddyproRP
 
                 !> Define initial/final timestamps
                 !> of current period, say [8:00 - 8:30)
-                tsStart = MasterTimeSeries(pcount)
-                tsEnd   = MasterTimeSeries(pcount + 1)
+                tsStart = RawTimeSeries(pcount)
+                tsEnd   = RawTimeSeries(pcount + 1)
 
                 !> Search file containing data starting from the
                 !> time closest to tsStart. Searches only from most current
@@ -841,10 +842,10 @@ program EddyproRP
             call DateTimeToDateType(PFSetup%start_date, '00:00', auxStartTimestamp)
             call DateTimeToDateType(PFSetup%end_date, '23:59', auxEndTimestamp)
 
-            !> In MasterTimeSeries, detect indexes of first and last files
+            !> In RawTimeSeries, detect indexes of first and last files
             !> relevant to planar fit
-            call tsExtractSubperiodIndexes(MasterTimeSeries, &
-                size(MasterTimeSeries), auxStartTimestamp, auxEndTimestamp, &
+            call tsExtractSubperiodIndexes(RawTimeSeries, &
+                size(RawTimeSeries), auxStartTimestamp, auxEndTimestamp, &
                 pfStartTimestampIndx, pfEndTimestampIndx)
 
             if (pfStartTimestampIndx == nint(error) &
@@ -889,8 +890,8 @@ program EddyproRP
 
                 !> Define initial/final timestamps of
                 !> current period, say [8:00 - 8:30)
-                tsStart = MasterTimeSeries(pcount)
-                tsEnd   = MasterTimeSeries(pcount + 1)
+                tsStart = RawTimeSeries(pcount)
+                tsEnd   = RawTimeSeries(pcount + 1)
 
                 !> Search file containing data starting from the time closest to
                 !> tsStart. Searches only from most current file
@@ -1199,23 +1200,35 @@ program EddyproRP
     !***************************************************************************
     !***************************************************************************
 
-    !> If applicable, transform user-selected
-    !> start/end date and time into DateType
-    call DateTimeToDateType(EddYProProj%start_date, &
-        EddYProProj%start_time, SelectedStartTimestamp)
-    call DateTimeToDateType(EddYProProj%end_date, &
-        EddYProProj%end_time, SelectedEndTimestamp)
-    SelectedEndTimestamp = SelectedEndTimestamp - DateStep
+    !> Create TimeSeries for actual raw data processing
+    if (EddyProProj%subperiod) then
+        !> If user selected a sub-period, create time series corresponding to
+        !> that period and verify that there is any overlap with RawTimeSeries
+        call DateTimeToDateType(EddYProProj%start_date, &
+            EddYProProj%start_time, SelectedStartTimestamp)
+        call DateTimeToDateType(EddYProProj%end_date, &
+            EddYProProj%end_time, SelectedEndTimestamp)
+        SelectedEndTimestamp = SelectedEndTimestamp
 
-    !> In MasterTimeSeries, detect indexes of first
-    !> and last files to be processed
-    call tsExtractSubperiodIndexes(MasterTimeSeries, &
-        size(MasterTimeSeries), SelectedStartTimestamp, &
-        SelectedEndTimestamp, rpStartTimestampIndx, rpEndTimestampIndx)
+        NumberOfPeriods = NumOfPeriods(SelectedStartTimestamp, &
+            SelectedEndTimestamp, DateStep)
+        allocate(MasterTimeSeries(NumberOfPeriods + 1))
+        call CreateTimeSeries(SelectedStartTimestamp, SelectedEndTimestamp, &
+            DateStep, MasterTimeSeries, size(MasterTimeSeries))
 
-    if (rpStartTimestampIndx == nint(error) &
-        .or. rpEndTimestampIndx == nint(error)) &
-        call ExceptionHandler(46)
+        !> Verify at least partial overlap
+        if (MasterTimeSeries(1) > RawTimeSeries(size(RawTimeSeries)) &
+            .or. MasterTimeSeries(size(MasterTimeSeries)) < RawTimeSeries(1)) &
+            call ExceptionHandler(46)
+    else
+        allocate(MasterTimeSeries(size(RawTimeSeries)))
+        MasterTimeSeries = RawTimeSeries
+    end if
+
+    !> ONLY TEMPORARY: you can now actually eliminate rpStartTimestampIndx and
+    !> rpEndTimestampIndx
+    rpStartTimestampIndx = 1
+    rpEndTimestampIndx = size(MasterTimeSeries)
 
     !***************************************************************************
     !***************************************************************************
@@ -1233,15 +1246,6 @@ program EddyproRP
         drift_loop: do
             pcount = pcount + 1
 
-            !> Normal exit instruction: either the last period was
-            !> dealt with, or raw files are finished
-            if (LatestRawFileIndx > NumRawFiles &
-                .or. pcount > rpEndTimestampIndx) exit drift_loop
-
-            !> Normal exit instruction: if all cleaning
-            !> events have been processed
-            if (latestCleaning >= nCalibEvents) exit drift_loop
-
             !> If embedded metadata are to be used,
             !> reinitialize column information to null
             if (EddyProProj%use_extmd_file) then
@@ -1250,9 +1254,22 @@ program EddyproRP
                 Col = NullCol
             end if
 
-            !> Define initial/final timestamps of current period (say, 8:00 to 8:29)
+            !> Normal exit instruction: either the last period was
+            !> dealt with, or raw files are finished
+            if (pcount > rpEndTimestampIndx - 1) exit drift_loop
+
+            !> Normal exit instruction: if all cleaning
+            !> events have been processed
+            if (latestCleaning >= nCalibEvents) exit drift_loop
+
+            !> Define initial/final timestamps of
+            !> current period (say, [8:00 to 8:30))
             tsStart = MasterTimeSeries(pcount)
             tsEnd   = MasterTimeSeries(pcount + 1)
+
+            !> If files are finished, keep going until the end of the selected
+            !> period
+            if (LatestRawFileIndx > NumRawFiles) cycle drift_loop
 
             !> Search file containing data starting from the time
             !> closest to tsStart
@@ -1397,12 +1414,16 @@ program EddyproRP
                 call hms_delta_print(' Start metadata retrieving: ', '')
             end if
             write(*, '(a)') ' Processing time period:'
-            call DateTypeToDateTime(MasterTimeSeries(rpStartTimestampIndx), tmpDate, tmpTime)
+            call DateTypeToDateTime(MasterTimeSeries(rpStartTimestampIndx), &
+                tmpDate, tmpTime)
             write(*, '(a)') '  Start: ' // tmpDate // ' ' // tmpTime
-            call DateTypeToDateTime(MasterTimeSeries(rpEndTimestampIndx) + DateStep , tmpDate, tmpTime)
+            call DateTypeToDateTime(MasterTimeSeries(rpEndTimestampIndx - 1) &
+                + DateStep , tmpDate, tmpTime)
             write(*, '(a)') '    End: ' // tmpDate // ' ' // tmpTime
-            write(TmpString1, '(i7)') rpEndTimestampIndx - rpStartTimestampIndx + 1
-            write(*, '(a)') '  Total number of flux averaging periods: ' // trim(adjustl(TmpString1))
+            write(TmpString1, '(i7)') &
+                rpEndTimestampIndx - rpStartTimestampIndx
+            write(*, '(a)') '  Total number of flux averaging periods: ' &
+                // trim(adjustl(TmpString1))
             write(*, '(a)')
         end if
         pcount = pcount + 1
@@ -1417,8 +1438,7 @@ program EddyproRP
 
         !> Normal exit instruction: either the last period was dealt with,
         !> or raw files are finished
-        if (LatestRawFileIndx > NumRawFiles &
-            .or. pcount > rpEndTimestampIndx) exit periods_loop
+        if (pcount > rpEndTimestampIndx - 1) exit periods_loop
 
         !> Define initial/final timestamps of current period (say, 8:00 to 8:29)
         tsStart = MasterTimeSeries(pcount)
@@ -1437,6 +1457,15 @@ program EddyproRP
                 // trim(date)   // ' ' // trim(time)
             write(*, '(a)') '   To: ' &
                 // trim(Stats%date) // ' ' // trim(Stats%time)
+        end if
+
+        !> If files are finished, keep going until the end of the selected
+        !> period
+        if (LatestRawFileIndx > NumRawFiles) then
+            if (EddyProProj%run_mode /= 'md_retrieval') &
+                call ExceptionHandler(53)
+            call hms_delta_print(PeriodSkipMessage,'')
+            cycle periods_loop
         end if
 
         !> Search file containing data starting from the time
@@ -1480,8 +1509,9 @@ program EddyproRP
         call ImportCurrentPeriod(tsStart, tsEnd, RawFileList, &
             NumRawFiles, NextRawFileIndx, BypassCol, MaxNumFileRecords, &
             MetaIsNeeded, EddyProProj%biomet_data == 'embedded', .true., &
-            Raw, size(Raw, 1), size(Raw, 2), bRaw, size(bRaw, 1), size(bRaw, 2), &
-            PeriodRecords, EmbBiometDataExist, skip_period, LatestRawFileIndx, Col)
+            Raw, size(Raw, 1), size(Raw, 2), bRaw, &
+            size(bRaw, 1), size(bRaw, 2), PeriodRecords, EmbBiometDataExist, &
+            skip_period, LatestRawFileIndx, Col)
 
         !> If it's running in metadata retriever mode,
         !> create a dummy dataset 1 minute long
@@ -1533,8 +1563,10 @@ program EddyproRP
             if (RPsetup%filter_by_raw_flags) &
                 call FilterRawDataByFlags(Col, Raw, size(Raw, 1), size(Raw, 2))
 
-            !> If drift correction is to be performed with signal strength proxy, calculate mean refCounts for current period
-            if (DriftCorr%method == 'signal_strength') call ReferenceCounts(Raw, size(Raw, 1), size(Raw, 2))
+            !> If drift correction is to be performed with signal strength
+            !> proxy, calculate mean refCounts for current period
+            if (DriftCorr%method == 'signal_strength') &
+                call ReferenceCounts(Raw, size(Raw, 1), size(Raw, 2))
         end if
 
         !***********************************************************************

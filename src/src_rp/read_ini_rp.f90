@@ -43,9 +43,11 @@ subroutine ReadIniRP(key)
     write(*,'(a)') ' Reading EddyPro project file: ' &
                      // PrjPath(1:len_trim(PrjPath)) // '..'
 
-    !> parse processing.eddypro file and store [Project] variables, common to all programs
+    !> parse processing.eddypro file and store [Project] variables,
+    !> common to all programs
     call ParseIniFile(PrjPath, 'Project', EPPrjNTags, EPPrjCTags,&
-        size(EPPrjNTags), size(EPPrjCTags), SNTagFound, SCTagFound, IniFileNotFound)
+        size(EPPrjNTags), size(EPPrjCTags), SNTagFound, SCTagFound, &
+        IniFileNotFound)
 
     if (IniFileNotFound) call ExceptionHandler(21)
     call WriteProcessingProjectVariables()
@@ -55,13 +57,14 @@ subroutine ReadIniRP(key)
         SNTagFound, SCTagFound, IniFileNotFound)
 
     if (IniFileNotFound) call ExceptionHandler(21)
-    !> selects only tags needed in this software, and store them in relevant variables
+    !> selects only tags needed in this software, and store
+    !> them in relevant variables
     call WriteVariablesRP()
 
     write(*,'(a)')   ' done.'
 end subroutine ReadIniRP
 
-!***************************************************************************
+!*******************************************************************************
 !
 ! \brief       Looks in "SNTags" and "SCTags" and retrieve variables used for \n
 !              express processing.
@@ -72,7 +75,7 @@ end subroutine ReadIniRP
 ! \deprecated
 ! \test
 ! \todo
-!***************************************************************************
+!*******************************************************************************
 subroutine WriteVariablesRP()
     use m_rp_global_var
     implicit none
@@ -99,8 +102,10 @@ subroutine WriteVariablesRP()
         if (SNTagFound(init_an_flags + i*leap_an_flags) .and. &
             nint(SNTags(init_an_flags + i*leap_an_flags)%value) > 0) then
             NumRawFlags = NumRawFlags + 1
-            RawFlag(NumRawFlags)%col = nint(SNTags(init_an_flags + i*leap_an_flags)%value)
-            RawFlag(NumRawFlags)%threshold = dble(SNTags(init_an_flags + i*leap_an_flags + 1)%value)
+            RawFlag(NumRawFlags)%col = &
+                nint(SNTags(init_an_flags + i*leap_an_flags)%value)
+            RawFlag(NumRawFlags)%threshold = &
+                dble(SNTags(init_an_flags + i*leap_an_flags + 1)%value)
             RawFlag(NumRawFlags)%upper = .true.
             if (SNTags(init_an_flags + i*leap_an_flags + 2)%value > 0) &
                 RawFlag(NumRawFlags)%upper = .false.
@@ -217,7 +222,7 @@ subroutine WriteVariablesRP()
 
     !> Cross-wind correction
     RPsetup%calib_cw = SCTags(13)%value(1:1) == '1'
-    !> select whether to look for raw files in sub-folders (recursive file listing)
+    !> select whether to look for raw files in sub-folders
     RPsetup%recurse = SCTags(19)%value(1:1) == '1'
     !> select whether to output binned (co)spectra
     RPsetup%out_bin_sp = SCTags(26)%value(1:1) == '1'
@@ -275,19 +280,14 @@ subroutine WriteVariablesRP()
     !> completely the spectral analysis
     RPsetup%do_spectral_analysis = .false.
     if (RPsetup%out_bin_sp .or. RPsetup%out_bin_og &
-        .or. RPsetup%out_full_sp(u) .or. RPsetup%out_full_sp(v) .or. RPsetup%out_full_sp(w) .or. RPsetup%out_full_sp(ts) &
-        .or. RPsetup%out_full_sp(co2) .or. RPsetup%out_full_sp(h2o) .or. RPsetup%out_full_sp(ch4) .or. RPsetup%out_full_sp(gas4) &
-        .or. RPsetup%out_full_cosp(w_u) .or. RPsetup%out_full_cosp(w_v) .or. RPsetup%out_full_cosp(w_ts) &
-        .or. RPsetup%out_full_cosp(w_co2) .or. RPsetup%out_full_cosp(w_h2o) .or. RPsetup%out_full_cosp(w_ch4) &
-        .or. RPsetup%out_full_cosp(w_n2o)) RPsetup%do_spectral_analysis = .true.
+        .or. any(RPsetup%out_full_sp(u:gas4)) &
+        .or. any(RPsetup%out_full_cosp(w_u:w_v)) &
+        .or. any(RPsetup%out_full_cosp(w_ts:w_gas4))) &
+        RPsetup%do_spectral_analysis = .true.
 
-    !> If no variable was selected for output, force out_raw to false regardless of
-    !> user setting
-    if (.not. (RPsetup%out_raw_var(u) .or. RPsetup%out_raw_var(v) .or. RPsetup%out_raw_var(w) &
-    .or. RPsetup%out_raw_var(ts) .or. RPsetup%out_raw_var(co2) .or. RPsetup%out_raw_var(ch4) &
-    .or. RPsetup%out_raw_var(gas4) .or. RPsetup%out_raw_var(te) .or. RPsetup%out_raw_var(pe))) then
-        RPsetup%out_raw = .false.
-    end if
+    !> If no variable was selected for output, force out_raw to false
+    !> regardless of user setting
+    if (.not. any(RPsetup%out_raw_var(u:pe))) RPsetup%out_raw = .false.
 
     !> Raw dataset dir
     proceed = .false.
@@ -297,6 +297,7 @@ subroutine WriteVariablesRP()
             exit
         end if
     end do
+
     !> Define header of raw dataset files
     raw_out_header = '   '
     hlen = 3
@@ -359,7 +360,8 @@ subroutine WriteVariablesRP()
     end select
     if (Meth%det(1:len_trim(Meth%det)) == 'ld' .or. &
         Meth%det(1:len_trim(Meth%det)) == 'rm' .or. &
-        Meth%det(1:len_trim(Meth%det)) == 'ewa') RPsetup%Tconst = nint(SNTags(46)%value)
+        Meth%det(1:len_trim(Meth%det)) == 'ewa') &
+        RPsetup%Tconst = nint(SNTags(46)%value)
 
     !> select rotation method
     select case (SCTags(15)%value(1:1))
@@ -472,8 +474,11 @@ subroutine WriteVariablesRP()
             if (SNTagFound(init_an_wsect + i*leap_an_wsect) .and. &
                 SNTags(init_an_wsect + i*leap_an_wsect)%value > 0) then
                 PFSetup%num_sec = PFSetup%num_sec + 1
-                PFSetup%width(PFSetup%num_sec) = SNTags(init_an_wsect + i*leap_an_wsect)%value
-                PFSetup%wsect_exclude(PFSetup%num_sec) = nint(SNTags(init_an_wsect + i*leap_an_wsect + 1)%value) == 1
+                PFSetup%width(PFSetup%num_sec) = &
+                    SNTags(init_an_wsect + i*leap_an_wsect)%value
+                PFSetup%wsect_exclude(PFSetup%num_sec) = &
+                    nint(SNTags(init_an_wsect + i*leap_an_wsect + 1)%value) == 1
+
             end if
         end do
         if (PFSetup%num_sec == 0) then
@@ -485,7 +490,8 @@ subroutine WriteVariablesRP()
             !> Calculate ending angle of each sector
             do i = 1, PFSetup%num_sec
                 PFSetup%wsect_end(i) = nint(sum(PFSetup%width(1:i)))
-                if (PFSetup%wsect_end(i) < 0) PFSetup%wsect_end(i) = 360 + PFSetup%wsect_end(i)
+                if (PFSetup%wsect_end(i) < 0) &
+                    PFSetup%wsect_end(i) = 360 + PFSetup%wsect_end(i)
             end do
             PFSetup%wsect_end(PFSetup%num_sec) = 360
         end if

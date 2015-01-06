@@ -44,7 +44,7 @@ subroutine ExceptionHandler(error_code)
             stop 1
         case(1)
             write(*,*) ' Fatal error(1)> Temporary file "flist.tmp" not created.'
-            write(*,*) ' Fatal error(1)> Most likely, no files with the selected extension were found in the data folder.'
+            write(*,*) ' Fatal error(1)> Most likely, no files matching the raw file name format were found.'
             write(*,*) ' Fatal error(1)> Program execution aborted.'
             stop 1
         case(2)
