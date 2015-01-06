@@ -787,35 +787,56 @@ end function SplitCount
 ! \bug
 ! \deprecated
 ! \test
-!***************************************************************************
-function replace(string, replace_what, replace_with) result(new_string)
+!***************************************************************************function replace(string,what,with, outlen)  result(nstring)
+function replace(string, what, with, outlen) result(nstring)
     use m_common_global_var
     implicit none
     !> in/out variables
+    integer, intent(in) :: outlen
     character(*), intent(in) :: string
-    character(*), intent(in) :: replace_what
-    character(*), intent(in) :: replace_with
-!    character(len(string) - len(replace_what) + len(replace_with)) :: new_string
-    character(*) :: new_string
-    !> local variables
-    integer :: init
+    character(*), intent(in) :: what
+    character(*), intent(in) :: with
+    character(outlen) :: nstring
+    integer :: i, nnr
 
-    init = index(string, replace_what)
-    if (init /= 0) then
-        if (init == 1) then
-            new_string = trim(replace_with) &
-                // string(len(replace_what)+1:len(trim(string)))
-        else if (init + len(replace_what) == len(string)) then
+    nstring = string
+    nnr = len_trim(with)
+    do
+        i = index(trim(nstring), what)
+        if (i == 0) return
+        nstring = nstring(:i-1) // with(:nnr) // nstring(i+len(what):)
+    end do
+end function replace
+
+!
+!function replace(string, replace_what, replace_with) result(new_string)
+!    use m_common_global_var
+!    implicit none
+!    !> in/out variables
+!    character(*), intent(in) :: string
+!    character(*), intent(in) :: replace_what
+!    character(*), intent(in) :: replace_with
+!    character(*) :: new_string
+!    !> local variables
+!    integer :: init
+!
+!
+!    init = index(string, replace_what)
+!    if (init /= 0) then
+!        if (init == 1) then
+!            new_string = trim(replace_with) &
+!                // string(len(replace_what)+1:len(trim(string)))
+!        else if (init + len(replace_what) == len(string)) then
+!!            new_string = string(1:init-1) // trim(replace_with) &
+!!                // string(init+len(replace_what):len(trim(string)))
+!        else
 !            new_string = string(1:init-1) // trim(replace_with) &
 !                // string(init+len(replace_what):len(trim(string)))
-        else
-            new_string = string(1:init-1) // trim(replace_with) &
-                // string(init+len(replace_what):len(trim(string)))
-        end if
-    else
-        new_string = string
-    end if
-end function replace
+!        end if
+!    else
+!        new_string = string
+!    end if
+!end function replace
 
 !***************************************************************************
 !

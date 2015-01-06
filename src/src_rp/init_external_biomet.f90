@@ -137,8 +137,8 @@ subroutine InitExternalBiomet(bFileList, N)
 
             !> If timestamp labels are 'Date' and 'Time', replace with
             !> 'Timestamp_1' and 'Timestamp_2', e.g. Sutron case
-            record = replace(record, 'Date', 'TIMESTAMP_1')
-            record = replace(record, 'Time,', 'TIMESTAMP_2,')
+            record = replace(record, 'Date', 'TIMESTAMP_1', len(record))
+            record = replace(record, 'Time,', 'TIMESTAMP_2,', len(record))
 
             !> Retrieve number of biomet variables excluding
             !> TIMESTAMP-related items from record

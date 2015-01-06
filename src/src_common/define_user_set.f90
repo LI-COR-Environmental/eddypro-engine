@@ -45,6 +45,7 @@ subroutine DefineUserSet(LocCol, Raw, nrow, ncol, UserSet, unrow, uncol)
     !> local variables
     integer :: j
     integer :: jj
+    character(len(LocCol%label)), external :: replace
 
 
     UserCol%var = 'none'
@@ -54,8 +55,8 @@ subroutine DefineUserSet(LocCol, Raw, nrow, ncol, UserSet, unrow, uncol)
     do j = 1, ncol
         select case (LocCol(j)%var(1:len_trim(LocCol(j)%var)))
             !> Sonic and irga variables without property "useit"
-            case('co2','h2o','ch4','n2o', 'cell_t', 'int_t_1', 'int_t_2', 'int_p', &
-                'air_t', 'air_p', 'u','v','w','ts','sos', &
+            case('co2','h2o','ch4','n2o', 'cell_t', 'int_t_1', 'int_t_2', &
+                'int_p', 'air_t', 'air_p', 'u','v','w','ts','sos', &
                 'flag_1', 'flag_2')
                 if (.not. LocCol(j)%useit) then
                     jj = jj + 1
@@ -72,6 +73,9 @@ subroutine DefineUserSet(LocCol, Raw, nrow, ncol, UserSet, unrow, uncol)
                     UserCol(jj) = LocCol(j)
                     UserCol(jj)%present = .true.
                     UserSet(1:unrow, jj) = Raw(1:unrow, j)
+                    !> Replace spaces with underscores
+                    UserCol(jj)%label = replace(UserCol(jj)%label, &
+                        ' ', '_', len(UserCol(jj)%label))
                 end if
                 !> Special case of 4th gas calibration reference
                 if (j == Gas4CalRefCol) UserCol(jj)%var = 'cal-ref'
