@@ -34,15 +34,15 @@ subroutine ValidateFilenameTemplate()
     use m_common_global_var
     implicit none
     !> local variables
-    character(64) :: Pattern
+    character(64) :: Template
 
     !date patterns: yyyy, yy, ddd, dd, mm
     !time patterns: HH MM
-    Pattern = trim(adjustl(EddyProProj%fname_template))
+    Template = trim(adjustl(EddyProProj%fname_template))
 
     !> Weak test
-    if ( index(Pattern, 'yy') == 0 &
-    .or. index(Pattern, 'dd') == 0 &
-    .or. index(Pattern, 'HH') == 0 &
-    .or. index(Pattern, 'MM') == 0) call ExceptionHandler(20)
+    if ( index(Template, 'yy') == 0 &
+    .or. index(Template, 'dd') == 0 &
+    .or. index(Template, 'HH') == 0 &
+    .or. index(Template, 'MM') == 0) call ExceptionHandler(20)
 end subroutine ValidateFilenameTemplate

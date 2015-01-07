@@ -199,7 +199,7 @@ subroutine FilenameToTimestamp(Filename, Prototype, doy_format, Timestamp)
 
 
     !> extract date/time info from file name
-    call ParseFileNameWithPrototype(Filename, Prototype, DateString)
+    call ParseFileNameWithTemplate(Filename, Prototype, DateString)
 
     !> If midnights are expressed as 24, change it into 00:00 of day after
     call Change24Into00(DateString, doy_format)
@@ -217,7 +217,7 @@ end subroutine FilenameToTimestamp
 
 !***************************************************************************
 !
-! \brief       Retrieve date-time string Filename based on Prototype
+! \brief       Retrieve date-time string Filename based on Template
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -226,12 +226,12 @@ end subroutine FilenameToTimestamp
 ! \test
 ! \todo
 !***************************************************************************
-subroutine FilenameToDateTime(Filename, Prototype, doy_format, date, time)
+subroutine FilenameToDateTime(Filename, Template, doy_format, date, time)
     use m_common_global_var
     implicit none
     !> in/out variables
     character(*), intent(in) :: Filename
-    character(*), intent(in) :: Prototype
+    character(*), intent(in) :: Template
     logical, intent(in) :: doy_format
     character(*), intent(out) :: date
     character(*), intent(out) :: time
@@ -240,7 +240,7 @@ subroutine FilenameToDateTime(Filename, Prototype, doy_format, date, time)
 
 
     !> extract date/time info from file name
-    call ParseFileNameWithPrototype(Filename, Prototype, DateString)
+    call ParseFileNameWithTemplate(Filename, Template, DateString)
 
     !> If midnights are expressed as 24, change it into 00:00 of day after
     call Change24Into00(trim(adjustl(DateString)), doy_format)

@@ -67,8 +67,6 @@ subroutine WriteProcessingProjectVariables()
         case ('0')
         EddyProProj%ftype = 'licor_ghg'
         EddyProProj%fext = 'ghg'
-        EddyProLog%iso_format = .true.
-        EddyProProj%fname_template = 'yyyy-mm-ddTHHMM'
         case ('1')
         EddyProProj%ftype = 'generic_ascii'
         case ('2')
@@ -89,8 +87,8 @@ subroutine WriteProcessingProjectVariables()
         .and. EddyProProj%run_mode ==  'md_retrieval') &
         EddyProProj%run_mode =  'advanced'
 
-    !> File names prototype and related (for non-ENE, non-LICOR files)
-    if (EddyProProj%ftype /= 'licor_ghg') then
+    !> File names prototype and related
+    if (EddyProProj%run_env /= 'embedded') then
         EddyProProj%fname_template = &
             EPPrjCTags(7)%value(1:len_trim(EPPrjCTags(7)%value))
         if (index(EddyProProj%fname_template, '.') /= 0) then
@@ -101,6 +99,9 @@ subroutine WriteProcessingProjectVariables()
             !> ISO format
             EddyProLog%iso_format = index(EddyProProj%fname_template, 'mm') /= 0
         end if
+    else
+        EddyProLog%iso_format = .true.
+        EddyProProj%fname_template = 'yyyy-mm-ddTHHMM'
     end if
 
     !> If file type is TOB1, check if user entered the format

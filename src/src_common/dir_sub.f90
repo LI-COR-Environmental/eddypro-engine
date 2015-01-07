@@ -87,7 +87,7 @@ logical function NameMatchesTemplate(FileName, Template)
     NameMatchesTemplate = .false.
 
     !> Check on the length of filename
-    if(EddyProProj%ftype /= 'licor_ghg' &
+    if(EddyProProj%run_env /= 'embedded' &
         .and. len_trim(FileName) /= len_trim(Template)) return
 
     !> Check timestamp
@@ -143,6 +143,13 @@ logical function NameMatchesTemplate(FileName, Template)
         e_minute = index(Template, 'MM') + 1
         if (is_not_numeric(Filename(s:s+1))) return
     end if
+
+    !> If running in embedded mode, template only contains timestamp
+    !> so if it got to here, test is passed
+    if (EddyProProj%run_env == 'embedded') then
+        NameMatchesTemplate = .true.
+        return
+    endif
 
     !> Check prefix
     s_ts = min(s_year, s_month, s_day, s_hour, s_minute)
@@ -226,19 +233,23 @@ subroutine NumberOfFilesInDir(DirIn, ext, MatchTemplate, Template, N, rN)
     do
         read(udf, '(a)', iostat = open_status) string
         if (open_status /= 0) exit
-            TmpFileName =  string(index(string, slash, .true.) + 1: len_trim(string))
+            TmpFileName = &
+                string(index(string, slash, .true.) + 1: len_trim(string))
             if (MatchTemplate) then
                 if (NameMatchesTemplate(TmpFileName, Template)) then
                     N = N + 1
-                    if (string(1:index(string, slash, .true.)) == trim(adjustl(DirIn))) rN = rN + 1
+                    if (string(1:index(string, slash, .true.)) &
+                        == trim(adjustl(DirIn))) rN = rN + 1
                 end if
             else
                 N = N + 1
-                if (string(1:index(string, slash, .true.)) == trim(adjustl(DirIn))) rN = rN + 1
+                if (string(1:index(string, slash, .true.)) &
+                    == trim(adjustl(DirIn))) rN = rN + 1
             end if
     end do
     close(udf)
-    call system(comm_del // '"' // trim(adjustl(TmpDir)) // '"*.tmp' // comm_err_redirect)
+    call system(comm_del // '"' // trim(adjustl(TmpDir)) &
+        // '"*.tmp' // comm_err_redirect)
 end subroutine NumberOfFilesInDir
 
 !***************************************************************************
@@ -252,7 +263,8 @@ end subroutine NumberOfFilesInDir
 ! \test
 ! \todo
 !***************************************************************************
-integer function NumberOfFilesInSubperiod(FileList, nrow, StartTimestamp, EndTimestamp)
+integer function NumberOfFilesInSubperiod(FileList, nrow, &
+    StartTimestamp, EndTimestamp)
     use m_common_global_var
     implicit none
     !> In/out variables
@@ -267,7 +279,8 @@ integer function NumberOfFilesInSubperiod(FileList, nrow, StartTimestamp, EndTim
     !> Write in output filelist only files within the selected interval
     cnt = 0
     do i = 1, nrow
-        if (FileList(i)%timestamp >= StartTimestamp .and. FileList(i)%timestamp <= EndTimestamp) &
+        if (FileList(i)%timestamp >= StartTimestamp &
+            .and. FileList(i)%timestamp <= EndTimestamp) &
             cnt = cnt + 1
     end do
     NumberOfFilesInSubperiod = cnt
@@ -356,7 +369,8 @@ end subroutine ForceForwardSlash
 
 !***************************************************************************
 !
-! \brief       Clean file name by eliminating possible OS-dependent extra characters
+! \brief       Clean file name by eliminating possible
+!              OS-dependent extra characters
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -437,6 +451,3 @@ subroutine scanCsvFile(fpath, separator, cols_from_header, nrow, ncol, failed)
 
     if (ncol * nrow == 0) failed = .true.
 end subroutine scanCsvFile
-
-
-

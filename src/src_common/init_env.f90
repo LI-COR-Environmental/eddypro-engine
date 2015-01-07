@@ -139,7 +139,8 @@ subroutine InitEnv()
 
     !> Define TmpDir differently if it's in desktop or embedded mode
     if (EddyProProj%run_env == 'desktop') then
-        TmpDir = trim(homedir) // 'tmp' // slash // 'tmp' // trim(adjustl(tmpDirPadding)) // slash
+        TmpDir = trim(homedir) // 'tmp' // slash // 'tmp' &
+        // trim(adjustl(tmpDirPadding)) // slash
     else
         TmpDir = trim(homedir) // 'tmp' // slash
     end if
