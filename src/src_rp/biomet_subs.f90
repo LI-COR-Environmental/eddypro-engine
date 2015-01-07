@@ -358,8 +358,8 @@ subroutine BiometEnrichVarsDescription()
             case('P', 'P_RAIN', 'P_SNOW')
                 bVars(i)%nature = 'PRECIPITATION'
                 bVars(i)%accumul_type = 'INTEGRATION'
-                bVars(i)%unit_out = 'MM'
-                bVars(i)%pretty_unit_out = '[mm]'
+                bVars(i)%unit_out = 'M'
+                bVars(i)%pretty_unit_out = '[m]'
             case('LAI')
                 bVars(i)%nature = 'INDEX'
                 bVars(i)%accumul_type = 'AVERAGING'
@@ -866,32 +866,32 @@ subroutine BiometStandardUnits()
                         continue
                 end select
 
-            !> Precipitation is converted to [mm]
-            case('PRECIPITATION')
-                select case(bVars(i)%unit_in)
-                    case('NM')
-                        where (bSet(:, i) /= error)
-                            bSet(:, i) = bSet(:, i) * 1d-6
-                        end where
-                    case('UM')
-                        where (bSet(:, i) /= error)
-                            bSet(:, i) = bSet(:, i) * 1d-3
-                        end where
-                    case('CM')
-                        where (bSet(:, i) /= error)
-                            bSet(:, i) = bSet(:, i) * 10
-                        end where
-                    case('M')
-                        where (bSet(:, i) /= error)
-                            bSet(:, i) = bSet(:, i) * 1d3
-                        end where
-                    case default
-                        continue
-                end select
+!            !> Precipitation is converted to [m]
+!            case('PRECIPITATION')
+!                select case(bVars(i)%unit_in)
+!                    case('NM')
+!                        where (bSet(:, i) /= error)
+!                            bSet(:, i) = bSet(:, i) * 1d-6
+!                        end where
+!                    case('UM')
+!                        where (bSet(:, i) /= error)
+!                            bSet(:, i) = bSet(:, i) * 1d-3
+!                        end where
+!                    case('CM')
+!                        where (bSet(:, i) /= error)
+!                            bSet(:, i) = bSet(:, i) * 10
+!                        end where
+!                    case('M')
+!                        where (bSet(:, i) /= error)
+!                            bSet(:, i) = bSet(:, i) * 1d3
+!                        end where
+!                    case default
+!                        continue
+!                end select
 
-            !> Lengths different from precipitations are
+            !> Lengths
             !> converted to [m]
-            case('LENGTH')
+            case('LENGTH', 'PRECIPITATION')
                 select case(bVars(i)%unit_in)
                     case('NM')
                         where (bSet(:, i) /= error)
