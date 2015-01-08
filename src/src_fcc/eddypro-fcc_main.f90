@@ -58,8 +58,8 @@ Program EddyproFCC
     logical :: exEndReached
 
     !> Derived type variables
-    type(DateType) :: fxStartTimestamp
-    type(DateType) :: fxEndTimestamp
+    type(DateType) :: exStartTimestamp
+    type(DateType) :: exEndTimestamp
     type(DateType) :: saStartTimestamp
     type(DateType) :: saEndTimestamp
     type(DateType) :: binStartTimestamp
@@ -77,6 +77,7 @@ Program EddyproFCC
     type(EXType) :: lEx
 
     !> Allocatable variabled
+    type(DateType), allocatable :: exTimeSeries(:)
     type(DateType), allocatable :: MasterTimeSeries(:)
     type(FitSpectraType), allocatable :: FitUnstable(:)
     type(FitSpectraType), allocatable :: FitStable(:)
@@ -102,42 +103,55 @@ Program EddyproFCC
     call ReadIniFX('FluxCorrection')
 
     !> If running in embedded mode, override some settings
-    if (EddyProProj%run_env == 'embedded') call ConfigureForEmbedded('EddyPro-FCC')
+    if (EddyProProj%run_env == 'embedded') &
+        call ConfigureForEmbedded('EddyPro-FCC')
 
     !> Preliminarily read essential files and retrieve a few information
-    call InitExVars(fxStartTimestamp, fxEndTimestamp, &
+    call InitExVars(exStartTimestamp, exEndTimestamp, &
         NumExRecords, NumValidExRecords)
 
     !> If no good records are found stop execution
     if (NumValidExRecords <= 0) call ExceptionHandler(61)
 
-    !> Retrieve NumberOfPeriods and allocate MasterTimeSeries
-    NumberOfPeriods = NumOfPeriods(fxStartTimestamp, fxEndTimestamp, DateStep)
-    allocate(MasterTimeSeries(NumberOfPeriods))
+    !> Retrieve NumberOfPeriods and allocate exTimeSeries
+    NumberOfPeriods = NumOfPeriods(exStartTimestamp, exEndTimestamp, DateStep)
+    allocate(exTimeSeries(NumberOfPeriods + 1))
+    call CreateTimeSeries(exStartTimestamp, exEndTimestamp, &
+        DateStep, exTimeSeries, size(exTimeSeries))
 
-    !> Timestamps of selected subperiod
-    call DateTimeToDateType(EddYProProj%start_date, EddYProProj%start_time, &
-        SelectedStartTimestamp)
-    call DateTimeToDateType(EddYProProj%end_date, EddYProProj%end_time, &
-        SelectedEndTimestamp)
-    SelectedEndTimestamp = SelectedEndTimestamp - DateStep
+    !> Define MasterTimeSeries for the period to be considered
+    if (EddyProProj%subperiod) then
+        call DateTimeToDateType(EddYProProj%start_date, &
+            EddYProProj%start_time, SelectedStartTimestamp)
+        call DateTimeToDateType(EddYProProj%end_date, &
+            EddYProProj%end_time, SelectedEndTimestamp)
 
-    !> Create timestamp array for full dataset
-    call CreateTimeSeries(fxStartTimestamp, fxEndTimestamp, DateStep, &
-        MasterTimeSeries, size(MasterTimeSeries))
+        NumberOfPeriods = NumOfPeriods(SelectedStartTimestamp, &
+            SelectedEndTimestamp, DateStep)
 
-    !> Detect indexes of selected sub-period
-    call tsExtractSubperiodIndexes(MasterTimeSeries, size(MasterTimeSeries), &
-        SelectedStartTimestamp, SelectedEndTimestamp, &
-        fxStartTimestampIndx, fxEndTimestampIndx)
+        allocate(MasterTimeSeries(NumberOfPeriods + 1))
+        call CreateTimeSeries(SelectedStartTimestamp, SelectedEndTimestamp, &
+            DateStep, MasterTimeSeries, size(MasterTimeSeries))
 
-    if (fxStartTimestampIndx == nint(error) .or. fxEndTimestampIndx == nint(error)) &
-        call ExceptionHandler(50)
+        !> Verify at least partial overlap
+        if (MasterTimeSeries(1) > exTimeSeries(size(exTimeSeries)) &
+            .or. MasterTimeSeries(size(MasterTimeSeries)) < exTimeSeries(1)) &
+            call ExceptionHandler(50)
+    else
+        allocate(MasterTimeSeries(size(exTimeSeries)))
+        MasterTimeSeries = exTimeSeries
+    end if
 
-    !> For convenience, change timestamps of MasterTimeSeries by increasing of DateStep
-    do i = 1, size(MasterTimeSeries)
-        MasterTimeSeries(i) = MasterTimeSeries(i) + DateStep
-    end do
+    !> ONLY TEMPORARY: you can now actually eliminate rpStartTimestampIndx and
+    !> rpEndTimestampIndx
+    fxStartTimestampIndx = 1
+    fxEndTimestampIndx = size(MasterTimeSeries)
+
+    !> For convenience, change timestamps of MasterTimeSeries
+    !> by increasing of DateStep
+!    do i = 1, size(MasterTimeSeries)
+!        MasterTimeSeries(i) = MasterTimeSeries(i) + DateStep
+!    end do
 
     !> Initialize import of full cospectra files
     if (FCCsetup%import_full_cospectra) then
@@ -147,7 +161,8 @@ Program EddyproFCC
 
         !> Read names of full cospectra files
         call FileListByExt(Dir%full, '.csv', .true., FullFilePrototype, &
-            .true., .true., .true., FullFilelist, size(FullFilelist), .true., '')
+            .true., .true., .true., FullFilelist, &
+            size(FullFilelist), .true., '')
 
         !> Retrieve length of full cospectra for later allocation
         call FullCospectraLength(FullFilelist(1)%path, nrow_full)
@@ -255,29 +270,36 @@ Program EddyproFCC
             if (.not. allocated(MeanBinCosp)) then
                 allocate(MeanBinCosp(nbins, MaxGasClasses))
                 MeanBinCosp = NullMeanSpec
-                allocate(FitUnstable(nbins * (saEndTimestampIndx - saStartTimestampIndx + 1)))
+                allocate(FitUnstable(nbins * &
+                    (saEndTimestampIndx - saStartTimestampIndx + 1)))
                 FitUnstable = NullFitCosp
-                allocate(FitStable  (nbins * (saEndTimestampIndx - saStartTimestampIndx + 1)))
+                allocate(FitStable  (nbins * &
+                    (saEndTimestampIndx - saStartTimestampIndx + 1)))
                 FitStable   = NullFitCosp
             end if
 
             !> Eliminate (co)spectra based on user-selected quality criteria
             call CospectraQAQC(BinSpec, BinCosp, size(BinSpec), lEx, &
-                BinCospForStable, BinCospForUnstable, skip_spectra, skip_cospectra)
+                BinCospForStable, BinCospForUnstable, &
+                skip_spectra, skip_cospectra)
 
             !> Sort current spectra in relevant classes
-            if (.not. skip_spectra) call SpectraSortingAndAveraging(lEx, BinSpec, size(BinSpec), nbins)
+            if (.not. skip_spectra) &
+                call SpectraSortingAndAveraging(lEx, BinSpec, &
+                    size(BinSpec), nbins)
 
             !> Sort current cospectra in time-slot classes
             if (EddyProProj%out_avrg_cosp .and. .not. skip_cospectra) then
 
                 !> Add current cospectra to dataset for regression
-                call AddToCospectraFitDataset(lEx, BinCospForStable, BinCospForUnstable, &
-                    size(BinCospForStable), nfit, size(nfit, 1), size(nfit, 2), &
-                    nbins, FitStable, FitUnstable, size(FitStable))
+                call AddToCospectraFitDataset(lEx, BinCospForStable, &
+                    BinCospForUnstable, size(BinCospForStable), nfit, &
+                    size(nfit, 1), size(nfit, 2), nbins, FitStable, &
+                    FitUnstable, size(FitStable))
 
                 !> Sort current cospectra in time slot classes
-                call CospectraSortingAndAveraging(BinCosp, size(BinCosp), lEx%time, nbins)
+                call CospectraSortingAndAveraging(BinCosp, size(BinCosp), &
+                    lEx%time, nbins)
             end if
         end do binned_loop
         close(uex)
@@ -290,28 +312,33 @@ Program EddyproFCC
         end if
 
         !> Ensemble average cospectra in stable and unstable cases
-        call EnsembleCospectraByStability(nfit, size(nfit, 1), size(nfit, 2), FitStable, FitUnstable, size(FitStable))
+        call EnsembleCospectraByStability(nfit, size(nfit, 1), size(nfit, 2), &
+            FitStable, FitUnstable, size(FitStable))
 
         !> Normalize sums for obtaining mean spectra
         call NormalizeMeanSpectraCospectra(nbins)
 
-        !> Detect which average spectra are available for each gas and each class
+        !> Detect which average spectra are available
+        !> for each gas and each class
         call AvailableMeanSpectraCospectra(nbins)
 
         if (DoSpectralAssessment) then
 
-            !> Determine low-pass TF cut-off frequencies, RH-sorted (H2O) and time-sorted (CO2/CH4/GAS4)
+            !> Determine low-pass TF cut-off frequencies, RH-sorted (H2O)
+            !> and time-sorted (CO2/CH4/GAS4)
             call FitTFModels(nbins)
 
             !> Determine analytical relation fc/RH
             call FitRh2Fco()
 
-            !> If necessary, calculate spectral correction factor models as from Ibrom et al. (2007)
+            !> If necessary, calculate spectral correction factor models
+            !> as from Ibrom et al. (2007)
             call CorrectionFactorModel(AuxFile%ex, NumExRecords)
         end if
 
         !> Write everything on output files
-        call OutputSpectralAssessmentResults(DoSpectralAssessment, EddyProProj%out_avrg_cosp, nbins)
+        call OutputSpectralAssessmentResults(DoSpectralAssessment, &
+            EddyProProj%out_avrg_cosp, nbins)
         write(*,'(a)')
 
     elseif (.not. FCCsetup%sa_onthefly .and. FCCsetup%SA%in_situ) then
@@ -321,11 +348,11 @@ Program EddyproFCC
 
     end if
 
-    !************************************************************************************
-    !************************************************************************************
-    !*********** MAIN CYCLE ON RESULTS RECORDS RETRIEVED FROM ESSENTIALS FILE ***********
-    !************************************************************************************
-    !************************************************************************************
+    !***************************************************************************
+    !***************************************************************************
+    !****** MAIN CYCLE ON RESULTS RECORDS RETRIEVED FROM ESSENTIALS FILE *******
+    !***************************************************************************
+    !***************************************************************************
 
     !> Open Ex file to keep it ready for reading
     !> and exit with error in case of problems opening the file
@@ -343,7 +370,8 @@ Program EddyproFCC
         call ReadExRecord('', uex, -1, lEx, ValidRecord, EndOfFileReached)
 
         !> Initialize presence of key variables for outputting results
-        if (InitializeOuputFiles) fcc_var_present(u:GHGNumVar) = lEx%var_present(u:GHGNumVar)
+        if (InitializeOuputFiles) &
+            fcc_var_present(u:GHGNumVar) = lEx%var_present(u:GHGNumVar)
 
         !> If end of file was reached, exit loop
         if (EndOfFileReached) exit ex_loop
@@ -355,17 +383,20 @@ Program EddyproFCC
         call DateTimeToDateType(lEx%date, lEx%time, CurrentTimestamp)
 
         !> If current timestamp is < start selected timestamp, cycle
-        if (CurrentTimestamp < MasterTimeSeries(fxStartTimestampIndx)) cycle ex_loop
+        if (CurrentTimestamp < MasterTimeSeries(fxStartTimestampIndx)) &
+            cycle ex_loop
 
         !> If current timestamp is > end selected range, exit
-        if (CurrentTimestamp > MasterTimeSeries(fxEndTimestampIndx)) exit ex_loop
+        if (CurrentTimestamp > MasterTimeSeries(fxEndTimestampIndx)) &
+            exit ex_loop
 
         !> Show advancement
         call DateTimetoDOY(lEx%date, lEx%time, int_doy, float_doy)
         if (day /= CurrentTimestamp%day .or. month /= CurrentTimestamp%month) then
             month = CurrentTimestamp%month
             day   = CurrentTimestamp%day
-            call DisplayProgress('daily', '  Calculating fluxes for ', CurrentTimestamp, 'yes')
+            call DisplayProgress('daily', '  Calculating fluxes for ', &
+                CurrentTimestamp, 'yes')
         end if
 
         !> Band-pass spectral correction factors

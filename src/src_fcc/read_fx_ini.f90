@@ -40,9 +40,11 @@ subroutine ReadIniFX(key)
     write(*,'(a)') ' Reading EddyPro project file: ' &
                      // PrjPath(1:len_trim(PrjPath)) // '..'
 
-    !> parse processing.eddypro file and store [Project] variables, common to all programs
+    !> parse processing.eddypro file and store [Project] variables,
+    !> common to all programs
     call ParseIniFile(PrjPath, 'Project', EPPrjNTags, EPPrjCTags,&
-        size(EPPrjNTags), size(EPPrjCTags), SNTagFound, SCTagFound, IniFileNotFound)
+        size(EPPrjNTags), size(EPPrjCTags), &
+        SNTagFound, SCTagFound, IniFileNotFound)
 
     if (IniFileNotFound) call ExceptionHandler(21)
     call WriteProcessingProjectVariables()
@@ -52,7 +54,8 @@ subroutine ReadIniFX(key)
         SNTagFound, SCTagFound, IniFileNotFound)
 
     if (IniFileNotFound) call ExceptionHandler(21)
-    !> selects only tags needed in this software, and store them in relevant variables
+    !> selects only tags needed in this software, and store
+    !> them in relevant variables
     call WriteVariablesFX()
 
     write(*,'(a)')   ' done.'

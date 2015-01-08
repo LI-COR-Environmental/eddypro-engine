@@ -1208,7 +1208,6 @@ program EddyproRP
             EddYProProj%start_time, SelectedStartTimestamp)
         call DateTimeToDateType(EddYProProj%end_date, &
             EddYProProj%end_time, SelectedEndTimestamp)
-        SelectedEndTimestamp = SelectedEndTimestamp
 
         NumberOfPeriods = NumOfPeriods(SelectedStartTimestamp, &
             SelectedEndTimestamp, DateStep)

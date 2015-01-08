@@ -30,14 +30,14 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine CreateDatasetsCommon(RawTimeSeries, nrow, rpStartIndx, rpEndIndx)
+subroutine CreateDatasetsCommon(TimeSeries, nrow, StartIndx, EndIndx)
     use m_common_global_var
     implicit none
     !> in/out variables
     integer, intent(in) :: nrow
-    integer, intent(in) :: rpStartIndx
-    integer, intent(in) :: rpEndIndx
-    type (DateType), intent(in) :: RawTimeSeries(nrow)
+    integer, intent(in) :: StartIndx
+    integer, intent(in) :: EndIndx
+    type (DateType), intent(in) :: TimeSeries(nrow)
     !> local variables
     integer :: del_status
     integer :: tmp_indx
@@ -49,8 +49,8 @@ subroutine CreateDatasetsCommon(RawTimeSeries, nrow, rpStartIndx, rpEndIndx)
     if (EddyProProj%out_full) then
         write(*,'(a)', advance = 'no') '  Creating Full Output dataset..'
         call MakeDataset(FullOut_Path(1:len_trim(FullOut_Path)), &
-            RawTimeSeries, size(RawTimeSeries), &
-            rpStartIndx, rpEndIndx, .true., 3)
+            TimeSeries, size(TimeSeries), &
+            StartIndx, EndIndx, .true., 3)
         write(*,'(a)') ' Done.'
     end if
 
@@ -64,7 +64,7 @@ subroutine CreateDatasetsCommon(RawTimeSeries, nrow, rpStartIndx, rpEndIndx)
             // comm_out_redirect // comm_err_redirect)
 !        write(*,'(a)', advance = 'no') '  Creating GHG-EUROPE-style dataset..'
 !        call MakeDataset(GHGEUROPE_Path(1:len_trim(GHGEUROPE_Path)), &
-!            RawTimeSeries, size(RawTimeSeries), rpStartIndx, rpEndIndx, .true., 3)
+!            TimeSeries, size(TimeSeries), StartIndx, EndIndx, .true., 3)
 !        write(*,'(a)') ' Done.'
     end if
 
@@ -83,8 +83,8 @@ subroutine CreateDatasetsCommon(RawTimeSeries, nrow, rpStartIndx, rpEndIndx)
     if (EddyProProj%out_md) then
         write(*,'(a)', advance = 'no') '  Creating Metadata dataset..'
         call MakeDataset(Metadata_Path(1:len_trim(Metadata_Path)), &
-            RawTimeSeries, size(RawTimeSeries), &
-            rpStartIndx, rpEndIndx, .true., 1)
+            TimeSeries, size(TimeSeries), &
+            StartIndx, EndIndx, .true., 1)
         write(*,'(a)') ' Done.'
     end if
 

@@ -44,8 +44,7 @@ subroutine CreateTimeSeries(StartTimestamp, EndTimestamp, &
     integer :: cnt
 
 
-    write(*, '(a)', advance = 'no') ' Creating time series &
-        &for the time period covered by raw data files.. '
+    write(*, '(a)', advance = 'no') ' Creating time series..'
 
     !> create master timestamps array
     RawTimeSeries(1) = StartTimestamp

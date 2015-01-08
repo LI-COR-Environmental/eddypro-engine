@@ -126,7 +126,7 @@ subroutine MakeDataset(PathIn, MasterTimeSeries, nrow, StartIndx, &
             !> Convert into timestamp and take it back to the
             !> beginning of the averaging period
             call DateTimeToDateType(fdate, ftime, fTimestamp)
-            if (app == 'EddyPro-RP') fTimestamp = fTimestamp - DateStep
+            fTimestamp = fTimestamp - DateStep
 
             !> Check if fTimestamp is equal to current time step timestamp
             if(fTimestamp == MasterTimeSeries(i)) then
@@ -138,17 +138,10 @@ subroutine MakeDataset(PathIn, MasterTimeSeries, nrow, StartIndx, &
                 !> in MasterTimeSeries. If so, writes error string on output,
                 !> backspaces and cycle periods_loops
                 if (i < EndIndx) then
-                    if (app == 'EddyPro-RP') then
-                        call AddErrorString(udf2, MasterTimeSeries(i+1), &
-                            ErrString, len(ErrString), &
-                            PathIn == GHGEUROPE_Path(1:len_trim(GHGEUROPE_Path)), &
-                            AddNoFile)
-                    else
-                        call AddErrorString(udf2, MasterTimeSeries(i), &
-                            ErrString, len(ErrString), &
-                            PathIn == GHGEUROPE_Path(1:len_trim(GHGEUROPE_Path)), &
-                            AddNoFile)
-                    end if
+                    call AddErrorString(udf2, MasterTimeSeries(i+1), &
+                        ErrString, len(ErrString), &
+                        PathIn == GHGEUROPE_Path(1:len_trim(GHGEUROPE_Path)), &
+                        AddNoFile)
                 end if
                 backspace(udf)
                 cycle periods_loop
