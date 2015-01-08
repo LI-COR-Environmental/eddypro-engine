@@ -70,5 +70,5 @@ subroutine RenameTmpFilesCommon()
         move_status = system(comm_move // '"' // AmeriFlux_Path(1:len_trim(AmeriFlux_Path)) // '" "' &
             // OutFile(1:len_trim(OutFile)) // '"' // comm_out_redirect // comm_err_redirect)
     end if
-    write(*,'(a)') ' done.'
+    write(*,'(a)') ' Done.'
 end subroutine RenameTmpFilesCommon

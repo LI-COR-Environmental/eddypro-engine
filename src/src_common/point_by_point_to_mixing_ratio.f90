@@ -163,5 +163,5 @@ subroutine PointByPointToMixingRatio(Set, nrow, ncol, printout)
             end if
         end if
     end if
-    if (printout) write(*,'(a)') ' done.'
+    if (printout) write(*,'(a)') ' Done.'
 end subroutine PointByPointToMixingRatio

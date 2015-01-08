@@ -53,11 +53,12 @@ subroutine RetrieveDynamicMetadata(FinalTimestamp, LocCol, ncol)
     type (DateType) :: mdCurrentTimestamp
 
 
-    write(*,'(a)') ' Retrieving dynamic metadata..  '
+    write(*,'(a)', advance = 'no') '  Retrieving dynamic metadata..'
 
     !> Open dynamic metadata file
     open(udf, file = AuxFile%DynMD, status = 'old', iostat = open_status)
     if (open_status /= 0) then
+        write(*,*)
         call ExceptionHandler(68)
         return
     end if
@@ -73,46 +74,51 @@ subroutine RetrieveDynamicMetadata(FinalTimestamp, LocCol, ncol)
         var_num = 0
         !> Read date and time if present and exit on error
         read(udf, '(a)', iostat = read_status) datastring
-        if (read_status /= 0) exit record_loop
-        if (len(trim(datastring)) == 0) cycle record_loop
+        if (read_status /= 0) then
+            if (cnt == 0) exit record_loop
+        else
+            if (len(trim(datastring)) == 0) cycle record_loop
 
-        !> Store data in a temporary array as text
-        mdStringVars = 'none'
-        do
-            sepa = index(datastring, separator)
-            if (sepa == 0) sepa = len_trim(datastring) + 1
-            if (len_trim(datastring) == 0) exit
-            var_num = var_num + 1
-            mdStringVars(var_num) = datastring(1:sepa - 1)
-            datastring = datastring(sepa + 1: len_trim(datastring))
-        end do
+            !> Store data in a temporary array as text
+            mdStringVars = 'none'
+            do
+                sepa = index(datastring, separator)
+                if (sepa == 0) sepa = len_trim(datastring) + 1
+                if (len_trim(datastring) == 0) exit
+                var_num = var_num + 1
+                mdStringVars(var_num) = datastring(1:sepa - 1)
+                datastring = datastring(sepa + 1: len_trim(datastring))
+            end do
 
-        !> Retrieve date and time and check suitability to current time period
-        if (DynamicMetadataOrder(dynmd_date) /= nint(error)) &
-            read(mdStringVars(DynamicMetadataOrder(dynmd_date)), *) date
-        if (DynamicMetadataOrder(dynmd_time) /= nint(error)) &
-            read(mdStringVars(DynamicMetadataOrder(dynmd_time)), *) time
+            !> Retrieve date and time and check suitability to current time period
+            if (DynamicMetadataOrder(dynmd_date) /= nint(error)) &
+                read(mdStringVars(DynamicMetadataOrder(dynmd_date)), *) date
+            if (DynamicMetadataOrder(dynmd_time) /= nint(error)) &
+                read(mdStringVars(DynamicMetadataOrder(dynmd_time)), *) time
 
-        !> Retrieve timestamp from date/time
-        call DateTimeToDateType(date, time, mdCurrentTimestamp)
+            !> Retrieve timestamp from date/time
+            call DateTimeToDateType(date, time, mdCurrentTimestamp)
 
-        !> Check suitability of Metadata for current period
-        !> Normal case
-        if (mdCurrentTimestamp < FinalTimestamp) then
-            cnt = cnt + 1
-            mdCurrentStringVars = mdStringVars
-            cycle record_loop
+            !> Check suitability of Metadata for current period
+            !> Normal case
+            if (mdCurrentTimestamp < FinalTimestamp) then
+                cnt = cnt + 1
+                mdCurrentStringVars = mdStringVars
+                cycle record_loop
+            end if
+            if (cnt == 0) exit record_loop
         end if
 
-        if (cnt == 0) exit record_loop
-
-        !> If it gets here, means that it's time to retrieve Dynamic Metadata from previous dataline
+        !> If it gets here, means that it's time to
+        !> retrieve Dynamic Metadata from previous dataline
         call ReadMetadataFromTextVars(mdCurrentStringVars, size(mdStringVars))
 
-        !> Normal loop exit instruction (if CurrentTimestamp is beyond FinalTimestamp)
+        !> Normal loop exit instruction (if CurrentTimestamp
+        !> is beyond FinalTimestamp)
         if (mdCurrentTimestamp >= FinalTimestamp) exit record_loop
 
-        !> If it arrived here, means that Dynamic Metadata were found and retrieved. Can exit cycle
+        !> If it arrived here, means that Dynamic Metadata
+        !> were found and retrieved. Can exit cycle
         exit record_loop
     end do record_loop
     close(udf)
@@ -120,21 +126,21 @@ subroutine RetrieveDynamicMetadata(FinalTimestamp, LocCol, ncol)
     !> Correct dynamic metadata in case of plain mistakes
     call FixDynamicMetadata()
 
-    !> Now update Metadata and E2Col with current DynamicMetadata, whether or not they have been
-    !> updated at the current round
+    !> Now update Metadata and E2Col with current DynamicMetadata,
+    !> whether or not they have been updated at the current round
     call ExtractUsableMetadataFromDynamic(LocCol, size(LocCol))
 
     write(*, '(a)') ' Done.'
 end subroutine RetrieveDynamicMetadata
 
-!***************************************************************************
+!*******************************************************************************
 !
 ! \brief       Determine whether metadata are relevant to current period
 !              Metadata are relevant if:
-!              - if they are "in the past", if they are closer to InitialTimestamp
-!              than the last used
-!              - if they are "in the future", if they overlap with current period at
-!              any extent
+!              - if they are "in the past", if they are
+!                closer to InitialTimestamp than the last used
+!              - if they are "in the future", if they overlap with current
+!                period at any extent
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -142,7 +148,7 @@ end subroutine RetrieveDynamicMetadata
 ! \deprecated
 ! \test
 ! \todo
-!***************************************************************************
+!*******************************************************************************
 !logical function MetadataAreRelevantToCurrentPeriod(InitialTimestamp, FinalTimestamp, &
 !    mdCurrentTimestamp, LastMetadataTimestamp)
 !    use m_rp_global_var
@@ -156,14 +162,17 @@ end subroutine RetrieveDynamicMetadata
 !
 !    MetadataAreRelevantToCurrentPeriod = .false.
 !    if (mdCurrentTimestamp < InitialTimestamp) then
-!        !> If CurrentMetada is earlier than InitialTimestamp, check if its lag is smaller than
+!        !> If CurrentMetada is earlier than InitialTimestamp,
+!        !> check if its lag is smaller than
 !        !> that of LastMetadata used
 !        if (abs(Timelag(InitialTimestamp, mdCurrentTimestamp)) &
 !            <= abs(TimeLag(InitialTimestamp, LastMetadataTimestamp))) &
 !            MetadataAreRelevantToCurrentPeriod = .true.
 !    else
-!        !> If CurrentMetada is later or equal to InitialTimestamp, check if it overlaps with current period
-!        if (mdCurrentTimestamp < FinalTimestamp) MetadataAreRelevantToCurrentPeriod = .true.
+!        !> If CurrentMetada is later or equal to InitialTimestamp,
+!        !> check if it overlaps with current period
+!        if (mdCurrentTimestamp < FinalTimestamp) &
+!           MetadataAreRelevantToCurrentPeriod = .true.
 !    end if
 !
 !end function MetadataAreRelevantToCurrentPeriod
@@ -188,168 +197,241 @@ subroutine ReadMetadataFromTextVars(mdStringVars, nrow)
 
     !> Site location
     if (DynamicMetadataOrder(altitude) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(altitude)), *) DynamicMetadata%alt
+        read(mdStringVars(DynamicMetadataOrder(altitude)), *) &
+        DynamicMetadata%alt
     if (DynamicMetadataOrder(latitude) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(latitude)), *) DynamicMetadata%lat
+        read(mdStringVars(DynamicMetadataOrder(latitude)), *) &
+        DynamicMetadata%lat
     if (DynamicMetadataOrder(longitude) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(longitude)), *) DynamicMetadata%lon
+        read(mdStringVars(DynamicMetadataOrder(longitude)), *) &
+        DynamicMetadata%lon
 
     !> File length and acquisition frequency
     if (DynamicMetadataOrder(file_length) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(file_length)), *) DynamicMetadata%file_length
+        read(mdStringVars(DynamicMetadataOrder(file_length)), *) &
+        DynamicMetadata%file_length
     if (DynamicMetadataOrder(acquisition_frequency) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(acquisition_frequency)), *) DynamicMetadata%ac_freq
+        read(mdStringVars(DynamicMetadataOrder(acquisition_frequency)), *) &
+        DynamicMetadata%ac_freq
 
     !> Canopy height, displacement height and roughness length
     if (DynamicMetadataOrder(canopy_height) /= nint(error)) then
-        read(mdStringVars(DynamicMetadataOrder(canopy_height)), *) DynamicMetadata%canopy_height
+        read(mdStringVars(DynamicMetadataOrder(canopy_height)), *) &
+        DynamicMetadata%canopy_height
         DynamicMetadata%d = 0.66d0 * DynamicMetadata%canopy_height
         DynamicMetadata%z0 = 0.2d0 * DynamicMetadata%canopy_height
     end if
     if (DynamicMetadataOrder(displacement_height) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(displacement_height)), *) DynamicMetadata%d
+        read(mdStringVars(DynamicMetadataOrder(displacement_height)), *) &
+        DynamicMetadata%d
     if (DynamicMetadataOrder(roughness_length) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(roughness_length)), *) DynamicMetadata%z0
+        read(mdStringVars(DynamicMetadataOrder(roughness_length)), *) &
+        DynamicMetadata%z0
 
     !> Master sonic info
     if (DynamicMetadataOrder(master_sonic_manufacturer) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(master_sonic_manufacturer)), *) DynamicMetadata%instr(u)%firm
+        read(mdStringVars(DynamicMetadataOrder(master_sonic_manufacturer)), *) &
+        DynamicMetadata%instr(u)%firm
     if (DynamicMetadataOrder(master_sonic_model) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(master_sonic_model)), *) DynamicMetadata%instr(u)%model
+        read(mdStringVars(DynamicMetadataOrder(master_sonic_model)), *) &
+        DynamicMetadata%instr(u)%model
     if (DynamicMetadataOrder(master_sonic_height) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(master_sonic_height)), *) DynamicMetadata%instr(u)%height
+        read(mdStringVars(DynamicMetadataOrder(master_sonic_height)), *) &
+        DynamicMetadata%instr(u)%height
     if (DynamicMetadataOrder(master_sonic_wformat) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(master_sonic_wformat)), *) DynamicMetadata%instr(u)%wformat
+        read(mdStringVars(DynamicMetadataOrder(master_sonic_wformat)), *) &
+        DynamicMetadata%instr(u)%wformat
     if (DynamicMetadataOrder(master_sonic_wref) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(master_sonic_wref)), *) DynamicMetadata%instr(u)%wref
+        read(mdStringVars(DynamicMetadataOrder(master_sonic_wref)), *) &
+        DynamicMetadata%instr(u)%wref
     if (DynamicMetadataOrder(master_sonic_north_offset) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(master_sonic_north_offset)), *) DynamicMetadata%instr(u)%north_offset
+        read(mdStringVars(DynamicMetadataOrder(master_sonic_north_offset)), *) &
+        DynamicMetadata%instr(u)%north_offset
     if (DynamicMetadataOrder(master_sonic_hpath_length) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(master_sonic_hpath_length)), *) DynamicMetadata%instr(u)%hpath_length
+        read(mdStringVars(DynamicMetadataOrder(master_sonic_hpath_length)), *) &
+        DynamicMetadata%instr(u)%hpath_length
     if (DynamicMetadataOrder(master_sonic_vpath_length) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(master_sonic_vpath_length)), *) DynamicMetadata%instr(u)%vpath_length
+        read(mdStringVars(DynamicMetadataOrder(master_sonic_vpath_length)), *) &
+        DynamicMetadata%instr(u)%vpath_length
     if (DynamicMetadataOrder(master_sonic_tau) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(master_sonic_tau)), *) DynamicMetadata%instr(u)%tau
+        read(mdStringVars(DynamicMetadataOrder(master_sonic_tau)), *) &
+        DynamicMetadata%instr(u)%tau
 
     !> co2 irga
     if (DynamicMetadataOrder(co2_irga_manufacturer) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(co2_irga_manufacturer)), *) DynamicMetadata%instr(co2)%firm
+        read(mdStringVars(DynamicMetadataOrder(co2_irga_manufacturer)), *) &
+        DynamicMetadata%instr(co2)%firm
     if (DynamicMetadataOrder(co2_irga_model) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(co2_irga_model)), *) DynamicMetadata%instr(co2)%model
+        read(mdStringVars(DynamicMetadataOrder(co2_irga_model)), *) &
+        DynamicMetadata%instr(co2)%model
     if (DynamicMetadataOrder(co2_measure_type) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(co2_measure_type)), *) DynamicMetadata%measure_type(co2)
+        read(mdStringVars(DynamicMetadataOrder(co2_measure_type)), *) &
+        DynamicMetadata%measure_type(co2)
     if (DynamicMetadataOrder(co2_irga_northward_separation) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(co2_irga_northward_separation)), *) DynamicMetadata%instr(co2)%nsep
+        read(mdStringVars(DynamicMetadataOrder(co2_irga_northward_separation)), *) &
+        DynamicMetadata%instr(co2)%nsep
     if (DynamicMetadataOrder(co2_irga_eastward_separation) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(co2_irga_eastward_separation)), *) DynamicMetadata%instr(co2)%esep
+        read(mdStringVars(DynamicMetadataOrder(co2_irga_eastward_separation)), *) &
+        DynamicMetadata%instr(co2)%esep
     if (DynamicMetadataOrder(co2_irga_vertical_separation) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(co2_irga_vertical_separation)), *) DynamicMetadata%instr(co2)%vsep
+        read(mdStringVars(DynamicMetadataOrder(co2_irga_vertical_separation)), *) &
+        DynamicMetadata%instr(co2)%vsep
     if (DynamicMetadataOrder(co2_irga_tube_length) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(co2_irga_tube_length)), *) DynamicMetadata%instr(co2)%tube_l
+        read(mdStringVars(DynamicMetadataOrder(co2_irga_tube_length)), *) &
+        DynamicMetadata%instr(co2)%tube_l
     if (DynamicMetadataOrder(co2_irga_tube_diameter) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(co2_irga_tube_diameter)), *) DynamicMetadata%instr(co2)%tube_d
+        read(mdStringVars(DynamicMetadataOrder(co2_irga_tube_diameter)), *) &
+        DynamicMetadata%instr(co2)%tube_d
     if (DynamicMetadataOrder(co2_irga_tube_flowrate) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(co2_irga_tube_flowrate)), *) DynamicMetadata%instr(co2)%tube_f
+        read(mdStringVars(DynamicMetadataOrder(co2_irga_tube_flowrate)), *) &
+        DynamicMetadata%instr(co2)%tube_f
     if (DynamicMetadataOrder(co2_irga_kw) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(co2_irga_kw)), *) DynamicMetadata%instr(co2)%kw
+        read(mdStringVars(DynamicMetadataOrder(co2_irga_kw)), *) &
+        DynamicMetadata%instr(co2)%kw
     if (DynamicMetadataOrder(co2_irga_ko) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(co2_irga_ko)), *) DynamicMetadata%instr(co2)%ko
+        read(mdStringVars(DynamicMetadataOrder(co2_irga_ko)), *) &
+        DynamicMetadata%instr(co2)%ko
     if (DynamicMetadataOrder(co2_irga_hpath_length) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(co2_irga_hpath_length)), *) DynamicMetadata%instr(co2)%hpath_length
+        read(mdStringVars(DynamicMetadataOrder(co2_irga_hpath_length)), *) &
+        DynamicMetadata%instr(co2)%hpath_length
     if (DynamicMetadataOrder(co2_irga_vpath_length) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(co2_irga_vpath_length)), *) DynamicMetadata%instr(co2)%vpath_length
+        read(mdStringVars(DynamicMetadataOrder(co2_irga_vpath_length)), *) &
+        DynamicMetadata%instr(co2)%vpath_length
     if (DynamicMetadataOrder(co2_irga_tau) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(co2_irga_tau)), *) DynamicMetadata%instr(co2)%tau
+        read(mdStringVars(DynamicMetadataOrder(co2_irga_tau)), *) &
+        DynamicMetadata%instr(co2)%tau
 
     !> h2o irga
     if (DynamicMetadataOrder(h2o_irga_manufacturer) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(h2o_irga_manufacturer)), *) DynamicMetadata%instr(h2o)%firm
+        read(mdStringVars(DynamicMetadataOrder(h2o_irga_manufacturer)), *) &
+        DynamicMetadata%instr(h2o)%firm
     if (DynamicMetadataOrder(h2o_irga_model) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(h2o_irga_model)), *) DynamicMetadata%instr(h2o)%model
+        read(mdStringVars(DynamicMetadataOrder(h2o_irga_model)), *) &
+        DynamicMetadata%instr(h2o)%model
     if (DynamicMetadataOrder(h2o_measure_type) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(h2o_measure_type)), *) DynamicMetadata%measure_type(h2o)
+        read(mdStringVars(DynamicMetadataOrder(h2o_measure_type)), *) &
+        DynamicMetadata%measure_type(h2o)
     if (DynamicMetadataOrder(h2o_irga_northward_separation) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(h2o_irga_northward_separation)), *) DynamicMetadata%instr(h2o)%nsep
+        read(mdStringVars(DynamicMetadataOrder(h2o_irga_northward_separation)), *) &
+        DynamicMetadata%instr(h2o)%nsep
     if (DynamicMetadataOrder(h2o_irga_eastward_separation) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(h2o_irga_eastward_separation)), *) DynamicMetadata%instr(h2o)%esep
+        read(mdStringVars(DynamicMetadataOrder(h2o_irga_eastward_separation)), *) &
+        DynamicMetadata%instr(h2o)%esep
     if (DynamicMetadataOrder(h2o_irga_vertical_separation) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(h2o_irga_vertical_separation)), *) DynamicMetadata%instr(h2o)%vsep
+        read(mdStringVars(DynamicMetadataOrder(h2o_irga_vertical_separation)), *) &
+        DynamicMetadata%instr(h2o)%vsep
     if (DynamicMetadataOrder(h2o_irga_tube_length) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(h2o_irga_tube_length)), *) DynamicMetadata%instr(h2o)%tube_l
+        read(mdStringVars(DynamicMetadataOrder(h2o_irga_tube_length)), *) &
+        DynamicMetadata%instr(h2o)%tube_l
     if (DynamicMetadataOrder(h2o_irga_tube_diameter) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(h2o_irga_tube_diameter)), *) DynamicMetadata%instr(h2o)%tube_d
+        read(mdStringVars(DynamicMetadataOrder(h2o_irga_tube_diameter)), *) &
+        DynamicMetadata%instr(h2o)%tube_d
     if (DynamicMetadataOrder(h2o_irga_tube_flowrate) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(h2o_irga_tube_flowrate)), *) DynamicMetadata%instr(h2o)%tube_f
+        read(mdStringVars(DynamicMetadataOrder(h2o_irga_tube_flowrate)), *) &
+        DynamicMetadata%instr(h2o)%tube_f
     if (DynamicMetadataOrder(h2o_irga_kw) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(h2o_irga_kw)), *) DynamicMetadata%instr(h2o)%kw
+        read(mdStringVars(DynamicMetadataOrder(h2o_irga_kw)), *) &
+        DynamicMetadata%instr(h2o)%kw
     if (DynamicMetadataOrder(h2o_irga_ko) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(h2o_irga_ko)), *) DynamicMetadata%instr(h2o)%ko
+        read(mdStringVars(DynamicMetadataOrder(h2o_irga_ko)), *) &
+        DynamicMetadata%instr(h2o)%ko
     if (DynamicMetadataOrder(h2o_irga_hpath_length) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(h2o_irga_hpath_length)), *) DynamicMetadata%instr(h2o)%hpath_length
+        read(mdStringVars(DynamicMetadataOrder(h2o_irga_hpath_length)), *) &
+        DynamicMetadata%instr(h2o)%hpath_length
     if (DynamicMetadataOrder(h2o_irga_vpath_length) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(h2o_irga_vpath_length)), *) DynamicMetadata%instr(h2o)%vpath_length
+        read(mdStringVars(DynamicMetadataOrder(h2o_irga_vpath_length)), *) &
+        DynamicMetadata%instr(h2o)%vpath_length
     if (DynamicMetadataOrder(h2o_irga_tau) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(h2o_irga_tau)), *) DynamicMetadata%instr(h2o)%tau
+        read(mdStringVars(DynamicMetadataOrder(h2o_irga_tau)), *) &
+        DynamicMetadata%instr(h2o)%tau
 
     !> ch4 irga
     if (DynamicMetadataOrder(ch4_irga_manufacturer) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(ch4_irga_manufacturer)), *) DynamicMetadata%instr(ch4)%firm
+        read(mdStringVars(DynamicMetadataOrder(ch4_irga_manufacturer)), *) &
+        DynamicMetadata%instr(ch4)%firm
     if (DynamicMetadataOrder(ch4_irga_model) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(ch4_irga_model)), *) DynamicMetadata%instr(ch4)%model
+        read(mdStringVars(DynamicMetadataOrder(ch4_irga_model)), *) &
+        DynamicMetadata%instr(ch4)%model
     if (DynamicMetadataOrder(ch4_measure_type) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(ch4_measure_type)), *) DynamicMetadata%measure_type(ch4)
+        read(mdStringVars(DynamicMetadataOrder(ch4_measure_type)), *) &
+        DynamicMetadata%measure_type(ch4)
     if (DynamicMetadataOrder(ch4_irga_northward_separation) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(ch4_irga_northward_separation)), *) DynamicMetadata%instr(ch4)%nsep
+        read(mdStringVars(DynamicMetadataOrder(ch4_irga_northward_separation)), *) &
+        DynamicMetadata%instr(ch4)%nsep
     if (DynamicMetadataOrder(ch4_irga_eastward_separation) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(ch4_irga_eastward_separation)), *) DynamicMetadata%instr(ch4)%esep
+        read(mdStringVars(DynamicMetadataOrder(ch4_irga_eastward_separation)), *) &
+        DynamicMetadata%instr(ch4)%esep
     if (DynamicMetadataOrder(ch4_irga_vertical_separation) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(ch4_irga_vertical_separation)), *) DynamicMetadata%instr(ch4)%vsep
+        read(mdStringVars(DynamicMetadataOrder(ch4_irga_vertical_separation)), *) &
+        DynamicMetadata%instr(ch4)%vsep
     if (DynamicMetadataOrder(ch4_irga_tube_length) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(ch4_irga_tube_length)), *) DynamicMetadata%instr(ch4)%tube_l
+        read(mdStringVars(DynamicMetadataOrder(ch4_irga_tube_length)), *) &
+        DynamicMetadata%instr(ch4)%tube_l
     if (DynamicMetadataOrder(ch4_irga_tube_diameter) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(ch4_irga_tube_diameter)), *) DynamicMetadata%instr(ch4)%tube_d
+        read(mdStringVars(DynamicMetadataOrder(ch4_irga_tube_diameter)), *) &
+        DynamicMetadata%instr(ch4)%tube_d
     if (DynamicMetadataOrder(ch4_irga_tube_flowrate) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(ch4_irga_tube_flowrate)), *) DynamicMetadata%instr(ch4)%tube_f
+        read(mdStringVars(DynamicMetadataOrder(ch4_irga_tube_flowrate)), *) &
+        DynamicMetadata%instr(ch4)%tube_f
     if (DynamicMetadataOrder(ch4_irga_kw) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(ch4_irga_kw)), *) DynamicMetadata%instr(ch4)%kw
+        read(mdStringVars(DynamicMetadataOrder(ch4_irga_kw)), *) &
+        DynamicMetadata%instr(ch4)%kw
     if (DynamicMetadataOrder(ch4_irga_ko) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(ch4_irga_ko)), *) DynamicMetadata%instr(ch4)%ko
+        read(mdStringVars(DynamicMetadataOrder(ch4_irga_ko)), *) &
+        DynamicMetadata%instr(ch4)%ko
     if (DynamicMetadataOrder(ch4_irga_hpath_length) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(ch4_irga_hpath_length)), *) DynamicMetadata%instr(ch4)%hpath_length
+        read(mdStringVars(DynamicMetadataOrder(ch4_irga_hpath_length)), *) &
+        DynamicMetadata%instr(ch4)%hpath_length
     if (DynamicMetadataOrder(ch4_irga_vpath_length) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(ch4_irga_vpath_length)), *) DynamicMetadata%instr(ch4)%vpath_length
+        read(mdStringVars(DynamicMetadataOrder(ch4_irga_vpath_length)), *) &
+        DynamicMetadata%instr(ch4)%vpath_length
     if (DynamicMetadataOrder(ch4_irga_tau) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(ch4_irga_tau)), *) DynamicMetadata%instr(ch4)%tau
+        read(mdStringVars(DynamicMetadataOrder(ch4_irga_tau)), *) &
+        DynamicMetadata%instr(ch4)%tau
 
     !> 4th gas irga
     if (DynamicMetadataOrder(gas4_irga_manufacturer) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(gas4_irga_manufacturer)), *) DynamicMetadata%instr(gas4)%firm
+        read(mdStringVars(DynamicMetadataOrder(gas4_irga_manufacturer)), *) &
+        DynamicMetadata%instr(gas4)%firm
     if (DynamicMetadataOrder(gas4_irga_model) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(gas4_irga_model)), *) DynamicMetadata%instr(gas4)%model
+        read(mdStringVars(DynamicMetadataOrder(gas4_irga_model)), *) &
+        DynamicMetadata%instr(gas4)%model
     if (DynamicMetadataOrder(gas4_measure_type) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(gas4_measure_type)), *) DynamicMetadata%instr(gas4)%nsep
+        read(mdStringVars(DynamicMetadataOrder(gas4_measure_type)), *) &
+        DynamicMetadata%instr(gas4)%nsep
     if (DynamicMetadataOrder(gas4_irga_northward_separation) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(gas4_irga_northward_separation)), *) DynamicMetadata%instr(gas4)%nsep
+        read(mdStringVars(DynamicMetadataOrder(gas4_irga_northward_separation)), *) &
+        DynamicMetadata%instr(gas4)%nsep
     if (DynamicMetadataOrder(gas4_irga_eastward_separation) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(gas4_irga_eastward_separation)), *) DynamicMetadata%instr(gas4)%esep
+        read(mdStringVars(DynamicMetadataOrder(gas4_irga_eastward_separation)), *) &
+        DynamicMetadata%instr(gas4)%esep
     if (DynamicMetadataOrder(gas4_irga_vertical_separation) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(gas4_irga_vertical_separation)), *) DynamicMetadata%instr(gas4)%vsep
+        read(mdStringVars(DynamicMetadataOrder(gas4_irga_vertical_separation)), *) &
+        DynamicMetadata%instr(gas4)%vsep
     if (DynamicMetadataOrder(gas4_irga_tube_length) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(gas4_irga_tube_length)), *) DynamicMetadata%instr(gas4)%tube_l
+        read(mdStringVars(DynamicMetadataOrder(gas4_irga_tube_length)), *) &
+        DynamicMetadata%instr(gas4)%tube_l
     if (DynamicMetadataOrder(gas4_irga_tube_diameter) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(gas4_irga_tube_diameter)), *) DynamicMetadata%instr(gas4)%tube_d
+        read(mdStringVars(DynamicMetadataOrder(gas4_irga_tube_diameter)), *) &
+        DynamicMetadata%instr(gas4)%tube_d
     if (DynamicMetadataOrder(gas4_irga_tube_flowrate) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(gas4_irga_tube_flowrate)), *) DynamicMetadata%instr(gas4)%tube_f
+        read(mdStringVars(DynamicMetadataOrder(gas4_irga_tube_flowrate)), *) &
+        DynamicMetadata%instr(gas4)%tube_f
     if (DynamicMetadataOrder(gas4_irga_kw) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(gas4_irga_kw)), *) DynamicMetadata%instr(gas4)%kw
+        read(mdStringVars(DynamicMetadataOrder(gas4_irga_kw)), *) &
+        DynamicMetadata%instr(gas4)%kw
     if (DynamicMetadataOrder(gas4_irga_ko) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(gas4_irga_ko)), *) DynamicMetadata%instr(gas4)%ko
+        read(mdStringVars(DynamicMetadataOrder(gas4_irga_ko)), *) &
+        DynamicMetadata%instr(gas4)%ko
     if (DynamicMetadataOrder(gas4_irga_hpath_length) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(gas4_irga_hpath_length)), *) DynamicMetadata%instr(gas4)%hpath_length
+        read(mdStringVars(DynamicMetadataOrder(gas4_irga_hpath_length)), *) &
+        DynamicMetadata%instr(gas4)%hpath_length
     if (DynamicMetadataOrder(gas4_irga_vpath_length) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(gas4_irga_vpath_length)), *) DynamicMetadata%instr(gas4)%vpath_length
+        read(mdStringVars(DynamicMetadataOrder(gas4_irga_vpath_length)), *) &
+        DynamicMetadata%instr(gas4)%vpath_length
     if (DynamicMetadataOrder(gas4_irga_tau) /= nint(error)) &
-        read(mdStringVars(DynamicMetadataOrder(gas4_irga_tau)), *) DynamicMetadata%instr(gas4)%tau
+        read(mdStringVars(DynamicMetadataOrder(gas4_irga_tau)), *) &
+        DynamicMetadata%instr(gas4)%tau
 
 end subroutine ReadMetadataFromTextVars
 
@@ -375,10 +457,12 @@ subroutine FixDynamicMetadata()
         select case (DynamicMetadata%instr(j)%model(1:len_trim(DynamicMetadata%instr(j)%model) - 2))
             case ('li6262','li7000','li7200','li7500','li7500a','li7700')
                 DynamicMetadata%instr(j)%firm = 'licor'
-            case ('generic_open_path', 'generic_closed_path', 'open_path_krypton', &
-                    'open_path_lyman', 'closed_path_krypton', 'closed_path_lyman')
+            case ('generic_open_path', 'generic_closed_path', &
+                    'open_path_krypton', 'open_path_lyman', &
+                    'closed_path_krypton', 'closed_path_lyman')
                 DynamicMetadata%instr(j)%firm = 'other_irga'
-            case('hs_50', 'hs_100', 'r2', 'r3_50', 'r3_100', 'r3a_100', 'wm', 'wmpro')
+            case('hs_50', 'hs_100', 'r2', 'r3_50', 'r3_100', &
+                'r3a_100', 'wm', 'wmpro')
                 DynamicMetadata%instr(j)%firm = 'gill'
             case('usa1_standard', 'usa1_fast')
                 DynamicMetadata%instr(j)%firm = 'metek'
@@ -405,8 +489,9 @@ subroutine FixDynamicMetadata()
             case default
                 DynamicMetadata%instr(j)%wformat = 'uvw'
         end select
-        !> If sonic is a Gill and wref is unknown, assumes SPAR configuration (the most logic, with
-        !> U aligned to North. In case of wrong guess, there is only 30 degree offset in wind speed)
+        !> If sonic is a Gill and wref is unknown, assumes SPAR configuration
+        !> (the most logic, with U aligned to North. In case of wrong guess,
+        !> there is only 30 degree offset in wind speed)
         if (DynamicMetadata%instr(j)%firm == 'gill') then
             select case (DynamicMetadata%instr(j)%wref)
                 case ('axis','spar')
@@ -432,18 +517,24 @@ subroutine FixDynamicMetadata()
 
         !> Retrieve gas analyser parameters
         if (DynamicMetadata%instr(j)%tube_d /= error) &
-            DynamicMetadata%instr(j)%tube_d = DynamicMetadata%instr(j)%tube_d * 1d-3 !< in meters
+            DynamicMetadata%instr(j)%tube_d = &
+            DynamicMetadata%instr(j)%tube_d * 1d-3 !< in meters
         if (DynamicMetadata%instr(j)%tube_l /= error) &
-            DynamicMetadata%instr(j)%tube_l = DynamicMetadata%instr(j)%tube_l * 1d-2  !< in meters
+            DynamicMetadata%instr(j)%tube_l = &
+            DynamicMetadata%instr(j)%tube_l * 1d-2  !< in meters
         if (DynamicMetadata%instr(j)%tube_f /= error) &
-            DynamicMetadata%instr(j)%tube_f = DynamicMetadata%instr(j)%tube_f / 6d4  !< in m+3s-1
+            DynamicMetadata%instr(j)%tube_f = &
+            DynamicMetadata%instr(j)%tube_f / 6d4  !< in m+3s-1
 
         if (DynamicMetadata%instr(j)%nsep /= error) &
-            DynamicMetadata%instr(j)%nsep = DynamicMetadata%instr(j)%nsep * 1d-2 !< in meters
+            DynamicMetadata%instr(j)%nsep = &
+            DynamicMetadata%instr(j)%nsep * 1d-2 !< in meters
         if (DynamicMetadata%instr(j)%esep /= error) &
-            DynamicMetadata%instr(j)%esep = DynamicMetadata%instr(j)%esep * 1d-2 !< in meters
+            DynamicMetadata%instr(j)%esep = &
+            DynamicMetadata%instr(j)%esep * 1d-2 !< in meters
         if (DynamicMetadata%instr(j)%vsep /= error) &
-            DynamicMetadata%instr(j)%vsep = DynamicMetadata%instr(j)%vsep * 1d-2 !< in meters
+            DynamicMetadata%instr(j)%vsep = &
+            DynamicMetadata%instr(j)%vsep * 1d-2 !< in meters
     end do
 
 end subroutine FixDynamicMetadata

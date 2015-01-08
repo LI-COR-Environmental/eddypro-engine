@@ -147,5 +147,5 @@ subroutine Fluxes1_rp()
     end if
     if (Flux0%tau == error) Flux1%tau = error
 
-    write(*,'(a)')   ' done.'
+    write(*,'(a)')   ' Done.'
 end subroutine Fluxes1_rp

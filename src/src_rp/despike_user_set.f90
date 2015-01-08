@@ -191,5 +191,5 @@ subroutine DespikeUserSet(UserSet, nrow, ncol)
         goto 100
     end if
     deallocate(XX)
-    write(*,'(a)') ' done.'
+    write(*,'(a)') ' Done.'
 end subroutine DespikeUserSet

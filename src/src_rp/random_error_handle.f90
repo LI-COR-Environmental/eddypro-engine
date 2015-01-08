@@ -63,7 +63,7 @@ subroutine RandomUncertaintyHandle(Set, nrow, ncol)
             Essentials%rand_uncer_LE = aflx_error
             return
     end select
-    write(*, '(a)') '  done.'
+    write(*, '(a)') '  Done.'
 end subroutine RandomUncertaintyHandle
 
 !***************************************************************************

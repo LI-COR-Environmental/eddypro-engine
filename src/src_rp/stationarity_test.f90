@@ -127,5 +127,5 @@ subroutine StationarityTest(Set, nrow, ncol, StDiff)
     StDiff%w_ch4 = IntDiff(w, ch4)
     StDiff%w_gas4 = IntDiff(w, gas4)
     deallocate(SubSet)
-    write(*,'(a)') ' done.'
+    write(*,'(a)') ' Done.'
 end subroutine StationarityTest

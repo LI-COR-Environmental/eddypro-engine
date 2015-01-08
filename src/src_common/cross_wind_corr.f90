@@ -63,7 +63,7 @@ subroutine CrossWindCorr(LocCol, Set, nrow, ncol, printout)
             Set(i, ts) = Set(i, ts) + (Un + Vn + Wn) / 1209.d0
         end if
     end do
-    if (printout) write(*,'(a)') ' done.'
+    if (printout) write(*,'(a)') ' Done.'
 end subroutine CrossWindCorr
 
 !***************************************************************************

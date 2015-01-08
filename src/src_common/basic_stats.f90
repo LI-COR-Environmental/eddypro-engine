@@ -120,7 +120,7 @@ subroutine BasicStats(Set, nrow, ncol, nfold, printout)
             Stats%Kur(j) = error
         end if
     end do
-    if (printout) write(*,'(a)') ' done.'
+    if (printout) write(*,'(a)') ' Done.'
 
     !> TKE (e.g. Stull, 1988)
     if (nfold == 7) then

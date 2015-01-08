@@ -396,7 +396,7 @@ program EddyproRP
     !> If found, builds up time series of absorptance drifts
     if (DriftCorr%method /= 'none') then
         allocate(tsDrifts(NumberOfPeriods + 1))
-        allocate(Calib(0:NumDynRecords))  !< elem. 0 is to allocate start of period
+        allocate(Calib(0:NumDynRecords))  !< elem. 0 is to alloc. start of period
         allocate(tmpCalib(0:NumDynRecords))
         if (EddyProProj%use_dynmd_file) &
             call driftRetrieveCalibrationEvents(nCalibEvents)
@@ -1175,7 +1175,7 @@ program EddyproRP
                 !> Update sector-wise rotation matrix
                 PFMat(:, :, sec) = PP
 
-                write(*, '(a)') ' done.'
+                write(*, '(a)') ' Done.'
             end do secloop
 
             !> Fix sectors without calculations, using closest
@@ -1929,13 +1929,13 @@ program EddyproRP
             call Fluctuations(E2Set, E2Primes, &
                 size(E2Set, 1), size(E2Set, 2), RPsetup%Tconst, Stats, E2Col)
             if (allocated(E2Set)) deallocate(E2Set)
-            write(*,'(a)') ' done.'
+            write(*,'(a)') ' Done.'
             if (NumUserVar > 0) then
                 write(*, '(a)', advance = 'no') '  Detrending user set..'
                 call UserFluctuations(UserSet, UserPrimes, &
                     size(UserSet, 1), size(UserSet, 2), &
                     RPsetup%Tconst, UserStats, UserCol)
-                write(*,'(a)') ' done.'
+                write(*,'(a)') ' Done.'
                 if (allocated(UserSet)) deallocate(UserSet)
             end if
 

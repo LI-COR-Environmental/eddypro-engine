@@ -97,7 +97,7 @@ subroutine FilesInChronologicalOrder(FileList, nrow, &
         FileList(i - mini + 1) = FileList(i)
     end do
     nrow = maxi - mini + 1
-    write(*,'(a)') ' done.'
+    write(*,'(a)') ' Done.'
 end subroutine FilesInChronologicalOrder
 
 !***************************************************************************

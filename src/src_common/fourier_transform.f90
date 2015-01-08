@@ -52,6 +52,6 @@ subroutine FourierTransform(xx, N, M)
         !> replace time data with spectral data
         xx(:, i) = dble(xxx(:))
     end do
-    write(*,'(a)') ' done.'
+    write(*,'(a)') ' Done.'
 end subroutine FourierTransform
 

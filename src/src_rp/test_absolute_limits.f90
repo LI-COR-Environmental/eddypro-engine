@@ -166,5 +166,5 @@ subroutine TestAbsoluteLimits(Set, N, printout)
     do j = 1, gas4
         IntHF%al = IntHF%al + hflags(j) * (10**(gas4 - j))
     end do
-     if (printout) write(*,'(a)') ' done.'
+     if (printout) write(*,'(a)') ' Done.'
 end subroutine TestAbsoluteLimits

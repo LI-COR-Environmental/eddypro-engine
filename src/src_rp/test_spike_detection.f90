@@ -283,5 +283,5 @@ subroutine TestSpikeDetection(Set, N, printout)
 
     !> Write on output variable
     Essentials%e2spikes(u:pe) = tot_spikes(u:pe)
-    if (printout) write(*,'(a)') ' done.'
+    if (printout) write(*,'(a)') ' Done.'
 end subroutine TestSpikeDetection

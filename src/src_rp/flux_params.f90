@@ -335,6 +335,6 @@ subroutine FluxParams(printout)
         Ambient%sigma = error
     end if
 
-    if (printout) write(*,'(a)') ' done.'
+    if (printout) write(*,'(a)') ' Done.'
 end subroutine FluxParams
 

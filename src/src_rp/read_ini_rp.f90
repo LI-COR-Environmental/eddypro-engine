@@ -61,7 +61,7 @@ subroutine ReadIniRP(key)
     !> them in relevant variables
     call WriteVariablesRP()
 
-    write(*,'(a)')   ' done.'
+    write(*,'(a)')   ' Done.'
 end subroutine ReadIniRP
 
 !*******************************************************************************

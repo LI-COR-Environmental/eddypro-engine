@@ -165,5 +165,5 @@ subroutine RenameTmpFilesRP()
                 // OutFile(1:len_trim(OutFile)) // '"' // comm_out_redirect // comm_err_redirect)
         end if
     end if
-    write(*,'(a)') ' done.'
+    write(*,'(a)') ' Done.'
 end subroutine RenameTmpFilesRP

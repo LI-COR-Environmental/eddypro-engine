@@ -121,5 +121,5 @@ subroutine TestNonSteadyWind(Set, N)
     if ((RNv(1) >= ns%hf_lim) .or. (RNv(2) >= ns%hf_lim) .or. (RNS >= ns%hf_lim)) then
         IntHF%ns = 1
     end if
-    write(*,'(a)') ' done.'
+    write(*,'(a)') ' Done.'
 end subroutine TestNonSteadyWind

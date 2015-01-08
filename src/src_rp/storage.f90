@@ -179,5 +179,5 @@ subroutine Storage(PrevStats, prevAmbient)
         end if
     end do
 
-    write(*, '(a)') ' done.'
+    write(*, '(a)') ' Done.'
 end subroutine Storage

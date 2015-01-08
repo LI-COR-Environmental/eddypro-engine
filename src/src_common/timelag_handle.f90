@@ -188,7 +188,7 @@ subroutine TimeLagHandle(TlagMeth, Set, nrow, ncol, TLag, &
         end if
     end do
     Set = TmpSet
-    if  (.not. InTimelagOpt) write(*,'(a)') ' done.'
+    if  (.not. InTimelagOpt) write(*,'(a)') ' Done.'
 end subroutine TimeLagHandle
 
 !*******************************************************************************

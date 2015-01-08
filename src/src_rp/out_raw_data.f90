@@ -92,5 +92,5 @@ subroutine OutRawData(date, time, Set, nrow, ncol, level)
         write(udf,*) OutSet(i, 1: num_var)
     end do
     close(udf)
-    write(*, '(a)') ' done.'
+    write(*, '(a)') ' Done.'
 end subroutine OutRawData

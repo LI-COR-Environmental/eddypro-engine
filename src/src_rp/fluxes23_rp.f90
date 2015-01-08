@@ -868,5 +868,5 @@ subroutine Fluxes23_rp()
     if (Flux2%ch4  == error) Essentials%timelag(ch4)  = error
     if (Flux2%gas4 == error) Essentials%timelag(gas4) = error
 
-    write(*,'(a)')   ' done.'
+    write(*,'(a)')   ' Done.'
 end subroutine Fluxes23_rp

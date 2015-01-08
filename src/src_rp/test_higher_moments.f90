@@ -131,5 +131,5 @@ subroutine TestHigherMoments(Set, N)
         IntHF%sk = IntHF%sk + hflags(j) * 10 **(GHGNumVar - j)
         IntSF%sk = IntSF%sk + sflags(j) * 10 **(GHGNumVar - j)
     end do
-    write(*,'(a)') ' done.'
+    write(*,'(a)') ' Done.'
 end subroutine TestHigherMoments

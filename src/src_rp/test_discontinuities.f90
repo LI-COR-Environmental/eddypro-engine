@@ -156,5 +156,5 @@ subroutine TestDiscontinuities(Set, N)
         IntHF%ds = IntHF%ds + hflags(j) * 10 **(GHGNumVar - j)
         IntSF%ds = IntSF%ds + sflags(j) * 10 **(GHGNumVar - j)
     end do
-    write(*,'(a)') ' done.'
+    write(*,'(a)') ' Done.'
 end subroutine TestDiscontinuities

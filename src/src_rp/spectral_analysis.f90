@@ -233,7 +233,7 @@ subroutine AllCospectra(Set, sumw, Spectrum, Cospectrum, DoSpectrum, DoCospectru
             end if
         end if
     end do
-    write(*,'(a)') ' done.'
+    write(*,'(a)') ' Done.'
 end subroutine AllCospectra
 
 !***************************************************************************
@@ -301,7 +301,7 @@ subroutine AllOgives(Spectrum, Cospectrum, DoSpectrum, DoCospectrum, Ogive, CoOg
         CoOgive(1:N/2 + 1)%of(j) = CoOgive(1:N/2 + 1)%of(j) / Stats%Cov(w, j)
     end do
 
-    write(*,'(a)') ' done.'
+    write(*,'(a)') ' Done.'
 end subroutine AllOgives
 
 !***************************************************************************
@@ -404,7 +404,7 @@ subroutine ExpAvrgCospectra(bf, nf, Spectrum, Cospectrum, N, bin_nf, &
             BinnedCospectrum(i)%of(w_u:w_n2o) = error
         end if
     end do
-    write(*,'(a)') ' done.'
+    write(*,'(a)') ' Done.'
 end subroutine ExpAvrgCospectra
 
 !***************************************************************************
@@ -473,7 +473,7 @@ subroutine ExpAvrgOgives(bf, nf, Ogive, CoOgive, N, bin_nf, &
             BinnedCoOgive(i)%of(w_u:w_n2o) = error
         end if
     end do
-    write(*,'(a)') ' done.'
+    write(*,'(a)') ' Done.'
 end subroutine ExpAvrgOgives
 
 !***************************************************************************
@@ -788,5 +788,5 @@ subroutine WriteOutFullCoSpectra(String, nf, Spectrum, Cospectrum, &
         write(udf, '(a)') dataline(1:len_trim(dataline) - 1)
     end do
     close(udf)
-    write(*,'(a)') '  done.'
+    write(*,'(a)') '  Done.'
 end subroutine WriteOutFullCoSpectra

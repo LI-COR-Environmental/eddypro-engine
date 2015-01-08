@@ -97,7 +97,7 @@ subroutine QualityFlags(lFlux2, StDiff, DtDiff, STFlg, DTFlg, lQCFlag, printout)
     if (lFlux2%ch4  == error) lQCFlag%ch4  = nint(error)
     if (lFlux2%gas4 == error) lQCFlag%gas4 = nint(error)
 
-    if (printout) write(*, '(a)') ' done.'
+    if (printout) write(*, '(a)') ' Done.'
 end subroutine QualityFlags
 
 !***************************************************************************

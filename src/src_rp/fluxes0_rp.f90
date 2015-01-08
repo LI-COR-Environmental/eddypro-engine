@@ -407,5 +407,5 @@ subroutine Fluxes0_rp(printout)
     else
         Ambient%Bowen = error
     end if
-    if (printout) write(*,'(a)')   ' done.'
+    if (printout) write(*,'(a)')   ' Done.'
 end subroutine Fluxes0_rp

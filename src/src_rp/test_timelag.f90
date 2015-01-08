@@ -90,7 +90,7 @@ subroutine TestTimeLag(Set, N)
         IntHF%tl = IntHF%tl + hflags(j)*10**(4 - j)
         IntSF%tl = IntSF%tl + sflags(j)*10**(4 - j)
     end do
-    write(*,'(a)') ' done.'
+    write(*,'(a)') ' Done.'
 end subroutine TestTimeLag
 
 !***************************************************************************

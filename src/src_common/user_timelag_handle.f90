@@ -111,5 +111,5 @@ subroutine UserTimeLagHandle(TlagMeth, UserSet, unrow, uncol, E2W, nrow)
         end if
     end do
     UserSet = TmpUserSet
-    write(*,'(a)') ' done.'
+    write(*,'(a)') ' Done.'
 end subroutine UserTimeLagHandle

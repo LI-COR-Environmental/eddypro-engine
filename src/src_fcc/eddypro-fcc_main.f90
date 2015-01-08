@@ -123,7 +123,7 @@ Program EddyproFCC
     SelectedEndTimestamp = SelectedEndTimestamp - DateStep
 
     !> Create timestamp array for full dataset
-    call CreateMasterTimeSeries(fxStartTimestamp, fxEndTimestamp, DateStep, &
+    call CreateTimeSeries(fxStartTimestamp, fxEndTimestamp, DateStep, &
         MasterTimeSeries, size(MasterTimeSeries))
 
     !> Detect indexes of selected sub-period

@@ -223,5 +223,5 @@ subroutine InitExternalBiomet(bFileList, N)
     !> NOT DONE FOR THE MOMENT
 !    call BiometOrderVars()
 
-    write(*, '(a)') ' done'
+    write(*, '(a)') ' Done.'
 end subroutine InitExternalBiomet

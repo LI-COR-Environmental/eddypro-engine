@@ -57,7 +57,7 @@ subroutine CreateTimeSeries(StartTimestamp, EndTimestamp, &
         RawTimeSeries(cnt) = RawTimeSeries(cnt - 1) + Step
     end do
 
-    write(*, '(a)') ' done.'
+    write(*, '(a)') ' Done.'
 end subroutine CreateTimeSeries
 
 !***************************************************************************

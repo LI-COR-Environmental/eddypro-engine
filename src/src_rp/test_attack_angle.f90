@@ -63,5 +63,5 @@ subroutine TestAttackAngle(Set, N)
     end do
     IntHF%aa = 0
     if (dble(count / N) * 1d2 >= aa%lim) IntHF%aa = 1
-    write(*,'(a)') ' done.'
+    write(*,'(a)') ' Done.'
 end subroutine TestAttackAngle

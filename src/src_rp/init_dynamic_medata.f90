@@ -19,7 +19,7 @@
 ! You should have received a copy of the GNU General Public License
 ! along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
 !
-!***************************************************************************
+!*******************************************************************************
 !
 ! \brief       Read dynamic metadata file and figure out available parameters
 ! \author      Gerardo Fratini
@@ -28,7 +28,7 @@
 ! \bug
 ! \deprecated
 ! \test
-!***************************************************************************
+!*******************************************************************************
 subroutine InitDynamicMetadata(N)
     use m_rp_global_var
     implicit none
@@ -62,7 +62,7 @@ subroutine InitDynamicMetadata(N)
     end do countloop
     close(udf)
 
-    write(*, '(a)') ' done'
+    write(*, '(a)') ' Done.'
 end subroutine InitDynamicMetadata
 
 !***************************************************************************
@@ -104,7 +104,8 @@ subroutine ReadDynamicMetadataHeader(unt)
     DynamicMetadataOrder = nint(error)
     do i = 1, cnt
         do j = 1, NumStdDynMDVars
-        if(trim(adjustl(StdDynMDVars(j))) == trim(adjustl(Headerlabels(i)))) then
+        if(trim(adjustl(StdDynMDVars(j))) &
+            == trim(adjustl(Headerlabels(i)))) then
             DynamicMetadataOrder(j) = i
             exit
         end if

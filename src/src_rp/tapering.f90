@@ -103,5 +103,5 @@ subroutine Tapering(Window, xx, N, M, sumw)
         sqr_sum = sqr_sum + win(i)**2
     end do
     sumw = sqr_sum * dfloat(N)
-    write(*,'(a)') ' done.'
+    write(*,'(a)') ' Done.'
 end subroutine Tapering

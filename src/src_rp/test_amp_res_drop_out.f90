@@ -221,5 +221,5 @@ subroutine TestAmpResDropOut(Set, N)
         IntHF%ar = IntHF%ar + ar_hflags(j)*10**(GHGNumVar - j)
         IntHF%do = IntHF%do + do_hflags(j)*10**(GHGNumVar - j)
     end do
-    write(*,'(a)') ' done.'
+    write(*,'(a)') ' Done.'
 end subroutine TestAmpResDropOut

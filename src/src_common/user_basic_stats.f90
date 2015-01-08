@@ -164,5 +164,5 @@ subroutine UserBasicStats(UserSet, N, M, nfold)
             UserStats%Kur(j) = error
         end if
     end do
-    write(*,'(a)') ' done.'
+    write(*,'(a)') ' Done.'
 end subroutine UserBasicStats

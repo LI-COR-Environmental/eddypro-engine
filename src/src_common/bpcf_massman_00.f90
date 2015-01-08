@@ -181,7 +181,7 @@ subroutine bpcf_Massman00(measuring_height, displ_height, loc_var_present, LocIn
         BPCF%of(w_u:w_gas4) = error
     end where
 
-    if (printout) write(*,'(a)') '   done.'
+    if (printout) write(*,'(a)') '   Done.'
 end subroutine BPCF_Massman00
 
 !***************************************************************************
