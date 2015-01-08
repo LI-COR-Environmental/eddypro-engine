@@ -1,7 +1,7 @@
 !***************************************************************************
-! test_spike_detection_coming_soon.f90
+! test_spike_detection_mauder_2013.f90
 ! ------------------------------------
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -30,7 +30,7 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine TestSpikeDetectionComingSoon(Set, N)
+subroutine TestSpikeDetectionMauder13(Set, N)
     use m_rp_global_var
     implicit none
     !> in/out variables
@@ -83,8 +83,8 @@ subroutine TestSpikeDetectionComingSoon(Set, N)
                         cnt = cnt + 1
                     else
                         if ((cnt /= 0) .and. (cnt <= sr%num_spk)) then
-                            !> check whether it was a spike already, if not increment the
-                            !> number of spikes found
+                            !> check whether it was a spike already,
+                            !> if not increment the number of spikes found
                             new_spike = .true.
                             do k = 1, cnt
                                 if (IsSpike(i-k, j)) new_spike = .false.
@@ -183,4 +183,4 @@ subroutine TestSpikeDetectionComingSoon(Set, N)
 
     !> Write on output variable
     Essentials%e2spikes(u:pe) = tot_spikes(u:pe)
-end subroutine TestSpikeDetectionComingSoon
+end subroutine TestSpikeDetectionMauder13

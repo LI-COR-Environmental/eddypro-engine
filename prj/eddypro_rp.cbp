@@ -51,9 +51,6 @@
 		<Unit filename="../src/src_common/aoa_calibration_nakai.f90">
 			<Option weight="4" />
 		</Unit>
-		<Unit filename="../src/src_common/average_no_error.f90">
-			<Option weight="3" />
-		</Unit>
 		<Unit filename="../src/src_common/basic_stats.f90">
 			<Option weight="3" />
 		</Unit>
@@ -106,9 +103,6 @@
 			<Option weight="3" />
 		</Unit>
 		<Unit filename="../src/src_common/copy_file.f90">
-			<Option weight="3" />
-		</Unit>
-		<Unit filename="../src/src_common/covariance_matrix_no_error.f90">
 			<Option weight="3" />
 		</Unit>
 		<Unit filename="../src/src_common/create_datasets_common.f90">
@@ -309,6 +303,9 @@
 		<Unit filename="../src/src_common/spectral_density.f90">
 			<Option weight="3" />
 		</Unit>
+		<Unit filename="../src/src_common/stats_operator_no_error.f90">
+			<Option weight="3" />
+		</Unit>
 		<Unit filename="../src/src_common/string_sub.f90">
 			<Option weight="3" />
 		</Unit>
@@ -339,7 +336,9 @@
 		<Unit filename="../src/src_common/user_timelag_handle.f90">
 			<Option weight="3" />
 		</Unit>
-		<Unit filename="../src/src_common/validate_filename_template.f90" />
+		<Unit filename="../src/src_common/validate_filename_template.f90">
+			<Option weight="3" />
+		</Unit>
 		<Unit filename="../src/src_common/wind_direction.f90">
 			<Option weight="3" />
 		</Unit>
@@ -570,12 +569,8 @@
 		<Unit filename="../src/src_rp/test_non_steady_wind.f90">
 			<Option weight="4" />
 		</Unit>
-		<Unit filename="../src/src_rp/test_spike_detection.f90">
-			<Option weight="4" />
-		</Unit>
-		<Unit filename="../src/src_rp/test_spike_detection_coming_soon.f90">
-			<Option weight="4" />
-		</Unit>
+		<Unit filename="../src/src_rp/test_spike_detection_mauder_13.f90" />
+		<Unit filename="../src/src_rp/test_spike_detection_vickers_97.f90" />
 		<Unit filename="../src/src_rp/test_timelag.f90">
 			<Option weight="4" />
 		</Unit>

@@ -129,7 +129,7 @@ subroutine WriteVariablesRP()
     Test%ns = SCTags(11)%value(1:1) == '1'
 
     !> method of spike removal
-    RPSetup%despike_vm = SCTags(90)%value(1:1) /= '1'
+    RPSetup%despike_vickers97 = SCTags(90)%value(1:1) == '0'
 
     !> Spike removal test
     sr%num_spk = idint(SNTags(1)%value)

@@ -21,11 +21,11 @@
 !
 !***************************************************************************
 !
-! \brief       Find the median of vec(1), ... , vec(n), using as much of the quicksort
-!              algorithm as is needed to isolate it.
+! \brief       Find the median of vec(1), ... , vec(n), using as much of the
+!              quicksort algorithm as is needed to isolate it.
 !              N.B. On exit, the array vec is partially ordered.
-! \author      Patched by Gerardo Fratini from original code from Alan Miller, available
-!              in the public domain:
+! \author      Patched by Gerardo Fratini from original code from Alan Miller,
+!              available in the public domain:
 !              http://jblevins.org/mirror/amiller/median.f90
 ! \note
 ! \sa

@@ -72,9 +72,6 @@
 		<ExtraCommands>
 			<Add before="current_date_and_version_as_parameters.bat" />
 		</ExtraCommands>
-		<Unit filename="../src/src_common/average_no_error.f90">
-			<Option weight="3" />
-		</Unit>
 		<Unit filename="../src/src_common/bpcf_Horst_97.f90">
 			<Option weight="3" />
 		</Unit>
@@ -118,9 +115,6 @@
 			<Option weight="3" />
 		</Unit>
 		<Unit filename="../src/src_common/configure_for_embedded.f90">
-			<Option weight="3" />
-		</Unit>
-		<Unit filename="../src/src_common/covariance_matrix_no_error.f90">
 			<Option weight="3" />
 		</Unit>
 		<Unit filename="../src/src_common/create_datasets_common.f90">
@@ -214,6 +208,9 @@
 			<Option weight="3" />
 		</Unit>
 		<Unit filename="../src/src_common/show_daily_advancement.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/stats_operator_no_error.f90">
 			<Option weight="3" />
 		</Unit>
 		<Unit filename="../src/src_common/string_sub.f90">

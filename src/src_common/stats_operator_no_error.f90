@@ -21,6 +21,131 @@
 !
 !***************************************************************************
 !
+! \brief       Calculate column-wise averages on a 2d array \n
+!              ignoring specified error values \n
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+subroutine AverageNoError(Set, nrow, ncol, Mean, err_float)
+    use m_common_global_var
+    implicit none
+    !> in/out variables
+    integer, intent(in) :: nrow, ncol
+    real(kind = dbl), intent(in) :: err_float
+    real(kind = dbl), intent(in) :: Set(nrow, ncol)
+    real(kind = dbl), intent(out) :: Mean(ncol)
+    !> local variables
+    integer :: i = 0
+    integer :: j = 0
+    integer :: Nact = 0
+    real(kind = dbl) :: RawMean(ncol)
+
+
+    RawMean = 0d0
+    do j = 1, ncol
+        Nact = 0
+        do i = 1, nrow
+            if (Set(i, j) /= err_float) then
+                Nact = Nact + 1
+                RawMean(j) = RawMean(j) + Set(i, j)
+            end if
+        end do
+        if (Nact /= 0) then
+            RawMean(j) = RawMean(j) / dble(Nact)
+        else
+            RawMean(j) = err_float
+        end if
+    end do
+    Mean = 0.d0
+    do j = 1, ncol
+        if (RawMean(j) /= err_float) then
+            Nact = 0
+            do i = 1, nrow
+                if (Set(i, j) /= err_float) then
+                    Nact = Nact + 1
+                    Mean(j) = Mean(j) + Set(i, j) - RawMean(j)
+                end if
+            end do
+            if (Nact /= 0) then
+                Mean(j) = Mean(j) / dble(Nact)
+            else
+                Mean(j) = err_float
+            end if
+        else
+            Mean(j) = err_float
+        end if
+    end do
+
+    where (Mean(:) /= err_float)
+        Mean(:) = Mean(:) + RawMean(:)
+    elsewhere
+        Mean(:) = err_float
+    end where
+end subroutine AverageNoError
+
+
+!***************************************************************************
+!
+! \brief       Calculates standard deviation of array (column-wise) ignoring \n
+!              provided error code
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+subroutine StDevNoError(Set, nrow, ncol, StDev, err_float)
+    use m_common_global_var
+    implicit none
+    !> in/out variables
+    integer, intent(in) :: nrow, ncol
+    real(kind = dbl), intent(in) :: err_float
+    real(kind = dbl), intent(in) :: Set(nrow, ncol)
+    real(kind = dbl), intent(out) :: StDev(ncol)
+    !> local variables
+    integer :: i = 0
+    integer :: j = 0
+    integer :: Nact = 0
+    real(kind = dbl) :: Mean(ncol)
+
+
+    !> Initializations
+    StDev = 0d0
+
+    !> Calculate mean values
+    call AverageNoError(Set, nrow, ncol, Mean, err_float)
+
+    !> Sum of squared residuals
+    do j = 1, ncol
+        if (Mean(j) == err_float) then
+            StDev(j) = err_float
+        else
+            Nact = 0
+            do i = 1, nrow
+                if (Set(i, j) /= err_float) then
+                    Nact = Nact + 1
+                    StDev(j) = StDev(j) + (Set(i, j) - Mean(j)) **2
+                end if
+            end do
+            if (Nact /= 0 .and. StDev(j) >= 0d0) then
+                StDev(j) = dsqrt(StDev(j) / dble(Nact-1))
+            else
+                StDev = err_float
+            end if
+        end if
+    end do
+
+end subroutine StDevNoError
+
+!***************************************************************************
+!
 ! \brief       Calculates covariance matrix of given array, ignoring \n
 !              provided error code
 ! \author      Gerardo Fratini

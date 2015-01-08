@@ -594,7 +594,7 @@ module m_rp_global_var
          SCTags(87)%Label / 'power_of_two'     / &
          SCTags(88)%Label / 'pf_fix'           / &
          SCTags(89)%Label / 'use_geo_north'    / &
-         SCTags(90)%Label / 'despike_vm'       / &
+         SCTags(90)%Label / 'sr_method'        / &
          SCTags(91)%Label / 'to_mode'          / &
          SCTags(92)%Label / 'to_file'          / &
          SCTags(93)%Label / 'to_start_date'    / &

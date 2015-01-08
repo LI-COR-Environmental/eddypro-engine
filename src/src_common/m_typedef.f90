@@ -882,7 +882,7 @@ module m_typedef
         logical :: to_onthefly
         logical :: pf_subtract_b0
         logical :: recurse
-        logical :: despike_vm
+        logical :: despike_vickers97
         logical :: out_biomet
         logical :: out_qc_details
         logical :: out_bin_sp
