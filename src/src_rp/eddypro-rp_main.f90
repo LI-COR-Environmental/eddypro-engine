@@ -1603,6 +1603,7 @@ program EddyproRP
             if (skip_period) then
                 if(allocated(E2Set)) deallocate(E2Set)
                 if(allocated(E2Primes)) deallocate(E2Primes)
+                if(allocated(DiagSet)) deallocate(DiagSet)
                 call ExceptionHandler(59)
                 write(*,*)''
                 call hms_delta_print(PeriodSkipMessage,'')
