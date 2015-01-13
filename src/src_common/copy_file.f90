@@ -47,8 +47,9 @@ subroutine CopyFile(ifname, ofname)
 
     !> Copy file line by line
     io_error = 0
-    do while (io_error == 0)
+    do
         read(10, '(a)', iostat = io_error) row
+        if(io_error /= 0) exit
         write(11, '(a)') trim(row)
     end do
 end subroutine CopyFile

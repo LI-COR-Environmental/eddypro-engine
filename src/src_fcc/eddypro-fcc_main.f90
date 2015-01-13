@@ -147,12 +147,6 @@ Program EddyproFCC
     fxStartTimestampIndx = 1
     fxEndTimestampIndx = size(MasterTimeSeries)
 
-    !> For convenience, change timestamps of MasterTimeSeries
-    !> by increasing of DateStep
-!    do i = 1, size(MasterTimeSeries)
-!        MasterTimeSeries(i) = MasterTimeSeries(i) + DateStep
-!    end do
-
     !> Initialize import of full cospectra files
     if (FCCsetup%import_full_cospectra) then
         call NumberOfFilesInDir(Dir%full, '.csv', .false., '', &
@@ -174,9 +168,9 @@ Program EddyproFCC
     !****************************************************************
     !****************************************************************
 
-    DoSpectralAssessment = FCCsetup%sa_onthefly .and. FCCsetup%SA%in_situ
+    DoSpectralAssessment = FCCsetup%sa_onthefly .or. FCCsetup%SA%in_situ
 
-    !> If spectral analysis must be performed or cospectral output are requested,
+    !> If spectral analysis must be performed or co-spectral output are requested,
     !> start loop on cospectra files
     if (DoSpectralAssessment .or. EddyProProj%out_avrg_cosp) then
         if (DoSpectralAssessment) write(*, '(a)') &
@@ -191,6 +185,15 @@ Program EddyproFCC
         !> Read names of binned (co)spectra files
         call NumberOfFilesInDir(Dir%binned, '.csv', .false., '', &
             NumBinnedFiles, NumBinnedFilesNoRecurse)
+
+!***********************************************
+!***** TO DO HERE!!!!***************************
+        if(NumBinnedFilesNoRecurse <= 0) then
+            !> Insert notification, change settings and skip Spec Assess procedure
+        end if
+!***********************************************
+!***********************************************
+
         allocate(BinnedFileList(NumBinnedFiles))
 
         !> Create list of binned spectra file names
@@ -207,6 +210,14 @@ Program EddyproFCC
         call tsExtractSubperiodIndexesFromFilelist(BinnedFileList, &
             size(BinnedFileList), saStartTimestamp, saEndTimestamp, &
             saStartTimestampIndx, saEndTimestampIndx)
+
+!***********************************************
+!***** TO DO HERE!!!!***************************
+        if(saStartTimestampIndx <= 0 .or. saEndTimestampIndx) then
+            !> Insert notification, change settings and skip Spec Assess procedure
+        end if
+!***********************************************
+!***********************************************
 
         !> Some logging
         write(LogInteger, '(i8)') saEndTimestampIndx - saStartTimestampIndx + 1
@@ -226,6 +237,7 @@ Program EddyproFCC
         !> and exit with error in case of problems opening the file
         open(uex, file = AuxFile%ex, status = 'old', iostat = open_status)
         if (open_status /= 0) call ExceptionHandler(60)
+
         !> Skip header in Ex file
         read(uex, *)
 
