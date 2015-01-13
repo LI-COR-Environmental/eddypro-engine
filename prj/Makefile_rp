@@ -4,10 +4,13 @@
 #
 
 SRCS_f90d1 = \
+footprint_handle.f90 \
+copy_file.f90 \
+edit_ini_file.f90 \
 define_user_set.f90 \
 m_fp2_to_float.f90 \
-error_handle.f90 \
 m_libdate.f90 \
+exception_handler.f90\
 files_in_chronological_order.f90 \
 m_methane_tables.f90 \
 fluctuations.f90 \
@@ -56,7 +59,6 @@ m_dates.f90 \
 dir_sub.f90 \
 m_index_parameters.f90 \
 filelist_by_ext.f90 \
-m_logger.f90 \
 first_file_of_current_period.f90 \
 m_numeric_kinds.f90 \
 fourier_transform.f90 \
@@ -105,6 +107,7 @@ define_relative_separations.f90 \
 m_common_global_var.f90 
 
 SRCS_f90d2 = \
+init_biomet_out.f90\
 init_external_biomet.f90 \
 binned_frequency_vector.f90 \
 init_user_outfiles.f90 \
@@ -152,7 +155,7 @@ int_2_flag.f90 \
 configure_for_express.f90 \
 interpret_diagnostics.f90 \
 create_datasets_rp.f90 \
-molefractions_and_mixingratios_epev2.f90 \
+molefractions_and_mixingratios.f90 \
 degraded_covariances.f90 \
 out_raw_data.f90 \
 developed_turbulence_test.f90 \
@@ -171,6 +174,7 @@ tilt_correction.f90 \
 retrieve_dynamic_metadata.f90 \
 filter_raw_data_by_flags.f90 \
 write_out_ameriflux_rp.f90 \
+write_out_biomet.f90 \
 set_licor_diagnostics.f90 \
 write_out_user_stats.f90 \
 sort_wind_by_sector.f90 \
@@ -182,7 +186,6 @@ test_absolute_limits.f90 \
 flux_params.f90 \
 fluxes1_rp.f90 \
 adjust_sonic_coordinates.f90 \
-footprint_handle_rp.f90 \
 air_and_cell_parameters.f90 
 
 SRCS_Fd3 = \
@@ -190,10 +193,13 @@ rffti.F \
 rfftf.F 
 
 OBJS_f90d1 = \
+copy_file.o \
+footprint_handle.o \
+edit_ini_file.o \
 define_user_set.o \
 m_fp2_to_float.o \
-error_handle.o \
 m_libdate.o \
+exception_handler.o\
 files_in_chronological_order.o \
 m_methane_tables.o \
 fluctuations.o \
@@ -242,7 +248,6 @@ m_dates.o \
 dir_sub.o \
 m_index_parameters.o \
 filelist_by_ext.o \
-m_logger.o \
 first_file_of_current_period.o \
 m_numeric_kinds.o \
 fourier_transform.o \
@@ -291,6 +296,7 @@ define_relative_separations.o \
 m_common_global_var.o 
 
 OBJS_f90d2 = \
+init_biomet_out.o\
 init_external_biomet.o \
 binned_frequency_vector.o \
 init_user_outfiles.o \
@@ -338,7 +344,7 @@ int_2_flag.o \
 configure_for_express.o \
 interpret_diagnostics.o \
 create_datasets_rp.o \
-molefractions_and_mixingratios_epev2.o \
+molefractions_and_mixingratios.o \
 degraded_covariances.o \
 out_raw_data.o \
 developed_turbulence_test.o \
@@ -357,6 +363,7 @@ tilt_correction.o \
 retrieve_dynamic_metadata.o \
 filter_raw_data_by_flags.o \
 write_out_ameriflux_rp.o \
+write_out_biomet.o \
 set_licor_diagnostics.o \
 write_out_user_stats.o \
 sort_wind_by_sector.o \
@@ -368,7 +375,6 @@ test_absolute_limits.o \
 flux_params.o \
 fluxes1_rp.o \
 adjust_sonic_coordinates.o \
-footprint_handle_rp.o \
 air_and_cell_parameters.o 
 
 OBJS_Fd3 = \
@@ -413,6 +419,13 @@ clean :
 	rm -f $(EXE_DIR)$(EXE)
 
 # Dependencies of files
+copy_file.o:\
+    copy_file.f90 \
+    m_common_global_var.o
+init_biomet_out.o:\
+    init_biomet_out.f90
+exception_handler.o:\
+    exception_handler.f90
 define_user_set.o: \
     define_user_set.f90 \
     m_common_global_var.o
@@ -425,8 +438,6 @@ init_external_biomet.o: \
 binned_frequency_vector.o: \
     binned_frequency_vector.f90 \
     m_rp_global_var.o
-error_handle.o: \
-    error_handle.f90
 m_libdate.o: \
     m_libdate.f90
 init_user_outfiles.o: \
@@ -699,8 +710,6 @@ burba_terms.o: \
 filelist_by_ext.o: \
     filelist_by_ext.f90 \
     m_common_global_var.o
-m_logger.o: \
-    m_logger.f90
 int_2_flag.o: \
     int_2_flag.f90 \
     m_rp_global_var.o
@@ -724,11 +733,14 @@ fourier_transform.o: \
 bpcf_Horst_97.o: \
     bpcf_Horst_97.f90 \
     m_common_global_var.o
+footprint_handle.o:\
+    footprint_handle.f90 \
+    m_common_global_var.o
 make_dataset.o: \
     make_dataset.f90 \
     m_common_global_var.o
-molefractions_and_mixingratios_epev2.o: \
-    molefractions_and_mixingratios_epev2.f90 \
+molefractions_and_mixingratios.o: \
+    molefractions_and_mixingratios.f90 \
     m_rp_global_var.o
 degraded_covariances.o: \
     degraded_covariances.f90 \
@@ -824,10 +836,6 @@ bpcf_read_full_cos_wt.o: \
     bpcf_read_full_cos_wt.f90 \
     m_common_global_var.o
 portion_of_file_in_current_period.o: \
-    portion_of_file_in_current_period.f90 \
-    m_common_global_var.o
-retrieve_dynamic_metadata.o: \
-    retrieve_dynamic_metadata.f90 \
     m_rp_global_var.o
 filter_raw_data_by_flags.o: \
     filter_raw_data_by_flags.f90 \
@@ -946,12 +954,8 @@ m_common_global_var.o: \
     m_dates.o \
     m_fp2_to_float.o \
     m_index_parameters.o \
-    m_logger.o \
     m_methane_tables.o \
     m_typedef.o
-footprint_handle_rp.o: \
-    footprint_handle_rp.f90 \
-    m_rp_global_var.o
 air_and_cell_parameters.o: \
     air_and_cell_parameters.f90 \
     m_rp_global_var.o

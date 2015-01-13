@@ -9,7 +9,6 @@ fit_rh_to_cutoff.f90 \
 fit_tf_models.f90 \
 fluxes1.f90 \
 fluxes23.f90 \
-footprint_handle.f90 \
 init_ex_vars.f90 \
 init_out_files.f90 \
 m_fx_global_var_mod.f90 \
@@ -31,8 +30,9 @@ eddypro-fcc_main.f90 \
 ensemble_cospectra_by_stability.f90 
 
 SRCS_f90d2 = \
-error_handle.f90 \
-dfridr.f90 \
+ridders_diff.f90 \
+footprint_handle.f90 \
+exception_handler.f90 \
 extract_column_from_essentials.f90 \
 bpcf_aux_subs.f90 \
 fcn.f90 \
@@ -69,7 +69,6 @@ change_24_into_00.f90 \
 m_libdate.f90 \
 timestamp.f90 \
 covariance_matrix_no_error.f90 \
-m_logger.f90 \
 ts_extract_subperiod_indexes.f90 \
 date_subs.f90 \
 m_methane_tables.f90 \
@@ -94,7 +93,6 @@ fit_rh_to_cutoff.o \
 fit_tf_models.o \
 fluxes1.o \
 fluxes23.o \
-footprint_handle.o \
 init_ex_vars.o \
 init_out_files.o \
 m_fx_global_var_mod.o \
@@ -116,8 +114,9 @@ eddypro-fcc_main.o \
 ensemble_cospectra_by_stability.o 
 
 OBJS_f90d2 = \
-error_handle.o \
-dfridr.o \
+ridders_diff.o \
+footprint_handle.o \
+exception_handler.o \
 extract_column_from_essentials.o \
 bpcf_aux_subs.o \
 fcn.o \
@@ -154,7 +153,6 @@ change_24_into_00.o \
 m_libdate.o \
 timestamp.o \
 covariance_matrix_no_error.o \
-m_logger.o \
 ts_extract_subperiod_indexes.o \
 date_subs.o \
 m_methane_tables.o \
@@ -212,6 +210,9 @@ clean :
 	rm -f $(EXE_DIR)$(EXE)
 
 # Dependencies of files
+ridders_diff.o: \
+    ridders_diff.f90 \
+    m_common_global_var.o
 fit_cospectral_models.o: \
     fit_cospectral_models.f90 \
     m_fx_global_var_mod.o \
@@ -227,11 +228,8 @@ fit_tf_models.o: \
 fluxes1.o: \
     fluxes1.f90 \
     m_fx_global_var_mod.o
-error_handle.o: \
-    error_handle.f90
-dfridr.o: \
-    dfridr.f90 \
-    m_common_global_var.o
+exception_handler.o: \
+    exception_handler.f90
 fluxes23.o: \
     fluxes23.f90 \
     m_fx_global_var_mod.o
@@ -241,9 +239,6 @@ extract_column_from_essentials.o: \
 bpcf_aux_subs.o: \
     bpcf_aux_subs.f90 \
     m_common_global_var.o
-footprint_handle.o: \
-    footprint_handle.f90 \
-    m_fx_global_var_mod.o
 fcn.o: \
     fcn.f90 \
     m_common_global_var.o
@@ -322,7 +317,6 @@ m_common_global_var.o: \
     m_dates.o \
     m_fp2_to_float.o \
     m_index_parameters.o \
-    m_logger.o \
     m_methane_tables.o \
     m_typedef.o
 read_ex_record.o: \
@@ -391,8 +385,6 @@ covariance_matrix_no_error.o: \
 write_output_files.o: \
     write_output_files.f90 \
     m_fx_global_var_mod.o
-m_logger.o: \
-    m_logger.f90
 ts_extract_subperiod_indexes.o: \
     ts_extract_subperiod_indexes.f90 \
     m_common_global_var.o
