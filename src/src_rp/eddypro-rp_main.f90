@@ -695,7 +695,7 @@ program EddyproRP
                 Stats5 = Stats
 
                 !> Convert to mixing ratios (if requested and if the case)
-                if (RPsetup%to_mixing_ratio) &
+                if (EddyProProj%wpl) &
                     call PointByPointToMixingRatio(E2Set, &
                         size(E2Set, 1), size(E2Set, 2), .false.)
 
@@ -1640,9 +1640,10 @@ program EddyproRP
             !> Determine whether it is day or night-time,
             call AssessDayTime(date, time)
 
-            !*********************************************************************
-            !**** DATASET DEFINITION FINISHES HERE. STARTS RAW DATA REDUCTION ****
-            !*********************************************************************
+            !*******************************************************************
+            !**** DATASET DEFINITION FINISHES HERE. ****************************
+            !**** STARTS RAW DATA REDUCTION         ****************************
+            !*******************************************************************
 
             !> Interpret LI-COR's diagnostic flags
             if (NumDiag > 0) then
@@ -1657,13 +1658,14 @@ program EddyproRP
             call AdjustSonicCoordinates(E2Set, size(E2Set, 1), size(E2Set, 2))
 
             !> Generate cell temperature dataset if the case, using either
-            !> (1) native cell temperature, (2) weighted average of ti1 and ti2, (3) either ti1 or ti2
-            !> depending on availability
+            !> (1) native cell temperature, (2) weighted average of ti1 and ti2,
+            !> (3) either ti1 or ti2 depending on availability
             call GenerateTcell(E2Set, size(E2Set, 1), size(E2Set, 2))
         end if
 
-        !> Now that variables have been properly assigned, can initialize main output files
-        !> This is done also if run is in metadata retriever mode
+        !> Now that variables have been properly assigned, can initialize
+        !> main output files. This is done also if run is in
+        !> metadata retriever mode
         if(initialize) then
             call InitOutFiles_rp()
             initialize = .false.
@@ -1672,30 +1674,36 @@ program EddyproRP
         !> Output first level of stats
         if (EddyProProj%run_mode /= 'md_retrieval') then
 
+            !> ===== 1. RAW DATA AS READ FROM FILES ============================
             !> Output raw dataset first level
-            if (RPsetup%out_raw(1)) call OutRawData(Stats%date, Stats%time, E2Set, size(E2Set, 1), size(E2Set, 2), 1)
+            if (RPsetup%out_raw(1)) call OutRawData(Stats%date, Stats%time, &
+                E2Set, size(E2Set, 1), size(E2Set, 2), 1)
             !> Calculate basic stats and output them as requested
             call BasicStats(E2Set, size(E2Set, 1), size(E2Set, 2), 1, .true.)
             Stats1 = Stats
             if (RPsetup%out_st(1)) &
                 call WriteOutStats(ust1, Stats1, BgnOutStrg, PeriodRecords)
             if (NumUserVar > 0) then
-                call UserBasicStats(UserSet, size(UserSet, 1), size(UserSet, 2), 1)
+                call UserBasicStats(UserSet, &
+                    size(UserSet, 1), size(UserSet, 2), 1)
                 if (RPsetup%out_st(1)) &
-                    call WriteOutUserStats(u_user_st1, BgnOutStrg, PeriodRecords, &
-                        AddUserStatsHeader)
+                    call WriteOutUserStats(u_user_st1, BgnOutStrg, &
+                        PeriodRecords, AddUserStatsHeader)
                     AddUserStatsHeader = .false.
             end if
 
-            !> ***** 2. STATISTICAL SCREENING ******
-            !> Based on mean value, if sonic (or fast) temperature is outranged, search alternative one.
+            !> Based on mean value, if sonic (or fast) temperature
+            !> is out-ranged, search alternative one.
             if (Stats1%Mean(ts) < 220d0 .or. Stats1%Mean(ts) > 340d0) &
-                call ReplaceSonicTemperature(E2Set, size(E2Set, 1), size(E2Set, 2), &
-                    UserSet, size(UserSet, 1), size(UserSet, 2))
+                call ReplaceSonicTemperature(E2Set, size(E2Set, 1), &
+                    size(E2Set, 2), UserSet, size(UserSet, 1), size(UserSet, 2))
 
+            !> ===== 2. STATISTICAL SCREENING ==================================
             !> Calculate raw screening flags and despike data if requested
-            call StatisticalScreening(E2Set, size(E2Set, 1), size(E2Set, 2), Test, .true.)
-            if (NumUserVar > 0) call DespikeUserSet(UserSet, size(UserSet, 1), size(UserSet, 2))
+            call StatisticalScreening(E2Set, &
+                size(E2Set, 1), size(E2Set, 2), Test, .true.)
+            if (NumUserVar > 0) call DespikeUserSet(UserSet, &
+                size(UserSet, 1), size(UserSet, 2))
 
             !> If a 4th gas calibration has to be done (using a 'cal-ref'
             !> column from UserCol) does so. Note that so far the calibration
@@ -1708,7 +1716,8 @@ program EddyproRP
             call EliminateCorruptedVariables(E2Set, &
                 size(E2Set, 1), size(E2Set, 2), skip_period, .true.)
 
-            !> If either u, v or w have been eliminated, stops processing this period
+            !> If either u, v or w have been eliminated,
+            !> stops processing this period
             if (skip_period) then
                 if(allocated(E2Set)) deallocate(E2Set)
                 if(allocated(E2Primes)) deallocate(E2Primes)
@@ -1721,12 +1730,16 @@ program EddyproRP
             end if
 
             !> Count number of records actually used for the current flux
-            !> Note that this is the max number, and accounts only for entire records set to error code
-            !> There might be individual values set to error code for some variables, that do not imply
-            !> the elimination of the whole data record. Note also that the count if performed only
-            !> using wind components, because if any wind components is error code, the whole calculation cannot be performed.
+            !> Note that this is the max number, and accounts only for entire
+            !> records set to error code. There might be individual values
+            !> set to error code for some variables, that do not imply
+            !> the elimination of the whole data record. Note also that the
+            !> count is performed only using wind components, because if
+            !> any wind components is error code, the whole calculation
+            !> cannot be performed.
             if (.not. allocated(mask)) allocate(mask(size(E2Set, 1)))
-            mask(:) = E2Set(:, u) /= error .and. E2Set(:, v) /= error .and. E2Set(:, w) /= error
+            mask(:) = E2Set(:, u) /= error .and. E2Set(:, v) /= error &
+                .and. E2Set(:, w) /= error
             PeriodActualRecords = count(mask)
             if (allocated(mask)) deallocate(mask)
 
@@ -1746,109 +1759,125 @@ program EddyproRP
             NumberOfOkPeriods = NumberOfOkPeriods + 1
 
             !> Output raw dataset second level
-            if (RPsetup%out_raw(2)) call OutRawData(Stats%date, Stats%time, E2Set, size(E2Set, 1), size(E2Set, 2), 2)
+            if (RPsetup%out_raw(2)) call OutRawData(Stats%date, Stats%time, &
+                E2Set, size(E2Set, 1), size(E2Set, 2), 2)
             !> Calculate basic stats and output them as requested
             call BasicStats(E2Set, size(E2Set, 1), size(E2Set, 2), 2, .true.)
             Stats2 = Stats
             if (RPsetup%out_st(2)) &
                 call WriteOutStats(ust2, Stats2, BgnOutStrg, PeriodRecords)
             if (NumUserVar > 0) then
-                call UserBasicStats(UserSet, size(UserSet, 1), size(UserSet, 2), 2)
+                call UserBasicStats(UserSet, &
+                    size(UserSet, 1), size(UserSet, 2), 2)
                 if (RPsetup%out_st(2)) &
-                    call WriteOutUserStats(u_user_st2, BgnOutStrg, PeriodRecords, &
-                        AddUserStatsHeader)
+                    call WriteOutUserStats(u_user_st2, BgnOutStrg, &
+                        PeriodRecords, AddUserStatsHeader)
                     AddUserStatsHeader = .false.
             end if
 
-            !> ***** 3. CROSS-WIND CORRECTION ******
-            !> Apply raw-level cross wind correction (after Liu et al. 2001), if requested
-            if (RPsetup%calib_cw .and. &
-                E2Col(u)%Instr%model(1:len_trim(E2Col(u)%Instr%model) - 2) /= 'csat3') then
-                call CrossWindCorr(E2Col(u), E2Set, size(E2Set, 1), size(E2Set, 2), .true.)
+            !> ===== 3. CROSS-WIND CORRECTION ==================================
+            !> Apply raw-level cross wind correction
+            !> (after Liu et al. 2001), if requested
+            if (RPsetup%calib_cw) then
+                call CrossWindCorr(E2Col(u), E2Set, &
+                    size(E2Set, 1), size(E2Set, 2), .true.)
             else
-                write(*,'(a)') '  Cross-wind correction not requested or not applicable'
+                write(*,'(a)') '  Cross-wind correction not requested &
+                    &or not applicable'
             end if
 
             !> Output raw dataset third level
-            if (RPsetup%out_raw(3)) call OutRawData(Stats%date, Stats%time, E2Set, size(E2Set, 1), size(E2Set, 2), 3)
+            if (RPsetup%out_raw(3)) call OutRawData(Stats%date, Stats%time, &
+                E2Set, size(E2Set, 1), size(E2Set, 2), 3)
             !> Calculate basic stats and output them as requested
             call BasicStats(E2Set, size(E2Set, 1), size(E2Set, 2), 3, .true.)
             Stats3 = Stats
             if (RPsetup%out_st(3)) &
                 call WriteOutStats(ust3, Stats3, BgnOutStrg, PeriodRecords)
             if (NumUserVar > 0) then
-                call UserBasicStats(UserSet, size(UserSet, 1), size(UserSet, 2), 3)
+                call UserBasicStats(UserSet, &
+                    size(UserSet, 1), size(UserSet, 2), 3)
                 if (RPsetup%out_st(3)) &
-                    call WriteOutUserStats(u_user_st3, BgnOutStrg, PeriodRecords, &
-                        AddUserStatsHeader)
+                    call WriteOutUserStats(u_user_st3, BgnOutStrg, &
+                        PeriodRecords, AddUserStatsHeader)
                     AddUserStatsHeader = .false.
             end if
 
-            !> ***** 4. ANGLE OF ATTACK CORRECTION ******
-            !> If requested - and if sonic is a Gill - perform angle-of-attack calibration
-            !> according to Nakai et al. 2006/2012
+            !> ===== 4. ANGLE OF ATTACK CORRECTION =============================
+            !> If requested - and if sonic is a Gill - perform angle-of-attack
+            !> calibration according to Nakai et al. 2006/2012
             if (RPsetup%calib_aoa /= 'none') then
                 select case(E2Col(u)%Instr%model(1:len_trim(E2Col(u)%Instr%model) - 2))
                     case ('r2','r3_50','r3_100','r3a_100','wm','wmpro')
-                        call AoaCalibrationNakai(E2Set, size(E2Set, 1), size(E2Set, 2))
+                        call AoaCalibrationNakai(E2Set, &
+                            size(E2Set, 1), size(E2Set, 2))
                     case default
                         continue
                 end select
             end if
 
             !> Output raw dataset forth level
-            if (RPsetup%out_raw(4)) call OutRawData(Stats%date, Stats%time, E2Set, size(E2Set, 1), size(E2Set, 2), 4)
+            if (RPsetup%out_raw(4)) call OutRawData(Stats%date, Stats%time, &
+                E2Set, size(E2Set, 1), size(E2Set, 2), 4)
             !> Calculate basic stats and output them as requested
             call BasicStats(E2Set, size(E2Set, 1), size(E2Set, 2), 4, .true.)
             Stats4 = Stats
             if (RPsetup%out_st(4)) &
                 call WriteOutStats(ust4, Stats4, BgnOutStrg, PeriodRecords)
             if (NumUserVar > 0) then
-                call UserBasicStats(UserSet, size(UserSet, 1), size(UserSet, 2), 4)
+                call UserBasicStats(UserSet, &
+                    size(UserSet, 1), size(UserSet, 2), 4)
                 if (RPsetup%out_st(4)) &
-                    call WriteOutUserStats(u_user_st4, BgnOutStrg, PeriodRecords, &
-                        AddUserStatsHeader)
+                    call WriteOutUserStats(u_user_st4, BgnOutStrg, &
+                        PeriodRecords, AddUserStatsHeader)
                     AddUserStatsHeader = .false.
             end if
 
-            !> ***** 4.1 CORRECTION OF CALIBRATION DRIFTS ******
+            !> ===== 4.1 CORRECTION OF CALIBRATION DRIFTS ======================
             if (DriftCorr%method /= 'none' .and. nCalibEvents /= 0) &
-                call DriftCorrection(E2Set, size(E2Set, 1), size(E2Set, 2), E2Col, size(E2Col), &
-                    nCalibEvents, tsStart)
+                call DriftCorrection(E2Set, size(E2Set, 1), size(E2Set, 2), &
+                    E2Col, size(E2Col), nCalibEvents, tsStart)
 
-            !> Convert to mixing ratios (if requested and if the case)
-            if (RPsetup%to_mixing_ratio) &
-                call PointByPointToMixingRatio(E2Set, size(E2Set, 1), size(E2Set, 2), .true.)
+            !> Convert to mixing ratios (if WPL requested, and if the case)
+            if (EddyProProj%wpl) &
+                call PointByPointToMixingRatio(E2Set, &
+                    size(E2Set, 1), size(E2Set, 2), .true.)
 
-            !> ***** 5. TILT CORRECTION ******
+            !> ===== 5. TILT CORRECTION ========================================
             !> Apply rotations for tilt correction, if requested
-            call TiltCorrection(Meth%rot, GoPlanarFit, E2Set, size(E2Set, 1), size(E2Set, 2), &
-                PFSetup%num_sec, Essentials%yaw, Essentials%pitch, Essentials%roll, .true.)
+            call TiltCorrection(Meth%rot, GoPlanarFit, E2Set, &
+                size(E2Set, 1), size(E2Set, 2), PFSetup%num_sec, &
+                Essentials%yaw, Essentials%pitch, Essentials%roll, .true.)
 
             !> Output raw dataset fifth level
-            if (RPsetup%out_raw(5)) call OutRawData(Stats%date, Stats%time, E2Set, size(E2Set, 1), size(E2Set, 2), 5)
+            if (RPsetup%out_raw(5)) call OutRawData(Stats%date, Stats%time, &
+                E2Set, size(E2Set, 1), size(E2Set, 2), 5)
             !> Calculate basic stats and output them as requested
             call BasicStats(E2Set, size(E2Set, 1), size(E2Set, 2), 5, .true.)
             Stats5 = Stats
             if (RPsetup%out_st(5)) &
                 call WriteOutStats(ust5, Stats5, BgnOutStrg, PeriodRecords)
             if (NumUserVar > 0) then
-                call UserBasicStats(UserSet, size(UserSet, 1), size(UserSet, 2), 5)
+                call UserBasicStats(UserSet, &
+                    size(UserSet, 1), size(UserSet, 2), 5)
                 if (RPsetup%out_st(5)) &
-                    call WriteOutUserStats(u_user_st5, BgnOutStrg, PeriodRecords, &
-                        AddUserStatsHeader)
+                    call WriteOutUserStats(u_user_st5, BgnOutStrg, &
+                        PeriodRecords, AddUserStatsHeader)
                     AddUserStatsHeader = .false.
             end if
 
-            !> ***** 6. TIMELAG COMPENSATION ******
-            !> If available, for files others than GHG, replace flow rate of LI-7200 provided by user with
-            !> mean value from raw files
-            if (EddyProProj%ftype /= 'licor_ghg' .or. EddyProProj%use_extmd_file) then
+            !> ===== 6. TIMELAG COMPENSATION  ==================================
+            !> If available, for files others than GHG, replace flow rate
+            !> of LI-7200 provided by user with mean value from raw files
+            if (EddyProProj%ftype /= 'licor_ghg' &
+                .or. EddyProProj%use_extmd_file) then
                 do i = 1, E2NumVar
                     if (NumUserVar > 0) then
                         do j = 1, NumUserVar
-                            if (UserCol(j)%var == 'flowrate' .and. UserCol(j)%instr%model == E2Col(i)%instr%model &
-                                .and. UserStats%Mean(j) /= 0d0 .and. UserStats%Mean(j) /= error) then
+                            if (UserCol(j)%var == 'flowrate' &
+                                .and. UserCol(j)%instr%model == E2Col(i)%instr%model &
+                                .and. UserStats%Mean(j) /= 0d0 &
+                                .and. UserStats%Mean(j) /= error) then
                                 E2Col(i)%instr%tube_f = UserStats%Mean(j)
                                 exit
                             end if
@@ -1865,16 +1894,19 @@ program EddyproRP
 
             !> Calculate and compensate time-lags
             if (TimeLagOptSelected) Meth%tlag = 'maxcov&default'
-            call TimeLagHandle(Meth%tlag(1:len_trim(Meth%tlag)), E2Set, size(E2Set, 1), size(E2Set, 2), &
-                Essentials%timelag, Essentials%def_tlag, .false.)
+            call TimeLagHandle(Meth%tlag(1:len_trim(Meth%tlag)), E2Set, &
+                size(E2Set, 1), size(E2Set, 2), Essentials%timelag, &
+                Essentials%def_tlag, .false.)
             if (NumUserVar > 0) then
                 call UserTimeLagHandle(Meth%tlag(1:len_trim(Meth%tlag)), &
-                    UserSet, size(UserSet, 1), size(UserSet, 2), E2Set(:, w), size(E2Set, 1))
+                    UserSet, size(UserSet, 1), size(UserSet, 2), &
+                    E2Set(:, w), size(E2Set, 1))
             end if
             if (TimeLagOptSelected) Meth%tlag = 'tlag_opt'
 
             !> Output raw dataset sixth level
-            if (RPsetup%out_raw(6)) call OutRawData(Stats%date, Stats%time, E2Set, size(E2Set, 1), size(E2Set, 2), 6)
+            if (RPsetup%out_raw(6)) call OutRawData(Stats%date, Stats%time, &
+                E2Set, size(E2Set, 1), size(E2Set, 2), 6)
             !> Calculate basic stats and output them as requested
             call BasicStats(E2Set, size(E2Set, 1), size(E2Set, 2), 6, .true.)
             Stats6 = Stats
@@ -1883,14 +1915,15 @@ program EddyproRP
             if (NumUserVar > 0) then
                 call UserBasicStats(UserSet, size(UserSet, 1), size(UserSet, 2), 6)
                 if (RPsetup%out_st(6)) &
-                    call WriteOutUserStats(u_user_st6, BgnOutStrg, PeriodRecords, &
-                        AddUserStatsHeader)
+                    call WriteOutUserStats(u_user_st6, BgnOutStrg, &
+                        PeriodRecords, AddUserStatsHeader)
                     AddUserStatsHeader = .false.
             end if
 
-            !> ***** FILTERING FOR ABSOLUTE LIMITS TEST ******
+            !> ===== 6.1 FILTERING FOR ABSOLUTE LIMITS TEST ====================
             if (EddyProProj%run_mode /= 'md_retrieval') then
-                !> Estimate temperatures, pressures and relevant air molar volumes
+                !> Estimate temperatures, pressures and relevant
+                !> air molar volumes
                 call AirAndCellParameters()
                 if (Test%al .and. RPsetup%filter_al) then
                     !> Apply filter for absolute limits test, if the case
@@ -1919,8 +1952,8 @@ program EddyproRP
                 Ambient%WS = error
             end if
 
-            !> ***** 7. DETRENDING ******
-            !> Detrend variables
+            !> ===== 7. DETRENDING =============================================
+            !> Calculate fluctuations based on chosen de-trending method
             write(*, '(a)', advance = 'no') '  Detrending..'
             if (Meth%det(1:len_trim(Meth%det)) == 'ld' &
                 .and. RPsetup%Tconst <= 0) &

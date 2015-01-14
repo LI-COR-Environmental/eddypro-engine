@@ -41,10 +41,8 @@ subroutine Fluxes23(lEx)
     real(kind = dbl), parameter :: alpha = 0.51d0
 
 
-    Flux2 = fluxtype('', '', error, error, error, error, error, error, error, error, error, &
-        error, error, error, error, error, error, error, error)
-    Flux3 = fluxtype('', '', error, error, error, error, error, error, error, error, error, &
-        error, error, error, error, error, error, error, error)
+    Flux2 = errFlux
+    Flux3 = errFlux
 
     !> Level 2 end 3 internal sensible heat, do nothing
     Flux2%Hi_co2 = Flux1%Hi_co2
@@ -56,78 +54,101 @@ subroutine Fluxes23(lEx)
     Flux3%Hi_ch4 = Flux2%Hi_ch4
     Flux3%Hi_gas4 = Flux2%Hi_gas4
 
-    !> Level 2 evapotranspiration, WPL corrected including Burba if the case
-    if (lEx%instr(ih2o)%path_type == 'open') then
-        if (lEx%RhoCp > 0d0 .and. lEx%Ta > 0d0 &
-            .and. Flux1%E /= error .and. Flux1%H /= error .and. lEx%sigma /= error) then
-            if(lEx%instr(ih2o)%model(1:len_trim(lEx%instr(ih2o)%model) - 2) == 'li7500') then
-                Flux2%E = (1d0 + mu * lEx%sigma) * Flux1%E &
-                        + (1d0 + mu * lEx%sigma) * (Flux1%H + lEx%Burba%h_top + lEx%Burba%h_bot + lEx%Burba%h_spar) &
-                        * lEx%RHO%w / (lEx%RhoCp * lEx%Ta)
+    !> Level 2 evapotranspiration WPL corrected, including Burba if the case
+    if (EddyProProj%wpl) then
+        if (lEx%instr(ih2o)%path_type == 'open') then
+            if (lEx%RhoCp > 0d0 .and. lEx%Ta > 0d0 &
+                .and. Flux1%E /= error .and. Flux1%H /= error &
+                .and. lEx%sigma /= error) then
+                    !> Open-path uses Webb et al. (1980)
+                    !> Note that Burba terms are forced to zero
+                    !> if analyzer is /= LI-7500
+                    Flux2%E = (1d0 + mu * lEx%sigma) * Flux1%E &
+                            + (1d0 + mu * lEx%sigma) &
+                            * (Flux1%H + lEx%Burba%h_top + lEx%Burba%h_bot + lEx%Burba%h_spar) &
+                            * lEx%RHO%w / (lEx%RhoCp * lEx%Ta)
             else
-                Flux2%E = (1d0 + mu * lEx%sigma) * Flux1%E &
-                        + (1d0 + mu * lEx%sigma) * Flux1%H * lEx%RHO%w / (lEx%RhoCp * lEx%Ta)
+                Flux2%E = error
             end if
         else
-            Flux2%E = error
+            !> Closed-path uses Ibrom et al. (2007) if conversion to mixing
+            !> ratio did not already occur (which implies that some variables
+            !> were missing)
+            select case(lEx%measure_type(h2o))
+                case ('molar_density', 'mole_fraction')
+                    if (Flux1%E /= error .and. lEx%sigma /= error &
+                        .and. lEx%Vcell(h2o) > 0d0 .and. lEx%Va > 0d0) then
+
+                        if (Flux1%Hi_h2o /= error &
+                            .and. lEx%cov_w(pi) /= error) then
+                            !> Complete formulation, should actually never be
+                            !> used cause conversion to mixing ratio should have
+                            !> already happened if everything is available
+                            Flux2%E = (1d0 + mu * lEx%sigma) * Flux1%E &
+                                * lEx%Vcell(h2o) / lEx%Va &
+                                + (1d0 + mu * lEx%sigma) * Flux1%Hi_h2o &
+                                * lEx%RHO%w / (lEx%RhoCp * lEx%Tcell) &
+                                - (1d0 + mu * lEx%sigma) * lEx%cov_w(pi) &
+                                * lEx%RHO%w / (lEx%Pcell)
+
+                        elseif (Flux1%Hi_h2o /= error) then
+                            !> Correct only for effect of T
+                            Flux2%E = (1d0 + mu * lEx%sigma) * Flux1%E &
+                                * lEx%Vcell(h2o) / lEx%Va &
+                                + (1d0 + mu * lEx%sigma) * Flux1%Hi_h2o &
+                                * lEx%RHO%w / (lEx%RhoCp * lEx%Tcell)
+
+                        elseif (lEx%cov_w(pi)  /= error) then
+                            !> Correct only for effect of P
+                            Flux2%E = (1d0 + mu * lEx%sigma) * Flux1%E &
+                                * lEx%Vcell(h2o) / lEx%Va &
+                                - (1d0 + mu * lEx%sigma) * lEx%cov_w(pi) &
+                                * lEx%RHO%w / (lEx%Pcell)
+                        else
+                            !> Can't correct for T and P
+                            Flux2%E = Flux1%E * lEx%Vcell(h2o) / lEx%Va
+                        end if
+                    else
+                        Flux2%E = error
+                    end if
+                case ('mixing_ratio')
+                    Flux2%E = Flux1%E
+            end select
         end if
     else
-        select case(lEx%measure_type(h2o))
-            case ('molar_density', 'mole_fraction')
-                if (Flux1%E /= error .and. lEx%sigma /= error .and. lEx%Vcell(h2o) > 0d0 .and. lEx%Va > 0d0) then
-                    if (Flux1%Hi_h2o /= error .and.  lEx%cov_w(pi) /= error) then
-                        Flux2%E = (1d0 + mu * lEx%sigma) * Flux1%E * lEx%Vcell(h2o) / lEx%Va &
-                            + (1d0 + mu * lEx%sigma) * Flux1%Hi_h2o &
-                            * lEx%RHO%w / (lEx%RhoCp * lEx%Tcell) &
-                            - (1d0 + mu * lEx%sigma) * lEx%cov_w(pi) &
-                            * lEx%RHO%w / (lEx%Pcell)
-                    elseif (Flux1%Hi_h2o /= error) then
-                       Flux2%E = (1d0 + mu * lEx%sigma) * Flux1%E * lEx%Vcell(h2o) / lEx%Va &
-                            + (1d0 + mu * lEx%sigma) * Flux1%Hi_h2o &
-                            * lEx%RHO%w / (lEx%RhoCp * lEx%Tcell)
-                    elseif (lEx%cov_w(pi)  /= error) then
-                        Flux2%E = (1d0 + mu * lEx%sigma) * Flux1%E * lEx%Vcell(h2o) / lEx%Va &
-                            - (1d0 + mu * lEx%sigma) * lEx%cov_w(pi) &
-                            * lEx%RHO%w / (lEx%Pcell)
-                    else
-                        Flux2%E = Flux1%E * lEx%Vcell(h2o) / lEx%Va
-                    end if
-                else
-                    Flux2%E = error
-                end if
-            case ('mixing_ratio')
-                Flux2%E = Flux1%E
-        end select
+        !> If WPL should not be applied
+        Flux2%E = Flux1%E
     end if
-
-    !> If WPL should not be applied
-    if (.not. EddyProProj%wpl) Flux2%E = Flux1%E
-
-    !> But if Flux1 was error, then set also 2 to error
+    !> If Flux1 was error, then set also 2 to error
     if (Flux1%E == error) Flux2%E = error
 
     !> Level 2 h2o and latent heat flux
     if (Flux2%E /= error) then
         Flux2%h2o = Flux2%E * 1d3 / MW(h2o)
-        Flux2%LE = Flux2%E * lEx%lambda
+        if (lEx%lambda /= error) then
+            Flux2%LE = Flux2%E * lEx%lambda
+        else
+            Flux2%LE = error
+        end if
     else
         Flux2%h2o = error
         Flux2%LE  = error
     end if
 
-    !> Level 2 evapotranspiration fluxes with H2O covariances at timelags of other scalars
-    !> Do nothing, WPL is deleterious here
+    !> Level 2 evapotranspiration fluxes with H2O covariances
+    !> at time-lags of other scalars. Do nothing, WPL is deleterious here
     Flux2%E_co2 = Flux1%E_co2
     Flux2%E_ch4 = Flux1%E_ch4
     Flux2%E_gas4 = Flux1%E_gas4
 
     !> Level 2 Sensible heat
     if (lEx%instr(sonic)%category == 'sonic') then
-        !> corrected for humidity, after Van Dyjk et al. (2004) eq. 3.53
+        !> Corrected for humidity, after Van Dyjk et al. (2004) eq. 3.53
         !> revising Schotanus et al. (1983)
         if (Flux1%H /= error) then
-            if(lEx%Flux0%E /= error .and. lEx%cov_w(ts) /= error .and. lEx%RHO%a > 0d0 .and. &
-                lEx%Q /= error .and. lEx%RhoCp > 0d0 .and. alpha /= error) then
+            if(lEx%Flux0%E /= error .and. lEx%cov_w(ts) /= error &
+                .and. lEx%RHO%a > 0d0 .and. lEx%Q /= error &
+                .and. lEx%RhoCp > 0d0 .and. alpha /= error) then
                 Flux2%H = Flux1%H &
                     - lEx%RhoCp * alpha * lEx%Ts * lEx%Flux0%E / lEx%RHO%a &
                     - lEx%RhoCp * alpha * lEx%Q * lEx%cov_w(ts)
@@ -160,18 +181,13 @@ subroutine Fluxes23(lEx)
 
     !> Level 3 for evapotranspiration: for open path, WPL again with corrected H
     !> Starts again from Level 1 of E, Level 2 was only used to calculate H Level 3.
-    if(lEx%instr(ih2o)%path_type == 'open') then
-        if (lEx%RhoCp > 0d0 .and. lEx%Ta > 0d0 &
-            .and. Flux1%E /= error .and. Flux1%H /= error .and. lEx%sigma /= error) then
-            if(lEx%instr(ih2o)%model(1:len_trim(lEx%instr(ih2o)%model) - 2) == 'li7500') then
-                Flux3%E = (1d0 + mu * lEx%sigma) * Flux1%E &
-                    + (1d0 + mu * lEx%sigma) * (Flux3%H + lEx%Burba%h_top + lEx%Burba%h_bot + lEx%Burba%h_spar)&
-                    * lEx%RHO%w / (lEx%RhoCp * lEx%Ta)
-            else
-                Flux3%E = (1d0 + mu * lEx%sigma) * Flux1%E &
-                    + (1d0 + mu * lEx%sigma) * Flux3%H &
-                    * lEx%RHO%w / (lEx%RhoCp * lEx%Ta)
-            end if
+    if(EddyProProj%wpl .and. lEx%instr(ih2o)%path_type == 'open') then
+        if (lEx%RhoCp > 0d0 .and. lEx%Ta > 0d0 .and. Flux1%E /= error &
+            .and. Flux1%H /= error .and. lEx%sigma /= error) then
+            Flux3%E = (1d0 + mu * lEx%sigma) * Flux1%E &
+                + (1d0 + mu * lEx%sigma) &
+                * (Flux3%H + lEx%Burba%h_top + lEx%Burba%h_bot + lEx%Burba%h_spar)&
+                * lEx%RHO%w / (lEx%RhoCp * lEx%Ta)
         else
             Flux3%E = Flux2%E
         end if
@@ -179,10 +195,8 @@ subroutine Fluxes23(lEx)
         Flux3%E = Flux2%E
     end if
 
-    !> If WPL should not be applied
-    if (.not. EddyProProj%wpl) Flux3%E = Flux2%E
-
-    !> Level 3 latent heat fluxes with H2O covariances at timelags of other scalars
+    !> Level 3 latent heat fluxes with H2O covariances at
+    !> timelags of other scalars
     !> Do nothing
     Flux3%E_co2 = Flux2%E_co2
     Flux3%E_ch4 = Flux2%E_ch4
@@ -191,7 +205,11 @@ subroutine Fluxes23(lEx)
     !> Level 3 h2o flux and latent heat flux
     if (Flux3%E /= error) then
         Flux3%h2o = Flux3%E * 1d3 / MW(h2o)
-        Flux3%LE = Flux3%E * lEx%lambda
+        if (lEx%lambda /= error) then
+            Flux3%LE = Flux3%E * lEx%lambda
+        else
+            Flux3%LE = error
+        end if
     else
         Flux3%h2o = error
         Flux3%LE  = error
@@ -210,12 +228,12 @@ subroutine Fluxes23(lEx)
         E_nowpl = Flux1%E
     end if
 
-    !> Apply spectral correction to h2o and LE Level 3 fluxes for closed path
+    !> Apply spectral correction to h2o and E/LE Level 3 fluxes for closed path
     if (lEx%instr(ih2o)%path_type == 'closed' .and. Flux3%E /= error) then
         !> Level 3, spectral correction
-        Flux3%h2o = Flux3%h2o * BPCF%of(w_h2o)  !< closed path water flux  was not FR corrected yet
-        Flux3%E   = Flux3%E   * BPCF%of(w_h2o)  !< closed path evapotrans. was not FR corrected yet
-        Flux3%LE  = Flux3%LE  * BPCF%of(w_h2o)  !< closed path latent heat was not FR corrected yet
+        Flux3%h2o = Flux3%h2o * BPCF%of(w_h2o)
+        Flux3%E   = Flux3%E   * BPCF%of(w_h2o)
+        Flux3%LE  = Flux3%LE  * BPCF%of(w_h2o)
     end if
 
     if (.not. lEx%var_present(h2o)) then
@@ -227,11 +245,16 @@ subroutine Fluxes23(lEx)
     !> Level 2 other gases
     !> co2
     if (lEx%instr(ico2)%path_type == 'closed') then
-        !> Level 2, WPL for closed path, implemented after Ibrom et al. (2007, Tellus, eq. 3a with H contribution from WPL24)
-        select case(lEx%measure_type(co2))  !< Analitically, it is verified that (E * mu * sigma / rho%w * co2_density) equals (r_c * w'chi_w' / Va)
+        !> Level 2, WPL for closed path, implemented after Ibrom et al. (2007),
+        !> Tellus, eq. 3a with H contribution from WPL24
+        select case(lEx%measure_type(co2))
+            !> Analitically, it is verified that:
+            !> (E * mu * sigma / rho%w * co2_density)
+            !> equals
+            !> (r_c * w'chi_w' / Va)
             case('molar_density')
 
-                !> E, T and P effects
+                !> E, T and P effects (should never be actually used)
                 if (Flux1%co2 /= error .and. lEx%Va > 0d0 .and. lEx%chi(co2) > 0d0 &
                     .and. Flux3%E_co2 /= error .and. lEx%RHO%w > 0d0 &
                     .and. Flux3%Hi_co2 /= error .and. lEx%RhoCp > 0d0 .and. lEx%Tcell > 0d0 &
@@ -302,9 +325,9 @@ subroutine Fluxes23(lEx)
                     Flux2%co2 = error
                 end if
 
-            case('mole_fraction')   !< Analitically, it is verified that (E * mu * sigma / rho%w * co2_density) equals (r_c * w'chi_w' / Va)
+            case('mole_fraction')
 
-                !> E, T and P effects
+                !> E, T and P effects (should never be actually used)
                 if (Flux1%co2 /= error .and. lEx%Va > 0d0 .and. lEx%chi(co2) > 0d0 &
                     .and. Flux3%E_co2 /= error .and. lEx%RHO%w > 0d0 &
                     .and. Flux3%Hi_co2 /= error .and. lEx%RhoCp > 0d0 .and. lEx%Tcell > 0d0 &
@@ -426,11 +449,12 @@ subroutine Fluxes23(lEx)
 
     !> ch4
     if (lEx%instr(ich4)%path_type == 'closed') then
-        !> Level 2, WPL for closed path, implemented after Ibrom et al. (2007, Tellus, eq. 3a with H contribution from WPL24)
+        !> Level 2, WPL for closed path, implemented after Ibrom et al. (2007),
+        !> Tellus, eq. 3a with H contribution from WPL24
         select case(lEx%measure_type(ch4))
             case('molar_density')
 
-                !> E, T and P effects
+                !> E, T and P effects (should never be actually used)
                 if (Flux1%ch4 /= error .and. lEx%Va > 0d0 .and. lEx%chi(ch4) > 0d0 &
                     .and. Flux3%E_ch4 /= error .and. lEx%RHO%w > 0d0 &
                     .and. Flux3%Hi_ch4 /= error .and. lEx%RhoCp > 0d0 .and. lEx%Tcell > 0d0 &
@@ -623,11 +647,12 @@ subroutine Fluxes23(lEx)
 
     !> gas4
     if (lEx%instr(igas4)%path_type == 'closed') then
-        !> Level 2, WPL for closed path, implemented after Ibrom et al. (2007, Tellus, eq. 3a with H contribution from WPL24)
+        !> Level 2, WPL for closed path, implemented after Ibrom et al. (2007),
+        !> Tellus, eq. 3a with H contribution from WPL24
         select case(lEx%measure_type(gas4))
             case('molar_density')
 
-                !> E, T and P effects
+                !> E, T and P effects (should never be actually used)
                 if (Flux1%gas4 /= error .and. lEx%Va > 0d0 .and. lEx%chi(n2o) > 0d0 &
                     .and. Flux3%E_gas4 /= error .and. lEx%RHO%w > 0d0 &
                     .and. Flux3%Hi_gas4 /= error .and. lEx%RhoCp > 0d0 .and. lEx%Tcell > 0d0 &
@@ -700,7 +725,7 @@ subroutine Fluxes23(lEx)
 
             case('mole_fraction')
 
-                !> E, T and P effects
+                !> E, T and P effects (should never be actually used)
                 if (Flux1%gas4 /= error .and. lEx%Va > 0d0 .and. lEx%chi(n2o) > 0d0 &
                     .and. Flux3%E_gas4 /= error .and. lEx%RHO%w > 0d0 &
                     .and. Flux3%Hi_gas4 /= error .and. lEx%RhoCp > 0d0 .and. lEx%Tcell > 0d0 &

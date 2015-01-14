@@ -201,18 +201,25 @@ subroutine NumberOfFilesInDir(DirIn, ext, MatchTemplate, Template, N, rN)
     !> List files, recursively in all cases
     select case (OS(1:len_trim(OS)))
         case('win')
-            comm = 'dir "' // DirIn(1:len_trim(DirIn)) // '*'// Ext(1:len_trim(Ext)) &
-                // '" ' // ' /O:N /S /B > ' // '"' // trim(adjustl(TmpDir)) // 'flist.tmp" ' // comm_err_redirect
+            comm = 'dir "' // DirIn(1:len_trim(DirIn)) // '*' &
+                // Ext(1:len_trim(Ext)) &
+                // '" ' // ' /O:N /S /B > ' // '"' &
+                // trim(adjustl(TmpDir)) // 'flist.tmp" ' // comm_err_redirect
         case('linux')
-            comm = 'find "' // DirIn(1:len_trim(DirIn)) // '" -iname *' &
-                // Ext(1:len_trim(Ext)) // ' > ' // '"' // trim(adjustl(TmpDir)) // 'flist.tmp" ' // comm_err_redirect
+            comm = 'find "' // DirIn(1:len_trim(DirIn)) &
+                // '" -iname *' &
+                // Ext(1:len_trim(Ext)) // ' > ' // '"' &
+                // trim(adjustl(TmpDir)) // 'flist.tmp" ' // comm_err_redirect
         case('mac')
-            comm = 'find "' // DirIn(1:len_trim(DirIn)) // '" -iname *' &
-                // Ext(1:len_trim(Ext)) // ' > ' // '"' // trim(adjustl(TmpDir)) // 'flist.tmp" ' // comm_err_redirect
+            comm = 'find "' // DirIn(1:len_trim(DirIn)) &
+                // '" -iname *' &
+                // Ext(1:len_trim(Ext)) // ' > ' // '"' &
+                // trim(adjustl(TmpDir)) // 'flist.tmp" ' // comm_err_redirect
     end select
     dir_status = system(comm)
 
-    call system(comm_copy // '"' // trim(adjustl(TmpDir)) // 'flist.tmp" ' // '"' // trim(adjustl(TmpDir)) // 'flist2.tmp" ' &
+    call system(comm_copy // '"' // trim(adjustl(TmpDir)) &
+        // 'flist.tmp" ' // '"' // trim(adjustl(TmpDir)) // 'flist2.tmp" ' &
         // comm_out_redirect // comm_err_redirect)
 
     open(udf, file = trim(adjustl(TmpDir)) // 'flist2.tmp', iostat = open_status)

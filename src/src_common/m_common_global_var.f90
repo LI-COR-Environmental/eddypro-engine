@@ -336,6 +336,11 @@ module m_common_global_var
     type(BiometColType), parameter :: &
         NullBiometCol = BiometColType('none', 'none', 'none', 'none', 'none', error, error)
 
+    type(fluxtype), parameter :: &
+        errFlux = fluxtype('', '', error, error, error, error, error, error, &
+            error, error, error, error, error, error, error, error, error, &
+            error, error)
+
     integer :: RowLags(E2NumVar)
     integer :: UserRowLags(MaxUserVar)
     type(MethType) :: Meth

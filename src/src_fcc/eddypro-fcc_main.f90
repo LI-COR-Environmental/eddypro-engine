@@ -213,7 +213,7 @@ Program EddyproFCC
 
 !***********************************************
 !***** TO DO HERE!!!!***************************
-        if(saStartTimestampIndx <= 0 .or. saEndTimestampIndx) then
+        if(saStartTimestampIndx <= 0 .or. saEndTimestampIndx <= 0) then
             !> Insert notification, change settings and skip Spec Assess procedure
         end if
 !***********************************************

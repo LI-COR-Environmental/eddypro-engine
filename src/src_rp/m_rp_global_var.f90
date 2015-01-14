@@ -143,10 +143,11 @@ module m_rp_global_var
 
     type(BiometUnitsType), parameter :: &
         NullBiometUnits = BiometUnitsType('none', 'none', 'none', &
-            'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', &
-            'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', &
-            'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', &
-            'none', 'none', 'none')
+            'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', &
+            'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', &
+            'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', &
+            'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', &
+            'none', 'none', 'none', 'none')
 
     type(ProfileUnitsType), parameter :: &
         NullProfileUnits = ProfileUnitsType('none', 'none', 'none', 'none', 'none', &
@@ -526,10 +527,10 @@ module m_rp_global_var
          SCTags(19)%Label / 'recurse'          / &
          SCTags(20)%Label / 'me_file'          / &
          SCTags(21)%Label / 'to_file'          / &
-         SCTags(22)%Label / 'start_date'       / &  !> not used
-         SCTags(23)%Label / 'start_time'       / &  !> not used
-         SCTags(24)%Label / 'end_date'         / &  !> not used
-         SCTags(25)%Label / 'end_time'         / &  !> not used
+         SCTags(22)%Label / 'start_date'       / &  !> no longer used
+         SCTags(23)%Label / 'start_time'       / &  !> no longer used
+         SCTags(24)%Label / 'end_date'         / &  !> no longer used
+         SCTags(25)%Label / 'end_time'         / &  !> no longer used
          SCTags(26)%Label / 'out_bin_sp'       / &
          SCTags(27)%Label / 'out_full_sp_u'    / &
          SCTags(28)%Label / 'out_full_sp_v'    / &
@@ -558,20 +559,20 @@ module m_rp_global_var
          SCTags(51)%Label / 'out_bin_og'  / &
          SCTags(52)%Label / 'out_ghg_eu'  / &
          SCTags(53)%Label / 'out_amflux'  / &
-         SCTags(54)%Label / 'out_rich'    / &      !< not used
-         SCTags(55)%Label / 'to_mixratio' / &
+         SCTags(54)%Label / 'out_rich'    / &      !< no longer used
+         SCTags(55)%Label / 'to_mixratio' / &      !< no longer used
          SCTags(56)%Label / 'pf_mode'     / &
          SCTags(57)%Label / 'pf_file'     / &
          SCTags(58)%Label / 'biom_use_native_header' / &
-         SCTags(59)%Label / 'biom_var_string'  / &   !< not used
-         SCTags(60)%Label / 'biom_unit_string' / &   !< not used
+         SCTags(59)%Label / 'biom_var_string'  / &   !< no longer used
+         SCTags(60)%Label / 'biom_unit_string' / &   !< no longer used
          SCTags(61)%Label / 'biom_separator'   / &
          SCTags(62)%Label / 'biom_tstamp_ref'  / &
          SCTags(63)%Label / 'filter_sr'        / &
          SCTags(64)%Label / 'filter_al'        / &
          SCTags(65)%Label / 'bu_corr'          / &
          SCTags(66)%Label / 'bu_multi'         / &
-         SCTags(67)%Label / 'qc_meth'          / &   !< not used
+         SCTags(67)%Label / 'qc_meth'          / &   !< no longer used
          SCTags(68)%Label / 'out_raw_1'        / &
          SCTags(69)%Label / 'out_raw_2'        / &
          SCTags(70)%Label / 'out_raw_3'        / &
@@ -590,7 +591,7 @@ module m_rp_global_var
          SCTags(83)%Label / 'out_raw_t_air'    / &
          SCTags(84)%Label / 'out_raw_p_air'    / &
          SCTags(85)%Label / 'out_qc_details'   / &
-         SCTags(86)%Label / 'out_biomet'       / &  !< unused (used in EddyProProj instead)
+         SCTags(86)%Label / 'out_biomet'       / &  !< no longer used
          SCTags(87)%Label / 'power_of_two'     / &
          SCTags(88)%Label / 'pf_fix'           / &
          SCTags(89)%Label / 'use_geo_north'    / &

@@ -23,7 +23,8 @@
 ! \brief       Set all entries to predefined values, valid for Express
 !              This bypasses all user settings in terms of processing choices
 ! \author      Gerardo Fratini
-! \note        Angle of attack correction is set later in main, because it requires master_sonic
+! \note        Angle of attack correction is set later in main,
+!              because it requires master_sonic
 !              which is not know at this stage, when running in embedded mode
 ! \sa
 ! \bug
@@ -42,12 +43,13 @@ subroutine ConfigureForExpress
     Meth%rot = 'double_rotation'
     Meth%qcflag = 'mauder_foken_04'
     Meth%foot = 'kljun_04'
+    EddyProProj%hf_meth = 'moncrieff_97'
+    EddyProProj%wpl  = .true.
     RUsetup%meth = 'none'
     RPsetup%bu_corr = 'none'
     RPsetup%bu_multi = .false.
-    RPsetup%to_mixing_ratio = .true.
-
-    !> Cross wind correction
+    RPsetup%filter_sr = .true.
+    RPsetup%filter_al = .true.
     RPsetup%calib_cw = .false.
 
     !> Raw statistical tests
@@ -113,17 +115,12 @@ subroutine ConfigureForExpress
     RPsetup%offset(v) = 0d0
     RPsetup%offset(w) = 0d0
 
-    !> Other options
-    EddyProProj%fcc_follows  = .false.
-    EddyProProj%hf_meth      = 'moncrieff_97'
-    EddyProProj%make_dataset = .true.
+    !> Output files and other settings
     EddyProProj%out_ghg_eu   = .true.
     EddyProProj%out_amflux   = .true.
     EddyProProj%out_full     = .true.
     EddyProProj%out_md       = .true.
     RPsetup%out_st        = .true.
-    RPsetup%filter_sr     = .true.
-    RPsetup%filter_al     = .true.
     EddyProProj%out_essentials = .true.
     RPsetup%out_qc_details = .false.
     RPsetup%out_raw        = .false.
@@ -132,6 +129,8 @@ subroutine ConfigureForExpress
     RPsetup%out_full_sp    = .false.
     RPsetup%out_full_cosp  = .false.
     EddyProProj%out_avrg_cosp = .false.
+    EddyProProj%fcc_follows  = .false.
+    EddyProProj%make_dataset = .true.
 
     if (EddyProProj%biomet_data /= 'none') then
         EddyProProj%out_biomet = .true.

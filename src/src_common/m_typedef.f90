@@ -877,7 +877,6 @@ module m_typedef
         logical :: filter_by_raw_flags
         logical :: calib_cw
         logical :: despike
-        logical :: to_mixing_ratio
         logical :: pf_onthefly
         logical :: to_onthefly
         logical :: pf_subtract_b0

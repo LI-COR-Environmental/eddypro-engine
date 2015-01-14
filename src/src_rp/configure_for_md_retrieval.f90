@@ -42,13 +42,14 @@ subroutine ConfigureForMdRetrieval()
     Meth%foot   = 'none'
     RUsetup%meth    = 'none'
     RPsetup%bu_corr = 'none'
-    EddyProProj%biomet_data = 'none'
     RPsetup%calib_aoa       = 'none'
     RPsetup%bu_multi        = .false.
-    RPsetup%to_mixing_ratio = .false.
     RPsetup%calib_cw        = .false.
-    EddyProProj%use_extmd_file  = .false.
     RPsetup%filter_by_raw_flags = .false.
+    EddyProProj%use_extmd_file  = .false.
+    EddyProProj%biomet_data = 'none'
+    EddyProProj%wpl = .false.
+    EddyProProj%hf_meth = 'none'
 
     !> Raw statistical tests
     Test%sr = .false.
@@ -64,10 +65,7 @@ subroutine ConfigureForMdRetrieval()
     RPsetup%offset(v) = 0d0
     RPsetup%offset(w) = 0d0
 
-    !> Other options
-    EddyProProj%fcc_follows    = .false.
-    EddyProProj%hf_meth        = 'none'
-    EddyProProj%make_dataset   = .true.
+    !> Output files and other settings
     EddyProProj%out_md         = .true.
     EddyProProj%out_ghg_eu     = .false.
     EddyProProj%out_amflux     = .false.
@@ -84,4 +82,6 @@ subroutine ConfigureForMdRetrieval()
     RPsetup%out_bin_og         = .false.
     RPsetup%out_full_sp        = .false.
     RPsetup%out_full_cosp      = .false.
+    EddyProProj%fcc_follows    = .false.
+    EddyProProj%make_dataset   = .true.
 end subroutine ConfigureForMdRetrieval

@@ -228,8 +228,6 @@ subroutine WriteVariablesRP()
     RPsetup%out_bin_sp = SCTags(26)%value(1:1) == '1'
     !> select whether to output binned ogives
     RPsetup%out_bin_og = SCTags(51)%value(1:1) == '1'
-    !> select whether to convert to mixing ratio
-    RPsetup%to_mixing_ratio = SCTags(55)%value(1:1) == '1'
 
     !> select output file
     RPsetup%out_full_sp(u)   = SCTags(27)%value(1:1) == '1'
@@ -681,9 +679,6 @@ subroutine WriteVariablesRP()
     DriftCorr%inv_cal(0:6, h2o) = SNTags(336:342)%value
     DriftCorr%b = SNTags(370)%value
     DriftCorr%c = SNTags(371)%value
-
-    !> If user doesn't want WPL correction, do not even convert to mixing ratio
-    if(.not. EddyProProj%wpl) RPsetup%to_mixing_ratio = .false.
 
     !> adjust paths
     call AdjDir(Dir%main_in, slash)

@@ -275,7 +275,7 @@ subroutine WriteProcessingProjectVariables()
         .or. len_trim(EddYProProj%end_time) == 0) &
         EddyProProj%subperiod = .false.
 
-    !> select whether to apply WPL correction at all
+    !> select whether to apply WPL correction
     EddyProProj%wpl = EPPrjCTags(33)%value(1:1) /= '0'
 
     !> set error string
