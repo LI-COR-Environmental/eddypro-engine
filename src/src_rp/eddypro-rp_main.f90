@@ -190,6 +190,9 @@ program EddyproRP
     call ReadIniRP('RawProcess')
     allocate(bf(Meth%spec%nbins + 1))
 
+    !> Add run-mode tag to Timestamp_FilePadding
+    call TagRunMode()
+
     !> Create output directory if it does not exist, otherwise is silent
     mkdir_status = CreateDir('"' //trim(adjustl(Dir%main_out)) // '"')
 

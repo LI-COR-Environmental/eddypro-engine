@@ -99,6 +99,9 @@ Program EddyproFCC
     write(*, '(a)') 'Starting flux computation and correction session..'
     write(*, '(a)')
 
+    !> Add run-mode tag to Timestamp_FilePadding
+    call TagRunMode()
+
     !> Read ".eddypro" file for both spectral analysis and flux correction
     call ReadIniFX('FluxCorrection')
 

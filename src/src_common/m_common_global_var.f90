@@ -92,7 +92,7 @@ module m_common_global_var
 
     character(18), parameter :: PrjFile   = 'processing.eddypro'
     character(6), parameter :: licor_appdata = '.licor'
-    character(18)  :: Timestamp_FilePadding
+    character(22)  :: Timestamp_FilePadding
     character(7), parameter  :: EDDYPRO_FilePadding    = 'eddypro'
     character(11), parameter :: RP_FilePadding = 'eddypro-rp_'
     character(12), parameter :: FX_FilePadding = 'eddypro-fcc_'
