@@ -41,10 +41,11 @@ subroutine ReadMetadataFile(LocCol, MetaFile, IniFileNotFound)
 
 
     !> parse ini file and store all numeric and character tags
-    call ParseIniFile(MetaFile, '', ANTags, ACTags, size(ANTags), size(ACTags), &
-         ANTagFound, ACTagFound, IniFileNotFound)
+    call ParseIniFile(MetaFile, '', ANTags, ACTags, &
+        size(ANTags), size(ACTags), ANTagFound, ACTagFound, IniFileNotFound)
 
-    !> selects only tags needed in this software, and store them in relevant variables
+    !> selects only tags needed in this software,
+    !> and store them in relevant variables
     call WriteEddyProMetadataVariables(LocCol)
 end subroutine ReadMetadataFile
 

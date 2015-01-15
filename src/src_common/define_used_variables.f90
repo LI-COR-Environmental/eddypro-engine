@@ -50,11 +50,12 @@ subroutine DefineUsedVariables(LocCol)
     end do
 
     !> Associate the "master_sonic" property to the relevant instrument
-    !> This automatically associate the master_sonic property to the relevant sonic variables
+    !> This automatically associate the master_sonic property to the
+    !> relevant sonic variables
     LocCol%Instr%master_sonic = .false.
     do i = 1, NumCol
         if (index(EddyProProj%master_sonic, &
-            LocCol(i)%Instr%model(1:len_trim(LocCol(i)%Instr%model))) /= 0) then
+            trim(adjustl(LocCol(i)%Instr%model))) /= 0) then
             LocCol(i)%Instr%master_sonic = .true.
         end if
     end do
@@ -62,17 +63,17 @@ subroutine DefineUsedVariables(LocCol)
     LocCol%useit = .false.
     !> Information in EddyPro project file (user explicitly selects which
     !> variables are to be used)
-    where (EddyProProj%Col(co2:pe) > 0)
-        LocCol(EddyProProj%Col(co2:pe))%useit = .true.
+    where (EddyProProj%Col(co2:E2NumVar) > 0)
+        LocCol(EddyProProj%Col(co2:E2NumVar))%useit = .true.
     endwhere
 
     where (EddyProProj%Col(E2NumVar + diag72 :E2NumVar + diag77) > 0)
         LocCol(EddyProProj%Col(E2NumVar + diag72 :E2NumVar + diag77))%useit = .true.
     endwhere
 
-    !> If gas4 column was selected, change its name to 'n2o', to be treated as such.
-    !> The column label still holds the actual variable name as selected/entered in the
-    !> Metadat File Editor
+    !> If gas4 column was selected, change its name to 'n2o', to be treated
+    !> as such. The column label still holds the actual variable name
+    !> as selected/entered in the Metadat File Editor
     if (EddyProProj%Col(gas4) > 0) LocCol(EddyProProj%Col(gas4))%var = 'n2o'
 
     !> Diagnostic flags
@@ -96,7 +97,8 @@ subroutine DefineUsedVariables(LocCol)
         Diag7700%present = .true.
     end if
 
-    !> Loop on the actual number of columns and determine whether to use them or not
+    !> Loop on the actual number of columns and determine
+    !> whether to use them or not
     Gas4CalRefCol = 0
     do i = 1, NumCol
         !> Variables from the master_sonic are to be used
@@ -111,38 +113,47 @@ subroutine DefineUsedVariables(LocCol)
             case('ignore', 'not_numeric')
                 !> Skip flags and columns to be ignored
                 continue
-            case('co2','h2o','ch4','n2o', 'cell_t','int_t_1', 'int_t_2', 'int_p', &
-                'air_t', 'air_p', 'u','v','w','ts','sos', &
-                'flag_1', 'flag_2') !< this two are for retro compatibility
+            case('co2','h2o','ch4','n2o', 'cell_t','int_t_1', 'int_t_2', &
+                'int_p', 'air_t', 'air_p', 'u','v','w','ts','sos', &
+                'flag_1', 'flag_2') !< this two are for back-compatibility
                 !> Sonic and irga variables without property "use_it"
-                if (.not. LocCol(i)%useit .and. NumUserVar < MaxUserVar - 1) NumUserVar = NumUserVar + 1
+                if (.not. LocCol(i)%useit .and. NumUserVar < MaxUserVar - 1) &
+                    NumUserVar = NumUserVar + 1
             case default
                 !> Variables with a custom label and without property "use_it"
-                if (.not. LocCol(i)%useit .and. NumUserVar < MaxUserVar - 1) NumUserVar = NumUserVar + 1
+                if (.not. LocCol(i)%useit .and. NumUserVar < MaxUserVar - 1) &
+                    NumUserVar = NumUserVar + 1
         end select
 
         !> Detect whether an 4th gas calibration data column is available
         if (index(LocCol(i)%var, 'cal-ref') /= 0) Gas4CalRefCol = i
     end do
 
-    !> If user selects a different temperature reading (instead of sonic temperature) for
-    !> sensible heat flux, redefine Ts as that column, but changes instrument category to "fast_t_sensor"
-    !> to remember that it does not need water vapour correction and (sonic-specific) spectral corrections.
+    !> If user selects a different temperature reading
+    !> (instead of sonic temperature) for sensible heat flux, redefine Ts
+    !> as that column, but changes instrument category to "fast_t_sensor"
+    !> to remember that it does not need water vapor correction and
+    !> (sonic-specific) spectral corrections.
     if (EddyProProj%Col(ts) > 0) then
         LocCol(EddyProProj%Col(ts))%useit = .true.
         LocCol(EddyProProj%Col(ts))%var = 'ts'
         LocCol(EddyProProj%Col(ts))%instr%category = 'fast_t_sensor'
-        !> Search Ts from master sonic and change property in "don't use it", so now it will fall
-        !> into the "non sensitive" variables group. Note that the total number of User Variables did not change
+        !> Search Ts or SoS from master sonic and change property in
+        !> "don't use it", so now it will fall into the "non sensitive"
+        !> variables group. Note that the total number of User Variables
+        !> did not change
         ts_found = .false.
         do i = 1, NumCol
-            if (LocCol(i)%instr%master_sonic .and. LocCol(i)%var == 'ts' .and. LocCol(i)%useit) then
+            if (LocCol(i)%instr%master_sonic &
+                .and. (LocCol(i)%var == 'ts' .or. LocCol(i)%var == 'sos' ) &
+                .and. LocCol(i)%useit) then
                 LocCol(i)%useit = .false.
                 ts_found = .true.
-                exit
+                !exit
             end if
         end do
-        !> If Ts was not there instead, the number of user variables must be reduced by one, because one was used
+        !> If Ts was not there instead, the number of user variables must
+        !> be reduced by one, because one was used
         !> as a fast temperature
         if (.not. ts_found) NumUserVar = NumUserVar - 1
     end if
