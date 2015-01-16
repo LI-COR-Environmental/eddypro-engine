@@ -37,6 +37,7 @@ subroutine Fluxes23_rp()
     real(kind = dbl) :: Tp
     real(kind = dbl) :: E_nowpl
 
+
     write(*,'(a)', advance = 'no') '  Calculating fluxes Level 2 and 3..'
 
     Flux2 = errFlux
@@ -129,6 +130,7 @@ subroutine Fluxes23_rp()
         else
             Flux2%LE = error
         end if
+    else
         Flux2%h2o = error
         Flux2%LE  = error
     end if

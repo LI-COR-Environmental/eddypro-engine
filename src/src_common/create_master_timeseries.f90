@@ -31,11 +31,12 @@
 ! \todo
 !***************************************************************************
 subroutine CreateTimeSeries(StartTimestamp, EndTimestamp, &
-    Step, RawTimeSeries, nrow)
+    Step, RawTimeSeries, nrow, printout)
     use m_common_global_var
     implicit none
     !> In/out variables
     integer, intent(in) :: nrow
+    logical, intent(in) :: printout
     type(DateType), intent(in) :: StartTimestamp
     type(DateType), intent(inout) :: EndTimestamp
     type(DateType), intent(in) :: Step
@@ -44,7 +45,7 @@ subroutine CreateTimeSeries(StartTimestamp, EndTimestamp, &
     integer :: cnt
 
 
-    write(*, '(a)', advance = 'no') ' Creating time series..'
+    if (printout) write(*, '(a)', advance = 'no') ' Creating time series..'
 
     !> create master timestamps array
     RawTimeSeries(1) = StartTimestamp
@@ -56,7 +57,7 @@ subroutine CreateTimeSeries(StartTimestamp, EndTimestamp, &
         RawTimeSeries(cnt) = RawTimeSeries(cnt - 1) + Step
     end do
 
-    write(*, '(a)') ' Done.'
+    if (printout) write(*, '(a)') ' Done.'
 end subroutine CreateTimeSeries
 
 !***************************************************************************

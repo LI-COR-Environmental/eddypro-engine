@@ -30,7 +30,8 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine tsExtractSubperiodIndexesFromFilelist(FileList, nrow, StartTimestamp, EndTimestamp, StartIndex, EndIndex)
+subroutine tsExtractSubperiodIndexesFromFilelist(FileList, nrow, &
+        StartTimestamp, EndTimestamp, StartIndex, EndIndex)
     use m_common_global_var
     implicit none
     !> In/out variables
@@ -46,6 +47,10 @@ subroutine tsExtractSubperiodIndexesFromFilelist(FileList, nrow, StartTimestamp,
 
     StartIndex = nint(error)
     EndIndex = nint(error)
+
+    !> If there is no overlap, exit setting Indexes to error
+    if (StartTimestamp > Filelist(nrow)%timestamp &
+        .or. EndTimestamp < Filelist(1)%timestamp) return
 
     !> Search StartTimestamp
     if (StartTimestamp < Filelist(1)%timestamp)  then

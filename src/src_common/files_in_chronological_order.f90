@@ -50,7 +50,7 @@ subroutine FilesInChronologicalOrder(FileList, nrow, &
 
 
     write(*,'(a)', advance = 'no') &
-        ' Arranging raw files in chronological order..'
+        ' Arranging files in chronological order..'
     !> Initialization
     StartTimestamp = datetype(2100, 12, 31, 23, 30)
     EndTimestamp = datetype(1900, 0, 0, 0, 0)

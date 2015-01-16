@@ -98,7 +98,8 @@ subroutine FitCospectralModel(nfit, dim1, dim2, FitStable, FitUnstable, fnrow)
         end select
 
         write(*, '(a)', advance = 'no') &
-            ' Fitting model cospectra to unstable ' // cvar(1:len_trim(cvar)) // ' cospectra..'
+            ' Fitting model cospectra to unstable ' // &
+                cvar(1:len_trim(cvar)) // ' cospectra..'
 
         !> create dataset for regression
         xFit(1:m) = FitUnstable(1:m)%fnorm(var)

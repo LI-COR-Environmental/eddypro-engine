@@ -258,7 +258,7 @@ program EddyproRP
     allocate(RawFileList(NumRawFiles))
 
      !> Store names of data files in RawFileList
-    call FileListByExt(Dir%main_in, '.'//EddyProProj%fext, .true., &
+    call FileListByExt(Dir%main_in, '.'//EddyProProj%fext, .true., .true., &
         EddyProProj%fname_template, EddyProLog%iso_format, .true., &
         RPsetup%recurse, RawFileList, size(RawFileList), .true., indent0)
 
@@ -393,7 +393,7 @@ program EddyproRP
 
     !> Create timestamp array for full dataset
     call CreateTimeSeries(tsDatasetStart, tsDatasetEnd, DateStep, &
-        RawTimeSeries, size(RawTimeSeries))
+        RawTimeSeries, size(RawTimeSeries), .true.)
 
     !> Check the dynamic metadata file for calibration data.
     !> If found, builds up time series of absorptance drifts
@@ -1216,7 +1216,7 @@ program EddyproRP
             SelectedEndTimestamp, DateStep)
         allocate(MasterTimeSeries(NumberOfPeriods + 1))
         call CreateTimeSeries(SelectedStartTimestamp, SelectedEndTimestamp, &
-            DateStep, MasterTimeSeries, size(MasterTimeSeries))
+            DateStep, MasterTimeSeries, size(MasterTimeSeries), .true.)
 
         !> Verify at least partial overlap
         if (MasterTimeSeries(1) > RawTimeSeries(size(RawTimeSeries)) &

@@ -154,8 +154,8 @@ module m_common_global_var
     character(17), parameter  :: PF1FilePadding         = '_pf_fitting_plane'
     character(21), parameter  :: PF2FilePadding         = '_pf_rotation_matrices'
     character(17), parameter  :: TlagOpt_FilePadding    = '_optimal_timelags'
-    character(52), parameter  :: BinnedFilePrototype    = 'yyyymmdd-HHMM_xxxxxx_xxxxxxxxx_xxxx-xx-xxTxxxxxx.csv'
-    character(50), parameter  :: FullFilePrototype      = 'yyyymmdd-HHMM_xxxx_xxxxxxxxx_xxxx-xx-xxTxxxxxx.csv'
+    character(56), parameter  :: BinnedFilePrototype    = 'yyyymmdd-HHMM_xxxxxx_xxxxxxxxx_xxxx-xx-xxTxxxxxx_xxx.csv'
+    character(54), parameter  :: FullFilePrototype      = 'yyyymmdd-HHMM_xxxx_xxxxxxxxx_xxxx-xx-xxTxxxxxx_xxx.csv'
 
     character(256) :: GHGEUROPE_Path
     character(256) :: Ameriflux_Path
@@ -182,7 +182,8 @@ module m_common_global_var
     real(kind = dbl), parameter :: kj_us_min = 0.2d0 !< minimum ustar for Kljun model
     real(kind = dbl), parameter :: kj_zL_min = -200d0 !< minimum zL for Kljun model
     real(kind = dbl), parameter :: kj_zL_max = 1d0 !< minimum zL for Kljun model
-    real(kind = dbl), parameter :: error = -9999.d0 !< main error label
+    real(kind = dbl), parameter :: error = -9999.d0 !< main error label float
+    integer, parameter :: ierror = -9999 !< main error label int
     real(kind = dbl), parameter :: aflx_error = -6999.d0 !< ameriflux error label
     real(kind = dbl), parameter :: MaxNormSpecValue = 1d4 !< maximum plausible value for a normalized spectral value
     real(kind = dbl), parameter :: MaxSpecValue = 1d4 !< maximum plausible value for an un-normalized spectral value

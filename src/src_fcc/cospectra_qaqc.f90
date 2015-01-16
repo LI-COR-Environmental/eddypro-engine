@@ -83,7 +83,6 @@ subroutine CospectraQAQC(BinSpec, BinCosp, nrow, lEx, &
             BinSpec%of(gas4) = error
             BinCospForUnstable%of(gas4) = error
         end if
-
         if (dabs(lEx%Flux0%LE) < FCCsetup%SA%min_un_LE .and. &
             dabs(lEx%Flux0%co2) < FCCsetup%SA%min_un_co2 .and. &
             dabs(lEx%Flux0%ch4) < FCCsetup%SA%min_un_ch4 .and. &

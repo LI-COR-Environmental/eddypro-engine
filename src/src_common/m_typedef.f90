@@ -559,7 +559,8 @@ module m_typedef
         character(10)  :: end_date
         character(5)   :: end_time
         character(32)  :: H_corr
-        logical :: sa_onthefly
+        logical :: do_spectral_assessment
+        logical :: pass_thru_spectral_assessment
         logical :: import_full_cospectra
         type(SASetupType) :: SA
     end type FCCsetupType

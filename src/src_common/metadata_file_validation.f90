@@ -65,11 +65,6 @@ subroutine MetadataFileValidation(LocCol, passed, faulty_col)
     !> variable is measured with it. Here the instrument check is performed
     !> for columns with property use_it, (which is defined only after reading
     !> the processing project file .eddypro)
-
-do i = 1, NumCol
-    print*, i, trim(LocCol(i)%var), ' ', LocCol(i)%useit, ' ', LocCol(i)%instr%category
-end do
-
     do i = 1, NumCol
         if (LocCol(i)%useit) then
             !> Fast temperature measurements are exception here, because they

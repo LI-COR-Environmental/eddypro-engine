@@ -63,8 +63,8 @@ end subroutine ReadIniFX
 
 !***************************************************************************
 !
-! \brief       Looks in "SNTags" and "SCTags" and retrieve variables used for \n
-!              express processing.
+! \brief       Looks in "SNTags" and "SCTags" and retrieve variables \n
+!              used for express processing.
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -83,10 +83,6 @@ subroutine WriteVariablesFX()
     integer :: skipped_classes
     integer :: start
 
-    Dir%binned   = 'none'
-    Dir%full     = 'none'
-    AuxFile%ex   = 'none'
-    AuxFile%sa   = 'none'
 
     !> Spectra analysis time period
     if (SCTags(22)%value(1:1) == '1') then
@@ -98,15 +94,17 @@ subroutine WriteVariablesFX()
     end if
 
     !> Essentials files
-    AuxFile%ex = SCTags(7)%value(1:len_trim(SCTags(7)%value))
+    AuxFile%ex = trim(adjustl(SCTags(7)%value))
     if (len_trim(AuxFile%ex) == 0) AuxFile%ex = 'none'
+
     !> Binned (co)spectra folder
-    Dir%binned = SCTags(8)%value
-    if (len_trim(Dir%binned) == 0 .or. index(trim(Dir%binned), slash) == 0) &
+    Dir%binned = trim(adjustl(SCTags(8)%value))
+    if (len_trim(Dir%binned) == 0) &
         Dir%binned = trim(Dir%main_out) // trim(SubDirBinCospectra)
+
     !> Full (co)spectra folder
-    Dir%full = SCTags(9)%value
-    if (len_trim(Dir%full) == 0 .or. index(trim(Dir%full), slash) == 0) &
+    Dir%full = trim(adjustl(SCTags(9)%value))
+    if (len_trim(Dir%full) == 0) &
         Dir%full = trim(Dir%main_out) // trim(SubDirCospectra)
 
     !> Method of H correction
@@ -137,7 +135,8 @@ subroutine WriteVariablesFX()
             FCCsetup%SA%ibrom_model = .true.
     end select
 
-    !> Select whether and how to apply correction for sensors separation from Horst & Lenschow 2009
+    !> Select whether and how to apply correction for sensors
+    !> separation from Horst & Lenschow 2009
     FCCsetup%SA%horst_lens09  = 'none'
     select case (SCTags(21)%value(1:1))
         case ('1')
@@ -146,19 +145,25 @@ subroutine WriteVariablesFX()
             FCCsetup%SA%horst_lens09  = 'cross_and_vertical'
     end select
 
-    !> Select whether to perform on the fly spectral analysis or not
-    FCCsetup%sa_onthefly = .false.
-    if (index(SCTags(19)%value(1:1), '1') /= 0) then
-        FCCsetup%sa_onthefly = .true.
-    else
+    !> Spectral assessment file path, if declared available
+    AuxFile%sa   = 'none'
+    if (SCTags(19)%value(1:1) == '1' .and. FCCsetup%SA%in_situ) then
         AuxFile%sa = SCTags(20)%value(1:len_trim(SCTags(20)%value))
         if (len_trim(AuxFile%sa) == 0) AuxFile%sa = 'none'
     end if
 
-    !> If user selected "Ensembled averaged spectra" as an output, then the
-    !> spectral assessment procedure is performed and mean spectra are provided
-    !> as an output
-    FCCsetup%sa_onthefly = FCCsetup%sa_onthefly .or. EddyProProj%out_avrg_spec
+    !> Whether to perform spectral assessment on the fly
+    !> Either because (1) in-situ spectral corrections were selected with
+    !> on-the-fly spectral assessment or spectral assessment file was not found;
+    !> (2) or because ensemble averaged spectra or (3) co-spectra have
+    !> been requested
+    FCCsetup%do_spectral_assessment = &
+        FCCsetup%SA%in_situ .and. AuxFile%sa == 'none'
+
+    FCCsetup%pass_thru_spectral_assessment = &
+        (FCCsetup%SA%in_situ .and. AuxFile%sa == 'none') &
+        .or. EddyProProj%out_avrg_cosp &
+        .or. EddyProProj%out_avrg_spec
 
     FCCsetup%SA%lptf = 'none'
     if (EddyProProj%hf_meth == 'custom') then

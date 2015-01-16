@@ -153,8 +153,8 @@ subroutine ExceptionHandler(error_code)
             write(*,*) ' Error(44)> Occurred while reading or interpreting biomet file.'
             write(*,*) ' Error(44)> Biomet data not used for this period.'
         case(45)
-            write(*,*) ' Warning(45)> Not enough valid co-spectra were found for fitting models, or fitting procedure failed.'
-            write(*,*) ' Warning(45)> Co-spectra output files not created.'
+            write(*,*) ' Error(45)> Not enough valid co-spectra were found for fitting models, or fitting procedure failed.'
+            write(*,*) ' Error(45)> Stability-sorted ensemble averaged cospectra outputs not created.'
         case(46)
             write(*,*) '  Fatal error(46)> The dataset does not contain any raw file &
                                            &corresponding to the selected sub-period.'
@@ -265,6 +265,20 @@ subroutine ExceptionHandler(error_code)
             write(*,*) '  Error(73)> The label of at least one biomet variable misses'
             write(*,*) '  Error(73)> or has incomplete metadata indication ("_x_x_x" suffix).'
             write(*,*) '  Error(73)> EddyPro will proceed without using biomet data.'
+        case(74)
+            write(*,*) '  Error(74)> No valid binned (co)spectra files were found'
+            write(*,*) '  Error(74)> EddyPro cannot perform spectral asssessment, nor '
+            write(*,*) '  Error(74)> create ensemble averaged (co)spectra. If the case, spectral '
+            write(*,*) '  Error(74)> correction method will be switched to Moncrieff et al. (2007).'
+        case(75)
+            write(*,*) ' Error(75)> Not enough valid co-spectra were found for making ensemble averages.'
+            write(*,*) ' Error(75)> Time-sorted ensemble averaged cospectra outputs not created.'
+        case(76)
+            write(*,*) ' Error(76)> EddyPro could not calculate ensemble spectra.'
+            write(*,*) ' Error(76)> Spectral assessment failed. Spectral assessment file not created.'
+        case(77)
+            write(*,*) ' Error(77)> EddyPro could not calculate ensemble spectra.'
+            write(*,*) ' Error(77)> Ensemble averaged spectral output not created.'
     end select
 end subroutine ExceptionHandler
 

@@ -140,6 +140,6 @@ subroutine InitExVars(StartTimestamp, EndTimestamp, NumRecords, NumValidRecords)
     !> Adjust Start/End timestamps to define the
     !> boundaries of the MasterTimeseries
     StartTimestamp = StartTimestamp - DateStep
-    EndTimestamp = EndTimestamp - DateStep
+!    EndTimestamp = EndTimestamp - DateStep
     write(*,'(a)') ' Done.'
 end subroutine InitExVars

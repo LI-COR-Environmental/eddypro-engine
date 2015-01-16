@@ -68,12 +68,13 @@ end function CreateDir
 ! \test
 ! \todo
 !***************************************************************************
-logical function NameMatchesTemplate(FileName, Template)
+logical function NameMatchesTemplate(FileName, Template, HardMatch)
     use m_common_global_var
     implicit none
     !> In/out variables
     character(*), intent(in) :: Filename
     character(*), intent(in) :: Template
+    logical, intent(in) :: HardMatch
     !> Local variables
     integer :: s
     integer :: s_year, s_month, s_day, s_hour, s_minute
@@ -151,17 +152,19 @@ logical function NameMatchesTemplate(FileName, Template)
         return
     endif
 
-    !> Check prefix
-    s_ts = min(s_year, s_month, s_day, s_hour, s_minute)
-    if (s_ts > 1 &
-        .and. .not. strings_match(Template(1:s_ts-1), &
-        Filename(1:s_ts-1), '*')) return
+    !> Check rest of the template if hard-match was requested
+    if(HardMatch) then
+        s_ts = min(s_year, s_month, s_day, s_hour, s_minute)
+        if (s_ts > 1 &
+            .and. .not. strings_match(Template(1:s_ts-1), &
+            Filename(1:s_ts-1), '*')) return
 
-    !> Check suffix
-    e_ts = max(e_year, e_month, e_day, e_hour, e_minute)
-    if (e_ts < len_trim(Template) - 1 &
-        .and. .not. strings_match(Template(e_ts+1:len_trim(Template)), &
-        Filename(e_ts+1:len_trim(Filename)), '*')) return
+        !> Check suffix
+        e_ts = max(e_year, e_month, e_day, e_hour, e_minute)
+        if (e_ts < len_trim(Template) - 1 &
+            .and. .not. strings_match(Template(e_ts+1:len_trim(Template)), &
+            Filename(e_ts+1:len_trim(Filename)), '*')) return
+    end if
 
     !> If all tests were passed, filename matches template
     NameMatchesTemplate = .true.
@@ -224,26 +227,27 @@ subroutine NumberOfFilesInDir(DirIn, ext, MatchTemplate, Template, N, rN)
 
     open(udf, file = trim(adjustl(TmpDir)) // 'flist2.tmp', iostat = open_status)
 
+    !> Initialize
+    N = 0
+    rN = 0
+
     !> control on temporary file
     if (open_status /= 0) then
         close(udf)
         call system(comm_del // '"' // trim(adjustl(TmpDir)) // '"flist*.tmp')
         call ExceptionHandler(1)
-        N = 0
-        rN = 0
         return
     end if
 
-    !> Open temporary file and counts how many files are present.
-    N = 0
-    rN = 0
+    !> Open temporary file and counts files
     do
         read(udf, '(a)', iostat = open_status) string
         if (open_status /= 0) exit
             TmpFileName = &
                 string(index(string, slash, .true.) + 1: len_trim(string))
             if (MatchTemplate) then
-                if (NameMatchesTemplate(TmpFileName, Template)) then
+                if (NameMatchesTemplate(TmpFileName, &
+                    Template, MatchTemplate)) then
                     N = N + 1
                     if (string(1:index(string, slash, .true.)) &
                         == trim(adjustl(DirIn))) rN = rN + 1

@@ -63,8 +63,8 @@ subroutine InitExternalBiomet(bFileList, N)
         call basename(bFileList(1)%path, bFileList(1)%name, slash)
     elseif (EddyProProj%biomet_data == 'ext_dir') then
         call FileListByExt(Dir%biomet, trim(adjustl(EddyProProj%biomet_tail)), &
-            .false., 'none', .false., .false., EddyProProj%biomet_recurse, &
-            bFileList, size(bFileList), .false., ' ')
+            .false., .false., 'none', .false., .false., &
+            EddyProProj%biomet_recurse, bFileList, size(bFileList), .false., ' ')
     end if
 
     !> Loop to retrieve number of rows and cols, so that biomet variables

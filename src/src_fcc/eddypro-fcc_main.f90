@@ -50,7 +50,6 @@ Program EddyproFCC
 
     logical :: skip
     logical :: InitializeOuputFiles
-    logical :: DoSpectralAssessment
     logical :: skip_spectra
     logical :: skip_cospectra
     logical :: ValidRecord
@@ -87,6 +86,7 @@ Program EddyproFCC
     integer, external :: NumberOfFilesInSubperiod
     real(kind = dbl), external :: func
 
+
     !*******************************************************************************
     !*******************************************************************************
 
@@ -120,35 +120,34 @@ Program EddyproFCC
     NumberOfPeriods = NumOfPeriods(exStartTimestamp, exEndTimestamp, DateStep)
     allocate(exTimeSeries(NumberOfPeriods + 1))
     call CreateTimeSeries(exStartTimestamp, exEndTimestamp, &
-        DateStep, exTimeSeries, size(exTimeSeries))
+        DateStep, exTimeSeries, size(exTimeSeries), .true.)
 
     !> Define MasterTimeSeries for the period to be considered
     if (EddyProProj%subperiod) then
-        call DateTimeToDateType(EddYProProj%start_date, &
-            EddYProProj%start_time, SelectedStartTimestamp)
-        call DateTimeToDateType(EddYProProj%end_date, &
-            EddYProProj%end_time, SelectedEndTimestamp)
-
+        call DateTimeToDateType(EddyProProj%start_date, &
+            EddyProProj%start_time, SelectedStartTimestamp)
+        call DateTimeToDateType(EddyProProj%end_date, &
+            EddyProProj%end_time, SelectedEndTimestamp)
         NumberOfPeriods = NumOfPeriods(SelectedStartTimestamp, &
             SelectedEndTimestamp, DateStep)
 
         allocate(MasterTimeSeries(NumberOfPeriods + 1))
         call CreateTimeSeries(SelectedStartTimestamp, SelectedEndTimestamp, &
-            DateStep, MasterTimeSeries, size(MasterTimeSeries))
+            DateStep, MasterTimeSeries, size(MasterTimeSeries), .false.)
 
         !> Verify at least partial overlap
         if (MasterTimeSeries(1) > exTimeSeries(size(exTimeSeries)) &
             .or. MasterTimeSeries(size(MasterTimeSeries)) < exTimeSeries(1)) &
             call ExceptionHandler(50)
+        fxStartTimestampIndx = 2
+        fxEndTimestampIndx = size(MasterTimeSeries)
     else
         allocate(MasterTimeSeries(size(exTimeSeries)))
         MasterTimeSeries = exTimeSeries
+        fxStartTimestampIndx = 1
+        fxEndTimestampIndx = size(MasterTimeSeries)
     end if
 
-    !> ONLY TEMPORARY: you can now actually eliminate rpStartTimestampIndx and
-    !> rpEndTimestampIndx
-    fxStartTimestampIndx = 1
-    fxEndTimestampIndx = size(MasterTimeSeries)
 
     !> Initialize import of full cospectra files
     if (FCCsetup%import_full_cospectra) then
@@ -157,8 +156,8 @@ Program EddyproFCC
         allocate(FullFileList(NumFullFiles))
 
         !> Read names of full cospectra files
-        call FileListByExt(Dir%full, '.csv', .true., FullFilePrototype, &
-            .true., .true., .true., FullFilelist, &
+        call FileListByExt(Dir%full, '.csv', .true., .false., &
+            FullFilePrototype, .true., .true., .true., FullFilelist, &
             size(FullFilelist), .true., '')
 
         !> Retrieve length of full cospectra for later allocation
@@ -171,38 +170,41 @@ Program EddyproFCC
     !****************************************************************
     !****************************************************************
 
-    DoSpectralAssessment = FCCsetup%sa_onthefly .or. FCCsetup%SA%in_situ
-
     !> If spectral analysis must be performed or co-spectral output are requested,
     !> start loop on cospectra files
-    if (DoSpectralAssessment .or. EddyProProj%out_avrg_cosp) then
-        if (DoSpectralAssessment) write(*, '(a)') &
+    if (FCCsetup%pass_thru_spectral_assessment) then
+        if (FCCsetup%do_spectral_assessment) write(*, '(a)') &
             ' Starting "spectral assessment" session..'
-        if (EddyProProj%out_avrg_cosp) write(*, '(a)') &
-            ' Reading (co)spectra for ensemble averaging..'
+        if (EddyProProj%out_avrg_cosp .or. EddyProProj%out_avrg_spec) &
+            write(*, '(a)') ' Reading (co)spectra for ensemble averaging..'
 
         !> Convert start/end to timestamps
-        call DateTimeToDateType(FCCsetup%SA%start_date, '00:00', saStartTimestamp)
-        call DateTimeToDateType(FCCsetup%SA%end_date,   '23:59', saEndTimestamp)
+        call DateTimeToDateType(FCCsetup%SA%start_date, &
+            '00:00', saStartTimestamp)
+        call DateTimeToDateType(FCCsetup%SA%end_date, &
+            '23:59', saEndTimestamp)
 
         !> Read names of binned (co)spectra files
         call NumberOfFilesInDir(Dir%binned, '.csv', .false., '', &
             NumBinnedFiles, NumBinnedFilesNoRecurse)
 
-!***********************************************
-!***** TO DO HERE!!!!***************************
-        if(NumBinnedFilesNoRecurse <= 0) then
-            !> Insert notification, change settings and skip Spec Assess procedure
+        if(NumBinnedFiles <= 0) then
+            !> Exit loop and change spectral correction to Moncrieff.
+            !> Also, cannot create any ensemble spectral output
+            EddyProProj%out_avrg_cosp = .false.
+            EddyProProj%out_avrg_spec = .false.
+            FCCsetup%do_spectral_assessment = .false.
+            EddyProProj%hf_meth = 'moncrieff_97'
+            FCCsetup%SA%in_situ = .false.
+            call ExceptionHandler()
+            goto 100
         end if
-!***********************************************
-!***********************************************
-
         allocate(BinnedFileList(NumBinnedFiles))
 
         !> Create list of binned spectra file names
-        call FileListByExt(Dir%binned, '.csv', .true., BinnedFilePrototype, &
-            .true., .true., .true., BinnedFileList, size(BinnedFileList), &
-            .true., ' ')
+        call FileListByExt(Dir%binned, '.csv', .true., .false., &
+            BinnedFilePrototype, .true., .true., .true., &
+            BinnedFileList, size(BinnedFileList), .true., ' ')
 
         !> Set file list in chronological order
         call FilesInChronologicalOrder(BinnedFileList, size(BinnedFileList), &
@@ -214,17 +216,21 @@ Program EddyproFCC
             size(BinnedFileList), saStartTimestamp, saEndTimestamp, &
             saStartTimestampIndx, saEndTimestampIndx)
 
-!***********************************************
-!***** TO DO HERE!!!!***************************
         if(saStartTimestampIndx <= 0 .or. saEndTimestampIndx <= 0) then
-            !> Insert notification, change settings and skip Spec Assess procedure
+            !> Exit loop and change spectral correction to Moncrieff.
+            !> Also, cannot create any ensemble spectral output
+            EddyProProj%out_avrg_cosp = .false.
+            EddyProProj%out_avrg_spec = .false.
+            FCCsetup%do_spectral_assessment = .false.
+            EddyProProj%hf_meth = 'moncrieff_97'
+            FCCsetup%SA%in_situ = .false.
+            call ExceptionHandler()
+            goto 100
         end if
-!***********************************************
-!***********************************************
 
         !> Some logging
         write(LogInteger, '(i8)') saEndTimestampIndx - saStartTimestampIndx + 1
-        write(*, '(a)') '  Importing and sorting up to ' &
+        write(*, '(a)') '  Importing, sorting and ensemble-averaging up to ' &
             // trim(adjustl(LogInteger)) // ' binned (co)spectra from files.. '
 
         !> Create an exponentially spaced frequency array in a range \n
@@ -320,15 +326,16 @@ Program EddyproFCC
         close(uex)
         write(*,'(a)') '  Done.'
 
-        !> If cospectra were found for fitting, fit Massman model
-        if (EddyProProj%out_avrg_cosp) then
+         if (EddyProProj%out_avrg_cosp) then
+            !> If cospectra were found for fitting, fit Massman model
             call FitCospectralModel(nfit, size(nfit, 1), size(nfit, 2), &
                 FitStable, FitUnstable, size(FitStable))
-        end if
 
-        !> Ensemble average cospectra in stable and unstable cases
-        call EnsembleCospectraByStability(nfit, size(nfit, 1), size(nfit, 2), &
-            FitStable, FitUnstable, size(FitStable))
+            !> Ensemble average cospectra in stable and unstable stratifications
+            call EnsembleCospectraByStability(nfit, size(nfit, 1), &
+                size(nfit, 2), FitStable, FitUnstable, size(FitStable))
+
+        end if
 
         !> Normalize sums for obtaining mean spectra
         call NormalizeMeanSpectraCospectra(nbins)
@@ -337,7 +344,7 @@ Program EddyproFCC
         !> for each gas and each class
         call AvailableMeanSpectraCospectra(nbins)
 
-        if (DoSpectralAssessment) then
+        if (FCCsetup%do_spectral_assessment) then
 
             !> Determine low-pass TF cut-off frequencies, RH-sorted (H2O)
             !> and time-sorted (CO2/CH4/GAS4)
@@ -352,16 +359,16 @@ Program EddyproFCC
         end if
 
         !> Write everything on output files
-        call OutputSpectralAssessmentResults(DoSpectralAssessment, &
-            EddyProProj%out_avrg_cosp, nbins)
+        call OutputSpectralAssessmentResults(nbins)
         write(*,'(a)')
 
-    elseif (.not. FCCsetup%sa_onthefly .and. FCCsetup%SA%in_situ) then
-
+    elseif (AuxFile%sa == 'none') then
         !> Enter here if an in-situ method was chosen, but results are available
         call ReadSpectralAssessmentFile()
 
     end if
+
+100 continue
 
     !***************************************************************************
     !***************************************************************************

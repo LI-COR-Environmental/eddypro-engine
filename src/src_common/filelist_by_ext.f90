@@ -30,7 +30,7 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine FileListByExt(DirIn, Ext, MatchTemplate, Template, &
+subroutine FileListByExt(DirIn, Ext, MatchTemplate, HardMatch, Template, &
         doy_format, GetTimestamp, Recurse, FileList, nrow, logout, indent)
     use m_common_global_var
     implicit none
@@ -41,6 +41,7 @@ subroutine FileListByExt(DirIn, Ext, MatchTemplate, Template, &
     character(*), intent(in) :: DirIn
     character(*), intent(in) :: Template
     logical, intent(in) :: MatchTemplate
+    logical, intent(in) :: HardMatch
     logical, intent(in) :: doy_format
     logical, intent(in) :: GetTimestamp
     logical, intent(in) :: Recurse
@@ -110,7 +111,7 @@ subroutine FileListByExt(DirIn, Ext, MatchTemplate, Template, &
             TmpFileName =  &
                 String(index(String, slash, .true.) + 1: len_trim(String))
             if (MatchTemplate) then
-                if (NameMatchesTemplate(TmpFileName, Template)) then
+                if (NameMatchesTemplate(TmpFileName, Template, HardMatch)) then
                     cnt = cnt + 1
                     FileList(cnt)%path = trim(adjustl(String))
                 end if
@@ -129,7 +130,7 @@ subroutine FileListByExt(DirIn, Ext, MatchTemplate, Template, &
             TmpFileName =  &
                 String(index(String, slash, .true.) + 1: len_trim(String))
             if (MatchTemplate) then
-                if (NameMatchesTemplate(TmpFileName, Template)) then
+                if (NameMatchesTemplate(TmpFileName, Template, HardMatch)) then
                     cnt = cnt + 1
                     FileList(cnt)%path = trim(adjustl(String))
                 end if
