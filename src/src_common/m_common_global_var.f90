@@ -86,7 +86,6 @@ module m_common_global_var
     character(15) :: comm_dir
     character(256) :: homedir
     character(256) :: IniDir
-    character(256) :: LogDir
     character(256) :: TmpDir
     character(256) :: PrjPath
 

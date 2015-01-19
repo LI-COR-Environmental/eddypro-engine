@@ -130,7 +130,6 @@ subroutine InitEnv()
     !> Define path of key eddypro files/dirs
     call AdjDir(homedir, slash)
     IniDir = trim(homedir) // 'ini' // slash
-    LogDir = trim(homedir) // 'log' // slash
     if (projPath == '') then
         PrjPath = trim(IniDir) // trim(PrjFile)
     else
@@ -146,7 +145,6 @@ subroutine InitEnv()
     end if
 
     !> Create log dir in case it doesn't exist (for use from command line)
-    make_dir = CreateDir('"' // trim(LogDir) // '"')
     make_dir = CreateDir('"' // trim(TmpDir) // '"')
 end subroutine InitEnv
 

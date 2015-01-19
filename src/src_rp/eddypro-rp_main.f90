@@ -85,6 +85,7 @@ program EddyproRP
     integer :: latestCleaning
     integer :: NumBiometFiles
     integer :: mkdir_status
+    integer :: del_status
 
     integer, allocatable :: toH2On(:)
     integer, allocatable :: pfNumElem(:)
@@ -817,7 +818,8 @@ program EddyproRP
     if (index(Meth%rot(1:len_trim(Meth%rot)), 'planar_fit') /= 0) then
         if (.not. RPsetup%pf_onthefly) then
             call ReadPlanarFitFile()
-            if (.not. allocated(GoPlanarFit)) allocate(GoPlanarFit(PFSetup%num_sec))
+            if (.not. allocated(GoPlanarFit)) &
+                allocate(GoPlanarFit(PFSetup%num_sec))
             GoPlanarFit = .true.
             secloop2: do sec = 1, PFSetup%num_sec
                 do i = 1, 3
@@ -832,18 +834,22 @@ program EddyproRP
         else
             write(*,'(a)') ' Performing planar-fit assessment:'
 
-            !> If zero sectors were selected, set to 1 sector by default and inform
+            !> If zero sectors were selected, set to 1 sector by
+            !> default and inform
             if (PFSetup%num_sec == 0) then
                 call ExceptionHandler(38)
                 PFSetup%num_sec = 1
             end if
 
             !> Allocate variables depending upon number of sectors
-            if (.not. allocated(pfNumElem))  allocate(pfNumElem(PFSetup%num_sec))
+            if (.not. allocated(pfNumElem))  &
+                allocate(pfNumElem(PFSetup%num_sec))
 
             !> Timestamps of start and end of planar fit period
-            call DateTimeToDateType(PFSetup%start_date, '00:00', auxStartTimestamp)
-            call DateTimeToDateType(PFSetup%end_date, '23:59', auxEndTimestamp)
+            call DateTimeToDateType(PFSetup%start_date, '00:00', &
+                auxStartTimestamp)
+            call DateTimeToDateType(PFSetup%end_date, '23:59', &
+                auxEndTimestamp)
 
             !> In RawTimeSeries, detect indexes of first and last files
             !> relevant to planar fit
@@ -954,7 +960,8 @@ program EddyproRP
 
                 !> Filter raw data for user-defined flags
                 if (RPsetup%filter_by_raw_flags) &
-                    call FilterRawDataByFlags(Col, Raw, size(Raw, 1), size(Raw, 2))
+                    call FilterRawDataByFlags(Col, &
+                        Raw, size(Raw, 1), size(Raw, 2))
 
                 !***************************************************************
                 !**** RAW FILE IMPORT FINISHES HERE. ***************************
@@ -1003,10 +1010,12 @@ program EddyproRP
                 !***************************************************************
 
                 !> Adjust coordinate systems if the case
-                call AdjustSonicCoordinates(E2Set, size(E2Set, 1), size(E2Set, 2))
+                call AdjustSonicCoordinates(E2Set, &
+                    size(E2Set, 1), size(E2Set, 2))
 
                 !> Calculate basic stats
-                call BasicStats(E2Set, size(E2Set, 1), size(E2Set, 2), 1, .false.)
+                call BasicStats(E2Set, size(E2Set, 1), size(E2Set, 2), &
+                    1, .false.)
                 Stats1 = Stats
 
                 !> Calculate raw screening flags and despike data if requeste
@@ -1028,7 +1037,8 @@ program EddyproRP
                 end if
 
                 !> Calculate basic stats
-                call BasicStats(E2Set, size(E2Set, 1), size(E2Set, 2), 2, .false.)
+                call BasicStats(E2Set, size(E2Set, 1), size(E2Set, 2), &
+                    2, .false.)
                 Stats2 = Stats
                 Stats3 = Stats
 
@@ -1046,7 +1056,8 @@ program EddyproRP
                 end if
 
                 !> Calculate basic stats
-                call BasicStats(E2Set, size(E2Set, 1), size(E2Set, 2), 4, .false.)
+                call BasicStats(E2Set, size(E2Set, 1), size(E2Set, 2), &
+                    4, .false.)
                 Stats4 = Stats
                 if (allocated(E2Set)) deallocate(E2Set)
 
@@ -1090,8 +1101,10 @@ program EddyproRP
                 !that at least 1 wind data was excluded
             !end if
 
-            !> Sort wind data according to wind sector (from pfWind to pfWindBySect)
-            call SortWindBySector(pfWind(1:pfn, u:w), pfn, pfNumElem, pfWindBySect)
+            !> Sort wind data according to wind sector
+            !> (from pfWind to pfWindBySect)
+            call SortWindBySector(pfWind(1:pfn, u:w), pfn, &
+                pfNumElem, pfWindBySect)
             deallocate(pfWind)
 
             !> Some logging
@@ -1145,7 +1158,8 @@ program EddyproRP
                     do i = u, w
                         PFb(:, sec) = PFb(:, sec) + dble(Mat(:, i)) * pfVec(i)
                     end do
-                elseif (Meth%rot(1:len_trim(Meth%rot)) =='planar_fit_no_bias') then
+                elseif (Meth%rot(1:len_trim(Meth%rot)) &
+                        == 'planar_fit_no_bias') then
                     !> Define tensors of 2 elements (out of the 3-elements ones)
                     Mat2d(1,1:2) = Mat(2, 2:3)
                     Mat2d(2,1:2) = Mat(3, 2:3)
@@ -1166,13 +1180,15 @@ program EddyproRP
                     !> Calculate plane coefficients: PFb = Mat^(-1) * pfVec
                     PFb2d(:, sec) = 0d0
                     do i = 1, 2
-                        PFb2d(:, sec) = PFb2d(:, sec) + dble(Mat2d(:, i)) * pfVec2d(i)
+                        PFb2d(:, sec) = PFb2d(:, sec) &
+                            + dble(Mat2d(:, i)) * pfVec2d(i)
                     end do
                     PFb(1, sec) = 0d0
                     PFb(2:3, sec) = PFb2d(1:2, sec)
                 end if
 
-                !> Calculate PP (PF rotation matrix, see Wilczak et al. 2001, BLM)
+                !> Calculate PP (PF rotation matrix, see
+                !> Wilczak et al. 2001, BLM)
                 call PlanarFitRotationMatrix(sec, PP)
 
                 !> Update sector-wise rotation matrix
@@ -1313,7 +1329,8 @@ program EddyproRP
             !> Import dataset for current period. If using embedded biomet,
             !> also read biomet data. On entrance, NextRawFileIndx contains
             !> the index of the file to start the current period with
-            !> On exit, LatestRawFileIndx contains the index of the latest file used
+            !> On exit, LatestRawFileIndx contains the index of the
+            !> latest file used
             call ImportCurrentPeriod(tsStart, tsEnd, &
                 RawFileList, NumRawFiles, NextRawFileIndx, BypassCol, &
                 MaxNumFileRecords, MetaIsNeeded, &
@@ -1916,7 +1933,8 @@ program EddyproRP
             if (RPsetup%out_st(6)) &
                 call WriteOutStats(ust6, Stats6, BgnOutStrg, PeriodRecords)
             if (NumUserVar > 0) then
-                call UserBasicStats(UserSet, size(UserSet, 1), size(UserSet, 2), 6)
+                call UserBasicStats(UserSet, &
+                    size(UserSet, 1), size(UserSet, 2), 6)
                 if (RPsetup%out_st(6)) &
                     call WriteOutUserStats(u_user_st6, BgnOutStrg, &
                         PeriodRecords, AddUserStatsHeader)
@@ -2179,8 +2197,14 @@ program EddyproRP
     close(uqc)
 
     !> If no averaging period was performed, return message and cancel tmp files
-    if (NumberOfOkPeriods == 0 .and. EddyProProj%run_mode /= 'md_retrieval') &
+    if (NumberOfOkPeriods == 0 .and. EddyProProj%run_mode /= 'md_retrieval') then
+        !> Delete files in output folder
+        del_status = system(trim(comm_del) // ' "' // trim(adjustl(Dir%main_out)) &
+            // '*' // Timestamp_FilePadding //'*"'  // comm_err_redirect)
+
+        !> Alerting and closing run
         call ExceptionHandler(35)
+    end if
 
     !> Creating datasets from output files
     write(*, '(a)')
@@ -2213,7 +2237,7 @@ program EddyproRP
 
     !> Delete tmp folder if running in embedded mode
     if(EddyProProj%run_env == 'desktop') &
-        call system(trim(comm_rmdir) // ' "' // trim(adjustl(TmpDir)) // '"')
+        del_status = system(trim(comm_rmdir) // ' "' // trim(adjustl(TmpDir)) // '"')
 
     if (.not. EddyProProj%fcc_follows) then
         write(*, '(a)') ''

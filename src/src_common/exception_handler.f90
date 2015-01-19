@@ -123,7 +123,7 @@ subroutine ExceptionHandler(error_code)
             write(*,*) ' Error(34)> Planar-fit rotation matrix not calculated for this sector.'
         case(35)
             write(*,*) ' Fatal error(35)> Oops! Something went wrong. EddyPro was not able to process any raw file.'
-            write(*,*) ' Fatal error(35)> Execution aborted without creating any result files.'
+            write(*,*) ' Fatal error(35)> Execution aborted without creating any output files.'
             stop 1
         case(36)
             write(*,*) ' Fatal error(36)> No "Output directory" was selected. Select an "Output directory" before running EddyPro.'
