@@ -59,7 +59,6 @@ subroutine Storage(PrevStats, prevAmbient)
 
     !> Check that time periods are consecutive. If not, set storage to error and exit
     call AddDateStep(PrevStats%date, PrevStats%time, tmp_date, tmp_time, DateStep)
-
     if (tmp_date /= Stats%date .or. tmp_time /= Stats%time) then
         Stor%H  = error
         Stor%LE = error
@@ -67,7 +66,12 @@ subroutine Storage(PrevStats, prevAmbient)
         return
     end if
 
-!    seconds = RPsetup%avrg_len * 6d1
+    !> Initialization
+    Stor%H = 0d0
+    Stor%LE = 0d0
+    Stor%of(:) = 0d0
+    seconds = RPsetup%avrg_len * 6d1
+
 !    !> define concentration differences in time, at each height
 !    where (PrevSlowVar%prof_t(:) /= error .and. BiometVar%prof_t(:) /= error)
 !        dcdt(stH, :) = (BiometVar%prof_t(:) - PrevSlowVar%prof_t(:)) / seconds
@@ -100,10 +104,7 @@ subroutine Storage(PrevStats, prevAmbient)
 !    !> Initialize dz at their natural values
 !    dz = bSetup%dz
 !
-!    !> Storage fluxs as integration of profile differences (using the trapezi formula)
-!    Stor%H = 0d0
-!    Stor%LE = 0d0
-!    Stor%of(:) = 0d0
+!    !> Storage fluxes as integration of profile differences (using the trapezi formula)
 !    dStor = 0d0
 !    do var = stH, stGAS4
 !        ol: do i = 1, MaxProfNodes - 1
@@ -126,30 +127,35 @@ subroutine Storage(PrevStats, prevAmbient)
 !    end do
 !
 !    !> Units adjustments
-!    if (Stor%H /= 0) Stor%H = Ambient%RhoCp * Stor%H
-!    !> Gas from mixing ratio to molar density (should use Vd, not Va. But Vd not necessarily available at this stage)
+!    if (Stor%H /= 0d0) Stor%H = Ambient%RhoCp * Stor%H
+
+!    !> Gas from mixing ratio to molar density (should use Vd, not Va.
+!    !> But Vd not necessarily available at this stage)
 !    do gas = co2, gas4
 !        select case(gas)
 !            case (co2, ch4, gas4)
-!                if (Stor%of(gas) /= 0 .and. Ambient%Va /= 0) &
+!                if (Stor%of(gas) /= 0d0 .and. Ambient%Va > 0) &
 !                    Stor%of(gas) = Stor%of(gas) * 1d3 / Ambient%Va
 !            case(h2o)
-!                if (Stor%of(gas) /= 0 .and. Ambient%Va /= 0) &
+!                if (Stor%of(gas) /= 0d0 .and. Ambient%Va > 0) &
 !                    Stor%of(gas) = Stor%of(gas) / Ambient%Va
 !        end select
 !    end do
 !
-!    if (Stor%of(h2o) /= 0) then
+!    if (Stor%of(h2o) /= 0d0) then
 !        Stor%LE = Stor%of(h2o) * MW(h2o) * Ambient%lambda * 1d-3
 !    else
 !        Stor%LE = 0d0
 !    end if
 !
-    !> If Stor = 0, it means no profile was available or selected, so calculate it with 1-point formula
+    !> If Stor = 0, it means no profile was available or selected,
+    !> so calculate it with 1-point formula
     !> Storage for sensible heat
     if (Stor%H == 0) then
-        if(Ambient%RhoCp /= error .and. Ambient%Ta /= error .and. prevAmbient%Ta /= error) then
-            Stor%H = Ambient%RhoCp * (Ambient%Ta - prevAmbient%Ta) * E2Col(u)%Instr%height / seconds
+        if(Ambient%RhoCp /= error .and. Ambient%Ta /= error &
+            .and. prevAmbient%Ta /= error) then
+            Stor%H = Ambient%RhoCp * (Ambient%Ta - prevAmbient%Ta) &
+                * E2Col(u)%Instr%height / seconds
         else
             Stor%H = error
         end if
@@ -160,16 +166,19 @@ subroutine Storage(PrevStats, prevAmbient)
         if (Stor%of(gas) == 0) then
             select case(gas)
                 case (co2, ch4, gas4)
-                    if (Stats%chi(gas) /= error .and. PrevStats%chi(gas) /= error) then
-                        Stor%of(gas) = (Stats%chi(gas) - PrevStats%chi(gas)) / Ambient%Va * 1d-3 &
-                                     * E2Col(gas)%Instr%height * 1d3 / seconds
+                    if (Stats%chi(gas) /= error &
+                        .and. PrevStats%chi(gas) /= error) then
+                        Stor%of(gas) = (Stats%chi(gas) - PrevStats%chi(gas)) &
+                            / Ambient%Va * 1d-3 &
+                            * E2Col(gas)%Instr%height * 1d3 / seconds
                     else
                         Stor%of(gas) = error
                     end if
                 case(h2o)
-                    if (Stats%chi(gas) /= error .and. PrevStats%chi(gas) /= error) then
-                        Stor%of(gas) = (Stats%chi(gas) - PrevStats%chi(gas)) / Ambient%Va &
-                                     * E2Col(gas)%Instr%height / seconds
+                    if (Stats%chi(gas) /= error &
+                        .and. PrevStats%chi(gas) /= error) then
+                        Stor%of(gas) = (Stats%chi(gas) - PrevStats%chi(gas)) &
+                            / Ambient%Va * E2Col(gas)%Instr%height / seconds
                         Stor%LE = Stor%of(h2o) * MW(h2o) * Ambient%lambda * 1d-3
                     else
                         Stor%of(gas) = error
