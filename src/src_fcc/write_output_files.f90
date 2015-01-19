@@ -580,12 +580,6 @@ subroutine WriteOutputFiles(lEx)
             call WriteDatumInt(QCFlag%co2, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
         end if
-        if(fcc_var_present(h2o)) then
-            call WriteDatumFloat(Flux3%h2o, datum, '-9999.')
-            call AddDatum(dataline, datum, separator)
-            call WriteDatumInt(QCFlag%h2o, datum, '-9999.')
-            call AddDatum(dataline, datum, separator)
-        end if
         if(fcc_var_present(ch4)) then
             call WriteDatumFloat(Flux3%ch4 * 1d3, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
@@ -599,17 +593,17 @@ subroutine WriteOutputFiles(lEx)
             call AddDatum(dataline, datum, separator)
         end if
 
-        !> Storage
-        call WriteDatumFloat(lEx%Stor%H, datum, '-9999.')
-        call AddDatum(dataline, datum, separator)
-        if(fcc_var_present(h2o)) then
-            call WriteDatumFloat(lEx%Stor%LE, datum, '-9999.')
-            call AddDatum(dataline, datum, separator)
-        end if
-        if(fcc_var_present(co2)) then
-            call WriteDatumFloat(lEx%Stor%of(co2), datum, '-9999.')
-            call AddDatum(dataline, datum, separator)
-        end if
+!        !> Storage
+!        call WriteDatumFloat(lEx%Stor%H, datum, '-9999.')
+!        call AddDatum(dataline, datum, separator)
+!        if(fcc_var_present(h2o)) then
+!            call WriteDatumFloat(lEx%Stor%LE, datum, '-9999.')
+!            call AddDatum(dataline, datum, separator)
+!        end if
+!        if(fcc_var_present(co2)) then
+!            call WriteDatumFloat(lEx%Stor%of(co2), datum, '-9999.')
+!            call AddDatum(dataline, datum, separator)
+!        end if
 
         !> Turbulence
         call WriteDatumFloat(lEx%ustar, datum, '-9999.')
