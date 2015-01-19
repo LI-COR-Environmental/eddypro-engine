@@ -83,7 +83,6 @@ subroutine TestAbsoluteLimits(Set, N, printout)
                 if( (Set(i, co2) * StdVair * 1d3 < al%co2_min) .or. &
                     (Set(i, co2) * StdVair * 1d3 > al%co2_max) ) then
                     hflags(co2) = 1
-                    !if(RPsetup%filter_al) Set(i, co2) = error   !****** deprecated
                 else
                     hflags(co2) = 0
                 end if
@@ -91,7 +90,6 @@ subroutine TestAbsoluteLimits(Set, N, printout)
                 if( (Set(i, co2) < al%co2_min) .or. &
                     (Set(i, co2) > al%co2_max) ) then
                     hflags(co2) = 1
-                    !if(RPsetup%filter_al) Set(i, co2) = error   !****** deprecated
                 else
                     hflags(co2) = 0
                 end if
@@ -104,7 +102,6 @@ subroutine TestAbsoluteLimits(Set, N, printout)
                 if( (Set(i, h2o) * StdVair < al%h2o_min) .or. &
                     (Set(i, h2o) * StdVair > al%h2o_max) ) then
                     hflags(h2o) = 1
-                    !if(RPsetup%filter_al) Set(i, h2o) = error   !****** deprecated
                 else
                     hflags(h2o) = 0
                 end if
@@ -112,7 +109,6 @@ subroutine TestAbsoluteLimits(Set, N, printout)
                 if( (Set(i, h2o) < al%h2o_min) .or. &
                     (Set(i, h2o) > al%h2o_max) ) then
                     hflags(h2o) = 1
-                    !if(RPsetup%filter_al) Set(i, h2o) = error   !****** deprecated
                 else
                     hflags(h2o) = 0
                 end if
@@ -125,7 +121,6 @@ subroutine TestAbsoluteLimits(Set, N, printout)
                 if( (Set(i, ch4) * StdVair * 1d3 < al%ch4_min) .or. &
                     (Set(i, ch4) * StdVair * 1d3 > al%ch4_max) ) then
                     hflags(ch4) = 1
-                    !if(RPsetup%filter_al) Set(i, ch4) = error   !****** deprecated
                 else
                     hflags(ch4) = 0
                 end if
@@ -133,7 +128,6 @@ subroutine TestAbsoluteLimits(Set, N, printout)
                 if( (Set(i, ch4) < al%ch4_min) .or. &
                     (Set(i, ch4) > al%ch4_max) ) then
                     hflags(ch4) = 1
-                    !if(RPsetup%filter_al) Set(i, ch4) = error   !****** deprecated
                 else
                     hflags(ch4) = 0
                 end if
@@ -146,7 +140,6 @@ subroutine TestAbsoluteLimits(Set, N, printout)
                 if( (Set(i, gas4) * StdVair * 1d3 < al%gas4_min) .or. &
                     (Set(i, gas4) * StdVair * 1d3 > al%gas4_max) ) then
                     hflags(gas4) = 1
-                    !if(RPsetup%filter_al) Set(i, gas4) = error   !****** deprecated
                 else
                     hflags(gas4) = 0
                 end if
@@ -154,7 +147,6 @@ subroutine TestAbsoluteLimits(Set, N, printout)
                 if( (Set(i, gas4) < al%gas4_min) .or. &
                     (Set(i, gas4) > al%gas4_max) ) then
                     hflags(gas4) = 1
-                    !if(RPsetup%filter_al) Set(i, gas4) = error   !****** deprecated
                 else
                     hflags(gas4) = 0
                 end if

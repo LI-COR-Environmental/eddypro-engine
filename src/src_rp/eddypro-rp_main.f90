@@ -193,9 +193,6 @@ program EddyproRP
     !> Add run-mode tag to Timestamp_FilePadding
     call TagRunMode()
 
-    !> Create output directory if it does not exist, otherwise is silent
-    mkdir_status = CreateDir('"' //trim(adjustl(Dir%main_out)) // '"')
-
     !> EddyPro Express settings
     if (EddyProProj%run_mode == 'express') call ConfigureForExpress()
     if (EddyProProj%run_mode == 'md_retrieval') call ConfigureForMdRetrieval()
@@ -242,6 +239,9 @@ program EddyproRP
     !> If running in embedded mode, override some settings
     if (EddyProProj%run_env == 'embedded') call ConfigureForEmbedded()
     if (EddyProProj%run_env == 'embedded') RPsetup%out_st = .false.
+
+    !> Create output directory if it does not exist, otherwise is silent
+    mkdir_status = CreateDir('"' //trim(adjustl(Dir%main_out)) // '"')
 
     !> Check on filename template
     call ValidateFilenameTemplate()
