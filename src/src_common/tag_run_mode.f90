@@ -32,7 +32,7 @@
 subroutine TagRunMode()
     use m_common_global_var
     implicit none
-    !> local variables
+
 
     select case(EddyProProj%run_mode)
         case('express')
