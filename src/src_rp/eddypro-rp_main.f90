@@ -1625,7 +1625,6 @@ program EddyproRP
                 call hms_delta_print(PeriodSkipMessage,'')
                 cycle periods_loop
             end if
-            NumberOfOkPeriods = NumberOfOkPeriods + 1
 
             !> Count number of records actually used for the current flux
             !> Note that this is the max number, and accounts only for entire records set to error code
@@ -1650,6 +1649,7 @@ program EddyproRP
                 call hms_delta_print(PeriodSkipMessage,'')
                 cycle periods_loop
             end if
+            NumberOfOkPeriods = NumberOfOkPeriods + 1
 
             !> Output raw dataset second level
             if (RPsetup%out_raw(2)) call OutRawData(Stats%date, Stats%time, E2Set, size(E2Set, 1), size(E2Set, 2), 2)
