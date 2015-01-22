@@ -282,6 +282,9 @@ subroutine ExceptionHandler(error_code)
             write(*,*) ' Fatal error(78)> No files matching the expected template were found in the selected folder.'
             write(*,*) ' Fatal error(78)> Program execution aborted.'
             stop 1
+        case(79)
+            write(*,*) ' Error(79)> Inconsistent variable labels or units in biomet files.'
+            write(*,*) ' Error(79)> EddyPro cannot resolve the conflict and will thus proceed without using biomet data.'
     end select
 end subroutine ExceptionHandler
 

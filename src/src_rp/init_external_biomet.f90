@@ -46,13 +46,13 @@ subroutine InitExternalBiomet(bFileList, N)
     character(1024) :: record2
     character(64) :: tsString
     logical :: failed
-    logical :: init_bVars
     logical :: skip_record
     type(DateType), allocatable :: bTimestamp(:)
     integer, external :: tsInferTimestep
     integer, external :: SplitCount
     integer, external :: countsubstring
     character(len(record)), external :: replace
+    type(BiometVarsType), allocatable :: lbVars(:)
 
 
     write(*, '(a)', advance = 'no') ' Initializing external biomet usage..'
@@ -115,7 +115,6 @@ subroutine InitExternalBiomet(bFileList, N)
 
     !> Loop over all biomet files
     lastcnt = 0
-    init_bVars = .true.
     files_loop: do nfl = 1, N
 
         !> Open biomet file
@@ -128,39 +127,44 @@ subroutine InitExternalBiomet(bFileList, N)
             cycle files_loop
         end if
 
-        !> Only ones, read header, retrieve variable names and units
-        if (init_bVars) then
+        !> Read header, retrieve variable names and units
+        read(udf, '(a)', iostat = io_status) record
+        read(udf, '(a)', iostat = io_status) record2
 
-            !> Read header lines
-            read(udf, '(a)', iostat = io_status) record
-            read(udf, '(a)', iostat = io_status) record2
+        !> If timestamp labels are 'Date' and 'Time', replace with
+        !> 'Timestamp_1' and 'Timestamp_2', e.g. Sutron case
+        record = replace(record, 'Date', 'TIMESTAMP_1', len(record))
+        record = replace(record, 'Time,', 'TIMESTAMP_2,', len(record))
 
-            !> If timestamp labels are 'Date' and 'Time', replace with
-            !> 'Timestamp_1' and 'Timestamp_2', e.g. Sutron case
-            record = replace(record, 'Date', 'TIMESTAMP_1', len(record))
-            record = replace(record, 'Time,', 'TIMESTAMP_2,', len(record))
+        !> Retrieve number of biomet variables excluding
+        !> TIMESTAMP-related items from record
+        nbVars = SplitCount(record, bFileMetadata%separator, &
+            'TIMESTAMP', .false.)
 
-            !> Retrieve number of biomet variables excluding
-            !> TIMESTAMP-related items from record
-            nbVars = SplitCount(record, bFileMetadata%separator, 'TIMESTAMP', .false.)
+        !> Allocate and initialize bVars
+        if (allocated(bVars)) deallocate(bVars)
+        allocate(bVars(nbVars))
+        bVars = nullbVar
 
-            !> Allocate and initialize bVars
-            if (allocated(bVars)) deallocate(bVars)
-            allocate(bVars(nbVars))
-            bVars = nullbVar
+        if (allocated(bAggr)) deallocate(bAggr)
+        allocate(bAggr(nbVars))
 
-            if (allocated(bAggr)) deallocate(bAggr)
-            allocate(bAggr(nbVars))
+        !> Retrieve variables and timestamp prototype from
+        !> header (labels and units rows)
+        call RetrieveExtBiometVars(record, record2, nbItems)
 
-            !> Retrieve variables and timestamp prototype from
-            !> header (labels and units rows)
-            call RetrieveExtBiometVars(record, record2, nbItems)
-
-            init_bVars = .false.
+        !> Variables consistency among different biomet files
+        if (nfl == 1) then
+            allocate(lbVars(nbVars))
+            lbVars = bVars
         else
-            !> Skip header for files other than the first
-            read(udf, '(a)', iostat = io_status)
-            read(udf, '(a)', iostat = io_status)
+            if (size(lbVars) /= size(bVars)) call ExceptionHandler(79)
+            if (any(lbVars(:)%label /= bVars(:)%label) &
+                .or. any(lbVars(:)%unit_in /= bVars(:)%unit_in)) &
+                write(*,'(a)')
+                call ExceptionHandler(79)
+                EddyProProj%biomet_data = 'none'
+                return
         end if
 
         !> Start loop on file rows

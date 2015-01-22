@@ -1124,6 +1124,3 @@ subroutine BiometFileListInChronologicalOrder(FileList, nrow)
     end do
     FileList = TmpFileList
 end subroutine BiometFileListInChronologicalOrder
-
-
-
