@@ -143,7 +143,13 @@ subroutine FileListByExt(DirIn, Ext, MatchTemplate, HardMatch, Template, &
     close(udf)
 
     !> Control on number of files found
-    if (cnt == 0) call ExceptionHandler(8)
+    if (cnt == 0) then
+        if (MatchTemplate) then
+            call ExceptionHandler(78)
+        else
+            call ExceptionHandler(8)
+        end if
+    end if
 
     !> Define file names and timestamp if requested
     do i = 1, cnt

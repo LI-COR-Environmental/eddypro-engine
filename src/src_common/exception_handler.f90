@@ -66,8 +66,7 @@ subroutine ExceptionHandler(error_code)
             write(*,*)
             write(*,*) ' Error(7)> Occurred while opening INI-format file. Looking for a solution..'
         case(8)
-            write(*,*) ' Fatal error(8)> No files with the selected extension were found in the selected folder, '
-            write(*,*) ' Fatal error(8)> or no file name in that folder matches the expected template.'
+            write(*,*) ' Fatal error(8)> No files with the correct extension were found in the selected folder.'
             write(*,*) ' Fatal error(8)> Program execution aborted.'
             stop 1
         case(14)
@@ -279,6 +278,10 @@ subroutine ExceptionHandler(error_code)
         case(77)
             write(*,*) ' Error(77)> EddyPro could not calculate ensemble spectra.'
             write(*,*) ' Error(77)> Ensemble averaged spectral output not created.'
+        case(78)
+            write(*,*) ' Fatal error(78)> No files matching the expected template were found in the selected folder.'
+            write(*,*) ' Fatal error(78)> Program execution aborted.'
+            stop 1
     end select
 end subroutine ExceptionHandler
 
