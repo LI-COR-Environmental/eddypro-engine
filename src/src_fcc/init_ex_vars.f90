@@ -137,9 +137,8 @@ subroutine InitExVars(StartTimestamp, EndTimestamp, NumRecords, NumValidRecords)
     end do
     close(udf)
 
-    !> Adjust Start/End timestamps to define the
-    !> boundaries of the MasterTimeseries
+    !> Adjust start timestamp so that Start/End define the whole period
+    !> From beginning of first period to end of last period
     StartTimestamp = StartTimestamp - DateStep
-!    EndTimestamp = EndTimestamp - DateStep
     write(*,'(a)') ' Done.'
 end subroutine InitExVars

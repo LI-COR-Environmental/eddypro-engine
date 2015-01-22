@@ -139,15 +139,21 @@ Program EddyproFCC
         if (MasterTimeSeries(1) > exTimeSeries(size(exTimeSeries)) &
             .or. MasterTimeSeries(size(MasterTimeSeries)) < exTimeSeries(1)) &
             call ExceptionHandler(50)
-        fxStartTimestampIndx = 2
+        !> Set start/end indexes in MasterTimeSeries. Note that definition of
+        !> fxStartTimestampIndx works, but isn't very nice. Should be improved.
         fxEndTimestampIndx = size(MasterTimeSeries)
+        if (EddyProProj%make_dataset) then
+            fxStartTimestampIndx = 1
+        else
+            fxStartTimestampIndx = 2
+        end if
     else
         allocate(MasterTimeSeries(size(exTimeSeries)))
         MasterTimeSeries = exTimeSeries
+        !> Set start/end indexes in MasterTimeSeries.
         fxStartTimestampIndx = 1
         fxEndTimestampIndx = size(MasterTimeSeries)
     end if
-
 
     !> Initialize import of full cospectra files
     if (FCCsetup%import_full_cospectra) then
@@ -170,8 +176,8 @@ Program EddyproFCC
     !****************************************************************
     !****************************************************************
 
-    !> If spectral analysis must be performed or co-spectral output are requested,
-    !> start loop on cospectra files
+    !> If spectral analysis must be performed or co-spectral
+    !> outputs are requested, start loop on cospectra files
     if (FCCsetup%pass_thru_spectral_assessment) then
         if (FCCsetup%do_spectral_assessment) write(*, '(a)') &
             ' Starting "spectral assessment" session..'
@@ -362,10 +368,10 @@ Program EddyproFCC
         call OutputSpectralAssessmentResults(nbins)
         write(*,'(a)')
 
-    elseif (AuxFile%sa == 'none') then
-        !> Enter here if an in-situ method was chosen, but results are available
-        call ReadSpectralAssessmentFile()
-
+    else
+        !> If an in-situ method was chosen, and spectral
+        !> assessment file is available, read file
+        if (FCCsetup%SA%in_situ) call ReadSpectralAssessmentFile()
     end if
 
 100 continue
