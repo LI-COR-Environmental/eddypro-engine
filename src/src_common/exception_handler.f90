@@ -285,6 +285,20 @@ subroutine ExceptionHandler(error_code)
         case(79)
             write(*,*) ' Error(79)> Inconsistent variable labels or units in biomet files.'
             write(*,*) ' Error(79)> EddyPro cannot resolve the conflict and will thus proceed without using biomet data.'
+        case(80)
+            write(*,*) ' Error(80)> Implausible altitude value detected. Altitude defaulted to zero.'
+        case(81)
+            write(*,*) ' Error(81)> Implausible latitude value detected. Latitude defaulted to zero.'
+        case(82)
+            write(*,*) ' Error(82)> Implausible longitude value detected. Longitude defaulted to zero.'
+        case(83)
+            write(*,*) ' Error(83)> Implausible canopy height value detected. Canopy height defaulted to zero.'
+        case(84)
+            write(*,*) ' Error(84)> Implausible displacement height value detected.'
+            write(*,*) ' Error(84)> Displacement height defaulted to 0.67 times the canopy height.'
+        case(85)
+            write(*,*) ' Error(85)> Implausible roughness length value detected.'
+            write(*,*) ' Error(85)> Roughness length  defaulted to 0.15 times the canopy height.'
     end select
 end subroutine ExceptionHandler
 

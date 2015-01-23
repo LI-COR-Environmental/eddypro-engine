@@ -85,19 +85,65 @@ subroutine WriteEddyProMetadataVariables(LocCol)
     Metadata%z0 = 0d0
 
     !> Site characteristics
-    Metadata%alt = dble(ANTags(1)%value)   !< in m
-    if (Metadata%alt == 0d0 .or. Metadata%alt == error) Metadata%alt = 1.d0  !< altitude cannot be exactly 0
-    !> Barometric pressure (e.g. Campbell & Normann, 1998 - An introduction to env. biophys.)
-    Metadata%bar_press = 1d3 * 101.3d0 *dexp(-Metadata%alt / 8200d0) !< in Pa
+    !> Altitude [m]
+    Metadata%alt = dble(ANTags(1)%value)
+
+    !> Altitude cannot be lower than Dead Sea or higher than top of
+    !> Mount Everest (which includes reasonable flying altitudes)
+    if (Metadata%alt < -428d0 .or. Metadata%alt > 8850d0) then
+        call ExceptionHandler(80)
+        Metadata%alt = 0d0
+    end if
+
+    !> Barometric pressure [Pa] (e.g. Campbell & Normann, 1998 -
+    !> An introduction to Environmental Biophysics)
+    Metadata%bar_press = 1d3 * 101.3d0 *dexp(-Metadata%alt / 8200d0)
+
+    !> Latitude [deg]
     Metadata%lat = dble(ANTags(2)%value)
-    if (Metadata%lat == 0d0 .or. Metadata%lat == error) Metadata%lat = 1.d0   !< latitude cannot be exactly 0
+
+    !> Latitude cannot be less than -90 or more than 90
+    if (Metadata%lat < -90d0 .or. Metadata%lat > 90d0 &
+        .or. Metadata%lat == 0d0) then
+        call ExceptionHandler(81)
+        Metadata%lat = 0.001d0
+    end if
+
+    !> Longitude[deg]
     Metadata%lon = dble(ANTags(3)%value)
+
+    !> Longitude cannot be less than -1800 or more than 180
+    if (Metadata%lon < -180d0 .or. Metadata%lon > 180d0) then
+        call ExceptionHandler(82)
+        Metadata%lon = 0.001d0
+    end if
+
+    !> Canopy height [m]
     Metadata%canopy_height = dble(ANTags(4)%value)
-    if (Metadata%canopy_height == 0d0 .or. Metadata%canopy_height == error) Metadata%canopy_height = 0.01d0   !< canopy height cannot be exactly zero.
+
+    !> Canopy height cannot be less than 0
+    if (Metadata%canopy_height < 0d0) then
+        call ExceptionHandler(83)
+        Metadata%canopy_height = 0d0
+    end if
+
+    !> Displacement height [m]
     Metadata%d = dble(ANTags(5)%value)
-    if (Metadata%d == 0d0 .or. Metadata%d == error) Metadata%d = Metadata%canopy_height * 0.67d0
+
+    !> Displacement height cannot be < 0 or larger than canopy height
+    if (Metadata%d < 0d0 .or. Metadata%d > Metadata%canopy_height) then
+        call ExceptionHandler(84)
+        Metadata%d = Metadata%canopy_height * 0.67d0
+    end if
+
+    !> Roughness length [m]
     Metadata%z0 = dble(ANTags(6)%value)
-    if (Metadata%z0 == 0d0 .or. Metadata%z0 == error) Metadata%z0 = Metadata%canopy_height * 0.15d0
+
+    !> Roughness length cannot be < 0 or larger than canopy height
+    if (Metadata%z0 < 0d0 .or. Metadata%z0 > Metadata%canopy_height) then
+        call ExceptionHandler(85)
+        Metadata%z0 = Metadata%canopy_height * 0.15d0
+    end if
 
     !> Further meta info
     EddyProLog%save_native = .false.

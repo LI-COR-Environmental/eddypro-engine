@@ -142,8 +142,8 @@ subroutine MetadataFileValidation(LocCol, passed, faulty_col)
         end if
     end do
 
-    !> Beyond a check of metadata file, checks if the minimum number of variables
-    !> needed for flux calculation are present. These are u, v, w and
+    !> Beyond a check of metadata file, checks if the minimum number of
+    !> variables needed for flux calculation are present. These are u, v, w and
     !> either sos or ts. Also checks that there are no more than 1
     !> instance of each.
     present = 0
