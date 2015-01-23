@@ -34,8 +34,8 @@ subroutine ConfigureForEmbedded()
     use m_common_global_var
     implicit none
     !> Local variables
-    character(1024) :: comm
-    character(256) :: string
+    character(CommLen) :: comm
+    character(ShortInstringLen) :: dataline
     integer :: dir_status
     integer :: io_status
 
@@ -48,15 +48,18 @@ subroutine ConfigureForEmbedded()
             if (index(Meth%rot, 'planar_fit') /= 0) then
 
                 !> Retrieve planar fit file name from /ini folder
-                comm = 'find "' // trim(homedir) // 'ini' // slash // &
-                    '" -iname *_planar_fit_*' // ' > ' // '"' // trim(adjustl(TmpDir)) // 'pf_flist.tmp" ' // comm_err_redirect
+                comm = 'find "' // trim(homedir) // 'ini' // slash &
+                    // '" -iname *_planar_fit_*' // ' > ' // '"' &
+                    // trim(adjustl(TmpDir)) // 'pf_flist.tmp" ' &
+                    // comm_err_redirect
                 dir_status = system(comm)
-                open(udf, file = trim(adjustl(TmpDir)) // 'pf_flist.tmp', iostat = io_status)
+                open(udf, file = trim(adjustl(TmpDir)) &
+                    // 'pf_flist.tmp', iostat = io_status)
                 AuxFile%pf = 'none'
                 if (io_status == 0) then
-                    read(udf, '(a128)', iostat = io_status) string
+                    read(udf, '(a128)', iostat = io_status) dataline
                     if(io_status == 0) then
-                        AuxFile%pf = string(1:len_trim(string))
+                        AuxFile%pf = trim(adjustl(dataline))
                         call StripFileName(AuxFile%pf)
                     end if
                 end if
@@ -67,15 +70,18 @@ subroutine ConfigureForEmbedded()
             if (index(Meth%tlag, 'tlag_opt') /= 0) then
 
                 !> Retrieve planar fit file name from /ini folder
-                comm = 'find "' // trim(homedir) // 'ini' // slash // &
-                    '" -iname *_timelag_opt_*'// ' > ' // '"' // trim(adjustl(TmpDir)) // 'to_flist.tmp" ' // comm_err_redirect
+                comm = 'find "' // trim(homedir) // 'ini' // slash &
+                    // '" -iname *_timelag_opt_*'// ' > ' // '"' &
+                    // trim(adjustl(TmpDir)) // 'to_flist.tmp" ' &
+                    // comm_err_redirect
                 dir_status = system(comm)
-                open(udf, file = trim(adjustl(TmpDir)) // 'to_flist.tmp', iostat = io_status)
+                open(udf, file = trim(adjustl(TmpDir)) &
+                    // 'to_flist.tmp', iostat = io_status)
                 AuxFile%to = 'none'
                 if (io_status == 0) then
-                    read(udf, '(a128)', iostat = io_status) string
+                    read(udf, '(a128)', iostat = io_status) dataline
                     if(io_status == 0) then
-                        AuxFile%to = string(1:len_trim(string))
+                        AuxFile%to = trim(adjustl(dataline))
                         call StripFileName(AuxFile%to)
                     end if
                 end if
@@ -83,7 +89,8 @@ subroutine ConfigureForEmbedded()
             end if
 
             !> Delete all temporary files
-            call system(comm_del // '"' // trim(adjustl(TmpDir)) // '"*.tmp ' // comm_err_redirect)
+            call system(comm_del // '"' // trim(adjustl(TmpDir)) // '"*.tmp ' &
+                // comm_err_redirect)
 
             !> Selection of output files
             if (EddyProProj%fcc_follows) then
@@ -105,14 +112,16 @@ subroutine ConfigureForEmbedded()
         case ('EddyPro-FCC')
             !> Retrieve essentials file name from /output folder
             comm = 'find "' // trim(homedir) // 'output' // slash // &
-                '" -iname *_essentials_*' // ' > ' // trim(adjustl(TmpDir)) // 'ex_flist.tmp ' // comm_err_redirect
+                '" -iname *_essentials_*' // ' > ' // trim(adjustl(TmpDir)) &
+                // 'ex_flist.tmp ' // comm_err_redirect
             dir_status = system(comm)
-            open(udf, file = trim(adjustl(TmpDir)) // 'ex_flist.tmp', iostat = io_status)
+            open(udf, file = trim(adjustl(TmpDir)) &
+                // 'ex_flist.tmp', iostat = io_status)
             AuxFile%ex = 'none'
             if (io_status == 0) then
-                read(udf, '(a128)', iostat = io_status) string
+                read(udf, '(a128)', iostat = io_status) dataline
                 if(io_status == 0) then
-                    AuxFile%ex = string(1:len_trim(string))
+                    AuxFile%ex = trim(adjustl(dataline))
                     call StripFileName(AuxFile%ex)
                 end if
             end if
@@ -124,15 +133,18 @@ subroutine ConfigureForEmbedded()
                 EddyProProj%hf_meth =='ibrom_07') then
 
                 !> Retrieve spectral assessment file name from /ini folder
-                comm = 'find "' // trim(homedir) // 'ini' // slash // &
-                    '" -iname *_spectral_assessment_*' // ' > ' // trim(adjustl(TmpDir)) // 'sa_flist.tmp ' // comm_err_redirect
+                comm = 'find "' // trim(homedir) // 'ini' // slash &
+                    // '" -iname *_spectral_assessment_*' // ' > ' &
+                    // trim(adjustl(TmpDir)) // 'sa_flist.tmp ' &
+                    // comm_err_redirect
                 dir_status = system(comm)
-                open(udf, file = trim(adjustl(TmpDir)) // 'sa_flist.tmp', iostat = io_status)
+                open(udf, file = trim(adjustl(TmpDir)) &
+                    // 'sa_flist.tmp', iostat = io_status)
                 AuxFile%sa = 'none'
                 if (io_status == 0) then
-                    read(udf, '(a128)', iostat = io_status) string
+                    read(udf, '(a128)', iostat = io_status) dataline
                     if(io_status == 0) then
-                        AuxFile%sa = string(1:len_trim(string))
+                        AuxFile%sa = trim(adjustl(dataline))
                         call StripFileName(AuxFile%sa)
                     end if
                 end if
@@ -140,7 +152,8 @@ subroutine ConfigureForEmbedded()
             end if
 
             !> Delet all temporary files
-            call system(comm_del // '"' // trim(adjustl(TmpDir)) // '"*.tmp ' // comm_err_redirect)
+            call system(comm_del // '"' // trim(adjustl(TmpDir)) &
+                // '"*.tmp ' // comm_err_redirect)
 
             !> Selection of output files
             EddyProProj%out_ghg_eu  = .false.

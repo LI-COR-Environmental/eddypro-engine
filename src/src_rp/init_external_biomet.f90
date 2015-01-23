@@ -42,8 +42,8 @@ subroutine InitExternalBiomet(bFileList, N)
     integer :: lastcnt
     integer :: nfl
     integer :: io_status
-    character(1024) :: record
-    character(1024) :: record2
+    character(LongInstringLen) :: dataline
+    character(LongInstringLen) :: dataline2
     character(64) :: tsString
     logical :: failed
     logical :: skip_record
@@ -51,7 +51,7 @@ subroutine InitExternalBiomet(bFileList, N)
     integer, external :: tsInferTimestep
     integer, external :: SplitCount
     integer, external :: countsubstring
-    character(len(record)), external :: replace
+    character(len(dataline)), external :: replace
     type(BiometVarsType), allocatable :: lbVars(:)
 
 
@@ -128,17 +128,17 @@ subroutine InitExternalBiomet(bFileList, N)
         end if
 
         !> Read header, retrieve variable names and units
-        read(udf, '(a)', iostat = io_status) record
-        read(udf, '(a)', iostat = io_status) record2
+        read(udf, '(a)', iostat = io_status) dataline
+        read(udf, '(a)', iostat = io_status) dataline2
 
         !> If timestamp labels are 'Date' and 'Time', replace with
         !> 'Timestamp_1' and 'Timestamp_2', e.g. Sutron case
-        record = replace(record, 'Date', 'TIMESTAMP_1', len(record))
-        record = replace(record, 'Time,', 'TIMESTAMP_2,', len(record))
+        dataline = replace(dataline, 'Date', 'TIMESTAMP_1', len(dataline))
+        dataline = replace(dataline, 'Time,', 'TIMESTAMP_2,', len(dataline))
 
         !> Retrieve number of biomet variables excluding
-        !> TIMESTAMP-related items from record
-        nbVars = SplitCount(record, bFileMetadata%separator, &
+        !> TIMESTAMP-related items from dataline
+        nbVars = SplitCount(dataline, bFileMetadata%separator, &
             'TIMESTAMP', .false.)
 
         !> Allocate and initialize bVars
@@ -151,7 +151,7 @@ subroutine InitExternalBiomet(bFileList, N)
 
         !> Retrieve variables and timestamp prototype from
         !> header (labels and units rows)
-        call RetrieveExtBiometVars(record, record2, nbItems)
+        call RetrieveExtBiometVars(dataline, dataline2, nbItems)
 
         !> Variables consistency among different biomet files
         if (nfl == 1) then
@@ -170,12 +170,12 @@ subroutine InitExternalBiomet(bFileList, N)
         !> Start loop on file rows
         cnt = lastcnt
         recs_loop: do
-            read(udf, '(a)', iostat = io_status) record
+            read(udf, '(a)', iostat = io_status) dataline
             if (io_status > 0) cycle recs_loop
             if (io_status < 0) exit recs_loop
 
             !> Retrieve timestamp info from rec
-            call tsStringFromRec(record, nbItems, tsString)
+            call tsStringFromRec(dataline, nbItems, tsString)
             cnt = cnt + 1
 
             !> Retrieve timestamp from timestamp string

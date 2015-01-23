@@ -39,8 +39,8 @@ subroutine WriteOutUserStats(unt, string, N, AddHeader)
     logical, intent(inout) :: AddHeader
     !> local variables
     integer :: j = 0
-    character(10000) :: dataline = ''
-    character(30) :: datum = ''
+    character(LongOutstringLen) :: dataline
+    character(DatumLen) :: datum = ''
 
 
     if (AddHeader) then
@@ -82,7 +82,7 @@ subroutine AddUserStatsHeader()
     use m_rp_global_var
     implicit none
     !> local variables
-    character(2048) :: headerline
+    character(LongOutstringLen) :: headerline
     integer :: j
 
     call clearstr(headerline)

@@ -38,8 +38,8 @@ subroutine EditIniFile(fname, tag, newval)
     integer :: ierr
     integer :: sepa
     integer :: io_error
-    character(256) :: tfname
-    character(512) :: row
+    character(PathLen) :: tfname
+    character(ShortInstringLen) :: dataline
     character(64) :: currtag
 
 
@@ -50,14 +50,14 @@ subroutine EditIniFile(fname, tag, newval)
 
     !> Copy whole file into temp file including modification
     do
-        read(10, '(a)', iostat=ierr) row
+        read(10, '(a)', iostat=ierr) dataline
         if (ierr < 0) exit
-        sepa = index(row, '=')
+        sepa = index(dataline, '=')
         if (sepa /= 0) then
-            currtag = row(1:sepa-1)
-            if (currtag == trim(tag)) row = trim(tag) // '='// trim(newval)
+            currtag = dataline(1:sepa-1)
+            if (currtag == trim(tag)) dataline = trim(tag) // '='// trim(newval)
         end if
-        write(11, '(a)') trim(adjustl(row))
+        write(11, '(a)') trim(adjustl(dataline))
     end do
     close(10, status='DELETE')
     close(11)

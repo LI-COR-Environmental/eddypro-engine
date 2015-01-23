@@ -45,8 +45,8 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
     integer :: j
     integer :: i
 !    integer :: prof
-    character(10000) :: dataline
-    character(64) :: datum
+    character(LongOutstringLen) :: dataline
+    character(DatumLen) :: datum
     character(64) :: tmp_init_string
     character(12) :: iso_basic
     logical, external :: NewerSwVer

@@ -40,16 +40,16 @@ subroutine InitOutFiles()
     integer :: gas
     integer :: i
     integer :: today(3), now(3)
-    character(256) :: Test_Path
+    character(PathLen) :: Test_Path
     character(64) :: e2sg(E2NumVar)
     character(8) :: dum_string
-    character(10000) :: header1 = ''
-    character(10000) :: header2 = ''
-    character(10000) :: header3 = ''
-    character(10000) :: head1_utf8 = ''
-    character(10000) :: head2_utf8 = ''
-    character(10000) :: head3_utf8 = ''
-    character(10000) :: dataline = ''
+    character(LongOutstringLen) :: header1
+    character(LongOutstringLen) :: header2
+    character(LongOutstringLen) :: header3
+    character(LongOutstringLen) :: head1_utf8
+    character(LongOutstringLen) :: head2_utf8
+    character(LongOutstringLen) :: head3_utf8
+    character(LongOutstringLen) :: dataline
     integer, external :: CreateDir
 
 

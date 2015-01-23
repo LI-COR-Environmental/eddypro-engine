@@ -35,40 +35,40 @@ subroutine RenameTmpFilesCommon()
     !> local variables
     integer :: tmp_indx
     integer :: move_status = 1
-    character(512) :: OutFile
+    character(PathLen) :: OutPath
 
     write(*,'(a)', advance = 'no') ' Closing COMMON output files..'
 
     !> Full out file
     if (EddyProProj%out_full) then
         tmp_indx = index(FullOut_Path, TmpExt)
-        OutFile = FullOut_Path(1: tmp_indx - 1)
+        OutPath = FullOut_Path(1: tmp_indx - 1)
         move_status = system(comm_move // '"' // FullOut_Path(1:len_trim(FullOut_Path)) // '" "' &
-            // OutFile(1:len_trim(OutFile)) // '"' // comm_out_redirect // comm_err_redirect)
+            // OutPath(1:len_trim(OutPath)) // '"' // comm_out_redirect // comm_err_redirect)
     end if
 
     !> Metadata
     if (EddyProProj%out_md) then
         tmp_indx = index(Metadata_Path, TmpExt)
-        OutFile = Metadata_Path(1: tmp_indx - 1)
+        OutPath = Metadata_Path(1: tmp_indx - 1)
         move_status = system(comm_move // '"' // Metadata_Path(1:len_trim(Metadata_Path)) // '" "' &
-            // OutFile(1:len_trim(OutFile)) // '"' // comm_out_redirect // comm_err_redirect)
+            // OutPath(1:len_trim(OutPath)) // '"' // comm_out_redirect // comm_err_redirect)
     end if
 
     !> GHG_Europe file
     if (EddyProProj%out_ghg_eu) then
         tmp_indx = index(GHGEUROPE_Path, TmpExt)
-        OutFile = GHGEUROPE_Path(1: tmp_indx - 1)
+        OutPath = GHGEUROPE_Path(1: tmp_indx - 1)
         move_status = system(comm_move // '"' // GHGEUROPE_Path(1:len_trim(GHGEUROPE_Path)) // '" "' &
-            // OutFile(1:len_trim(OutFile)) // '"' // comm_out_redirect // comm_err_redirect)
+            // OutPath(1:len_trim(OutPath)) // '"' // comm_out_redirect // comm_err_redirect)
     end if
 
     !> AmeriFlux file
     if (EddyProProj%out_amflux) then
         tmp_indx = index(AmeriFlux_Path, TmpExt)
-        OutFile = AmeriFlux_Path(1: tmp_indx - 1)
+        OutPath = AmeriFlux_Path(1: tmp_indx - 1)
         move_status = system(comm_move // '"' // AmeriFlux_Path(1:len_trim(AmeriFlux_Path)) // '" "' &
-            // OutFile(1:len_trim(OutFile)) // '"' // comm_out_redirect // comm_err_redirect)
+            // OutPath(1:len_trim(OutPath)) // '"' // comm_out_redirect // comm_err_redirect)
     end if
     write(*,'(a)') ' Done.'
 end subroutine RenameTmpFilesCommon

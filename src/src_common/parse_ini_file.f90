@@ -90,68 +90,68 @@ subroutine StoreIniTags(uini, key, Tags, nlines)
     integer :: io_status
     integer :: separ
     integer :: com
-    character(512) :: String
+    character(ShortInstringLen) :: dataline
 
 
     nlines = 0
     !> if key is not given
     if (len_trim(key) == 0) then
         do
-            read(uini, '(a)', iostat = io_status) String
+            read(uini, '(a)', iostat = io_status) dataline
             if (io_status /= 0) exit
-            call stripstr(String)
-            if ((String(1:1) /= "[").and.&
-                (String(1:1) /= ";").and.&
-                (len_trim(String) /= 0)) then
-                com = index(String, ";")
+            call stripstr(dataline)
+            if ((dataline(1:1) /= "[").and.&
+                (dataline(1:1) /= ";").and.&
+                (len_trim(dataline) /= 0)) then
+                com = index(dataline, ";")
                 if (com /= 0) then
-                    String(com:len_trim(String)) = ""
-                    call stripstr(String)
+                    dataline(com:len_trim(dataline)) = ""
+                    call stripstr(dataline)
                 end if
                 nlines = nlines + 1
-                separ = index(String, "=")
-                Tags(nlines)%Label = String(1:separ - 1)
-                Tags(nlines)%Value = String(separ + 1:len_trim(String))
+                separ = index(dataline, "=")
+                Tags(nlines)%Label = dataline(1:separ - 1)
+                Tags(nlines)%Value = dataline(separ + 1:len_trim(dataline))
              end if
-            call clearstr(String)
+            call clearstr(dataline)
         end do
         return
     end if
 
     !> if key is given
     outloop: do
-        read(uini, '(a)', iostat = io_status) String
+        read(uini, '(a)', iostat = io_status) dataline
         if (io_status /= 0) exit outloop
-        call stripstr(String)
-        if (String(1:1) == "[" .and. &
-            index(String, key(1:len_trim(key))) == 2) then
+        call stripstr(dataline)
+        if (dataline(1:1) == "[" .and. &
+            index(dataline, key(1:len_trim(key))) == 2) then
             ! if key was found, start to store Tags
             inloop: do
-                read(uini, '(a)', iostat = io_status) String
+                read(uini, '(a)', iostat = io_status) dataline
                 if (io_status /= 0) exit outloop
-                call stripstr(String)
-                if (len_trim(String) == 0) cycle inloop
+                call stripstr(dataline)
+                if (len_trim(dataline) == 0) cycle inloop
                 ! if another group is found, check if it belongs to the key
-                if (String(1:1) == "[") then
-                    if (index(String, key(1:len_trim(key))) /= 2) then
+                if (dataline(1:1) == "[") then
+                    if (index(dataline, key(1:len_trim(key))) /= 2) then
                         exit outloop
                     else
                         cycle inloop
                     end if
                 end if
-                ! if string is meaningful, store Tag
-                if (String(1:1) /= ";" .and. len_trim(String) /= 0) then
-                    com = index(String, ";")
+                ! if dataline is meaningful, store Tag
+                if (dataline(1:1) /= ";" .and. len_trim(dataline) /= 0) then
+                    com = index(dataline, ";")
                     if (com /= 0) then
-                        String(com:len_trim(String)) = ""
-                        call stripstr(String)
+                        dataline(com:len_trim(dataline)) = ""
+                        call stripstr(dataline)
                     end if
                     nlines = nlines + 1
-                    separ = index(String, "=")
-                    Tags(nlines)%Label = String(1:separ - 1)
-                    Tags(nlines)%Value = String(separ + 1:len_trim(String))
+                    separ = index(dataline, "=")
+                    Tags(nlines)%Label = dataline(1:separ - 1)
+                    Tags(nlines)%Value = dataline(separ + 1:len_trim(dataline))
                 end if
-                call clearstr(String)
+                call clearstr(dataline)
             end do inloop
         else
             cycle outloop

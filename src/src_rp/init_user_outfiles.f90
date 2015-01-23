@@ -40,7 +40,7 @@ subroutine InitUserOutFiles()
     integer :: open_status = 1      ! initializing to false
     integer :: dot
     integer :: i
-    character(256) :: Test_Path
+    character(PathLen) :: Test_Path
     logical :: proceed
 
 

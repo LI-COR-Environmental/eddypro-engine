@@ -47,10 +47,10 @@ subroutine OutputSpectralAssessmentResults(nbins)
     real(kind = dbl), external :: func
     real(kind = dbl), external :: kaimal
     character(128) :: Filename
-    character(512) :: FilePath
-    character(512) :: SpecDir
-    character(10000) :: dataline = ''
-    character(64) :: datum = ''
+    character(PathLen) :: FilePath
+    character(PathLen) :: SpecDir
+    character(LongOutstringLen) :: dataline = ''
+    character(DatumLen) :: datum = ''
     logical :: proceed
 
 

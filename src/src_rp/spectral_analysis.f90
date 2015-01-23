@@ -503,9 +503,9 @@ subroutine WriteOutBinnedCoSpectra(String, bnf, bcnt, BinnedSpectrum, BinnedCosp
     integer :: i
     integer :: j
     character(64) :: e2sg(E2NumVar)
-    character(256) :: BinCospectraPath
-    character(10000) :: dataline = ''
-    character(30) :: datum = ''
+    character(PathLen) :: BinCospectraPath
+    character(LongOutstringLen) :: dataline
+    character(DatumLen) :: datum = ''
 
     e2sg(gas4) = SpecCol(gas4)%label(1:len_trim(SpecCol(gas4)%label))
 
@@ -597,9 +597,9 @@ subroutine WriteOutBinnedOgives(String, bnf, bcnt, BinnedOgive, BinnedCoOgive &
     integer :: i
     integer :: j
     character(64) :: e2sg(E2NumVar)
-    character(256) :: BinOgivesPath
-    character(10000) :: dataline = ''
-    character(30) :: datum = ''
+    character(PathLen) :: BinOgivesPath
+    character(LongOutstringLen) :: dataline
+    character(DatumLen) :: datum = ''
 
     e2sg(gas4) = SpecCol(gas4)%label(1:len_trim(SpecCol(gas4)%label))
 
@@ -688,12 +688,12 @@ subroutine WriteOutFullCoSpectra(String, nf, Spectrum, Cospectrum, &
     !> local variables
     integer :: i
     integer :: var
-    character(256) :: CospectraPath
-    character(10000) :: dataline  = ''
-    character(10000) :: dataline1 = ''
-    character(10000) :: dataline2 = ''
-    character(10000) :: dataline3 = ''
-    character(30) :: datum = ''
+    character(PathLen) :: CospectraPath
+    character(LongOutstringLen) :: dataline
+    character(LongOutstringLen) :: dataline1
+    character(LongOutstringLen) :: dataline2
+    character(LongOutstringLen) :: dataline3
+    character(DatumLen) :: datum = ''
     character(4) :: e2sg(GHGNumVar)
 
     write(*, '(a)', advance = 'no') '   Writing requested full (co)spectra on output file..'

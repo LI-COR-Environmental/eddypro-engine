@@ -45,7 +45,7 @@ subroutine InitExVars(StartTimestamp, EndTimestamp, NumRecords, NumValidRecords)
     logical :: EndOfFileReached
     logical :: InitializationPerformed
     type (EXType) :: lEX
-    character(4000) :: string
+    character(LongInstringLen) :: dataline
     character(100) :: substr
 
     write(*,'(a)') &
@@ -60,14 +60,14 @@ subroutine InitExVars(StartTimestamp, EndTimestamp, NumRecords, NumValidRecords)
 
     write(*, '(a)') '  File found, importing content..'
     !> Retrieve label of forth gas from header
-    read(udf, '(a)') string
-    substr = string(index(string, 'ru_ch4'):index(string, 'ru_ch4') + 30)
+    read(udf, '(a)') dataline
+    substr = dataline(index(dataline, 'ru_ch4'):index(dataline, 'ru_ch4') + 30)
     g4lab = substr(8: index(substr, '_flux') - 1)
     g4l = len_trim(g4lab)
     !> Retrieve names of user variables from header
-    if (len_trim(string) >= index(string, 'num_user_var') + 13) then
+    if (len_trim(dataline) >= index(dataline, 'num_user_var') + 13) then
         UserVarHeader = &
-            string(index(string, 'num_user_var') + 13: len_trim(string))
+            dataline(index(dataline, 'num_user_var') + 13: len_trim(dataline))
     else
         UserVarHeader = ''
     end if

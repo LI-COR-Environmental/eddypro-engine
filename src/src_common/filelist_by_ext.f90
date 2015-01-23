@@ -53,9 +53,9 @@ subroutine FileListByExt(DirIn, Ext, MatchTemplate, HardMatch, Template, &
     integer :: open_status
     integer :: read_status
     integer :: dir_status
-    character(1024) :: comm
-    character(256) :: String
-    character(64) :: TmpFileName
+    character(CommLen) :: comm
+    character(PathLen) :: dataline
+    character(FilenameLen) :: fname
     logical, external :: NameMatchesTemplate
 
 
@@ -105,38 +105,38 @@ subroutine FileListByExt(DirIn, Ext, MatchTemplate, HardMatch, Template, &
     cnt = 0
     if (Recurse) then
         do
-            read(udf, '(a)', iostat = read_status) String
+            read(udf, '(a)', iostat = read_status) dataline
             if (read_status /= 0) exit
-            String = trim(adjustl(String))
-            TmpFileName =  &
-                String(index(String, slash, .true.) + 1: len_trim(String))
+            dataline = trim(adjustl(dataline))
+            fname =  &
+                dataline(index(dataline, slash, .true.) + 1: len_trim(dataline))
             if (MatchTemplate) then
-                if (NameMatchesTemplate(TmpFileName, Template, HardMatch)) then
+                if (NameMatchesTemplate(fname, Template, HardMatch)) then
                     cnt = cnt + 1
-                    FileList(cnt)%path = trim(adjustl(String))
+                    FileList(cnt)%path = trim(adjustl(dataline))
                 end if
             else
                 cnt = cnt + 1
-                FileList(cnt)%path = trim(adjustl(String))
+                FileList(cnt)%path = trim(adjustl(dataline))
             end if
         end do
     else
         do
-            read(udf, '(a)', iostat = read_status) String
+            read(udf, '(a)', iostat = read_status) dataline
             if (read_status /= 0) exit
-            if(String(1:index(String, slash, .true.)) &
+            if(dataline(1:index(dataline, slash, .true.)) &
                 /= DirIn(1:len_trim(DirIn))) cycle
-            String = trim(adjustl(String))
-            TmpFileName =  &
-                String(index(String, slash, .true.) + 1: len_trim(String))
+            dataline = trim(adjustl(dataline))
+            fname =  &
+                dataline(index(dataline, slash, .true.) + 1: len_trim(dataline))
             if (MatchTemplate) then
-                if (NameMatchesTemplate(TmpFileName, Template, HardMatch)) then
+                if (NameMatchesTemplate(fname, Template, HardMatch)) then
                     cnt = cnt + 1
-                    FileList(cnt)%path = trim(adjustl(String))
+                    FileList(cnt)%path = trim(adjustl(dataline))
                 end if
             else
                 cnt = cnt + 1
-                FileList(cnt)%path = trim(adjustl(String))
+                FileList(cnt)%path = trim(adjustl(dataline))
             end if
         end do
     end if

@@ -56,12 +56,11 @@ subroutine ImportTOB1(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nrow, nco
     integer :: int4_fp2
     character(8192) :: chunk_head
     character(8195) :: chunk_head2
-    !character(8192) :: chunk(10000)
     character(8192) :: chunk
     character(8195) :: chunk2
     character(8192) :: newchunk
     character(8195) :: newchunk2
-    character(512)  :: OnlyDataPath
+    character(PathLen)  :: OnlyDataPath
     character(128)  :: TmpFilepath
     real(kind = sgl) :: TmpfRaw(nrow, NumCol)
     real(kind = sgl) :: Dataline(NumCol)

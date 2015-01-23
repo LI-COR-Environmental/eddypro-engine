@@ -56,7 +56,7 @@ subroutine driftRetrieveCalibrationEvents(nCalibEvents)
     real(kind = dbl) :: biased_abs
     real(kind = dbl) :: unbiased_abs
     character(32) :: text_vars(128)
-    character(1024) :: datastring
+    character(LongInstringLen) :: dataline
     logical :: co2_bias_is_negative
     logical :: h2o_bias_is_negative
 
@@ -74,34 +74,34 @@ subroutine driftRetrieveCalibrationEvents(nCalibEvents)
     mdcol = 0
     if (open_status == 0) then
         !> Look in the header for CO2/H2O calibration information
-        read(udf, '(a)', iostat = read_status) datastring
+        read(udf, '(a)', iostat = read_status) dataline
         cnt = 0
         do
-            sepa = index(datastring, ',')
-            if (sepa == 0) sepa = len_trim(datastring) + 1
-            if (len_trim(datastring) == 0) exit
+            sepa = index(dataline, ',')
+            if (sepa == 0) sepa = len_trim(dataline) + 1
+            if (len_trim(dataline) == 0) exit
             cnt = cnt + 1
             !> Date and time
-            if (datastring(1:sepa - 1) &
+            if (dataline(1:sepa - 1) &
                 == trim(adjustl(StdDynMDVars(dynmd_date)))) &
                 mdcol(cal_date) = cnt
-            if (datastring(1:sepa - 1) &
+            if (dataline(1:sepa - 1) &
                 == trim(adjustl(StdDynMDVars(dynmd_time)))) &
                 mdcol(cal_time) = cnt
             !> calibration data columns
-            if (datastring(1:sepa - 1) == 'co2_offset')  mdcol(co2)   = cnt
-            if (datastring(1:sepa - 1) == 'h2o_offset')  mdcol(h2o)   = cnt
-            if (datastring(1:sepa - 1) == 'ch4_offset')  mdcol(ch4)   = cnt
-            if (datastring(1:sepa - 1) == 'gas4_offset') mdcol(gas4)  = cnt
-            if (datastring(1:sepa - 1) == 'co2_ref')  mdcol(co2_ref)  = cnt
-            if (datastring(1:sepa - 1) == 'h2o_ref')  mdcol(h2o_ref)  = cnt
-            if (datastring(1:sepa - 1) == 'ch4_ref')  mdcol(ch4_ref)  = cnt
-            if (datastring(1:sepa - 1) == 'gas4_ref') mdcol(gas4_ref) = cnt
-            if (datastring(1:sepa - 1) == 'calibration_temperature') &
+            if (dataline(1:sepa - 1) == 'co2_offset')  mdcol(co2)   = cnt
+            if (dataline(1:sepa - 1) == 'h2o_offset')  mdcol(h2o)   = cnt
+            if (dataline(1:sepa - 1) == 'ch4_offset')  mdcol(ch4)   = cnt
+            if (dataline(1:sepa - 1) == 'gas4_offset') mdcol(gas4)  = cnt
+            if (dataline(1:sepa - 1) == 'co2_ref')  mdcol(co2_ref)  = cnt
+            if (dataline(1:sepa - 1) == 'h2o_ref')  mdcol(h2o_ref)  = cnt
+            if (dataline(1:sepa - 1) == 'ch4_ref')  mdcol(ch4_ref)  = cnt
+            if (dataline(1:sepa - 1) == 'gas4_ref') mdcol(gas4_ref) = cnt
+            if (dataline(1:sepa - 1) == 'calibration_temperature') &
                 mdcol(cal_t) = cnt
-            if (datastring(1:sepa - 1) == 'cleaning') mdcol(cleaning) = cnt
+            if (dataline(1:sepa - 1) == 'cleaning') mdcol(cleaning) = cnt
 
-            datastring = datastring(sepa + 1: len_trim(datastring))
+            dataline = dataline(sepa + 1: len_trim(dataline))
         end do
 
         if (sum(mdcol(co2:gas4)) == 0) then
@@ -112,7 +112,7 @@ subroutine driftRetrieveCalibrationEvents(nCalibEvents)
         !> Reads file and store available calibration data
         i = 0
         do
-            read(udf, '(a)', iostat = read_status) datastring
+            read(udf, '(a)', iostat = read_status) dataline
             if (read_status /= 0) exit
             i = i + 1
 
@@ -120,12 +120,12 @@ subroutine driftRetrieveCalibrationEvents(nCalibEvents)
             text_vars = 'none'
             var_num = 0
             do
-                sepa = index(datastring, separator)
-                if (sepa == 0) sepa = len_trim(datastring) + 1
-                if (len_trim(datastring) == 0) exit
+                sepa = index(dataline, separator)
+                if (sepa == 0) sepa = len_trim(dataline) + 1
+                if (len_trim(dataline) == 0) exit
                 var_num = var_num + 1
-                text_vars(var_num) = datastring(1:sepa - 1)
-                datastring = datastring(sepa + 1: len_trim(datastring))
+                text_vars(var_num) = dataline(1:sepa - 1)
+                dataline = dataline(sepa + 1: len_trim(dataline))
             end do
 
             !> Associate stored data to relevant variables, for current dataline

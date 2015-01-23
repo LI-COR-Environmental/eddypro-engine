@@ -52,32 +52,32 @@ module m_rp_global_var
     character(18), parameter :: SubDirUserStats     = 'eddypro_user_stats'
     character(21), parameter :: SubDirBinOgives     = 'eddypro_binned_ogives'
     character(512) :: raw_out_header
-    character(256) :: StatsDir
-    character(256) :: UserStatsDir
-    character(256) :: RawDir
-    character(256) :: RawSubDir(7)
-    character(256) :: BinCospectraDir
-    character(256) :: BinOgivesDir
-    character(256) :: CospectraDir
-    character(256) :: St1_Path
-    character(256) :: St2_Path
-    character(256) :: St3_Path
-    character(256) :: St4_Path
-    character(256) :: St5_Path
-    character(256) :: St6_Path
-    character(256) :: St7_Path
-    character(256) :: UserSt1_Path
-    character(256) :: UserSt2_Path
-    character(256) :: UserSt3_Path
-    character(256) :: UserSt4_Path
-    character(256) :: UserSt5_Path
-    character(256) :: UserSt6_Path
-    character(256) :: UserSt7_Path
-    character(256) :: Slow_Path
-    character(256) :: Essentials_Path
-    character(256) :: PlanarFit_Path
-    character(256) :: TimelagOpt_Path
-    character(256) :: QCdetails_Path
+    character(PathLen) :: StatsDir
+    character(PathLen) :: UserStatsDir
+    character(PathLen) :: RawDir
+    character(PathLen) :: RawSubDir(7)
+    character(PathLen) :: BinCospectraDir
+    character(PathLen) :: BinOgivesDir
+    character(PathLen) :: CospectraDir
+    character(PathLen) :: St1_Path
+    character(PathLen) :: St2_Path
+    character(PathLen) :: St3_Path
+    character(PathLen) :: St4_Path
+    character(PathLen) :: St5_Path
+    character(PathLen) :: St6_Path
+    character(PathLen) :: St7_Path
+    character(PathLen) :: UserSt1_Path
+    character(PathLen) :: UserSt2_Path
+    character(PathLen) :: UserSt3_Path
+    character(PathLen) :: UserSt4_Path
+    character(PathLen) :: UserSt5_Path
+    character(PathLen) :: UserSt6_Path
+    character(PathLen) :: UserSt7_Path
+    character(PathLen) :: Biomet_Path
+    character(PathLen) :: Essentials_Path
+    character(PathLen) :: PlanarFit_Path
+    character(PathLen) :: TimelagOpt_Path
+    character(PathLen) :: QCdetails_Path
     logical :: OutVarPresent(E2NumVar)
     logical :: TimeLagOptSelected
 
@@ -134,24 +134,9 @@ module m_rp_global_var
     type(BiometType) :: biomet
     type(BiometType) :: prevBiomet
 
-    type(BiometUnitsType) :: BiometUnits
-    type(ProfileUnitsType) :: ProfileUnits
-
     type(DynMDType), parameter :: &
         ErrDynamicMetadata = DynMDType('none', error, error, &
             error, error, error, error, error, error, NullInstrument)
-
-    type(BiometUnitsType), parameter :: &
-        NullBiometUnits = BiometUnitsType('none', 'none', 'none', &
-            'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', &
-            'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', &
-            'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', &
-            'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', &
-            'none', 'none', 'none', 'none')
-
-    type(ProfileUnitsType), parameter :: &
-        NullProfileUnits = ProfileUnitsType('none', 'none', 'none', 'none', 'none', &
-            'none', 'none', 'none')
 
     !> Tags of the setup ".ini" file for rawscreening
     integer, parameter :: Nsn = 400

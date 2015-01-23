@@ -40,8 +40,8 @@ subroutine WriteOutQCDetails(string, StDiff, DtDiff, STFlg, DTFlg)
     integer, intent(in) :: STFlg(GHGNumVar)
     integer, intent(in) :: DTFlg(GHGNumVar)
     !> local variables
-    character(10000) :: dataline
-    character(64) :: datum
+    character(LongOutstringLen) :: dataline
+    character(DatumLen) :: datum
 
     call clearstr(dataline)
 

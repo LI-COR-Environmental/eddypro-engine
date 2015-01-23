@@ -54,12 +54,12 @@ subroutine WriteProcessingProjectVariables()
             EddyProProj%run_mode =  'advanced'
     end select
 
-    EddyProProj%title  = EPPrjCTags(4)%value(1:len_trim(EPPrjCTags(4)%value))
-    EddyProProj%id     = EPPrjCTags(5)%value(1:len_trim(EPPrjCTags(5)%value))
+    EddyProProj%title  = trim(adjustl(EPPrjCTags(4)%value))
+    EddyProProj%id     = trim(adjustl(EPPrjCTags(5)%value))
     if (EddyProProj%id(1:1) /= '_') then
-        EddyProProj%id = 'eddypro_' // EddyProProj%id(1:len_trim(EddyProProj%id))
+        EddyProProj%id = 'eddypro_' // trim(adjustl(EddyProProj%id))
     else
-        EddyProProj%id = 'eddypro_' // EddyProProj%id(1:len_trim(EddyProProj%id))
+        EddyProProj%id = 'eddypro_' // trim(adjustl(EddyProProj%id))
     end if
 
     !>  file type
@@ -90,7 +90,7 @@ subroutine WriteProcessingProjectVariables()
     !> File names prototype and related
     if (EddyProProj%run_env /= 'embedded') then
         EddyProProj%fname_template = &
-            EPPrjCTags(7)%value(1:len_trim(EPPrjCTags(7)%value))
+            trim(adjustl(EPPrjCTags(7)%value))
         if (index(EddyProProj%fname_template, '.') /= 0) then
             !> File extensions
             dot = index(EddyProProj%fname_template, '.', .true.)
@@ -107,7 +107,7 @@ subroutine WriteProcessingProjectVariables()
     !> If file type is TOB1, check if user entered the format
     FileInterpreter%tob1_format = 'none'
     if (EddyProProj%ftype == 'tob1') then
-        select case (EPPrjCTags(32)%value(1:len_trim(EPPrjCTags(32)%value)))
+        select case (trim(adjustl(EPPrjCTags(32)%value)))
             case ('1')
                 FileInterpreter%tob1_format = 'IEEE4'
             case ('2')
@@ -119,12 +119,12 @@ subroutine WriteProcessingProjectVariables()
     EddyProProj%use_extmd_file = EPPrjCTags(9)%value(1:1) == '1'
     AuxFile%metadata ='none'
     if(EddyProProj%use_extmd_file) &
-        AuxFile%metadata = EPPrjCTags(10)%value(1: len_trim(EPPrjCTags(10)%value))
+        AuxFile%metadata = trim(adjustl(EPPrjCTags(10)%value))
 
     !> Whether to use dynamic metadata file
     EddyProProj%use_dynmd_file = EPPrjCTags(11)%value(1:1) == '1'
     if(EddyProProj%use_dynmd_file) &
-        AuxFile%DynMD = EPPrjCTags(12)%value(1: len_trim(EPPrjCTags(12)%value))
+        AuxFile%DynMD = trim(adjustl(EPPrjCTags(12)%value))
 
     !> Settings for binary raw files
     if (EddyProProj%ftype(1:len_trim(EddyProProj%ftype)) == 'generic_bin') then
@@ -146,7 +146,7 @@ subroutine WriteProcessingProjectVariables()
     end if
 
     !> Master sonic
-    EddyProProj%master_sonic = EPPrjCTags(15)%value(1: len_trim(EPPrjCTags(15)%value))
+    EddyProProj%master_sonic = trim(adjustl(EPPrjCTags(15)%value))
     !> Variables to be used other than sonic ones
     EddyProProj%col(ts:pe) = nint(error)
     EddyProProj%col(ts)  = nint(EPPrjNTags(3)%value)
@@ -186,13 +186,13 @@ subroutine WriteProcessingProjectVariables()
     end select
     !> biomet files/folders as applicable
     if (EddyProProj%biomet_data == 'ext_file') &
-        AuxFile%biomet = EPPrjCTags(18)%value(1: len_trim(EPPrjCTags(18)%value))
+        AuxFile%biomet = trim(adjustl(EPPrjCTags(18)%value))
     if (EddyProProj%biomet_data == 'ext_dir') then
-        Dir%biomet = EPPrjCTags(29)%value(1: len_trim(EPPrjCTags(29)%value))
+        Dir%biomet = trim(adjustl(EPPrjCTags(29)%value))
         if (len_trim(Dir%biomet) == 0) then
             Dir%biomet = 'none'
         else
-            EddyProProj%biomet_tail = EPPrjCTags(30)%value(1: len_trim(EPPrjCTags(30)%value))
+            EddyProProj%biomet_tail = trim(adjustl(EPPrjCTags(30)%value))
             EddyProProj%biomet_recurse = EPPrjCTags(31)%value(1:1) == '1'
         end if
     end if
@@ -279,7 +279,7 @@ subroutine WriteProcessingProjectVariables()
     EddyProProj%wpl = EPPrjCTags(33)%value(1:1) /= '0'
 
     !> set error string
-    EddyProProj%err_label = EPPrjCTags(36)%value(1:len_trim(EPPrjCTags(36)%value))
+    EddyProProj%err_label = trim(adjustl(EPPrjCTags(36)%value))
     if (len_trim(EddyProProj%err_label) == 0 .or. EddyProProj%err_label == 'none') &
         EddyProProj%err_label = '-9999.0'
 

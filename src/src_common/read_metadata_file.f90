@@ -79,7 +79,7 @@ subroutine WriteEddyProMetadataVariables(LocCol)
     integer :: i = 0
     integer :: j = 0
 
-    Metadata%sitename = ACTags(9)%value
+    Metadata%sitename = trim(adjustl(ACTags(9)%value))
     Metadata%canopy_height = 0d0
     Metadata%d = 0d0
     Metadata%z0 = 0d0

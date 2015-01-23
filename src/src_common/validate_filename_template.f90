@@ -34,7 +34,7 @@ subroutine ValidateFilenameTemplate()
     use m_common_global_var
     implicit none
     !> local variables
-    character(64) :: Template
+    character(FilenameLen) :: Template
 
     !date patterns: yyyy, yy, ddd, dd, mm
     !time patterns: HH MM

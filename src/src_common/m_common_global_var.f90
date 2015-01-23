@@ -84,10 +84,10 @@ module m_common_global_var
     character(16) :: comm_move
     character(16) :: comm_force_opt
     character(15) :: comm_dir
-    character(256) :: homedir
-    character(256) :: IniDir
-    character(256) :: TmpDir
-    character(256) :: PrjPath
+    character(PathLen) :: homedir
+    character(PathLen) :: IniDir
+    character(PathLen) :: TmpDir
+    character(PathLen) :: PrjPath
 
     character(18), parameter :: PrjFile   = 'processing.eddypro'
     character(6), parameter :: licor_appdata = '.licor'
@@ -156,10 +156,10 @@ module m_common_global_var
     character(56), parameter  :: BinnedFilePrototype    = 'yyyymmdd-HHMM_xxxxxx_xxxxxxxxx_xxxx-xx-xxTxxxxxx_xxx.csv'
     character(54), parameter  :: FullFilePrototype      = 'yyyymmdd-HHMM_xxxx_xxxxxxxxx_xxxx-xx-xxTxxxxxx_xxx.csv'
 
-    character(256) :: GHGEUROPE_Path
-    character(256) :: Ameriflux_Path
-    character(256) :: FullOut_Path
-    character(256) :: Metadata_Path
+    character(PathLen) :: GHGEUROPE_Path
+    character(PathLen) :: Ameriflux_Path
+    character(PathLen) :: FullOut_Path
+    character(PathLen) :: Metadata_Path
 
     !> physical params and other useful numbers
     integer :: mmm
@@ -212,7 +212,6 @@ module m_common_global_var
 
     !> filename tools
     character(30), parameter :: ProgIniFile = 'eddypro_logging.ini'
-    character(256) :: NativeFile
     character(30), parameter :: DelErrorFile = 'ene_converter_del.log'
     character(3), parameter  :: DataArchiveExt          = 'ene'
     character(3), parameter  :: DataFileExt             = 'ane'

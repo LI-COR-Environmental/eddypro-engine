@@ -48,13 +48,13 @@ integer function CreateDir(directory)
     !> in/out variables
     character(*), intent(in) :: directory
     !> local variables
-    character(1024) :: command
+    character(CommLen) :: comm
 
 
     !> create dir and if one already exists, skip obvious system message
     !> redirecting through windows NUL (equivalent to linux /dev/null)
-    command = 'mkdir ' // directory(1: len_trim(directory)) // comm_err_redirect
-    CreateDir = system(command)
+    comm = 'mkdir ' // directory(1: len_trim(directory)) // comm_err_redirect
+    CreateDir = system(comm)
 end function CreateDir
 
 !***************************************************************************
@@ -196,9 +196,9 @@ subroutine NumberOfFilesInDir(DirIn, ext, MatchTemplate, Template, N, rN)
     !> local variables
     integer :: dir_status
     integer :: open_status
-    character(1024) :: comm
-    character(256) :: string
-    character(64) :: TmpFileName
+    character(CommLen) :: comm
+    character(PathLen) :: dataline
+    character(FilenameLen) :: TmpFileName
     logical, external :: NameMatchesTemplate
 
     !> List files, recursively in all cases
@@ -241,20 +241,20 @@ subroutine NumberOfFilesInDir(DirIn, ext, MatchTemplate, Template, N, rN)
 
     !> Open temporary file and counts files
     do
-        read(udf, '(a)', iostat = open_status) string
+        read(udf, '(a)', iostat = open_status) dataline
         if (open_status /= 0) exit
             TmpFileName = &
-                string(index(string, slash, .true.) + 1: len_trim(string))
+                dataline(index(dataline, slash, .true.) + 1: len_trim(dataline))
             if (MatchTemplate) then
                 if (NameMatchesTemplate(TmpFileName, &
                     Template, MatchTemplate)) then
                     N = N + 1
-                    if (string(1:index(string, slash, .true.)) &
+                    if (dataline(1:index(dataline, slash, .true.)) &
                         == trim(adjustl(DirIn))) rN = rN + 1
                 end if
             else
                 N = N + 1
-                if (string(1:index(string, slash, .true.)) &
+                if (dataline(1:index(dataline, slash, .true.)) &
                     == trim(adjustl(DirIn))) rN = rN + 1
             end if
     end do
@@ -365,16 +365,16 @@ end subroutine AdjDir
 ! \test
 ! \todo
 !***************************************************************************
-subroutine ForceForwardSlash(string)
+subroutine ForceForwardSlash(dataline)
     implicit none
     !> in/out variables
-    character(*), intent(inout) :: string
+    character(*), intent(inout) :: dataline
     !> local variables
     integer :: i = 0
 
 
-    do i = 1, len_trim(string)
-        if(string(i:i) == '\') string(i:i) = '/'
+    do i = 1, len_trim(dataline)
+        if(dataline(i:i) == '\') dataline(i:i) = '/'
     end do
 end subroutine ForceForwardSlash
 
@@ -411,6 +411,7 @@ end subroutine StripFilename
 ! \todo
 !***************************************************************************
 subroutine scanCsvFile(fpath, separator, cols_from_header, nrow, ncol, failed)
+    use m_typedef
     implicit none
     !> in/out variables
     integer, intent(in) :: cols_from_header
@@ -424,7 +425,7 @@ subroutine scanCsvFile(fpath, separator, cols_from_header, nrow, ncol, failed)
     integer :: tncol
     integer :: io_status
     logical :: count_cols
-    character(2048) :: row
+    character(LongInstringLen) :: row
     integer, external :: countsubstring
     integer, external :: SplitCount
 

@@ -97,7 +97,6 @@ program EddyproRP
     real(kind = dbl) :: Mat2d(2, 2)
     real(kind = dbl) :: pfVec(3)
     real(kind = dbl) :: pfVec2d(2)
-    real(kind = dbl) :: bRaw(MaxNumBiometRow, MaxNumBiometCol)
     real(kind = dbl) :: PFb2d(2, MaxNumWSect) = 0.d0
 
     real(kind = dbl), allocatable :: bf(:)
@@ -114,7 +113,7 @@ program EddyproRP
     character(10) :: loggedDate
     character(10) :: date
     character(5) :: time
-    character(256) :: BgnOutStrg
+    character(PathLen) :: suffixOutString
     character(64) :: TmpString1
     character(32) :: char_doy
     character(10) :: tmpDate
@@ -531,9 +530,8 @@ program EddyproRP
                     RawFileList, NumRawFiles, NextRawFileIndx, BypassCol, &
                     MaxNumFileRecords, MetaIsNeeded, &
                     EddyProProj%biomet_data == 'embedded', .false., &
-                    Raw, size(Raw, 1), size(Raw, 2), bRaw, size(bRaw, 1), &
-                    size(bRaw, 2), PeriodRecords, EmbBiometDataExist, &
-                    skip_period, LatestRawFileIndx, Col)
+                    Raw, size(Raw, 1), size(Raw, 2), PeriodRecords, &
+                    EmbBiometDataExist, skip_period, LatestRawFileIndx, Col)
                 if (skip_period) cycle to_periods_loop
 
                 !> Period skip control with message
@@ -947,9 +945,8 @@ program EddyproRP
                     RawFileList, NumRawFiles, NextRawFileIndx, BypassCol,  &
                     MaxNumFileRecords, MetaIsNeeded, &
                     EddyProProj%biomet_data == 'embedded', .false., &
-                    Raw, size(Raw, 1), size(Raw, 2), bRaw, size(bRaw, 1), &
-                    size(bRaw, 2), PeriodRecords, EmbBiometDataExist, &
-                    skip_period, LatestRawFileIndx, Col)
+                    Raw, size(Raw, 1), size(Raw, 2), PeriodRecords, &
+                    EmbBiometDataExist, skip_period, LatestRawFileIndx, Col)
                 if (skip_period) cycle pf_periods_loop
 
                 !> Period skip control with message
@@ -1335,9 +1332,8 @@ program EddyproRP
                 RawFileList, NumRawFiles, NextRawFileIndx, BypassCol, &
                 MaxNumFileRecords, MetaIsNeeded, &
                 EddyProProj%biomet_data == 'embedded', .false., Raw, &
-                size(Raw, 1), size(Raw, 2), bRaw, size(bRaw, 1), size(bRaw, 2), &
-                PeriodRecords, EmbBiometDataExist, skip_period, &
-                LatestRawFileIndx, Col)
+                size(Raw, 1), size(Raw, 2), PeriodRecords, EmbBiometDataExist, &
+                skip_period, LatestRawFileIndx, Col)
 
             !> Period skip control
             if (skip_period) cycle drift_loop
@@ -1499,7 +1495,7 @@ program EddyproRP
 
         call WriteDatumFloat(float_doy, char_doy, EddyProProj%err_label)
         call ShrinkString(char_doy)
-        BgnOutStrg =  trim(adjustl(RawFileList(NextRawFileIndx)%name)) &
+        suffixOutString =  trim(adjustl(RawFileList(NextRawFileIndx)%name)) &
                    // ',' // trim(Stats%date) // ',' // trim(Stats%time) &
                    // ',' // char_doy(1: index(char_doy, '.')+ 3)
 
@@ -1510,7 +1506,7 @@ program EddyproRP
             call BiometRetrieveExternalData(bFileList, size(bFileList), &
                 bLastFile, bLastRec, tsStart, &
                 tsEnd, BiometDataFound, .true.)
-            call WriteOutBiomet(BgnOutStrg)
+            call WriteOutBiomet(suffixOutString)
         end if
 
         !> Exception handling
@@ -1528,9 +1524,8 @@ program EddyproRP
         call ImportCurrentPeriod(tsStart, tsEnd, RawFileList, &
             NumRawFiles, NextRawFileIndx, BypassCol, MaxNumFileRecords, &
             MetaIsNeeded, EddyProProj%biomet_data == 'embedded', .true., &
-            Raw, size(Raw, 1), size(Raw, 2), bRaw, &
-            size(bRaw, 1), size(bRaw, 2), PeriodRecords, EmbBiometDataExist, &
-            skip_period, LatestRawFileIndx, Col)
+            Raw, size(Raw, 1), size(Raw, 2), PeriodRecords, &
+            EmbBiometDataExist, skip_period, LatestRawFileIndx, Col)
 
         !> If it's running in metadata retriever mode,
         !> create a dummy dataset 1 minute long
@@ -1554,7 +1549,7 @@ program EddyproRP
                 end if
 
                 !> Write biomet output
-                call WriteOutBiomet(BgnOutStrg)
+                call WriteOutBiomet(suffixOutString)
             end if
 
             !> Period skip control
@@ -1702,12 +1697,12 @@ program EddyproRP
             call BasicStats(E2Set, size(E2Set, 1), size(E2Set, 2), 1, .true.)
             Stats1 = Stats
             if (RPsetup%out_st(1)) &
-                call WriteOutStats(ust1, Stats1, BgnOutStrg, PeriodRecords)
+                call WriteOutStats(ust1, Stats1, suffixOutString, PeriodRecords)
             if (NumUserVar > 0) then
                 call UserBasicStats(UserSet, &
                     size(UserSet, 1), size(UserSet, 2), 1)
                 if (RPsetup%out_st(1)) &
-                    call WriteOutUserStats(u_user_st1, BgnOutStrg, &
+                    call WriteOutUserStats(u_user_st1, suffixOutString, &
                         PeriodRecords, AddUserStatsHeader)
                     AddUserStatsHeader = .false.
             end if
@@ -1785,12 +1780,12 @@ program EddyproRP
             call BasicStats(E2Set, size(E2Set, 1), size(E2Set, 2), 2, .true.)
             Stats2 = Stats
             if (RPsetup%out_st(2)) &
-                call WriteOutStats(ust2, Stats2, BgnOutStrg, PeriodRecords)
+                call WriteOutStats(ust2, Stats2, suffixOutString, PeriodRecords)
             if (NumUserVar > 0) then
                 call UserBasicStats(UserSet, &
                     size(UserSet, 1), size(UserSet, 2), 2)
                 if (RPsetup%out_st(2)) &
-                    call WriteOutUserStats(u_user_st2, BgnOutStrg, &
+                    call WriteOutUserStats(u_user_st2, suffixOutString, &
                         PeriodRecords, AddUserStatsHeader)
                     AddUserStatsHeader = .false.
             end if
@@ -1813,12 +1808,12 @@ program EddyproRP
             call BasicStats(E2Set, size(E2Set, 1), size(E2Set, 2), 3, .true.)
             Stats3 = Stats
             if (RPsetup%out_st(3)) &
-                call WriteOutStats(ust3, Stats3, BgnOutStrg, PeriodRecords)
+                call WriteOutStats(ust3, Stats3, suffixOutString, PeriodRecords)
             if (NumUserVar > 0) then
                 call UserBasicStats(UserSet, &
                     size(UserSet, 1), size(UserSet, 2), 3)
                 if (RPsetup%out_st(3)) &
-                    call WriteOutUserStats(u_user_st3, BgnOutStrg, &
+                    call WriteOutUserStats(u_user_st3, suffixOutString, &
                         PeriodRecords, AddUserStatsHeader)
                     AddUserStatsHeader = .false.
             end if
@@ -1843,12 +1838,12 @@ program EddyproRP
             call BasicStats(E2Set, size(E2Set, 1), size(E2Set, 2), 4, .true.)
             Stats4 = Stats
             if (RPsetup%out_st(4)) &
-                call WriteOutStats(ust4, Stats4, BgnOutStrg, PeriodRecords)
+                call WriteOutStats(ust4, Stats4, suffixOutString, PeriodRecords)
             if (NumUserVar > 0) then
                 call UserBasicStats(UserSet, &
                     size(UserSet, 1), size(UserSet, 2), 4)
                 if (RPsetup%out_st(4)) &
-                    call WriteOutUserStats(u_user_st4, BgnOutStrg, &
+                    call WriteOutUserStats(u_user_st4, suffixOutString, &
                         PeriodRecords, AddUserStatsHeader)
                     AddUserStatsHeader = .false.
             end if
@@ -1876,12 +1871,12 @@ program EddyproRP
             call BasicStats(E2Set, size(E2Set, 1), size(E2Set, 2), 5, .true.)
             Stats5 = Stats
             if (RPsetup%out_st(5)) &
-                call WriteOutStats(ust5, Stats5, BgnOutStrg, PeriodRecords)
+                call WriteOutStats(ust5, Stats5, suffixOutString, PeriodRecords)
             if (NumUserVar > 0) then
                 call UserBasicStats(UserSet, &
                     size(UserSet, 1), size(UserSet, 2), 5)
                 if (RPsetup%out_st(5)) &
-                    call WriteOutUserStats(u_user_st5, BgnOutStrg, &
+                    call WriteOutUserStats(u_user_st5, suffixOutString, &
                         PeriodRecords, AddUserStatsHeader)
                     AddUserStatsHeader = .false.
             end if
@@ -1931,12 +1926,12 @@ program EddyproRP
             call BasicStats(E2Set, size(E2Set, 1), size(E2Set, 2), 6, .true.)
             Stats6 = Stats
             if (RPsetup%out_st(6)) &
-                call WriteOutStats(ust6, Stats6, BgnOutStrg, PeriodRecords)
+                call WriteOutStats(ust6, Stats6, suffixOutString, PeriodRecords)
             if (NumUserVar > 0) then
                 call UserBasicStats(UserSet, &
                     size(UserSet, 1), size(UserSet, 2), 6)
                 if (RPsetup%out_st(6)) &
-                    call WriteOutUserStats(u_user_st6, BgnOutStrg, &
+                    call WriteOutUserStats(u_user_st6, suffixOutString, &
                         PeriodRecords, AddUserStatsHeader)
                     AddUserStatsHeader = .false.
             end if
@@ -2002,12 +1997,12 @@ program EddyproRP
                 size(E2Primes, 1), size(E2Primes, 2), 7, .true.)
             Stats7 = Stats
             if (RPsetup%out_st(7)) &
-                call WriteOutStats(ust7, Stats7, BgnOutStrg, PeriodRecords)
+                call WriteOutStats(ust7, Stats7, suffixOutString, PeriodRecords)
             if (NumUserVar > 0) then
                 call UserBasicStats(UserPrimes, &
                     size(UserPrimes, 1), size(UserPrimes, 2), 7)
                 if (RPsetup%out_st(7)) &
-                    call WriteOutUserStats(u_user_st7, BgnOutStrg, &
+                    call WriteOutUserStats(u_user_st7, suffixOutString, &
                         PeriodRecords, AddUserStatsHeader)
                     AddUserStatsHeader = .false.
             end if
@@ -2140,14 +2135,14 @@ program EddyproRP
 
             !> Write details on output files if requested
             if(RPsetup%out_qc_details .and. Meth%qcflag /= 'none') &
-                call WriteOutQCDetails(BgnOutStrg, StDiff, DtDiff, STFlg, DTFlg)
+                call WriteOutQCDetails(suffixOutString, StDiff, DtDiff, STFlg, DTFlg)
 
             !> Update values of AGC and RSSI as available
             call SetLicorDiagnostics(NumUserVar)
         end if
 
         !> Write on output file
-        call WriteOutFiles(BgnOutStrg, PeriodRecords, PeriodActualRecords, &
+        call WriteOutFiles(suffixOutString, PeriodRecords, PeriodActualRecords, &
             StDiff, DtDiff)
 
         !> Write on Ameriflux style output

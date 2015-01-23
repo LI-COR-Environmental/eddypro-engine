@@ -47,7 +47,7 @@ subroutine ImportFullCospectra(CospFile, cospectra, nfreq, wanted, skip)
     integer :: i
     integer :: j
     real(kind = dbl), allocatable :: aux(:)
-    character(1024) :: string
+    character(ShortInstringLen) :: dataline
     character(32) :: var
     character(11) :: covlabs(GHGNumVar)
     real(kind = dbl) :: cov(GHGNumVar)
@@ -70,21 +70,22 @@ subroutine ImportFullCospectra(CospFile, cospectra, nfreq, wanted, skip)
         read(udf, *)
     end do
 
-    !> Detects cospectra available in the file, if none of those wanted, exit with error code
-    !> The control is done on the presence of the label "cov(w_xx)"
+    !> Detects cospectra available in the file, if none of those wanted,
+    !> exit with error code. The control is done on the presence
+    !> of the label "cov(w_xx)"
     ord = 0
     nvar = 0
-    read(udf, '(a)') string
+    read(udf, '(a)') dataline
     do
-        if (index(string, ',') /= 0) then
-            var = string(1:index(string, ',') - 1)
+        if (index(dataline, ',') /= 0) then
+            var = dataline(1:index(dataline, ',') - 1)
             nvar = nvar + 1
             do j = 1, GHGNumVar
                 if (var == covlabs(j)) ord(j) = nvar
             end do
-            string = string(index(string, ',') + 1:len_trim(string))
+            dataline = dataline(index(dataline, ',') + 1:len_trim(dataline))
         else
-            var = string(1:len_trim(string))
+            var = dataline(1:len_trim(dataline))
             nvar = nvar + 1
             do j = 1, GHGNumVar
                 if (var == covlabs(j)) ord(j) = nvar
@@ -132,10 +133,11 @@ subroutine ImportFullCospectra(CospFile, cospectra, nfreq, wanted, skip)
             end where
         end do
 
-        !> Check that cospectra values are within reasonable values (not too high).
-        !> Discard co-spectra if this is the case
-        !> This is somewhat arbitrary, introduced to eliminate observed implausible cospectra
-        !> It's very strict: one only outranged value will eliminate the whole cospectra set
+        !> Check that cospectra values are within reasonable values
+        !> (not too high). Discard co-spectra if this is the case
+        !> This is somewhat arbitrary, introduced to eliminate observed
+        !> implausible cospectra It's very strict: one only outranged
+        !> value will eliminate the whole cospectra set
         do j = w_u, w_gas4
             if (wanted(j) .and. any(dabs(cospectra(:)%of(j)) > MaxSpecValue)) then
                 cospectra = ErrSpec
@@ -168,7 +170,7 @@ subroutine FullCospectraLength(Filepath, N)
     !> local variables
     integer :: io_status
     integer :: i
-    character(1024) :: string
+    character(ShortInstringLen) :: dataline
     character(11) :: covlabs(GHGNumVar)
     data covlabs / 'cov(w_u)', 'cov(w_v)', 'cov(w_w)', 'cov(w_ts)', &
                    'cov(w_co2)', 'cov(w_h2o)', 'cov(w_ch4)', 'cov(w_gas4)' /
@@ -191,7 +193,7 @@ subroutine FullCospectraLength(Filepath, N)
 
     N = 0
     do
-        read(udf, '(a)', iostat = io_status) string
+        read(udf, '(a)', iostat = io_status) dataline
         if (io_status > 0) cycle
         if (io_status < 0) exit
         N = N + 1

@@ -41,7 +41,7 @@ subroutine InitEnv()
     integer :: aux
     character(32) :: timestring
     character(256) :: switch
-    character(256) :: projPath
+    character(PathLen) :: projPath
     character(256) :: arg
     character(32) :: tmpDirPadding
     character(3), parameter :: OS_default = 'win'

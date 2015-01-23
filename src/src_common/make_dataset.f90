@@ -47,11 +47,11 @@ subroutine MakeDataset(PathIn, MasterTimeSeries, nrow, StartIndx, &
     integer :: tmp_indx
     integer :: open_status
     integer :: read_status
-    character(256) :: PathOut
-    character(MaxOutstringLen) :: DataString
-    character(MaxOutstringLen) :: DataString_utf8
-    character(MaxOutstringLen) :: TmpDataString
-    character(MaxOutstringLen) :: ErrString
+    character(PathLen) :: PathOut
+    character(LongOutstringLen) :: dataline
+    character(LongOutstringLen) :: dataline_utf8
+    character(LongOutstringLen) :: Tmpdataline
+    character(LongOutstringLen) :: ErrString
     character(10) :: fdate
     character(5)  :: ftime
     type (DateType) :: fTimestamp
@@ -83,9 +83,9 @@ subroutine MakeDataset(PathIn, MasterTimeSeries, nrow, StartIndx, &
 
     !> Copy header from input file and copy it to output file
     do i = 1, hnrow
-        read(udf, '(a)', iostat = read_status) DataString
-        call latin1_to_utf8(DataString, DataString_utf8)
-        write(udf2, '(a)') trim(adjustl(DataString_utf8))
+        read(udf, '(a)', iostat = read_status) dataline
+        call latin1_to_utf8(dataline, dataline_utf8)
+        write(udf2, '(a)') trim(adjustl(dataline_utf8))
     end do
 
     !> Now creates actual dataset, inserting either actual
@@ -104,24 +104,24 @@ subroutine MakeDataset(PathIn, MasterTimeSeries, nrow, StartIndx, &
             end if
 
             !> Read the data string
-            read(udf, '(a)', iostat = read_status) DataString
+            read(udf, '(a)', iostat = read_status) dataline
 
             if(read_status /= 0) then
                 !> Insert here a control
                 exit
             end if
 
-            !> Retrieve date and time from Datastring
+            !> Retrieve date and time from dataline
             if (AddNoFile) then
-                TmpDataString = &
-                DataString(index(DataString, separator) + 1: len_trim(DataString))
+                Tmpdataline = &
+                dataline(index(dataline, separator) + 1: len_trim(dataline))
             else
-                TmpDataString = DataString
+                Tmpdataline = dataline
             end if
-            fdate = TmpDataString(1:index(TmpDataString, separator) - 1)
-            TmpDataString = &
-            TmpDataString(index(TmpDataString, separator) + 1: len_trim(TmpDataString))
-            ftime = TmpDataString(1:index(TmpDataString, separator) - 1)
+            fdate = Tmpdataline(1:index(Tmpdataline, separator) - 1)
+            Tmpdataline = &
+            Tmpdataline(index(Tmpdataline, separator) + 1: len_trim(Tmpdataline))
+            ftime = Tmpdataline(1:index(Tmpdataline, separator) - 1)
 
             !> Convert into timestamp and take it back to the
             !> beginning of the averaging period
@@ -131,7 +131,7 @@ subroutine MakeDataset(PathIn, MasterTimeSeries, nrow, StartIndx, &
             !> Check if fTimestamp is equal to current time step timestamp
             if(fTimestamp == MasterTimeSeries(i)) then
                 !> If yes, time to write on output file
-                write(udf2,'(a)') trim(adjustl(DataString))
+                write(udf2,'(a)') trim(adjustl(dataline))
                 cycle periods_loop
             elseif (fTimestamp > MasterTimeSeries(i)) then
                 !> If not, checks if timestamp in file is later than current
@@ -184,7 +184,7 @@ subroutine AddErrorString(unt, Timestamp, ErrString, LenErrStr, &
     integer :: int_doy
     real(kind = dbl) :: float_doy
     character(32) :: char_doy
-    character(LenErrStr) :: String
+    character(LenErrStr) :: dataline
 
     !> Convert Timestamp to date and time and calculate doy
     call DateTypeToDateTime(Timestamp, date, time)
@@ -195,22 +195,22 @@ subroutine AddErrorString(unt, Timestamp, ErrString, LenErrStr, &
     !> Create output string
     if (AddNoFile) then
         if (IsGhgEuropeFile) then
-            String = 'not_enough_data,' // date(1:10) // ',' // time // ',' &
-                     // EddyProProj%err_label(1:len_trim(EddyProProj%err_label)) &
+            dataline = 'not_enough_data,' // date(1:10) // ',' // time // ',' &
+                     // trim(adjustl(EddyProProj%err_label)) &
                      // ErrString(index(ErrString, ',,') + 1: len_trim(ErrString))
         else
-            String = 'not_enough_data,' // date(1:10) // ',' // time // ',' &
+            dataline = 'not_enough_data,' // date(1:10) // ',' // time // ',' &
                      // char_doy(1: index(char_doy, '.')+ 3) &
                      // ErrString(index(ErrString, ',,') + 1: len_trim(ErrString))
         end if
     else
-        String = date(1:10) // ',' // time // ',' &
+        dataline = date(1:10) // ',' // time // ',' &
                 // char_doy(1: index(char_doy, '.')+ 3) &
                 // ErrString (index(ErrString, ',,') + 1: len_trim(ErrString))
     end if
 
     !> write on file
-    write(unt, '(a)') trim(adjustl(String))
+    write(unt, '(a)') trim(adjustl(dataline))
 
 
 end subroutine AddErrorString

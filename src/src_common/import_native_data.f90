@@ -49,7 +49,7 @@ subroutine ImportNativeData(Filepath, FirstRecord, LastRecord, LocCol, &
     integer :: io_status
     integer :: read_status
     integer(kind = 1) :: rec_len
-    character(256) :: datastring
+    character(ShortInstringLen) :: dataline
 
 
     skip_file = .false.
@@ -71,7 +71,8 @@ subroutine ImportNativeData(Filepath, FirstRecord, LastRecord, LocCol, &
             !> Reads record length from first byte of the file
 
             open(udf, file = trim(adjustl(Filepath)), status = 'old', &
-                iostat = io_status, access='direct', form = 'unformatted', recl = 1)
+                iostat = io_status, access='direct', &
+                form = 'unformatted', recl = 1)
             if (io_status /= 0) then
                 call ExceptionHandler(54)
                 skip_file = .true.
@@ -79,7 +80,8 @@ subroutine ImportNativeData(Filepath, FirstRecord, LastRecord, LocCol, &
             end if
             read(udf, rec=1, iostat = read_status) rec_len
 
-            !> Check that rec_len is consistent with number of variables in files, if not skip
+            !> Check that rec_len is consistent with number of
+            !> variables in files, if not skip
             if (read_status /= 0 .or. rec_len < 0 .or. rec_len > 24 &
                 .or. rec_len /= size(fRaw, 2) * 2) then
                 call ExceptionHandler(54)
@@ -102,7 +104,8 @@ subroutine ImportNativeData(Filepath, FirstRecord, LastRecord, LocCol, &
             end if
 
         case ('tob1')
-            !> If number of header rows is /= 0, open file in TEXT mode to read data format (IEEE4 or FP2)
+            !> If number of header rows is /= 0, open file in TEXT mode to
+            !> read data format (IEEE4 or FP2)
             if (FileInterpreter%tob1_format == 'none' &
                 .and. FileInterpreter%header_rows > 0) then
                 open(udf, file = trim(adjustl(Filepath)), &
@@ -113,25 +116,26 @@ subroutine ImportNativeData(Filepath, FirstRecord, LastRecord, LocCol, &
                     return
                 end if
                 do i = 1, FileInterpreter%header_rows
-                    !> Read file as text and looks for IEEE4 or FP2 in any row of the file
-                    read(udf, '(a)') datastring
-                    if (index(datastring, '"IEEE4"') /= 0 &
-                        .or. index(datastring, '"ieee4"') /= 0) then
+                    !> Read file as text and looks for IEEE4 or FP2 in
+                    !> any row of the file
+                    read(udf, '(a)') dataline
+                    if (index(dataline, '"IEEE4"') /= 0 &
+                        .or. index(dataline, '"ieee4"') /= 0) then
                         FileInterpreter%tob1_format = 'IEEE4'
                         exit
-                    elseif (index(datastring, '"FP2"') /= 0 &
-                        .or. index(datastring, '"fp2"') /= 0) then
+                    elseif (index(dataline, '"FP2"') /= 0 &
+                        .or. index(dataline, '"fp2"') /= 0) then
                         FileInterpreter%tob1_format = 'FP2'
                         exit
                     end if
                 end do
-                !> In the same datastring, counts the number of ULONG variables
+                !> In the same dataline, counts the number of ULONG variables
                 FileInterpreter%ulongs = 0
                 do
-                    if(index(datastring, '"ULONG"') /= 0) then
+                    if(index(dataline, '"ULONG"') /= 0) then
                         FileInterpreter%ulongs = FileInterpreter%ulongs + 1
-                        datastring = &
-                        datastring(index(datastring, '"ULONG"') + 1: len_trim(datastring))
+                        dataline = &
+                        dataline(index(dataline, '"ULONG"') + 1: len_trim(dataline))
                     else
                         exit
                     end if

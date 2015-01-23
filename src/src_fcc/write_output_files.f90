@@ -35,14 +35,14 @@ subroutine WriteOutputFiles(lEx)
     implicit none
     !> in/out variables
     Type(ExType), intent(in) :: lEx
-    character(10000) :: dataline
+    character(LongOutstringLen) :: dataline
 
     !> local variables
     integer :: var
     integer :: i
     integer :: gas
     integer :: igas
-    character(64) :: datum
+    character(DatumLen) :: datum
     character(12) :: iso_basic
 
     !>***************************************************************

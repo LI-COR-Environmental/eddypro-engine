@@ -44,7 +44,7 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
     integer :: open_status
     integer :: read_status
     integer :: i
-    character(10000) :: string
+    character(LongOutstringLen) :: dataline
 
 
     !> If rec_num > 0,open file and moves to the requested record
@@ -58,13 +58,13 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
         end do
     end if
 
-    !> Read datastring
+    !> Read data line
     ValidRecord = .true.
     EndOfFileReached = .false.
-    read(unt, '(a)', iostat = read_status) string
+    read(unt, '(a)', iostat = read_status) dataline
 
     !> Controls on what was read
-    if (read_status > 0 .or. index(string, 'not_enough_data') /= 0) then
+    if (read_status > 0 .or. index(dataline, 'not_enough_data') /= 0) then
         ValidRecord = .false.
         if (rec_num > 0) close(unt)
         return
@@ -75,16 +75,16 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
         return
     end if
 
-    !> Strip file name from string
-    lEx%fname = string(1:index(string, separator) - 1)
-    string = string(index(string, separator) + 1: len_trim(string))
-    !> Read timestamp and eliminate if from string
-    lEx%date = string(1:10)
-    lEx%time = string(12:16)
-    string = string(18: len_trim(string))
+    !> Strip file name from dataline
+    lEx%fname = dataline(1:index(dataline, separator) - 1)
+    dataline = dataline(index(dataline, separator) + 1: len_trim(dataline))
+    !> Read timestamp and eliminate if from dataline
+    lEx%date = dataline(1:10)
+    lEx%time = dataline(12:16)
+    dataline = dataline(18: len_trim(dataline))
 
     !> read rest of results
-    read(string, *, iostat = read_status) lEx%daytime, lEx%file_records, lEx%used_records, &
+    read(dataline, *, iostat = read_status) lEx%daytime, lEx%file_records, lEx%used_records, &
         lEx%Flux0%Tau, lEx%rand_uncer(u), lEx%Flux0%H, lEx%rand_uncer(ts), &
         lEx%Flux0%LE, lEx%rand_uncer_LE, lEx%Flux0%co2, lEx%rand_uncer(co2), &
         lEx%Flux0%h2o, lEx%rand_uncer(h2o), lEx%Flux0%ch4, lEx%rand_uncer(ch4), &
@@ -145,12 +145,12 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
 
     !> Now read user variables if they exist
     if (NumUserVar > 0) then
-        !> Reduce string to the user variables
+        !> Reduce dataline to the user variables
         do ii = 1, 269
-            string = string(index(string, ',') + 1: len_trim(string))
+            dataline = dataline(index(dataline, ',') + 1: len_trim(dataline))
         end do
         !> Read user variables
-        read(string, *, iostat = read_status) lEx%user_var(1:NumUserVar)
+        read(dataline, *, iostat = read_status) lEx%user_var(1:NumUserVar)
         if (read_status /= 0) then
             ValidRecord = .false.
             if (rec_num > 0) close(unt)

@@ -36,8 +36,8 @@ subroutine WriteOutBiomet(init_string)
     character(*), intent(in) :: init_string
     !> local variables
     integer :: i
-    character(2048) :: dataline
-    character(64) :: datum
+    character(LongOutstringLen) :: dataline
+    character(DatumLen) :: datum
 
     if (EddyProProj%out_biomet .and. nbVars > 0) then
         call clearstr(dataline)

@@ -40,8 +40,8 @@ subroutine WriteOutStats(unt, LocStats, string, N)
     character(*), intent(in) :: string
     !local variables
     integer :: j = 0
-    character(10000) :: dataline = ''
-    character(30) :: datum = ''
+    character(LongOutstringLen) :: dataline
+    character(DatumLen) :: datum = ''
 
 
     call clearstr(dataline)

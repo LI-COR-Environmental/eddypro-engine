@@ -43,14 +43,16 @@ subroutine InitContinuousDataset(PathIn, ErrString, hnrow)
     integer :: io_status
     integer :: read_status
     integer :: i
-    character(MaxOutstringLen) :: Datastring
+    character(LongOutstringLen) :: dataline
 
 
     !> Open file
-    open(udf, file = PathIn(1:len_trim(PathIn)), status = 'old', iostat = io_status)
+    open(udf, file = PathIn(1:len_trim(PathIn)), status = 'old', &
+        iostat = io_status)
     if (io_status /= 0 ) then
         write(*,'(a)')
-        write(*,'(a)') '  A problem occurred while opening file: ', PathIn(1:len_trim(PathIn))
+        write(*,'(a)') '  A problem occurred while opening file: ', &
+            PathIn(1:len_trim(PathIn))
         write(*,'(a)') '   File not imported.'
         return
     end if
@@ -60,35 +62,36 @@ subroutine InitContinuousDataset(PathIn, ErrString, hnrow)
         read(udf,*)
     end do
 
-    !> Now import first valid Datastring
+    !> Now import first valid dataline
     do
-        read(udf, '(a)', iostat = read_status) Datastring
+        read(udf, '(a)', iostat = read_status) dataline
         if (read_status > 0) cycle
         exit
     end do
 
     ErrString = ','
     !> skips everything before the end of the date/time/DOY
-    sepa = index(Datastring, ',')
-    Datastring = Datastring(sepa + 1: len_trim(Datastring))
-    sepa = index(Datastring, ':') + 3
-    Datastring = Datastring(sepa + 1: len_trim(Datastring))
-    sepa = index(Datastring, ',')
-    Datastring = Datastring(sepa + 1: len_trim(Datastring))
+    sepa = index(dataline, ',')
+    dataline = dataline(sepa + 1: len_trim(dataline))
+    sepa = index(dataline, ':') + 3
+    dataline = dataline(sepa + 1: len_trim(dataline))
+    sepa = index(dataline, ',')
+    dataline = dataline(sepa + 1: len_trim(dataline))
 
-    !> Now Datastring starts from first sensible datum
+    !> Now dataline starts from first sensible datum
     !> Substitute datum with errors
     do
-        sepa = index(Datastring, ',')
+        sepa = index(dataline, ',')
         if (sepa /= 0) then
-            ErrString = ErrString(1:len_trim(ErrString)) // EddyProProj%err_label(1:len_trim(EddyProProj%err_label)) // ','
-            Datastring = Datastring(sepa + 1: len_trim(Datastring))
+            ErrString = trim(adjustl(ErrString)) &
+                // trim(adjustl(EddyProProj%err_label)) // ','
+            dataline = dataline(sepa + 1: len_trim(dataline))
         else
             exit
         end if
     end do
     !> adds the last one
-    ErrString = ErrString(1:len_trim(ErrString)) // EddyProProj%err_label(1:len_trim(EddyProProj%err_label))
+    ErrString = trim(adjustl(ErrString)) // trim(adjustl(EddyProProj%err_label))
     close(udf)
 end subroutine InitContinuousDataset
 

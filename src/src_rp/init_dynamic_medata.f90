@@ -81,7 +81,7 @@ subroutine ReadDynamicMetadataHeader(unt)
     !> in/out variables
     integer, intent(in) :: unt
     !> local variables
-    character(1024) :: datastring
+    character(LongInstringLen) :: dataline
     character(64) :: Headerlabels(NumStdDynMDVars)
     integer :: read_status
     integer :: sepa
@@ -90,15 +90,15 @@ subroutine ReadDynamicMetadataHeader(unt)
     integer :: j
 
 
-    read(unt, '(a)', iostat = read_status) datastring
+    read(unt, '(a)', iostat = read_status) dataline
     cnt = 0
     do
-        sepa = index(datastring, ',')
-        if (sepa == 0) sepa = len_trim(datastring) + 1
-        if (len_trim(datastring) == 0) exit
+        sepa = index(dataline, ',')
+        if (sepa == 0) sepa = len_trim(dataline) + 1
+        if (len_trim(dataline) == 0) exit
         cnt = cnt + 1
-        Headerlabels(cnt) = datastring(1:sepa - 1)
-        datastring = datastring(sepa + 1: len_trim(datastring))
+        Headerlabels(cnt) = dataline(1:sepa - 1)
+        dataline = dataline(sepa + 1: len_trim(dataline))
     end do
 
     DynamicMetadataOrder = nint(error)

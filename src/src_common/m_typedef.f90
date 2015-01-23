@@ -38,7 +38,6 @@ module m_typedef
 
     !> labels for array sizes
     integer, parameter :: MaxAvrgPeriodInHours = 5
-    integer, parameter :: MaxNumRow = 144000
     integer, parameter :: MaxNumInstruments = 5
     integer, parameter :: MaxNumRawFlags = 10
     integer, parameter :: NumDegH = 9
@@ -48,20 +47,27 @@ module m_typedef
     integer, parameter :: GHGNumVar = 8
     integer, parameter :: MaxUserVar = 30
     integer, parameter :: MaxNumBins = 300
-    integer, parameter :: MaxOutstringLen = 5000
-    integer, parameter :: MaxNumBiometRow = 60 * MaxAvrgPeriodInHours !< 1 record/min * 60 min * 5h
     integer, parameter :: MaxNumBiometCol = 100
-    integer, parameter :: MaxNumCstmBiometCol = 50
     integer, parameter :: ExNumInstruments = 5
+
+    integer, parameter :: DatumLen = 64
+    integer, parameter :: CommLen = 1024
+    integer, parameter :: PathLen = 1024
+    integer, parameter :: FilenameLen = 256
+    integer, parameter :: LongInstringLen = 8192
+    integer, parameter :: ShortInstringLen = 1024
+    integer, parameter :: LongOutstringLen = 8192
+
+    integer, parameter :: iniLabelLen = 64
+    integer, parameter :: iniValueLen = PathLen
 
     integer, parameter :: MaxGasClasses = 12
     integer, parameter :: toMaxH2OClass = 20
     integer, parameter :: MaxNumWSect = 36
 
-    integer, parameter :: MaxBiometRep = 10
-    integer, parameter :: MaxProfRep = 5
     integer, parameter :: MaxProfNodes = 7
     integer, parameter :: NumStdCustom = 50
+
 
     !> labels for EddyPro standard set
     integer, parameter :: u   = 1
@@ -109,13 +115,13 @@ module m_typedef
     integer, parameter :: lens      = 3
 
     type :: Numerical
-        character(60) :: Label
+        character(iniLabelLen) :: Label
         real(kind = dbl) :: Value
     end type Numerical
 
     type :: Text
-        character(64) :: Label
-        character(256) :: Value
+        character(iniLabelLen) :: Label
+        character(iniValueLen) :: Value
     end type Text
 
     type GenericE2Var
@@ -404,11 +410,11 @@ module m_typedef
     end type Diag7700Type
 
     type :: DirType
-        character(256) :: main_in
-        character(256) :: main_out
-        character(256) :: binned
-        character(256) :: full
-        character(256) :: biomet
+        character(PathLen) :: main_in
+        character(PathLen) :: main_out
+        character(PathLen) :: binned
+        character(PathLen) :: full
+        character(PathLen) :: biomet
     end type DirType
 
     type :: DOType
@@ -476,7 +482,7 @@ module m_typedef
         character(5)  :: end_time
         character(32) :: title
         character(32) :: id
-        character(64) :: fname_template
+        character(FilenameLen) :: fname_template
         character(32) :: ftype
         character(32) :: fext
         character(32) :: master_sonic
@@ -572,20 +578,20 @@ module m_typedef
     end type FCCMetadataType
 
     type :: FileListType
-        character(64) :: name
-        character(256) :: path
+        character(FilenameLen) :: name
+        character(PathLen) :: path
         type(DateType)  :: timestamp
     end type FileListType
 
     type :: FileType
-        character(256) :: tlag_opt
-        character(256) :: metadata
-        character(256) :: DynMD
-        character(256) :: biomet
-        character(256) :: ex
-        character(256) :: pf
-        character(256) :: to
-        character(256) :: sa
+        character(PathLen) :: tlag_opt
+        character(PathLen) :: metadata
+        character(PathLen) :: DynMD
+        character(PathLen) :: biomet
+        character(PathLen) :: ex
+        character(PathLen) :: pf
+        character(PathLen) :: to
+        character(PathLen) :: sa
     end type FileType
 
     type :: FluxType
@@ -715,59 +721,6 @@ module m_typedef
         logical :: RHused
         logical :: Tused
     end type BiometType
-
-    type :: BiometUnitsType
-        character(32) :: Ta(MaxBiometRep)
-        character(32) :: Ts(MaxBiometRep)
-        character(32) :: Tbc(MaxBiometRep)
-        character(32) :: Tc(MaxBiometRep)
-        character(32) :: Tbole(MaxBiometRep)
-        character(32) :: Pa(MaxBiometRep)
-        character(32) :: RH(MaxBiometRep)
-        character(32) :: Rg(MaxBiometRep)
-        character(32) :: Ruva(MaxBiometRep)
-        character(32) :: Ruvb(MaxBiometRep)
-        character(32) :: LWin(MaxBiometRep)
-        character(32) :: LWout(MaxBiometRep)
-        character(32) :: SWin(MaxBiometRep)
-        character(32) :: SWout(MaxBiometRep)
-        character(32) :: SWdif(MaxBiometRep)
-        character(32) :: SWbc(MaxBiometRep)
-        character(32) :: P(MaxBiometRep)
-        character(32) :: Prain(MaxBiometRep)
-        character(32) :: Psnow(MaxBiometRep)
-        character(32) :: SNOWD(MaxBiometRep)
-        character(32) :: Rn(MaxBiometRep)
-        character(32) :: Rd(MaxBiometRep)
-        character(32) :: Rr(MaxBiometRep)
-        character(32) :: PPFD(MaxBiometRep)
-        character(32) :: PPFDd(MaxBiometRep)
-        character(32) :: PPFDr(MaxBiometRep)
-        character(32) :: PPFDbc(MaxBiometRep)
-        character(32) :: APAR(MaxBiometRep)
-        character(32) :: Alb(MaxBiometRep)
-        character(32) :: PRI(MaxBiometRep)
-        character(32) :: LAI(MaxBiometRep)
-        character(32) :: WS(MaxBiometRep)
-        character(32) :: MWS(MaxBiometRep)
-        character(32) :: WD(MaxBiometRep)
-        character(32) :: StemFlow(MaxBiometRep)
-        character(32) :: SapFlow(MaxBiometRep)
-        character(32) :: TR(MaxBiometRep)
-        character(32) :: SWC(MaxBiometRep)
-        character(32) :: SHF(MaxBiometRep)
-    end type BiometUnitsType
-
-    type :: ProfileUnitsType
-        character(32) :: SWC(MaxProfRep)
-        character(32) :: SHF(MaxProfRep)
-        character(32) :: ST(MaxBiometRep)
-        character(32) :: CO2(MaxBiometRep)
-        character(32) :: H2O(MaxBiometRep)
-        character(32) :: CH4(MaxBiometRep)
-        character(32) :: GAS4(MaxBiometRep)
-        character(32) :: T(MaxBiometRep)
-    end type ProfileUnitsType
 
     type :: Mul7700Type
         real(kind = dbl) :: A
@@ -1155,7 +1108,7 @@ module m_typedef
     end type WPLType
 
     type :: ExType
-        character(64) :: fname
+        character(FilenameLen) :: fname
         character(10) :: date
         character(5) :: time
         character(32) :: measure_type(GHGNumVar)

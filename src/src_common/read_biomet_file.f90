@@ -42,7 +42,7 @@ subroutine ReadBiometFile(BiometFile, skip_file)
     integer :: io_status
     integer :: nrow
     integer :: ncol
-    character(1024) :: row
+    character(LongInstringLen) :: dataline
     character(1)  :: sepa
     logical :: skip_row
 
@@ -80,12 +80,12 @@ subroutine ReadBiometFile(BiometFile, skip_file)
     fbTs = nullTimestamp
     cnt = 0
     do i = 1, fnbRecs
-        read(udf, '(a)', iostat = io_status) row
+        read(udf, '(a)', iostat = io_status) dataline
         !> Exit instruction
         if (io_status > 0) cycle
         if (io_status < 0) exit
         cnt = cnt + 1
-        call BiometParseRow(row, fbTs(cnt), fbSet(cnt, :), &
+        call BiometParseRow(dataline, fbTs(cnt), fbSet(cnt, :), &
             size(fbSet, 2), skip_row)
         if (skip_row) cycle
     end do

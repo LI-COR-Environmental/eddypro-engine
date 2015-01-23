@@ -49,7 +49,7 @@ subroutine RetrieveDynamicMetadata(FinalTimestamp, LocCol, ncol)
     character(5) :: time
     character(32) :: mdStringVars(256)
     character(32) :: mdCurrentStringVars(256)
-    character(1024) :: datastring
+    character(LongInstringLen) :: dataline
     type (DateType) :: mdCurrentTimestamp
 
 
@@ -64,30 +64,30 @@ subroutine RetrieveDynamicMetadata(FinalTimestamp, LocCol, ncol)
     end if
 
     !> Skip header
-    read(udf, '(a)') datastring
+    read(udf, '(a)') dataline
 
     !> Start cycle on remaining records to find an appropriate one
     mdCurrentStringVars = 'none'
     cnt = 0
     record_loop: do
-        datastring = ''
+        dataline = ''
         var_num = 0
         !> Read date and time if present and exit on error
-        read(udf, '(a)', iostat = read_status) datastring
+        read(udf, '(a)', iostat = read_status) dataline
         if (read_status /= 0) then
             if (cnt == 0) exit record_loop
         else
-            if (len(trim(datastring)) == 0) cycle record_loop
+            if (len(trim(dataline)) == 0) cycle record_loop
 
             !> Store data in a temporary array as text
             mdStringVars = 'none'
             do
-                sepa = index(datastring, separator)
-                if (sepa == 0) sepa = len_trim(datastring) + 1
-                if (len_trim(datastring) == 0) exit
+                sepa = index(dataline, separator)
+                if (sepa == 0) sepa = len_trim(dataline) + 1
+                if (len_trim(dataline) == 0) exit
                 var_num = var_num + 1
-                mdStringVars(var_num) = datastring(1:sepa - 1)
-                datastring = datastring(sepa + 1: len_trim(datastring))
+                mdStringVars(var_num) = dataline(1:sepa - 1)
+                dataline = dataline(sepa + 1: len_trim(dataline))
             end do
 
             !> Retrieve date and time and check suitability to current time period

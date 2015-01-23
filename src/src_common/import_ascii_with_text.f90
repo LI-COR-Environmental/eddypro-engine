@@ -32,7 +32,8 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine ImportAsciiWithText(FirstRecord, LastRecord, LocCol, fRaw, nrow, ncol, N, FileEndReached)
+subroutine ImportAsciiWithText(FirstRecord, LastRecord, LocCol, fRaw, &
+    nrow, ncol, N, FileEndReached)
     use m_common_global_var
     implicit none
     !> In/out variables
@@ -51,8 +52,8 @@ subroutine ImportAsciiWithText(FirstRecord, LastRecord, LocCol, fRaw, nrow, ncol
     integer :: tN
     integer :: intsep
     integer :: io_status
-    character(2000) :: datastring
-    character(32) :: datum
+    character(LongInstringLen) :: dataline
+    character(DatumLen) :: datum
     character(64) :: lab
     type(ColType) :: TmpCol(MaxNumCol)
 
@@ -73,14 +74,14 @@ subroutine ImportAsciiWithText(FirstRecord, LastRecord, LocCol, fRaw, nrow, ncol
     !> Skip header if present
     if (FileInterpreter%header_rows > 0) then
         do i = 1, FileInterpreter%header_rows
-            read(unat, '(a)', iostat = io_status) datastring
+            read(unat, '(a)', iostat = io_status) dataline
         end do
     end if
 
     !> Skip all records until FirstRecord
     if (FirstRecord > 1) then
         do i = 1, FirstRecord - 1
-            read(unat, '(a)', iostat = io_status) datastring
+            read(unat, '(a)', iostat = io_status) dataline
         end do
     end if
 
@@ -92,13 +93,13 @@ subroutine ImportAsciiWithText(FirstRecord, LastRecord, LocCol, fRaw, nrow, ncol
         tN = tN + 1
         !> Read data line as a string and decide what to do if reading fails
         N = N + 1
-        read(unat, '(a)', iostat = io_status) datastring
+        read(unat, '(a)', iostat = io_status) dataline
         if (io_status < 0) then
             N = N - 1
             FileEndReached = .true.
             exit record_loop
         end if
-        if (io_status > 0 .or. (io_status == 0 .and. len_trim(datastring) == 0)) then
+        if (io_status > 0 .or. (io_status == 0 .and. len_trim(dataline) == 0)) then
             N = N - 1
             cycle record_loop
         end if
@@ -106,11 +107,11 @@ subroutine ImportAsciiWithText(FirstRecord, LastRecord, LocCol, fRaw, nrow, ncol
         !> Record was imported, now if there is a record label, first reads it
         if (len_trim(FileInterpreter%data_label) /= 0 .and. &
             index(FileInterpreter%data_label, 'Not set') == 0) then
-            intsep = index(datastring, FileInterpreter%separator)
-            if (intsep == 0) intsep = len_trim(datastring) + 1
-            if (len_trim(datastring) == 0) exit record_loop
-            lab = datastring(1:intsep - 1)
-            datastring = datastring(intsep + 1: len_trim(datastring))
+            intsep = index(dataline, FileInterpreter%separator)
+            if (intsep == 0) intsep = len_trim(dataline) + 1
+            if (len_trim(dataline) == 0) exit record_loop
+            lab = dataline(1:intsep - 1)
+            dataline = dataline(intsep + 1: len_trim(dataline))
             !> If label is different than the expected, cycle
             if (trim(adjustl(lab)) /= trim(adjustl(FileInterpreter%data_label))) then
                 N = N - 1
@@ -124,18 +125,18 @@ subroutine ImportAsciiWithText(FirstRecord, LastRecord, LocCol, fRaw, nrow, ncol
             exit record_loop
         end if
 
-        !> Eliminate multiple separators from datastring, but currently only if it's a space
+        !> Eliminate multiple separators from dataline, but currently only if it's a space
         if (FileInterpreter%separator == '') &
-            call StripConsecutiveChar(datastring, FileInterpreter%separator)
+            call StripConsecutiveChar(dataline, FileInterpreter%separator)
 
         !> Parse variables out of the string
         jj = 0
         il: do j = 1, NumCol
-            intsep = index(datastring, FileInterpreter%separator)
-            if (intsep == 0) intsep = len_trim(datastring) + 1
-            if (len_trim(datastring) == 0) exit
-            datum = datastring(1:intsep - 1)
-            datastring = datastring(intsep + 1: len_trim(datastring))
+            intsep = index(dataline, FileInterpreter%separator)
+            if (intsep == 0) intsep = len_trim(dataline) + 1
+            if (len_trim(dataline) == 0) exit
+            datum = dataline(1:intsep - 1)
+            dataline = dataline(intsep + 1: len_trim(dataline))
             if (LocCol(j)%var /= 'ignore' .and. LocCol(j)%var /= 'not_numeric') then
                 jj = jj + 1
                 read(datum, *, iostat = io_status) fRaw(N, jj)

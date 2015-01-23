@@ -50,7 +50,7 @@ subroutine BiometRetrieveExternalData(bFileList, bnFiles, bLastFile, &
     integer :: io_status
     real(kind=dbl) :: cSet(size(bSet, 2))
     character(1) :: sepa
-    character(1024) :: row
+    character(LongInstringLen) :: dataline
     logical :: skip_row
     logical :: isopen
     type(DateType) :: cTs
@@ -110,7 +110,7 @@ subroutine BiometRetrieveExternalData(bFileList, bnFiles, bLastFile, &
 
         !> Search for first biomet record within current averaging period
         rec_loop: do
-            read(udf, '(a)', iostat = io_status) row
+            read(udf, '(a)', iostat = io_status) dataline
 
             !> Exit instruction
             if (io_status > 0) cycle rec_loop
@@ -120,7 +120,7 @@ subroutine BiometRetrieveExternalData(bFileList, bnFiles, bLastFile, &
                 cycle file_loop
             end if
 
-            call BiometParseRow(row, cTs, cSet, size(cSet), skip_row)
+            call BiometParseRow(dataline, cTs, cSet, size(cSet), skip_row)
             if (skip_row) cycle rec_loop
 
             call BiometAdjustTimestamp(cTs)

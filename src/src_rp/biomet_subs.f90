@@ -1071,7 +1071,7 @@ subroutine BiometFileListInChronologicalOrder(FileList, nrow)
     integer :: io_status
     integer :: rank(nrow)
     character(64) :: tsString
-    character(1024) :: record
+    character(LongInstringLen) :: dataline
     logical :: skip_record
     type(DateType) :: bTimestamp
     type(FileListType) :: TmpFileList(nrow)
@@ -1093,15 +1093,14 @@ subroutine BiometFileListInChronologicalOrder(FileList, nrow)
 
         !> Retrieve timestamp from first valid record
         recs_loop: do
-            read(udf, '(a)', iostat = io_status) record
+            read(udf, '(a)', iostat = io_status) dataline
             if (io_status > 0) cycle recs_loop
             if (io_status < 0) then
                 FileList(nfl)%timestamp = nullTimestamp
                 cycle files_loop
             end if
 
-            !> Retrieve timestamp info from record
-            call tsStringFromRec(record, nbItems, tsString)
+            call tsStringFromRec(dataline, nbItems, tsString)
             call BiometTimestamp(trim(adjustl(bFileMetadata%tsPattern)), &
                     tsString, bTimestamp, skip_record)
             if (skip_record) cycle recs_loop

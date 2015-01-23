@@ -38,11 +38,11 @@ subroutine InitBiometOut()
     integer :: open_status
     integer :: i
     integer :: dot
-    character(256) :: Test_Path
-    character(10000) :: header1 = ''
-    character(10000) :: header2 = ''
-    character(10000) :: head1_utf8 = ''
-    character(10000) :: head2_utf8 = ''
+    character(PathLen) :: Test_Path
+    character(LongOutstringLen) :: header1
+    character(LongOutstringLen) :: header2
+    character(LongOutstringLen) :: head1_utf8
+    character(LongOutstringLen) :: head2_utf8
 
 
     !> Biomet measurements
@@ -51,8 +51,8 @@ subroutine InitBiometOut()
                   // EddyProProj%id(1:len_trim(EddyProProj%id)) &
                   // Biomet_FilePadding // Timestamp_FilePadding // CsvExt
         dot = index(Test_Path, CsvExt, .true.) - 1
-        Slow_Path = Test_Path(1:dot) // CsvTmpExt
-        open(uslow, file = Slow_Path, iostat = open_status, encoding = 'utf-8')
+        Biomet_Path = Test_Path(1:dot) // CsvTmpExt
+        open(uslow, file = Biomet_Path, iostat = open_status, encoding = 'utf-8')
 
         !> Initialize string to void
         call Clearstr(header1)

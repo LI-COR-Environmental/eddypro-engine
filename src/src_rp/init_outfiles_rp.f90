@@ -44,19 +44,18 @@ subroutine InitOutFiles_rp()
     integer :: gas
     integer :: i
     integer :: j
-    character(256) :: Test_Path
+    character(PathLen) :: Test_Path
     character(64) :: e2sg(E2NumVar)
     character(32) :: usg(NumUserVar)
-    character(10000) :: header1 = ''
-    character(10000) :: header2 = ''
-    character(10000) :: header3 = ''
-    character(10000) :: head1_utf8 = ''
-    character(10000) :: head2_utf8 = ''
-    character(10000) :: head3_utf8 = ''
-    character(10000) :: dataline = ''
+    character(LongOutstringLen) :: header1
+    character(LongOutstringLen) :: header2
+    character(LongOutstringLen) :: header3
+    character(LongOutstringLen) :: head1_utf8
+    character(LongOutstringLen) :: head2_utf8
+    character(LongOutstringLen) :: head3_utf8
+    character(LongOutstringLen) :: dataline
     integer :: today(3), now(3)
     character(8) :: dum_string
-    character(MaxOutstringLen) :: string
     logical :: proceed
     logical, external :: NewerSwVer
 
@@ -591,9 +590,8 @@ subroutine InitOutFiles_rp()
         end if
     end if
 
-    !>*********************************************************************************************
-    !>*********************************************************************************************
-
+    !>==========================================================================
+    !>==========================================================================
     !> Essentials output, for use in Fluxes
     if (EddyProProj%out_essentials) then
         Test_Path = Dir%main_out(1:len_trim(Dir%main_out)) &
@@ -603,7 +601,8 @@ subroutine InitOutFiles_rp()
         Essentials_Path = Test_Path(1:dot) // CsvTmpExt
         open(uex, file = Essentials_Path, iostat = open_status, encoding = 'utf-8')
 
-        string = 'filename,date,time,daytime,file_records,used_records,&
+        call clearstr(dataline)
+        dataline = 'filename,date,time,daytime,file_records,used_records,&
             &Tau,ru_Tau,H,ru_H,LE,ru_LE,co2_flux,ru_co2,h2o_flux,ru_h2o,ch4_flux,ru_ch4,' &
             // e2sg(gas4)(1:len_trim(e2sg(gas4))-1) // '_flux,ru_' // e2sg(gas4)(1:len_trim(e2sg(gas4))-1) // &
             ',H_stor,LE_stor,co2_stor,h2o_stor,ch4_stor,' // e2sg(gas4)(1:len_trim(e2sg(gas4))-1) // '_stor,&
@@ -672,16 +671,17 @@ subroutine InitOutFiles_rp()
             &li72_AGC,li75_AGC,li77_RSSI,num_user_var,'
             if (NumUserVar > 0) then
                 do i = 1, NumUserVar
-                    string = string(1:len_trim(string)) // usg(i)(1:len_trim(usg(i))) // 'mean' // ','
+                    dataline = dataline(1:len_trim(dataline)) &
+                        // usg(i)(1:len_trim(usg(i))) // 'mean' // ','
                 end do
             end if
-            write(uex, '(a)') string(1:len_trim(string) - 1)
+            write(uex, '(a)') dataline(1:len_trim(dataline) - 1)
     end if
 
-    !>*********************************************************************************************
-
+    !>==========================================================================
+    !>==========================================================================
+    !> GHG-EUROPE output
     if (EddyProProj%out_ghg_eu) then
-        !> Create GHG-EUROPE output file name
         Test_Path = Dir%main_out(1:len_trim(Dir%main_out)) &
                   // EddyProProj%id(1:len_trim(EddyProProj%id)) &
                   // GHGEUROPE_FilePadding // Timestamp_FilePadding // CsvExt
@@ -775,11 +775,10 @@ subroutine InitOutFiles_rp()
         write(ughgeu, '(a)') head3_utf8(1:len_trim(head3_utf8) - 1)
     end if
 
-
-    !>*********************************************************************************************
-
+    !>==========================================================================
+    !>==========================================================================
+    !> AmeriFlux output
     if (EddyProProj%out_amflux) then
-        !> Create AmeriFlux output file name
         Test_Path = Dir%main_out(1:len_trim(Dir%main_out)) &
                   // EddyProProj%id(1:len_trim(EddyProProj%id)) &
                   // AmeriFlux_FilePadding // Timestamp_FilePadding // CsvExt
@@ -839,10 +838,10 @@ subroutine InitOutFiles_rp()
             &umol/m2/s,umol/mol,m,umol/m2/s,umol/m2/s,%,unitless'
     end if
 
-        !>*********************************************************************************************
-
+    !>==========================================================================
+    !>==========================================================================
+    !> Metadata output
     if (EddyProProj%out_md) then
-        !> Open dynamic metadata file
         Test_Path = Dir%main_out(1:len_trim(Dir%main_out)) &
                   // EddyProProj%id(1:len_trim(EddyProProj%id)) &
                   // MetaData_FilePadding // Timestamp_FilePadding // CsvExt

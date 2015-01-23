@@ -30,7 +30,8 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine UnZipArchive(ZipFile, MetaExt, DataExt, MetaFile, DataFile, BiometFile, BiometMetaFile, skip_file)
+subroutine UnZipArchive(ZipFile, MetaExt, DataExt, MetaFile, DataFile, &
+    BiometFile, BiometMetaFile, skip_file)
     use m_common_global_var
     implicit none
     !> in/out variables
@@ -48,8 +49,8 @@ subroutine UnZipArchive(ZipFile, MetaExt, DataExt, MetaFile, DataFile, BiometFil
     integer :: del_status
     integer :: unzip_status
     integer :: dir_status
-    character(1024) :: comm
-    character(128) :: string
+    character(CommLen) :: comm
+    character(128) :: dataline
     character(128) :: TmpString
 
 
@@ -84,21 +85,23 @@ subroutine UnZipArchive(ZipFile, MetaExt, DataExt, MetaFile, DataFile, BiometFil
     comm = trim(adjustl(comm_dir)) // ' "' &
         // trim(adjustl(TmpDir)) // '"*.' &
         // trim(adjustl(MetaExt))  // &
-        ' > "' // trim(adjustl(TmpDir)) // 'meta_flist.tmp" ' // comm_err_redirect
+        ' > "' // trim(adjustl(TmpDir)) // 'meta_flist.tmp" ' &
+        // comm_err_redirect
     dir_status = system(comm)
 
-    open(udf, file = trim(adjustl(TmpDir)) // 'meta_flist.tmp', iostat = io_status)
+    open(udf, file = trim(adjustl(TmpDir)) // 'meta_flist.tmp', &
+        iostat = io_status)
     MetaFile = 'none'
     BiometMetaFile = 'none'
     if (io_status == 0) then
         do i = 1, 2
-            read(udf, '(a128)', iostat = io_status) string
+            read(udf, '(a128)', iostat = io_status) dataline
             if(io_status == 0) then
-                if (index(string, '-biomet.metadata') /= 0) then
-                    BiometMetaFile = string(1:len_trim(string))
+                if (index(dataline, '-biomet.metadata') /= 0) then
+                    BiometMetaFile = dataline(1:len_trim(dataline))
                     call StripFileName(BiometMetaFile)
                 else
-                    MetaFile = string(1:len_trim(string))
+                    MetaFile = dataline(1:len_trim(dataline))
                     call StripFileName(MetaFile)
                 end if
             end if
@@ -114,21 +117,23 @@ subroutine UnZipArchive(ZipFile, MetaExt, DataExt, MetaFile, DataFile, BiometFil
     comm = trim(adjustl(comm_dir)) // ' "' &
         // trim(adjustl(TmpDir)) // '"*.' &
         // trim(adjustl(DataExt))  // &
-        ' > "' // trim(adjustl(TmpDir)) // 'data_flist.tmp" ' // comm_err_redirect
+        ' > "' // trim(adjustl(TmpDir)) // 'data_flist.tmp" ' &
+        // comm_err_redirect
     dir_status = system(comm)
 
-    open(udf, file = trim(adjustl(TmpDir)) // 'data_flist.tmp', iostat = io_status)
+    open(udf, file = trim(adjustl(TmpDir)) // 'data_flist.tmp', &
+        iostat = io_status)
     DataFile = 'none'
     BiometFile = 'none'
     if (io_status == 0) then
         do i = 1, 2
-            read(udf, '(a128)', iostat = io_status) string
+            read(udf, '(a128)', iostat = io_status) dataline
             if(io_status == 0) then
-                if (index(string, '-biomet.data') /= 0) then
-                    BiometFile = string(1:len_trim(string))
+                if (index(dataline, '-biomet.data') /= 0) then
+                    BiometFile = dataline(1:len_trim(dataline))
                     call StripFileName(BiometFile)
                 else
-                    DataFile = string(1:len_trim(string))
+                    DataFile = dataline(1:len_trim(dataline))
                     call StripFileName(DataFile)
                 end if
             end if

@@ -54,11 +54,11 @@ subroutine ReadLicorGhgArchive(ZipFile, FirstRecord, LastRecord, LocCol, &
     logical, intent(out) :: FileEndReached
     !> local variables
     integer :: del_status
-    character(256) :: MetaFile
-    character(256) :: DataFile
-    character(256) :: BiometFile
-    character(256) :: BiometMetaFile
-    character(512) :: comm
+    character(PathLen) :: MetaFile
+    character(PathLen) :: DataFile
+    character(PathLen) :: BiometFile
+    character(PathLen) :: BiometMetaFile
+    character(CommLen) :: comm
     logical :: skip_biomet_file
 
 

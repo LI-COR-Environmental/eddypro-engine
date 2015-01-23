@@ -33,13 +33,13 @@
 !***************************************************************************
 subroutine ImportCurrentPeriod(InitialTimestamp, FinalTimestamp, FileList, &
     NumFiles, FirstFile, LocBypassCol, MaxNumFileRecords, MetaIsNeeded, &
-    BiometIsNeeded, logout, Raw, nrow, ncol, bRaw, nbrow, nbcol, N, &
+    BiometIsNeeded, logout, Raw, nrow, ncol, N, &
     bDataFound, skip_period, NextFile, LocCol)
 
     use m_common_global_var
     implicit none
     !> in/out variables
-    integer, intent(in) :: nrow, ncol, nbrow, nbcol
+    integer, intent(in) :: nrow, ncol
     integer, intent(in) :: NumFiles
     integer, intent(in) :: FirstFile
     integer, intent(in) :: MaxNumFileRecords
@@ -53,7 +53,6 @@ subroutine ImportCurrentPeriod(InitialTimestamp, FinalTimestamp, FileList, &
     integer, intent(out) :: N
     integer, intent(out) :: NextFile
     real(kind = sgl), intent(out) :: Raw(nrow, ncol)
-    real(kind = dbl), intent(out) :: bRaw(nbrow, nbcol)
     logical, intent(out) :: bDataFound
     logical, intent(out) :: skip_period
     logical, intent(inout) :: MetaIsNeeded
@@ -79,7 +78,6 @@ subroutine ImportCurrentPeriod(InitialTimestamp, FinalTimestamp, FileList, &
     bDataFound = .false.
     skip_period = .false.
     Raw = error
-    bRaw = error
 
     !> Timestamp of beginning of current period, as an
     !> initialization to check files contiguity
