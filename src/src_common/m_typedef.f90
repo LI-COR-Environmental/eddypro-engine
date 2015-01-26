@@ -242,16 +242,6 @@ module m_typedef
         real(kind = dbl) :: offset
     end type BiometColType
 
-    type :: BiometMetaType
-        character(1)     :: separator
-        character(32)    :: data_label
-        integer          :: nhead
-        real(kind = dbl) :: duration
-        real(kind = dbl) :: rate
-        real(kind = dbl) :: step
-        type(BiometColType) :: BiometCol(MaxNumBiometCol)
-    end type BiometMetaType
-
     type :: BurbaParType
         real(kind = dbl) :: m(2, 3, 4)
         real(kind = dbl) :: l(2, 3, 2)

@@ -158,13 +158,14 @@ subroutine InitExternalBiomet(bFileList, N)
             allocate(lbVars(nbVars))
             lbVars = bVars
         else
-            if (size(lbVars) /= size(bVars)) call ExceptionHandler(79)
-            if (any(lbVars(:)%label /= bVars(:)%label) &
-                .or. any(lbVars(:)%unit_in /= bVars(:)%unit_in)) &
+            if (size(lbVars) /= size(bVars) &
+                .or. (any(lbVars(:)%label /= bVars(:)%label) &
+                .or. any(lbVars(:)%unit_in /= bVars(:)%unit_in))) then
                 write(*,'(a)')
                 call ExceptionHandler(79)
                 EddyProProj%biomet_data = 'none'
                 return
+            end if
         end if
 
         !> Start loop on file rows
@@ -195,7 +196,7 @@ subroutine InitExternalBiomet(bFileList, N)
     write(*, '(a)')
     write(*, '(a, i6)') '  Number of biomet variables: ', nbVars
     write(*, '(a, i6)') '  Number of biomet records:   ', nRec
-    write(*, '(a, i6, a)') '  Inferred biomet time step:  ', &
+    write(*, '(a, i6, a)') '  Inferred biomet time-step:  ', &
         bFileMetadata%time_step, 'min'
 
     !> Determine nbRecs, the maximum number of biomet data available for

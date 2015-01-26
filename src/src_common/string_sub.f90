@@ -279,7 +279,9 @@ end subroutine char2int
 
 !***************************************************************************
 !
-! \brief       Convert an integer into a character of specified length
+! \brief       Convert an integer into a string of max 32 chars
+!              If a 'pad' value is specified, pads with leading zeros
+!              to reach a string length equal to 'pad'.
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -288,32 +290,52 @@ end subroutine char2int
 ! \test
 ! \todo
 !***************************************************************************
-subroutine int2char(num, string, len)
+subroutine int2char(num, string, pad)
     implicit none
     !> in/out variables
-    integer, intent(in) :: len
+    integer, intent(in) :: pad
     integer, intent(in) :: num
-    character(len), intent(inout) :: string
+    character(*) :: string
     !> local variables
     integer :: i
-    integer :: j
-    integer :: aux
-    logical :: check
+    character(32) :: str
 
-    check = .false.
-    aux = num
-    do j = 1, len
-        do i = 1, 9
-            if (((aux / (i*10**(len - j))) >= 1).and.((aux / ((i + 1)*10**(len - j))) < 1)) then
-            check = .true.
-            string(j:j) = char(i + 48)
-            aux = aux - i*10**(len - j)
-            end if
-        end do
-        if(.not. check) string(j:j) = char(48)
-        check = .false.
-    end do
+
+    !> Convert integer to string and adjust left
+    call clearstr(str)
+    write(str, '(i32)') num
+    str = adjustl(str)
+
+    !> Pad with zeros on the left if
+    !> passed length is /= zero and > length of str
+    if (pad > len_trim(str)) then
+        i = pad - len_trim(str)
+        str(i + 1:) = str
+        str(1:i) = repeat('0', i)
+    end if
+
+    string = trim(adjustl(str))
 end subroutine int2char
+
+! DEPRECATED (WHAT WAS I THINKING ABOUT?)
+!    integer :: i
+!    integer :: j
+!    integer :: aux
+!    logical :: check
+!    check = .false.
+!    aux = num
+!    do j = 1, pad
+!        do i = 1, 9
+!            if (((aux / (i*10**(pad - j))) >= 1).and.((aux / ((i + 1)*10**(pad - j))) < 1)) then
+!            check = .true.
+!            string(j:j) = char(i + 48)
+!            aux = aux - i*10**(pad - j)
+!            end if
+!        end do
+!        if(.not. check) string(j:j) = char(48)
+!        check = .false.
+!    end do
+! DEPRECATED
 
 !***************************************************************************
 !

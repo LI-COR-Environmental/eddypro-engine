@@ -125,6 +125,12 @@ module m_rp_global_var
     type (StorType) :: Stor
     type (Mul7700Type)   :: Mul7700
 
+    !> Embedded biomet data variables
+    logical, allocatable :: BiometCTagFound(:)
+    logical, allocatable :: BiometNTagFound(:)
+    type(Text), allocatable :: BiometCTags(:)
+    type(Numerical), allocatable :: BiometNTags(:)
+
     !> Dynamic metadata
     type(DynMDType) :: DynamicMetadata
     integer :: DynamicMetadataOrder(256)

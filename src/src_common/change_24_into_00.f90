@@ -44,6 +44,7 @@ subroutine Change24Into00(Datestring, doy_format)
     logical :: isleap
     character(5) :: tmp_date
 
+
     !> Determine whether current year is leap
     read(Datestring(1:4), '(i4)') int_year
     isleap = leapyear(int_year)
@@ -67,7 +68,7 @@ subroutine Change24Into00(Datestring, doy_format)
                             Datestring(5:6) = DayOfLeapYear(1)(1:2)
                             Datestring(7:8) = DayOfLeapYear(1)(4:5)
                             int_year = int_year + 1
-                            call int2char(int_year, Datestring(1:4), 4)
+                            call int2char(int_year, Datestring(1:4), 0)
                         end if
                         exit
                     end if
@@ -86,7 +87,7 @@ subroutine Change24Into00(Datestring, doy_format)
                             Datestring(5:6) = DayOfYear(1)(1:2)
                             Datestring(7:8) = DayOfYear(1)(4:5)
                             int_year = int_year + 1
-                            call int2char(int_year, Datestring(1:4), 4)
+                            call int2char(int_year, Datestring(1:4), 0)
                         end if
                         exit
                     end if
@@ -101,9 +102,9 @@ subroutine Change24Into00(Datestring, doy_format)
             if (int_doy == max_days + 1) then
                 int_doy = 1
                 int_year = int_year + 1
-                call int2char(int_year, Datestring(1:4), 4)
+                call int2char(int_year, Datestring(1:4), 0)
             end if
-            call int2char(int_doy, Datestring(5:7), 3)
+            call int2char(int_doy, Datestring(5:7), 0)
         end if
     end if
 end subroutine Change24Into00

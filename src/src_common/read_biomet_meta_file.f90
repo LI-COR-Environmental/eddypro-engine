@@ -30,18 +30,25 @@
 ! \todo
 !***************************************************************************
 subroutine ReadBiometMetaFile(MetaFile, skip_file)
-    use m_common_global_var
+    use m_rp_global_var
     implicit none
     !> in/out variables
     character(*), intent(in) :: MetaFile
     logical, intent(out) :: skip_file
 
 
+    !> Initialize aux variables needed to read biomet file
+    call biometSniffMetaFile(MetaFile, skip_file)
+    if (skip_file .or. nbVars <= 0) return
+    call biometInitEmbedded()
+
     !> parse ini file and store all numeric and character tags
-    call ParseIniFile(MetaFile, '', BiometNTags, BiometCTags, size(BiometNTags), size(BiometCTags), &
+    call ParseIniFile(MetaFile, '', BiometNTags, BiometCTags, &
+        size(BiometNTags), size(BiometCTags), &
          BiometNTagFound, BiometCTagFound, skip_file)
 
-    !> selects only tags needed in this software, and store them in relevant variables
+    !> selects only tags needed in this software, and store
+    !> them in relevant variables
     call WriteBiometMetaVariables(skip_file)
 
 end subroutine ReadBiometMetaFile
@@ -59,7 +66,7 @@ end subroutine ReadBiometMetaFile
 ! \todo
 !***************************************************************************
 subroutine WriteBiometMetaVariables(skip_file)
-    use m_common_global_var
+    use m_rp_global_var
     implicit none
     !> In/out variables
     logical, intent(out) :: skip_file
@@ -78,11 +85,11 @@ subroutine WriteBiometMetaVariables(skip_file)
 
     !> File general features
     skip_file = .false.
-    bFileMetadata%nhead     = nint(BiometNTags(1001)%value)
-    bFileMetadata%duration  = BiometNTags(1002)%value
-    bFileMetadata%time_step = nint(BiometNTags(1003)%value)
+    bFileMetadata%nhead     = nint(BiometNTags(1)%value)
+    bFileMetadata%duration  = BiometNTags(2)%value
+    bFileMetadata%time_step = nint(BiometNTags(3)%value)
 
-    select case (BiometCTags(1001)%value(1:len_trim(BiometCTags(1001)%value)))
+    select case (trim(adjustl(BiometCTags(1)%value)))
         case ('tab')
             bFileMetadata%separator = char(9)
         case ('comma')
@@ -92,17 +99,15 @@ subroutine WriteBiometMetaVariables(skip_file)
         case ('space')
             bFileMetadata%separator = ' '
         case default
-            bFileMetadata%separator = BiometCTags(1001)%value(1:1)
+            bFileMetadata%separator = BiometCTags(1)%value(1:1)
     end select
-    bFileMetadata%data_label = &
-        BiometCTags(1002)%value(1:len_trim(BiometCTags(1002)%value))
+    bFileMetadata%data_label = trim(adjustl(BiometCTags(2)%value))
 
-    !> Determine number of biomet variables nbVars
+    !> Determine number of timestamp variables
     leapc_col = 7
-    initc_col = 1 - leapc_col
-    nbVars = 0
+    initc_col = 3 - leapc_col
     nbTimestamp = 0
-    do i = 1, MaxNumBiometCol
+    do i = 1, nbVars
         if(BiometCTagFound(initc_col + i*leapc_col)) then
             label = trim(adjustl(BiometCTags(initc_col + i*leapc_col)%value))
             call uppercase(label)
@@ -110,11 +115,13 @@ subroutine WriteBiometMetaVariables(skip_file)
                 nbTimestamp = nbTimestamp + 1
                 cycle
             end if
-            nbVars = nbVars + 1
         else
             exit
         end if
     end do
+
+    !> Reduce nbVars to the number of variables excluding timestamp
+    nbVars = nbVars - nbTimestamp
 
     !> Control on number of biomet variables found
     if (nbVars <= 0) then
@@ -132,8 +139,8 @@ subroutine WriteBiometMetaVariables(skip_file)
     !> Variables description
     leapn_col = 6
     leapc_col = 7
-    initn_col = 1 - leapn_col
-    initc_col = 1 - leapc_col
+    initn_col = 4 - leapn_col
+    initc_col = 3 - leapc_col
     cnt = 0
     tsCnt = 0
     bFileMetadata%tsPattern = ''
@@ -176,5 +183,4 @@ subroutine WriteBiometMetaVariables(skip_file)
 
     !> Fill variables information based on label and other available fields
     call BiometEnrichVarsDescription()
-
 end subroutine WriteBiometMetaVariables

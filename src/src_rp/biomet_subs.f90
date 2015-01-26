@@ -410,10 +410,10 @@ subroutine BiometAppendLocationSuffix()
     !> Local variables
     integer :: i, ii
     integer :: cnt
-    integer :: numVarsFound(MaxNumBiometVars)
+    integer :: numVarsFound(nbVars)
     character(32) :: label
     character(8) :: loc
-    character(32) :: varsFound(MaxNumBiometVars)
+    character(32) :: varsFound(nbVars)
     logical, external :: BiometVarHasSuffix
 
 
@@ -423,7 +423,7 @@ subroutine BiometAppendLocationSuffix()
     do i = 1, nbVars
         label = trim(bVars(i)%label)
         if (.not. BiometVarHasSuffix(label)) then
-            !> This if block updates list of variables found
+            !> This block updates list of variables found
             if (.not. any(varsFound == label)) then
                 cnt = cnt + 1
                 VarsFound(cnt) = label
@@ -1046,7 +1046,6 @@ subroutine BiometAggretate(Set, nrow, ncol, Aggr)
     end do
 end subroutine BiometAggretate
 
-
 !***************************************************************************
 !
 ! \brief       Put biomet file names in chronological order in BiometFileList
@@ -1123,3 +1122,119 @@ subroutine BiometFileListInChronologicalOrder(FileList, nrow)
     end do
     FileList = TmpFileList
 end subroutine BiometFileListInChronologicalOrder
+
+!***************************************************************************
+!
+! \brief       Sniff biomet metadata to infer number of biomet vars
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+!***************************************************************************
+subroutine biometSniffMetaFile(IniFile, skip_file)
+    use m_rp_global_var
+    implicit none
+    !> In/out variables
+    character(*), intent(in) :: IniFile
+    logical, intent(out) :: skip_file
+    !> Local variables
+    integer :: io_status
+    integer :: nlines
+    integer :: i
+    integer :: nvar
+    type(text) :: Tags(MaxNLinesIni)
+
+
+    skip_file = .false.
+    open(udf, file = IniFile, status = 'old', iostat = io_status)
+    if (io_status /= 0) then
+        skip_file = .true.
+        return
+    else
+        !> parse the ini file and store all tags found in it
+        call StoreIniTags(udf, 'biomet_variables', Tags, nlines)
+        close(udf)
+        nbVars = 0
+        do i = 1, nlines
+            if (index(Tags(i)%Label, '_variable') /= 0) then
+                !> extract var number from label
+                read(Tags(i)%Label(8:index(Tags(i)%Label, '_', .true.)-1), *) nvar
+                if (nvar > nbVars) nbVars = nvar
+            end if
+        end do
+    end if
+end subroutine biometSniffMetaFile
+!***************************************************************************
+!
+! \brief       Initialize data structure needed for reading embedded biomet
+!              metadata
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+!***************************************************************************
+subroutine biometInitEmbedded()
+    use m_rp_global_var
+    implicit none
+    !> Local variable
+    integer :: i
+    integer :: ii
+    integer :: j
+    integer :: nc
+    integer :: nn
+    integer, parameter :: cinit = 2
+    integer, parameter :: ninit = 3
+    integer, parameter :: nctags = 7
+    integer, parameter :: nntags = 6
+    character(32) :: indx
+    character(16) :: ctags(nctags)
+    data ctags(1:nctags) /'_variable', '_id', '_instrument', '_unit_in', &
+        '_unit_out', '_aux1', '_aux2'/
+    character(16) :: ntags(nntags)
+    data ntags(1:nntags) /'_gain', '_offset', '_aux3', '_aux4', &
+        '_aux5', '_aux6'/
+
+
+    !> Total number of (char and num) tags to be written
+    nc = nbVars * nctags + cinit
+    nn = nbVars * nntags + ninit
+
+    !> Allocate variable
+    if (allocated(BiometCTags)) deallocate(BiometCTags)
+    if (allocated(BiometCTagFound)) deallocate(BiometCTagFound)
+    if (allocated(BiometNTags)) deallocate(BiometNTags)
+    if (allocated(BiometNTagFound)) deallocate(BiometNTagFound)
+    allocate(BiometCTags(nc))
+    allocate(BiometCTagFound(nc))
+    allocate(BiometNTags(nn))
+    allocate(BiometNTagFound(nn))
+
+
+    !> Write fixed values
+    BiometCTags(1)%Label = 'biomet_separator'
+    BiometCTags(2)%Label = 'biomet_data_label'
+
+    BiometNTags(1)%Label = 'biomet_header_rows'
+    BiometNTags(2)%Label = 'biomet_file_duration'
+    BiometNTags(3)%Label = 'biomet_data_rate'
+
+    !> Write dynamic values
+    do i = 1, nbVars
+        !> Character tags
+        do j = 1, nctags
+            ii = cinit + (i - 1) * nctags + j
+            call int2char(i, indx, 0)
+            BiometCTags(ii)%Label = 'biomet_' // trim(indx) // trim(ctags(j))
+        end do
+        !> Numeric tags
+        do j = 1, nntags
+            ii = ninit + (i - 1) * nntags + j
+            call int2char(i, indx, 0)
+            BiometNTags(ii)%Label = 'biomet_' // trim(indx) // trim(ntags(j))
+        end do
+    end do
+end subroutine biometInitEmbedded
