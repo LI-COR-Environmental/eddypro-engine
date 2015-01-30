@@ -10,9 +10,11 @@
     - Add: Save and Continue buttons to Spectral, Planar fit and
       Time lag assessment files testing dialog.
     - Fix: Time lag assessment file testing crash in case of missing
-      RH classes
-    - Fix: Planar fit assessment file testing too restrictive
-    - Fix: 4th gas molecular weight and diffusivity automatic management
+      RH classes.
+    - Fix: Planar fit assessment file testing too restrictive.
+    - Fix: 4th gas molecular weight and diffusivity automatic management.
+    - Fix: magnetic declination retrieval from NOAA website was broken
+      due to changes in the website response.
 
 5.2.0 (2014-11-20)
 
