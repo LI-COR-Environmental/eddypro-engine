@@ -34,7 +34,7 @@
 ! \todo
 !***************************************************************************
 subroutine AoaSteffensen2012(VelU, VelV, VelW)
-    use m_common_global_var
+    use m_rp_global_var
     implicit none
     !> in/out variables
     real(kind = dbl), intent(inout) :: VelU
@@ -97,7 +97,7 @@ end subroutine AoaSteffensen2012
 ! \todo
 !***************************************************************************
 double precision function sinerr12(aoa, wd)
-    use m_common_global_var
+    use m_rp_global_var
     implicit none
     !> in/out variables
     real(kind = dbl), intent(inout) :: wd
@@ -147,7 +147,7 @@ end function sinerr12
 ! \todo
 !***************************************************************************
 double precision function coserr12(aoa, wd)
-    use m_common_global_var
+    use m_rp_global_var
     implicit none
     !> in/out variables
     real(kind = dbl), intent(inout) :: wd
@@ -199,7 +199,7 @@ end function coserr12
 ! \todo
 !***************************************************************************
 subroutine Steffensen2012(aoa, wd, a)
-    use m_common_global_var
+    use m_rp_global_var
     implicit none
     !> in/out variables
     real(kind = dbl), intent(in) :: wd, a
@@ -236,7 +236,7 @@ end subroutine Steffensen2012
 ! \todo
 !***************************************************************************
 double precision function gx12(xx, wd, a)
-    use m_common_global_var
+    use m_rp_global_var
     implicit none
     !> in/out variables
     real(kind = dbl), intent(inout) :: xx

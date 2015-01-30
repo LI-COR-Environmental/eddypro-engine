@@ -287,7 +287,7 @@ end subroutine PlanarFitByWindSector
 ! \todo
 !***************************************************************************
 subroutine YawMtx(DirYaw, Yaw)
-    use m_common_global_var
+    use m_rp_global_var
     implicit none
     !> in/out variables
     real(kind = dbl), intent(in) :: DirYaw
@@ -316,7 +316,7 @@ end subroutine YawMtx
 ! \todo
 !***************************************************************************
 subroutine PitchMtx(DirPitch, Pitch)
-    use m_common_global_var
+    use m_rp_global_var
     implicit none
     !> in/out variables
     real(kind = dbl), intent(in) :: DirPitch
@@ -344,7 +344,7 @@ end subroutine PitchMtx
 ! \todo
 !***************************************************************************
 subroutine RollMtx(DirRoll, Roll)
-    use m_common_global_var
+    use m_rp_global_var
     implicit none
     ! in/out variables
     real(kind = dbl), intent(in) :: DirRoll

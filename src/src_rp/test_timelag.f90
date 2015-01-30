@@ -105,7 +105,7 @@ end subroutine TestTimeLag
 ! \todo
 !***************************************************************************
 subroutine CovMaxRS(lagctr, lagmin, lagmax, Col1, Col2, MaxCov, DefCov, TLag, RLag, N)
-    use m_common_global_var
+    use m_rp_global_var
     implicit none
     !> in/out variables
     integer, intent(in) :: N !< Number of raw data

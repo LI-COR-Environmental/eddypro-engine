@@ -32,7 +32,7 @@
 ! \todo
 !***************************************************************************
 subroutine RetrieveExVarsByTimestamp(unt, Timestamp, lEx, endReached, skip)
-    use m_common_global_var
+    use m_fx_global_var
     implicit none
     !> in/out variables
     integer, intent(in) :: unt

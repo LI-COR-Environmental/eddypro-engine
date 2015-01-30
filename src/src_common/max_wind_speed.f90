@@ -1,7 +1,7 @@
 !***************************************************************************
-! bandpass_spectral_correction.f90
-! --------------------------------
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! amx_wind_speed.f90
+! ------------------
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -29,12 +29,12 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine MaxWindSpeed(E2Set, nrow, ncol, MaxSpeed)
-    use m_rp_global_var
+subroutine MaxWindSpeed(Set, nrow, ncol, MaxSpeed)
+    use m_common_global_var
     implicit none
     !> In/out variables
     integer, intent(in) :: nrow, ncol
-    real (kind = dbl), intent(in) :: E2Set(nrow, ncol)
+    real (kind = dbl), intent(in) :: Set(nrow, ncol)
     real (kind = dbl), intent(out) :: MaxSpeed
     !> Local variables
     integer :: i
@@ -42,8 +42,9 @@ subroutine MaxWindSpeed(E2Set, nrow, ncol, MaxSpeed)
 
     MaxSpeed = 0d0
     do i = 1, nrow
-        CurrentSpeed = dsqrt(E2Set(i, u)**2 + E2Set(i, v)**2 + E2Set(i, w)**2)
-        if (E2Set(i, u) /= error .and. E2Set(i, v) /= error .and. E2Set(i, w) /= error .and. &
+        CurrentSpeed = dsqrt(Set(i, u)**2 + Set(i, v)**2 + Set(i, w)**2)
+        if (Set(i, u) /= error .and. Set(i, v) /= error &
+            .and. Set(i, w) /= error .and. &
          CurrentSpeed > MaxSpeed) MaxSpeed = CurrentSpeed
     end do
 

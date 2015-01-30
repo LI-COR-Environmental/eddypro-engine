@@ -88,7 +88,7 @@ end subroutine AoaCalibrationNakai
 ! \todo
 !***************************************************************************
 subroutine AoaSteffensen(VelU, VelV, VelW)
-    use m_common_global_var
+    use m_rp_global_var
     implicit none
     !> in/out variables
     real(kind = dbl), intent(inout) :: VelU    !< Original and corrected VelU
@@ -156,7 +156,7 @@ end subroutine AoaSteffensen
 ! \todo
 !***************************************************************************
 subroutine Steffensen(aoa, wd, a)
-    use m_common_global_var
+    use m_rp_global_var
     implicit none
     !> in/out variables
     real(kind = dbl), intent(in) :: wd, a
@@ -191,7 +191,7 @@ end subroutine Steffensen
 ! \todo
 !***************************************************************************
 subroutine RetrieveSinErr(xx, sinerr)
-    use m_common_global_var
+    use m_rp_global_var
     implicit none
     !> in/out variables
     real(kind = dbl), intent(in) :: xx
@@ -222,7 +222,7 @@ end subroutine RetrieveSinErr
 ! \todo
 !***************************************************************************
 subroutine RetrieveCosErr(xx, wd, coserr)
-    use m_common_global_var
+    use m_rp_global_var
     implicit none
     !> in/out variables
     real(kind = dbl), intent(in) :: wd
@@ -259,7 +259,7 @@ end subroutine RetrieveCosErr
 ! \todo
 !***************************************************************************
 subroutine RetrieveGx(xx, wd, a, gx)
-    use m_common_global_var
+    use m_rp_global_var
     implicit none
     !> in/out variables
     real(kind = dbl), intent(inout) :: xx
