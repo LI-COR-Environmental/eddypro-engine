@@ -1,7 +1,7 @@
 !***************************************************************************
-! bpcf_fratini12.f90
-! ------------------
-! Copyright (C) 2012-2014, LI-COR Biosciences
+! bpcf_fratini_12.f90
+! -------------------
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !

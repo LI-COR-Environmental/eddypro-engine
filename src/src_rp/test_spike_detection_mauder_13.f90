@@ -1,6 +1,6 @@
 !***************************************************************************
-! test_spike_detection_mauder_2013.f90
-! ------------------------------------
+! test_spike_detection_mauder_13.f90
+! ----------------------------------
 ! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).

@@ -2,7 +2,7 @@
 ! storage.f90
 ! -----------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -38,19 +38,19 @@ subroutine Storage(PrevStats, prevAmbient)
     type(StatsType), intent(in) :: PrevStats
     type(AmbientStateType), intent(in) :: prevAmbient
     !> local variables
-    integer, parameter :: stH = 1
-    integer, parameter :: stCO2 = 2
-    integer, parameter :: stH2O = 3
-    integer, parameter :: stCH4 = 4
-    integer, parameter :: stGAS4 = 5
+!    integer, parameter :: stH = 1
+!    integer, parameter :: stCO2 = 2
+!    integer, parameter :: stH2O = 3
+!    integer, parameter :: stCH4 = 4
+!    integer, parameter :: stGAS4 = 5
     integer :: gas
-    integer :: i
-    integer :: j
-    integer :: var
+!    integer :: i
+!    integer :: j
+!    integer :: var
     real (kind = dbl) :: seconds
-    real (kind = dbl) :: dcdt(5, MaxProfNodes)
-    real (kind = dbl) :: dStor(5, MaxProfNodes - 1)
-    real (kind = dbl) :: dz(5, MaxProfNodes - 1)
+!    real (kind = dbl) :: dcdt(5, MaxProfNodes)
+!    real (kind = dbl) :: dStor(5, MaxProfNodes - 1)
+!    real (kind = dbl) :: dz(5, MaxProfNodes - 1)
     character(10) tmp_date
     character(5) tmp_time
 

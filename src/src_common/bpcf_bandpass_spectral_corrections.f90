@@ -1,7 +1,7 @@
 !***************************************************************************
-! band_pass_spectral_corrections.f90
-! ----------------------------------
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! bpcf_bandpass_spectral_corrections.f90
+! --------------------------------------
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !

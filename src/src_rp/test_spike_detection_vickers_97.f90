@@ -1,6 +1,6 @@
 !*******************************************************************************
-! test_spike_detection_vickers_1997.f90
-! -------------------------------------
+! test_spike_detection_vickers_97.f90
+! -----------------------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
 ! Copyright (C) 2011-2015, LI-COR Biosciences
 !

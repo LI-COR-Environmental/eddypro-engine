@@ -1,8 +1,8 @@
 !***************************************************************************
-! filter_spectra_by_thresholds.f90
-! --------------------------------
+! cospectra_qaqc.f90
+! ------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !

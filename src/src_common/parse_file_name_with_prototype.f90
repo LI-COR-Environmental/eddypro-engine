@@ -1,6 +1,6 @@
 !*******************************************************************************
-! parse_file_name_with_template.f90
-! ---------------------------------
+! parse_file_name_with_prototype.f90
+! ----------------------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
 ! Copyright (C) 2011-2015, LI-COR Biosciences
 !

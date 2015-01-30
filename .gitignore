@@ -25,6 +25,7 @@ bin
 mod
 obj
 backup_eddypro_to_dropbox.bat
+ep_engine_devtools.py
 src/src_common/deprecated
 src/src_common/under_development
 src/src_fcc/deprecated

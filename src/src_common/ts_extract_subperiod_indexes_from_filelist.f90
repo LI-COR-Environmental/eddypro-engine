@@ -1,7 +1,7 @@
 !***************************************************************************
-! ts_extract_subperiod_indexes.f90
-! --------------------------------
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! ts_extract_subperiod_indexes_from_filelist.f90
+! ----------------------------------------------
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !

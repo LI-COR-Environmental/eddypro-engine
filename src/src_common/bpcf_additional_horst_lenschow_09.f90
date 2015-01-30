@@ -1,7 +1,7 @@
 !***************************************************************************
-! cf_horst_lenschow_09.f90
-! ------------------------
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! bpcf_additional_horst_lenschow_09.f90
+! -------------------------------------
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !

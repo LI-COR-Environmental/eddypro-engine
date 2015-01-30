@@ -1,7 +1,7 @@
 !***************************************************************************
 ! write_out_biomet.f90
 ! --------------------
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
