@@ -47,6 +47,7 @@ Program EddyproFCC
     integer :: NumBinnedFilesNoRecurse
     integer :: fcount
     integer :: nrow_full
+    integer :: del_status
 
     logical :: skip
     logical :: InitializeOuputFiles
@@ -420,7 +421,8 @@ Program EddyproFCC
 
         !> Show advancement
         call DateTimetoDOY(lEx%date, lEx%time, int_doy, float_doy)
-        if (day /= CurrentTimestamp%day .or. month /= CurrentTimestamp%month) then
+        if (day /= CurrentTimestamp%day &
+            .or. month /= CurrentTimestamp%month) then
             month = CurrentTimestamp%month
             day   = CurrentTimestamp%day
             call DisplayProgress('daily', '  Calculating fluxes for ', &
@@ -437,9 +439,10 @@ Program EddyproFCC
         if (.not. allocated(FullFileList)) allocate(FullFileList(1))
 
         !> Bad pass spectral correction factors
-        call BandPassSpectralCorrections(lEx%instr(sonic)%height, lEx%disp_height, &
-            lEx%var_present, lEx%WS, lEx%Ta, lEx%zL, lEx%ac_freq, nint(lEx%avrg_length), &
-            lEx%det_meth, nint(lEx%det_timec), size(FullFileList), .false., AuxInstrument, &
+        call BandPassSpectralCorrections(lEx%instr(sonic)%height, &
+            lEx%disp_height, lEx%var_present, lEx%WS, lEx%Ta, lEx%zL, &
+            lEx%ac_freq, nint(lEx%avrg_length), lEx%det_meth, &
+            nint(lEx%det_timec), size(FullFileList), .false., AuxInstrument, &
             FullFileList, nrow_full, lEx, FCCsetup)
 
         !> Calculate fluxes at Level 1
@@ -495,7 +498,12 @@ Program EddyproFCC
     end if
 
     !> Delete tmp folder if running in embedded mode
-    if(EddyProProj%run_env == 'desktop') call system(trim(comm_rmdir) // ' "' // trim(adjustl(TmpDir)) // '"')
+    if(EddyProProj%run_env == 'desktop') &
+        del_status = system(trim(comm_rmdir) // ' "' &
+        // trim(adjustl(TmpDir)) // '"')
+
+    print*, del_status
+    stop
 
     write(*, '(a)') ''
     write(*, '(a)') ' ****************************************************'

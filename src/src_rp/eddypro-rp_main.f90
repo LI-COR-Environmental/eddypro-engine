@@ -2233,7 +2233,8 @@ program EddyproRP
 
     !> Delete tmp folder if running in embedded mode
     if(EddyProProj%run_env == 'desktop') &
-        del_status = system(trim(comm_rmdir) // ' "' // trim(adjustl(TmpDir)) // '"')
+        del_status = system(trim(comm_rmdir) // ' "' &
+        // trim(adjustl(TmpDir)) // '"')
 
     if (.not. EddyProProj%fcc_follows) then
         write(*, '(a)') ''
