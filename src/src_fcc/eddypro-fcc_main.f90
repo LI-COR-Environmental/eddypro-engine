@@ -183,7 +183,9 @@ Program EddyproFCC
         if (FCCsetup%do_spectral_assessment) write(*, '(a)') &
             ' Starting "spectral assessment" session..'
         if (EddyProProj%out_avrg_cosp .or. EddyProProj%out_avrg_spec) &
-            write(*, '(a)') ' Reading (co)spectra for ensemble averaging..'
+            write(*, '(a)') ' Reading (co)spectra for ensemble averaging &
+                &from folder:'
+            write(*, '(a)') '  "' // trim(adjustl(Dir%binned)) // '"'
 
         !> Convert start/end to timestamps
         call DateTimeToDateType(FCCsetup%SA%start_date, &
@@ -196,14 +198,14 @@ Program EddyproFCC
             NumBinnedFiles, NumBinnedFilesNoRecurse)
 
         if(NumBinnedFiles <= 0) then
-            !> Exit loop and change spectral correction to Moncrieff.
+            !> Exit loop and set spectral correction to Moncrieff.
             !> Also, cannot create any ensemble spectral output
             EddyProProj%out_avrg_cosp = .false.
             EddyProProj%out_avrg_spec = .false.
             FCCsetup%do_spectral_assessment = .false.
             EddyProProj%hf_meth = 'moncrieff_97'
             FCCsetup%SA%in_situ = .false.
-            call ExceptionHandler()
+            call ExceptionHandler(89)
             goto 100
         end if
         allocate(BinnedFileList(NumBinnedFiles))
@@ -224,14 +226,14 @@ Program EddyproFCC
             saStartTimestampIndx, saEndTimestampIndx)
 
         if(saStartTimestampIndx <= 0 .or. saEndTimestampIndx <= 0) then
-            !> Exit loop and change spectral correction to Moncrieff.
+            !> Exit loop and set spectral correction to Moncrieff.
             !> Also, cannot create any ensemble spectral output
             EddyProProj%out_avrg_cosp = .false.
             EddyProProj%out_avrg_spec = .false.
             FCCsetup%do_spectral_assessment = .false.
             EddyProProj%hf_meth = 'moncrieff_97'
             FCCsetup%SA%in_situ = .false.
-            call ExceptionHandler()
+            call ExceptionHandler(90)
             goto 100
         end if
 
@@ -501,9 +503,6 @@ Program EddyproFCC
     if(EddyProProj%run_env == 'desktop') &
         del_status = system(trim(comm_rmdir) // ' "' &
         // trim(adjustl(TmpDir)) // '"')
-
-    print*, del_status
-    stop
 
     write(*, '(a)') ''
     write(*, '(a)') ' ****************************************************'

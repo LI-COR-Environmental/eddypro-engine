@@ -221,6 +221,9 @@ subroutine NumberOfFilesInDir(DirIn, ext, MatchTemplate, Template, N, rN)
     end select
     dir_status = system(comm)
 
+    !> Exit with error if dir command failed
+    if (dir_status /= 0) call ExceptionHandler(86)
+
     call system(comm_copy // '"' // trim(adjustl(TmpDir)) &
         // 'flist.tmp" ' // '"' // trim(adjustl(TmpDir)) // 'flist2.tmp" ' &
         // comm_out_redirect // comm_err_redirect)

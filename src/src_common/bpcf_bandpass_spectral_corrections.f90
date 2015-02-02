@@ -79,7 +79,6 @@ subroutine BandPassSpectralCorrections(measuring_height, displ_height, loc_var_p
     !> (defined by RH for H2O and by the month for other gases). If not, sets the method to Moncrieff et al. 1997
     !> Note that even if only one condition fails, the method is set to Moncrieff for all gases
     actual_hf_method = trim(adjustl(EddyProProj%hf_meth))
-
     if (app == 'EddyPro-FCC') then
         select case (trim(adjustl(EddyProProj%hf_meth)))
             case('horst_97', 'ibrom_07', 'fratini_12')

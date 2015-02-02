@@ -122,7 +122,8 @@ subroutine ExceptionHandler(error_code)
             write(*,*) ' Error(34)> Planar-fit rotation matrix not calculated for this sector.'
         case(35)
             write(*,*) ' Fatal error(35)> Oops! Something went wrong. EddyPro was not able to process any raw file.'
-            write(*,*) ' Fatal error(35)> Execution aborted without creating any output files.'
+            write(*,*) ' Fatal error(35)> Output files not created.'
+            write(*,*) ' Fatal error(35)> Program execution aborted.'
             stop 1
         case(36)
             write(*,*) ' Fatal error(36)> No "Output directory" was selected. Select an "Output directory" before running EddyPro.'
@@ -299,81 +300,33 @@ subroutine ExceptionHandler(error_code)
         case(85)
             write(*,*) ' Error(85)> Implausible roughness length value detected.'
             write(*,*) ' Error(85)> Roughness length  defaulted to 0.15 times the canopy height.'
+        case(86)
+            write(*,*) ' Fatal error(86)> Could not retrieve files from directory. Either directory does not exist'
+            write(*,*) ' Fatal error(86)> or it does not contains files matching the selected requirements.'
+            write(*,*) ' Fatal error(86)> Program execution aborted.'
+            stop 1
+        case(87)
+            write(*,*) '  Error(87)> Entered or inferred "Binned co-spectra files directory" does not exist.'
+            write(*,*) '  Error(87)> EddyPro cannot perform spectral assessment, calculate ensemble averaged spectra'
+            write(*,*) '  Error(87)> or calculate ensemble averaged co-spectra.'
+            write(*,*) '  Error(87)> Continuing by switching to Moncrieff et al. (1997) spectral corrections and'
+            write(*,*) '  Error(87)> ignoring selection of ensemble averaged spectra or co-spectra outputs'
+        case(88)
+            write(*,*) '  Error(88)> Entered or inferred "Full co-spectra files directory" does not exist.'
+            write(*,*) '  Error(88)> EddyPro cannot use spectral correction method of Fratini et al. (2012)'
+            write(*,*) '  Error(88)> Continuing by switching to Moncrieff et al. (1997)'
+        case(89)
+            write(*,*) '  Error(89)> Entered or inferred "Binned co-spectra files directory" does not contain any valid files.'
+            write(*,*) '  Error(89)> EddyPro cannot perform spectral assessment, calculate ensemble averaged spectra'
+            write(*,*) '  Error(89)> or calculate ensemble averaged co-spectra.'
+            write(*,*) '  Error(89)> Continuing by switching to Moncrieff et al. (1997) spectral corrections and'
+            write(*,*) '  Error(89)> ignoring selection of ensemble averaged spectra or co-spectra outputs'
+        case(90)
+            write(*,*) '  Error(90)> Entered or inferred "Binned co-spectra files directory" does not contain'
+            write(*,*) '  Error(90)> any files corresponding to the selected start/end period.'
+            write(*,*) '  Error(90)> EddyPro cannot perform spectral assessment, calculate ensemble averaged spectra'
+            write(*,*) '  Error(90)> or calculate ensemble averaged co-spectra.'
+            write(*,*) '  Error(90)> Continuing by switching to Moncrieff et al. (1997) spectral corrections and'
+            write(*,*) '  Error(90)> ignoring selection of ensemble averaged spectra or co-spectra outputs'
     end select
 end subroutine ExceptionHandler
-
-
-!        !> Obsolete, or to be updated
-!        case(9)
-!            write(*,*) ' Fatal error(9)> Occurred while opening statistics file.'
-!            write(*,*) ' Fatal error(9)> Program execution aborted.'
-!            stop 1
-!        case(10)
-!            write(*,*) ' Fatal error(10)> Occurred while reading statistics file. No valid data lines found in file.'
-!            write(*,*) ' Fatal error(10)> Program execution aborted.'
-!            stop 1
-!        case(11)
-!            write(*,*) ' Fatal error(11)> No statistics data were found for the selected time period.'
-!            write(*,*) ' Fatal error(11)> Program execution aborted.'
-!            stop 1
-!        case(12)
-!            write(*,*) ' Fatal error(12)> Occurred while opening provisional fluxes file.'
-!            write(*,*) ' Fatal error(12)> Program execution aborted.'
-!            stop 1
-!        case(15)
-!            write(*,*) ' Warning(15)> Statistics file is too long. No more than 30000 stats can be processed.'
-!            write(*,*) ' Warning(15)> Check results: most likely the last period will not be processed.'
-!        case(16)
-!            write(*,*) ' Fatal error(16)> The raw data directory does not contain any file matching the "Raw file name format".'
-!            write(*,*) ' Fatal error(16)> Program execution aborted.'
-!            stop 1
-!        case(17)
-!            write(*,*) '  Error(17)> Occurred while opening w/h2o covariances file.'
-!            write(*,*) '  Error(17)> EddyPro will use maximized w/h2o covariances instead. Execution continues.'
-!        case(18)
-!            write(*,*) '  Error(18)> Occurred while reading w/h2o file. No valid data lines were found in the file.'
-!            write(*,*) '  Error(18)> EddyPro will use maximum w/h2o covariances instead. Execution continues.'
-!        case(19)
-!            write(*,*) '  Error(19)> number of covariances found in file larger than max supported (18000).'
-!            write(*,*) '  Error(19)> At least one was not imported.'
-!        case(26)
-!            write(*,*) '  Error(26)> Occurred while opening ENE file.'
-!            write(*,*) '  Error(26)> File skipped.'
-!        case(27)
-!            write(*,*) '  Error(27)> Occurred while validating embedded INI file.'
-!            write(*,*) '  Error(27)> File skipped.'
-!        case(47)
-!            write(*,*) '  Fatal error(47)> Length of raw files appears to be zero. Review metadata file through the Metadata File Editor'
-!            write(*,*) '  Fatal error(47)> Program execution aborted.'
-!            stop 1
-!
-!
-!        case(20008)
-!            write(*,*) ' Error(20008)> error while opening fc=fc(RH) fit parameters file.'
-!            write(*,*) '               parameters set to -9999.'
-!        case(20009)
-!            write(*,*) ' Error(20009)> error while creating file. fitting results &
-!                        &not reported on output.'
-!        case(20010)
-!            write(*,*)
-!            write(*,*) '  Warning(20010)> footprint estimation not requested.'
-!        case(20012)
-!            write(*,*) ' Error(20012)> error while opening file. quality flags not calculated.'
-!        case(20013)
-!            write(*,*) '  Warning(20013)> quality flag calculation not requested.'
-!
-!        case(10901)
-!            write(*,*) ' Warning(10901)> Not all variables (u,v,w,ts,co2,h2o) needed'
-!            write(*,*) '                 in ECCOCE are present in the current data file.'
-!            write(*,*) '                 File skipped and results set to -999.9.'
-!        case(11002)
-!            write(*,*) ' Warning(11002)> At least one transfer function parameter results <=0.'
-!            write(*,*) '                 Experimental spectral correction not applied.'
-!            write(*,*) '                 Switching to analytic spectral correction.'
-!        case(12601)
-!            write(*,*) ' Warning(12601)> Either air pressure or temperature is <= 0.'
-!            stop        '                 Program execution aborted'
-!        case(13001)
-!            write(*,*) ' Warning(13001)> Impossible to run footprint model for this file.'
-!            write(*,*) '                 Footprint results set to -9999.'
-!

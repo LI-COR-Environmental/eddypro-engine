@@ -82,6 +82,7 @@ subroutine WriteVariablesFX()
     integer :: gas
     integer :: skipped_classes
     integer :: start
+    logical :: dirExists
 
 
     !> Spectra analysis time period
@@ -147,7 +148,7 @@ subroutine WriteVariablesFX()
 
     !> Spectral assessment file path, if declared available
     AuxFile%sa   = 'none'
-    if (SCTags(19)%value(1:1) == '1' .and. FCCsetup%SA%in_situ) then
+    if (SCTags(19)%value(1:1) == '0' .and. FCCsetup%SA%in_situ) then
         AuxFile%sa = SCTags(20)%value(1:len_trim(SCTags(20)%value))
         if (len_trim(AuxFile%sa) == 0) AuxFile%sa = 'none'
     end if
@@ -161,23 +162,50 @@ subroutine WriteVariablesFX()
         FCCsetup%SA%in_situ .and. AuxFile%sa == 'none'
 
     FCCsetup%pass_thru_spectral_assessment = &
-        (FCCsetup%SA%in_situ .and. AuxFile%sa == 'none') &
+        FCCsetup%do_spectral_assessment &
         .or. EddyProProj%out_avrg_cosp &
         .or. EddyProProj%out_avrg_spec
+
+    !> Check existence of binned cospectra directory if necessary
+    if (FCCsetup%pass_thru_spectral_assessment) then
+        inquire(file = Dir%binned, exist=dirExists)
+        if (.not. dirExists) then
+            call ExceptionHandler(87)
+            EddyProProj%out_avrg_cosp = .false.
+            EddyProProj%out_avrg_spec = .false.
+            FCCsetup%do_spectral_assessment = .false.
+            FCCsetup%pass_thru_spectral_assessment = .false.
+            EddyProProj%hf_meth = 'moncrieff_97'
+            FCCsetup%SA%in_situ = .false.
+        end if
+    end if
+
+    !> Check existence of full cospectra directory if necessary
+    if (EddyProProj%hf_meth == 'fratini_12') then
+        inquire(file = Dir%full, exist=dirExists)
+        if (.not. dirExists) then
+            call ExceptionHandler(88)
+            EddyProProj%hf_meth = 'moncrieff_97'
+            FCCsetup%SA%in_situ = .false.
+        end if
+    end if
 
     FCCsetup%SA%lptf = 'none'
     if (EddyProProj%hf_meth == 'custom') then
         !> select low-pass transfer function (LPTF) definition method
         select case (SCTags(15)%value(1:1))
             case ('0')
-                !> Transfer function calculated analytically (Moncrieff et al., 1997)
+                !> Transfer function calculated analytically
+                !> (Moncrieff et al., 1997)
                 FCCsetup%SA%lptf = 'analytic'
             case ('1')
-                !> Transfer function calculated in-situ, after Aubinet et al. 2001
-                !> modified to account for RH-dependency (see ECO2S documentation)
+                !> Transfer function calculated in-situ,
+                !> after Aubinet et al. 2001 modified to account
+                !> for RH-dependency
                 FCCsetup%SA%lptf = 'sigma'
             case ('2')
-                !> Ttransfer function calculated in-situ, after Ibrom et al. 2007
+                !> Ttransfer function calculated in-situ,
+                !> after Ibrom et al. 2007
                 FCCsetup%SA%lptf = 'iir'
             case default
                 !> If not specified, set to none
