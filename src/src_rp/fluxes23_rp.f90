@@ -249,7 +249,7 @@ subroutine Fluxes23_rp()
         !> Level 2, WPL for closed path, implemented after Ibrom et al. (2007)
         !> Tellus, eq. 3a with H contribution from WPL24
         select case(E2Col(co2)%measure_type)
-            !> Analitically, it is verified that:
+            !> Analytically, it is verified that:
             !> (E * mu * sigma / rho%w * co2_density)
             !> equals
             !> (r_c * w'chi_w' / Va)
