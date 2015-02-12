@@ -146,8 +146,11 @@ subroutine InitExternalBiomet(bFileList, N)
         allocate(bVars(nbVars))
         bVars = nullbVar
 
+        !> Allocate vars for aggregated biomet values
         if (allocated(bAggr)) deallocate(bAggr)
         allocate(bAggr(nbVars))
+        if (allocated(bAggrFluxnet)) deallocate(bAggrFluxnet)
+        allocate(bAggrFluxnet(nbVars))
 
         !> Retrieve variables and timestamp prototype from
         !> header (labels and units rows)

@@ -495,93 +495,85 @@ subroutine InitOutFiles()
         end if
     end if
 
-    !************************************************************************************************************************************
-    !************************************************************************************************************************************
-
-    if (EddyProProj%out_ghg_eu) then
-        !> Create GHG-EUROPE output file name
+    !>==========================================================================
+    !>==========================================================================
+    !> GHG-EUROPE output
+    if (EddyProProj%out_fluxnet) then
         Test_Path = Dir%main_out(1:len_trim(Dir%main_out)) &
                   // EddyProProj%id(1:len_trim(EddyProProj%id)) &
                   // GHGEUROPE_FilePadding // Timestamp_FilePadding // CsvExt
         dot = index(Test_Path, CsvExt, .true.) - 1
         GHGEUROPE_Path = Test_Path(1:dot) // CsvTmpExt
-        open(ughgeu, file = GHGEUROPE_Path, iostat = open_status, encoding = 'utf-8')
+        open(ughgeu, file = GHGEUROPE_Path, &
+            iostat = open_status, encoding = 'utf-8')
 
         !> Initialize header strings to void
-        call clearstr(header2)
-        call clearstr(header3)
+        call Clearstr(header2)
+        call Clearstr(header3)
         call Clearstr(head2_utf8)
         call Clearstr(head3_utf8)
 
         !> Initial common part
-        call AddDatum(header2,'ISOdate', separator)
-        call AddDatum(header3,'yyyymmddHHMM', separator)
+        call AddDatum(header2,'TIMESTAMP', separator)
+        call AddDatum(header3,'[yyyymmddHHMMSS]', separator)
 
-        !> Average gas concentrations
+        !>======================================================================
+        !> Variables located at the EC stations
+        !> GASES
         do gas = co2, gas4
             if(fcc_var_present(gas)) then
                 select case (gas)
                     case(co2)
                         call AddDatum(header2, 'CO2_1_1_1', separator)
                         call AddDatum(header3, &
-                            '[' // char(181) // 'mol+1mol_a-1]', separator)
+                            '[mmolCO2 mol-1]', separator)
                     case(h2o)
                         call AddDatum(header2, 'H2O_1_1_1', separator)
-                        call AddDatum(header3, '[mmol+1mol_a-1]', separator)
+                        call AddDatum(header3, '[mmolH2O mol-1]', separator)
                     case(ch4)
                         call AddDatum(header2, 'CH4_1_1_1', separator)
-                        call AddDatum(header3, '[nmol+1mol_a-1]', separator)
+                        call AddDatum(header3, '[nmolCH4 mol-1]', separator)
                     case(gas4)
                         call AddDatum(header2, &
-                            e2sg(gas4)(1:len_trim(e2sg(gas4))) // '1_1_1', separator)
-                        call AddDatum(header3, '[nmol+1mol_a-1]', separator)
+                            trim(adjustl(e2sg(gas4))) // '1_1_1', separator)
+                        call AddDatum(header3, '[nmol' &
+                            // trim(adjustl(e2sg(gas4))) //' mol-1]', separator)
                 end select
             end if
         end do
-
-        !> Corrected fluxes (Level 3) and quality flags
-        !> Tau and H
-        call AddDatum(header2,'Tau_1_1_1,QcTau_1_1_1,H_1_1_1,QcH_1_1_1', &
-            separator)
-        call AddDatum(header3,'[kg+1m-1s-2],[#],[W+1m-2],[#]', separator)
-        !> LE
+        call AddDatum(header2,&
+            'TAU_1_1_1,TAU_SSITC_TEST_1_1_1,H_1_1_1,H_SSITC_TEST_1_1_1', separator)
+        call AddDatum(header3,'[kg m-1 s-2],[#],[W m-2],[#]', separator)
         if(fcc_var_present(h2o)) then
-            call AddDatum(header2,'LE_1_1_1, QcLE_1_1_1', separator)
-            call AddDatum(header3,'[W+1m-2],[#]', separator)
+            call AddDatum(header2,'LE_1_1_1,LE_SSITC_TEST_1_1_1', separator)
+            call AddDatum(header3,'[W m-2],[#]', separator)
         end if
-        !> Corrected co2 fluxes
         if(fcc_var_present(co2)) then
-            call AddDatum(header2,'Fc_1_1_1, QcFc_1_1_1', separator)
-            call AddDatum(header3,'[' // char(181) // 'mol+1s-1m-2],[#]', separator)
+            call AddDatum(header2,'FC_1_1_1,FC_SSITC_TEST_1_1_1', separator)
+            call AddDatum(header3,'[umolCO2 m-2 s-1],[#]', separator)
         end if
-        !> Corrected ch4 fluxes
         if(fcc_var_present(ch4)) then
-            call AddDatum(header2,'FCH4_1_1_1, QcFCH4_1_1_1', separator)
-            call AddDatum(header3,'[nmol+1s-1m-2],[#]', separator)
+            call AddDatum(header2,'FCH4_1_1_1,FCH4_SSITC_TEST_1_1_1', separator)
+            call AddDatum(header3,'[nmolCH4 m-2 s-1],[#]', separator)
         end if
-        !> Corrected gas4 fluxes
         if(fcc_var_present(gas4)) then
-            call AddDatum(header2,'F' // e2sg(gas4)(1:len_trim(e2sg(gas4))) &
-            // '1_1_1, QcFN2O_1_1_1', separator)
-            call AddDatum(header3,'[nmol+1s-1m-2],[#]', separator)
+            call AddDatum(header2,'F' // trim(adjustl(e2sg(gas4))) &
+                // '1_1_1,' // trim(adjustl(e2sg(gas4))) // 'SSITC_TEST_1_1_1', separator)
+            call AddDatum(header3,'[nmol'// trim(adjustl(e2sg(gas4))) &
+                //' m-2 s-1],[#]', separator)
         end if
 
-!        !> Storage
-!        call AddDatum(header2,'Sa_1_1_1', separator)
-!        call AddDatum(header3,'[W+1m-2]', separator)
-!        if(fcc_var_present(h2o)) then
-!            call AddDatum(header2,'Sw_1_1_1', separator)
-!            call AddDatum(header3,'[W+1m-2]', separator)
-!        end if
-!        if(fcc_var_present(co2)) then
-!            call AddDatum(header2, 'Sc_1_1_1', separator)
-!            call AddDatum(header3, '[' // char(181) // 'mol+1s-1m-2]', separator)
-!        end if
-!
-        !> Turbulence and footprint
-        call AddDatum(header2,'ustar_1_1_1,MO_length_1_1_1,ZL_1_1_1,&
-            &Fetchmax_1_1_1,Fetch70_1_1_1,Fetch90_1_1_1', separator)
-        call AddDatum(header3,'[m+1s-1],[m],[#],[m],[m],[m]', separator)
+        !> MET_WIND and FOOTPRINT
+        call AddDatum(header2,'WD_1_1_1,WS_1_1_1,WS_MAX_1_1_1,U_SIGMA_1_1_1,&
+            &V_SIGMA_1_1_1,W_SIGMA_1_1_1,USTAR_1_1_1,MO_LENGTH_1_1_1,ZL_1_1_1,&
+            &FETCH_MAX_1_1_1,FETCH_70_1_1_1,FETCH_80_1_1_1,FETCH_90_1_1_1', separator)
+        call AddDatum(header3,'[Decimal degrees],[m s-1],[m s-1],[m s-1],&
+            &[m s-1],[m s-1],[m s-1],[m],[#],[m],[m],[m],[m]', separator)
+
+        !> MET_ATM
+        call AddDatum(header2,'PA_1_1_1,RH_1_1_1,TA_1_1_1,VPD_1_1_1,T_SONIC_1_1_1,&
+            &T_SONIC_SIGMA_1_1_1', separator)
+        call AddDatum(header3,'[kPa],[%],[deg C],[hPa],[deg C],[deg C]', separator)
 
         call latin1_to_utf8(header2, head2_utf8)
         call latin1_to_utf8(header3, head3_utf8)

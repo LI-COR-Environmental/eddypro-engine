@@ -352,12 +352,17 @@ module m_common_global_var
     type(BiometVarsType), allocatable :: bVars(:)
     real(kind=dbl), allocatable :: fbSet(:, :)
     real(kind=dbl), allocatable :: bSet(:, :), auxbSet(:, :), bAggr(:)
+    real(kind=dbl), allocatable :: bAggrFluxnet(:)
     type(DateType), allocatable :: fbTs(:), auxbTs(:)
     type(DateType), allocatable :: bTs(:)
     type(BiometVarsType), parameter :: &
         nullbVar = BiometVarsType(nint(error), nint(error), nint(error), &
-            error, error, 'none', 'none', 'none', 'none', 'none', 'none', &
-            'none', 'none', 'none')
+            error, error, 'none', 'none', 'none', 'none', 'none', 'none', 'none', &
+            'none', 'none', 'none', 'none','none')
+
+    type(FootType), parameter :: &
+        errFootprint = FootType(error, error, error, error, error, &
+            error, error, error)
 
     !> variables from metadata file
     type(RawFlagType)   :: RawFlag(MaxNumRawFlags)

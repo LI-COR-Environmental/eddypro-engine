@@ -116,7 +116,7 @@ subroutine ConfigureForExpress
     RPsetup%offset(w) = 0d0
 
     !> Output files and other settings
-    EddyProProj%out_ghg_eu   = .true.
+    EddyProProj%out_fluxnet  = .true.
     EddyProProj%out_amflux   = .true.
     EddyProProj%out_full     = .true.
     EddyProProj%out_md       = .true.

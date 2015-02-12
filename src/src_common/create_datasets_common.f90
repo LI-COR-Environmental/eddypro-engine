@@ -55,17 +55,13 @@ subroutine CreateDatasetsCommon(TimeSeries, nrow, StartIndx, EndIndx)
     end if
 
     !> GHG-EUROPE file - it is NEVER filled. Only renamed.
-    if (EddyProProj%out_ghg_eu) then
+    if (EddyProProj%out_fluxnet) then
         tmp_indx = index(GHGEUROPE_Path, TmpExt)
         OutPath = GHGEUROPE_Path(1: tmp_indx - 1)
         move_status = system(comm_move // '"' &
             // GHGEUROPE_Path(1:len_trim(GHGEUROPE_Path)) // '" "' &
             // OutPath(1:len_trim(OutPath)) // '"' &
             // comm_out_redirect // comm_err_redirect)
-!        write(*,'(a)', advance = 'no') '  Creating GHG-EUROPE-style dataset..'
-!        call MakeDataset(GHGEUROPE_Path(1:len_trim(GHGEUROPE_Path)), &
-!            TimeSeries, size(TimeSeries), StartIndx, EndIndx, .true., 3)
-!        write(*,'(a)') ' Done.'
     end if
 
     !> AmeriFlux file
@@ -92,10 +88,6 @@ subroutine CreateDatasetsCommon(TimeSeries, nrow, StartIndx, EndIndx)
     if (len_trim(FullOut_Path) /= 0 .and. EddyProProj%out_full) &
         del_status = system(comm_del // '"' &
         // FullOut_Path(1:len_trim(FullOut_Path)) // '"')
-
-!    if (len_trim(GHGEUROPE_Path) /= 0 .and. EddyProProj%out_ghg_eu) &
-!        del_status = system(comm_del // '"' &
-!        // GHGEUROPE_Path(1:len_trim(GHGEUROPE_Path)) // '"')
 
     if (len_trim(Metadata_Path) /= 0 .and. EddyProProj%out_md) &
         del_status = system(comm_del // '"' &

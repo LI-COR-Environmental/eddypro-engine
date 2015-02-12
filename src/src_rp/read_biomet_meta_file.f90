@@ -82,6 +82,8 @@ subroutine WriteBiometMetaVariables(skip_file)
     integer :: nbTimestamp
     character(32) :: label
 
+    logical, external :: BiometValidateVar
+    character(32), external :: biometBaseName
 
     !> File general features
     skip_file = .false.
@@ -134,6 +136,8 @@ subroutine WriteBiometMetaVariables(skip_file)
     allocate(bVars(nbVars))
     if (allocated(bAggr)) deallocate(bAggr)
     allocate(bAggr(nbVars))
+    if (allocated(bAggrFluxnet)) deallocate(bAggrFluxnet)
+    allocate(bAggrFluxnet(nbVars))
     bVars = nullbVar
 
     !> Variables description
@@ -168,7 +172,16 @@ subroutine WriteBiometMetaVariables(skip_file)
                 bVars(cnt)%id       = trim(adjustl(BiometCTags(ix + 1)%value))
                 bVars(cnt)%instr    = trim(adjustl(BiometCTags(ix + 2)%value))
                 bVars(cnt)%unit_in  = trim(adjustl(BiometCTags(ix + 3)%value))
-            end if
+                call uppercase(bVars(cnt)%unit_in)
+                !> Check validity of biomet variable label
+                if (.not. BiometValidateVar(bVars(cnt))) then
+                    call ExceptionHandler(73)
+                    skip_file = .true.
+                    return
+                end if
+                !> Retrieve variable base name
+                bVars(cnt)%base_name = biometBaseName(bVars(cnt)%label)
+           end if
         end if
     end do
     bFileMetadata%numTsCol = tsCnt

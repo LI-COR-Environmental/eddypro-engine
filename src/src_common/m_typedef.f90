@@ -216,20 +216,23 @@ module m_typedef
     end type BiometFileMetadataType
 
     type :: BiometVarsType
-        integer :: loc
-        integer :: profile
+        integer :: hpos
+        integer :: vpos
         integer :: rep
         real(kind = dbl) :: gain
         real(kind = dbl) :: offset
         character(32) :: label
+        character(32) :: fluxnet_label
         character(32) :: id
-        character(32) :: name
+        character(32) :: base_name
+        character(32) :: fluxnet_base_name
         character(32) :: accumul_type
         character(32) :: nature
         character(32) :: instr
         character(32) :: unit_in
         character(32) :: unit_out
         character(32) :: pretty_unit_out
+        character(32) :: fluxnet_unit_out
     end type BiometVarsType
 
     type :: BiometColType
@@ -493,7 +496,7 @@ module m_typedef
         logical :: use_extmd_file
         logical :: use_dynmd_file
         logical :: out_full
-        logical :: out_ghg_eu
+        logical :: out_fluxnet
         logical :: out_amflux
         logical :: out_md
         logical :: out_avrg_cosp
@@ -628,6 +631,7 @@ module m_typedef
         real(kind = dbl) :: x30
         real(kind = dbl) :: x50
         real(kind = dbl) :: x70
+        real(kind = dbl) :: x80
         real(kind = dbl) :: x90
     end type FootType
 

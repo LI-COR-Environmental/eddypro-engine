@@ -50,10 +50,13 @@ subroutine BiometRetrieveEmbeddedData(proceed, printout)
             // ' biomet records imported.'
 
         !> Convert data to standard units
-        call BiometStandardUnits()
+        call BiometStandardEddyProUnits()
 
         !> Aggregate biomet variables over the averaging interval
         call BiometAggretate(bSet, size(bSet, 1), size(bSet, 2), bAggr)
+
+        !> Convert aggregated values to FLUXNET units
+        call BiometStandardFluxnetUnits()
     else
         if (printout) call ExceptionHandler(72)
     end if

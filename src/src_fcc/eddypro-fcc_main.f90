@@ -459,7 +459,7 @@ Program EddyproFCC
             call FootprintHandle(lEx%var(w), lEx%ustar, lEx%zL, lEx%WS, lEx%L, &
                 lEx%instr(sonic)%height, lEx%disp_height, lEx%rough_length)
         else
-            Foot = FootType(error, error, error, error, error, error, error)
+            Foot = errFootprint
         end if
 
         !> Calculate quality flags

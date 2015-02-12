@@ -88,7 +88,7 @@
 			<Option weight="3" />
 		</Unit>
 		<Unit filename="../src/src_common/calibrate_gas4.f90">
-			<Option weight="4" />
+			<Option weight="3" />
 		</Unit>
 		<Unit filename="../src/src_common/change_24_into_00.f90">
 			<Option weight="3" />
@@ -229,7 +229,7 @@
 			<Option weight="3" />
 		</Unit>
 		<Unit filename="../src/src_common/max_wind_speed.f90">
-			<Option weight="4" />
+			<Option weight="3" />
 		</Unit>
 		<Unit filename="../src/src_common/median.f90">
 			<Option weight="3" />
@@ -265,7 +265,7 @@
 			<Option weight="3" />
 		</Unit>
 		<Unit filename="../src/src_common/read_biomet_file.f90">
-			<Option weight="4" />
+			<Option weight="3" />
 		</Unit>
 		<Unit filename="../src/src_common/read_licor_ghg_archive.f90">
 			<Option weight="3" />
@@ -361,6 +361,9 @@
 			<Option weight="4" />
 		</Unit>
 		<Unit filename="../src/src_rp/binned_frequency_vector.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/biomet_enrich_vars_description.f90">
 			<Option weight="4" />
 		</Unit>
 		<Unit filename="../src/src_rp/biomet_retrieve_embedded_data.f90">
@@ -506,7 +509,9 @@
 		<Unit filename="../src/src_rp/random_error_handle.f90">
 			<Option weight="4" />
 		</Unit>
-		<Unit filename="../src/src_rp/read_biomet_meta_file.f90" />
+		<Unit filename="../src/src_rp/read_biomet_meta_file.f90">
+			<Option weight="4" />
+		</Unit>
 		<Unit filename="../src/src_rp/read_ini_rp.f90">
 			<Option weight="4" />
 		</Unit>

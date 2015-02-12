@@ -56,7 +56,7 @@ subroutine RenameTmpFilesCommon()
     end if
 
     !> GHG_Europe file
-    if (EddyProProj%out_ghg_eu) then
+    if (EddyProProj%out_fluxnet) then
         tmp_indx = index(GHGEUROPE_Path, TmpExt)
         OutPath = GHGEUROPE_Path(1: tmp_indx - 1)
         move_status = system(comm_move // '"' // GHGEUROPE_Path(1:len_trim(GHGEUROPE_Path)) // '" "' &

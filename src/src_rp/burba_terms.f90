@@ -60,7 +60,7 @@ subroutine BurbaTerms()
 
     !> Air Conductivity [W m-1 K-1]
     if (Stats%T /= error) then
-        k_air = 0.000067d0 * (Stats%T - 273.15d0) + 0.024343d0
+        k_air = 0.000067d0 * (Stats%T - 273.16d0) + 0.024343d0
     else
         k_air = error
     end if

@@ -225,7 +225,6 @@ program EddyproRP
         EddyProProj%fcc_follows     = .true.
         EddyProProj%out_full        = .false.
         EddyProProj%out_md          = .false.
-        EddyProProj%out_ghg_eu      = .false.
         EddyProProj%out_amflux      = .false.
         make_dataset_common         = .false.
     else
@@ -2109,8 +2108,7 @@ program EddyproRP
                         Ambient%zL, Ambient%WS, Ambient%L, &
                         E2Col(u)%Instr%height, Metadata%d, Metadata%z0)
                 else
-                    Foot = FootType(error, error, error, error, error, &
-                        error, error)
+                    Foot = errFootprint
                 end if
             end if
 

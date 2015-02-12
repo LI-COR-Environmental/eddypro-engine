@@ -56,6 +56,9 @@ subroutine RetrieveExtBiometVars(row1, row2, nitems)
     character(32) :: cap_item1
     character(32) :: item1
     character(32) :: item2
+    character(32), external :: biometBaseName
+
+    logical, external :: BiometValidateVar
 
     !> Retrieve variables and units from corresponding strings
     bFileMetadata%tsPattern = ''
@@ -82,10 +85,20 @@ subroutine RetrieveExtBiometVars(row1, row2, nitems)
                 // trim(adjustl(item2))
         else
             cnt = cnt + 1
+            !> Variable label
             bVars(cnt)%label = item1
-            bVars(cnt)%unit_in = item2
             call ShrinkString(bVars(cnt)%label)
+            !> Variable in units
+            bVars(cnt)%unit_in = item2
             call uppercase(bVars(cnt)%unit_in)
+            !> Check validity of biomet variable label
+            if (.not. BiometValidateVar(bVars(cnt))) then
+                call ExceptionHandler(73)
+                EddyProProj%biomet_data = 'none'
+                return
+            end if
+            !> Retrieve variable base name
+            bVars(cnt)%base_name = biometBaseName(bVars(cnt)%label)
         end if
     end do
     bFileMetadata%numTsCol = tsCnt
@@ -273,11 +286,9 @@ subroutine BiometTimestamp(pattern, string, timestamp, failed)
     call DateTimeToDateType(date, time, timestamp)
 end subroutine BiometTimestamp
 
-
 !***************************************************************************
 !
-! \brief       Based on variable label, extract name, location, profile
-!              replicate and various other properties
+! \brief       Basic validation of biomet labels
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -285,114 +296,21 @@ end subroutine BiometTimestamp
 ! \deprecated
 ! \test
 !***************************************************************************
-subroutine BiometEnrichVarsDescription()
+logical function BiometValidateVar(bVar) result(valid)
     use m_rp_global_var
     implicit none
     !> In/out variables
+    type(BiometVarsType), intent(in) :: bVar
     !> Local variables
-    integer :: i
-    character(32) :: item
+    integer, external :: CountCharInString
 
 
-    do i = 1, nbVars
-        call BiometInterpretLabels(bVars(i))
-        item = trim(bVars(i)%name)
-        call uppercase(item)
-        select case(item)
-            case('TA', 'TC', 'TBOLE', 'TBC', 'TR', 'TS')
-                bVars(i)%nature = 'TEMPERATURE'
-                bVars(i)%accumul_type = 'AVERAGING'
-                bVars(i)%unit_out = 'K'
-                bVars(i)%pretty_unit_out = '[K]'
-            case('RH')
-                bVars(i)%nature = 'RELATIVE_HUMIDITY'
-                bVars(i)%accumul_type = 'AVERAGING'
-                bVars(i)%unit_out = '%'
-                bVars(i)%pretty_unit_out = '[%]'
-            case('PA')
-                bVars(i)%nature = 'PRESSURE'
-                bVars(i)%accumul_type = 'AVERAGING'
-                bVars(i)%unit_out = 'PA'
-                bVars(i)%pretty_unit_out = '[Pa]'
-            case('CO2')
-                bVars(i)%nature = 'CONCENTRATION'
-                bVars(i)%accumul_type = 'AVERAGING'
-                bVars(i)%unit_out = 'UMOL+1M-2S-1'
-                bVars(i)%pretty_unit_out = '[' // char(181) // 'mol/m^2s]'
-            case('CH4', 'N2O', 'NO', 'NO2', 'CO', 'SO2', 'O3', 'NH3')
-                bVars(i)%nature = 'CONCENTRATION'
-                bVars(i)%accumul_type = 'AVERAGING'
-                bVars(i)%unit_out = 'NMOL+1M-2S-1'
-                bVars(i)%pretty_unit_out = '[nmol/m^2s]'
-            case('H2O')
-                bVars(i)%nature = 'CONCENTRATION'
-                bVars(i)%accumul_type = 'AVERAGING'
-                bVars(i)%unit_out = 'MMOL+1M-2S-1'
-                bVars(i)%pretty_unit_out = '[mmol/m^2s]'
-            case('RG', 'RN', 'RD', 'RR', 'R_UVA', 'R_UVB', 'LWIN', 'LWOUT', &
-                'SWIN', 'SWOUT', 'SWBC', 'SWDIF')
-                bVars(i)%nature = 'RADIATION'
-                bVars(i)%accumul_type = 'AVERAGING'
-                bVars(i)%unit_out = 'W+1M-2'
-                bVars(i)%pretty_unit_out = '[W/m^2]'
-            case('SHF')
-                bVars(i)%nature = 'HEAT_FLUX'
-                bVars(i)%accumul_type = 'AVERAGING'
-                bVars(i)%unit_out = 'W+1M-2'
-                bVars(i)%pretty_unit_out = '[W/m^2]'
-            case('PPFD', 'PPFDD', 'PPFDR', 'PPFDBC', 'APAR')
-                bVars(i)%nature = 'PHOTON_FLUX'
-                bVars(i)%accumul_type = 'AVERAGING'
-                bVars(i)%unit_out = 'UMOL+1M-2S-1'
-                bVars(i)%pretty_unit_out = '[' // char(181) // 'mol/m^2s]'
-            case('WS', 'MWS')
-                bVars(i)%nature = 'SPEED'
-                bVars(i)%accumul_type = 'AVERAGING'
-                bVars(i)%unit_out = 'M+1S-1'
-                bVars(i)%pretty_unit_out = '[m/s]'
-            case('WD')
-                bVars(i)%nature = 'ANGULAR_DIRECTION'
-                bVars(i)%accumul_type = 'ANGULAR_AVERAGE'
-                bVars(i)%unit_out = 'DEGREES'
-                bVars(i)%pretty_unit_out = '[deg_past_North]'
-            case('P', 'P_RAIN', 'P_SNOW')
-                bVars(i)%nature = 'PRECIPITATION'
-                bVars(i)%accumul_type = 'INTEGRATION'
-                bVars(i)%unit_out = 'M'
-                bVars(i)%pretty_unit_out = '[m]'
-            case('LAI')
-                bVars(i)%nature = 'INDEX'
-                bVars(i)%accumul_type = 'AVERAGING'
-                bVars(i)%unit_out = 'M+2M-2'
-                bVars(i)%pretty_unit_out = '[m^2/m^2]'
-            case('ALB')
-                bVars(i)%nature = 'INDEX'
-                bVars(i)%accumul_type = 'AVERAGING'
-                bVars(i)%unit_out = '#'
-                bVars(i)%pretty_unit_out = '[#]'
-            case('SAPFLOW', 'STEMFLOW')
-                bVars(i)%nature = 'FLOW'
-                bVars(i)%accumul_type = 'AVERAGING'
-                bVars(i)%unit_out = 'MMOL+1M-2S-1'
-                bVars(i)%pretty_unit_out = '[mmol/m^2s]'
-            case('SNOWD')
-                bVars(i)%nature = 'LENGTH'
-                bVars(i)%accumul_type = 'AVERAGING'
-                bVars(i)%unit_out = 'M'
-                bVars(i)%pretty_unit_out = '[m]'
-            case('SWC')
-                bVars(i)%nature = 'VOLUME_CONCENTRATION'
-                bVars(i)%accumul_type = 'AVERAGING'
-                bVars(i)%unit_out = 'M+3M-3'
-                bVars(i)%pretty_unit_out = '[m^3/m^3]'
-            case default
-                bVars(i)%nature = 'UNKNOWN'
-                bVars(i)%accumul_type = 'AVERAGING'
-                bVars(i)%unit_out = trim(bVars(i)%unit_in)
-                bVars(i)%pretty_unit_out = '[' // trim(bVars(i)%unit_in) // ']'
-        end select
-    end do
-end subroutine
+    valid = .true.
+    if (CountCharInString(bVar%label, '_') < 3) then
+        valid = .false.
+        return
+    end if
+end function BiometValidateVar
 
 !***************************************************************************
 !
@@ -528,7 +446,7 @@ end function BiometVarHasSuffix
 !
 !    !> Interpret location information  and store it in bVars attributes
 !    do i = 1, size(bVars)
-!        call BiometInterpretLabels(bVars(i))
+!        call BiometInterpretPositionalQualifier(bVars(i))
 !    end do
 !
 !    unique_tags = ''
@@ -717,7 +635,7 @@ end subroutine BiometAdjustTimestamp
 
 !***************************************************************************
 !
-! \brief       Interpret label and return var, loc, profile, rep
+! \brief       Interpret label and return var, hpos, vpos, rep
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -725,52 +643,26 @@ end subroutine BiometAdjustTimestamp
 ! \deprecated
 ! \test
 !***************************************************************************
-subroutine BiometInterpretLabels(bVar)
+subroutine BiometInterpretPositionalQualifier(bVar)
     use m_rp_global_var
     implicit none
     !> In/out variables
     type(BiometVarsType), intent(inout) :: bVar
     !> Local variables
     character(32) :: s
-    integer :: i
-    integer :: n
-    integer, external :: CountCharInString
+    character(32), external :: biometBaseName
 
-    s = bvar%label
-    !> Count number of underscores
-    n = CountCharInString(s, '_')
 
-    !> If n is less than 3, the variable name was not well defined, so
-    !> abort using biomet
-    if (n < 3) then
-        call ExceptionHandler(73)
-        EddyProProj%biomet_data = 'none'
-        return
-    end if
-
-    !> Variable name
-    !> If n is more than 3, var name contains the remaining underscores
-    bVar%name = ''
-    if (n > 3) then
-        do i = 1, n-2
-            bVar%name = trim(bVar%name) // s(1:index(s, '_'))
-            s = s(index(s, '_') + 1: len_trim(s))
-        end do
-        bVar%name = bVar%name(1:len_trim(bVar%name)-1)
-    else
-        bVar%name = s(1:index(s, '_')-1)
-        s = s(index(s, '_') + 1 : len_trim(s))
-    end if
-
+    s = bVar%label(len_trim(bVar%base_name) + 2: len_trim(bVar%label))
     !> location
-    read(s(1:index(s, '_')-1), '(i3)') bVar%loc
+    read(s(1:index(s, '_')-1), '(i3)') bVar%hpos
     !> location
     s = s(index(s, '_') + 1 : len_trim(s))
-    read(s(1:index(s, '_')-1), '(i3)') bVar%profile
+    read(s(1:index(s, '_')-1), '(i3)') bVar%vpos
     !> rep
     s = s(index(s, '_') + 1 : len_trim(s))
     read(s(1:len_trim(s)), '(i3)') bVar%rep
-end subroutine BiometInterpretLabels
+end subroutine BiometInterpretPositionalQualifier
 
 !***************************************************************************
 !
@@ -1166,6 +1058,7 @@ subroutine biometSniffMetaFile(IniFile, skip_file)
         end do
     end if
 end subroutine biometSniffMetaFile
+
 !***************************************************************************
 !
 ! \brief       Initialize data structure needed for reading embedded biomet
@@ -1238,3 +1131,72 @@ subroutine biometInitEmbedded()
         end do
     end do
 end subroutine biometInitEmbedded
+
+!***************************************************************************
+!
+! \brief       Infer standard FLUXNET labels from actual variable labels
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+!***************************************************************************
+character(32) function biometBaseName(bLabel) result(base_name)
+    use m_rp_global_var
+    implicit none
+    !> Local variable
+    integer :: i
+    integer :: n
+    character(*), intent(in) :: bLabel
+    !> In/out variables
+    character(len(bLabel)) :: s
+
+    integer, external :: CountCharInString
+
+    !> Count number of underscores
+    n = CountCharInString(bLabel, '_')
+
+    s = bLabel
+    base_name = ''
+    if (n > 3) then
+        do i = 1, n-2
+            base_name = trim(base_name) // s(1:index(s, '_'))
+            s = s(index(s, '_') + 1: len_trim(s))
+        end do
+        base_name = base_name(1:len_trim(base_name)-1)
+    else
+        base_name = s(1:index(s, '_')-1)
+    end if
+end function biometBaseName
+
+!***************************************************************************
+!
+! \brief       Infer standard FLUXNET labels from actual variable labels
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+!***************************************************************************
+character(32) function positionalQualifier(bVar) result(qPositional)
+    use m_rp_global_var
+    implicit none
+    !> Local variable
+    type(BiometVarsType), intent(in) :: bVar
+
+    !> In/out variables
+    character(8) :: datum
+    character(32) :: s
+
+    s = '_'
+    call int2char(bVar%hpos, datum, 0)
+
+    s = trim(s) // trim(datum) // '_'
+    call int2char(bVar%vpos, datum, 0)
+    s = trim(s) // trim(datum) // '_'
+    call int2char(bVar%rep, datum, 0)
+    qPositional = trim(s) // trim(datum)
+
+end function positionalQualifier

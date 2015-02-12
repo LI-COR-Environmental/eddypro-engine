@@ -69,8 +69,8 @@ subroutine TestAbsoluteLimits(Set, N, printout)
             hflags(w) = 0
         end if
         !>  Sonic temperature
-        if ((Set(i, ts) < al%t_min + 273.15d0) .or. &
-            (Set(i, ts) > al%t_max + 273.15d0) ) then
+        if ((Set(i, ts) < al%t_min + 273.16d0) .or. &
+            (Set(i, ts) > al%t_max + 273.16d0) ) then
             hflags(ts) = 1
             if(RPsetup%filter_al) Set(i, ts) = error
         else
