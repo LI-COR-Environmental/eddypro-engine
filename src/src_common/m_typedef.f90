@@ -487,6 +487,8 @@ module m_typedef
         character(32) :: caller
         character(32) :: biomet_data
         character(64) :: biomet_tail
+        logical :: binned_spec_avail
+        logical :: full_spec_avail
         logical :: biomet_dir
         logical :: biomet_recurse
         logical :: make_dataset
@@ -504,6 +506,7 @@ module m_typedef
         logical :: out_biomet
         logical :: fcc_follows
         logical :: fix_out_format
+        logical :: hf_meth_in_situ
     end type EddyProProjType
 
     type :: EddyProLogType

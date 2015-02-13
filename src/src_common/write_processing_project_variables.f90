@@ -197,6 +197,11 @@ subroutine WriteProcessingProjectVariables()
         end if
     end if
 
+    !> select whether to binned/full spectra files are available
+    !> for current dataset
+    EddyProProj%binned_spec_avail = EPPrjCTags(44)%value(1:1) == '1'
+    EddyProProj%full_spec_avail   = EPPrjCTags(45)%value(1:1) == '1'
+
     !> select whether to output GHG-europe-formatted file
     EddyProProj%out_fluxnet = EPPrjCTags(19)%value(1:1) == '1'
     !> select whether to output AmeriFlux-formatted file
@@ -229,27 +234,35 @@ subroutine WriteProcessingProjectVariables()
         case ('0')
             !> Do not apply spectral correction (e.g. open-path)
             EddyProProj%hf_meth = 'none'
+            EddyProProj%hf_meth_in_situ = .false.
         case ('1')
             !> Correction after Moncrieff et al (1997, JH) fully analytical
             EddyProProj%hf_meth = 'moncrieff_97'
+            EddyProProj%hf_meth_in_situ = .false.
         case ('2')
             !> Correction after Horst (1997, BLM), in-situ/analytical
             EddyProProj%hf_meth = 'horst_97'
+            EddyProProj%hf_meth_in_situ = .true.
         case ('3')
             !> Correction after Ibrom et al (2007, AFM) fully in-situ
             EddyProProj%hf_meth = 'ibrom_07'
+            EddyProProj%hf_meth_in_situ = .true.
         case ('4')
             !> Correction after Fratini et al. 2010, fully in-situ
             EddyProProj%hf_meth = 'fratini_12'
+            EddyProProj%hf_meth_in_situ = .true.
         case ('5')
             !> Correction after Massman (2000, 2001), fully analytical
             EddyProProj%hf_meth = 'massman_00'
+            EddyProProj%hf_meth_in_situ = .false.
         case ('6')
             !> Custom correction, in-situ/analytical
             EddyProProj%hf_meth = 'custom'
+            EddyProProj%hf_meth_in_situ = .false.
         case default
             !> If not specified, set to none
             EddyProProj%hf_meth = 'none'
+            EddyProProj%hf_meth_in_situ = .false.
     end select
 
     !> select whether to fill gaps with error codes

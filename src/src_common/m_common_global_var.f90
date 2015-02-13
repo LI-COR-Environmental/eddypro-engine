@@ -401,7 +401,7 @@ module m_common_global_var
 
     !> tags of the [Project] group of processing.eddypro file
     integer, parameter :: Npn = 18
-    integer, parameter :: Npc = 43
+    integer, parameter :: Npc = 45
     logical :: EPPrjNTagFound(Npn)
     logical :: EPPrjCTagFound(Npc)
     type (Numerical) :: EPPrjNTags(Npn)
@@ -467,7 +467,9 @@ module m_common_global_var
          EPPrjCTags(40)%Label / 'pr_subset'        / &
          EPPrjCTags(41)%Label / 'out_mean_cosp'    / &
          EPPrjCTags(42)%Label / 'out_biomet'       / &
-         EPPrjCTags(43)%Label / 'out_mean_spec'    /
+         EPPrjCTags(43)%Label / 'out_mean_spec'    / &
+         EPPrjCTags(44)%Label / 'bin_sp_avail'     / &
+         EPPrjCTags(45)%Label / 'full_sp_avail'    /
 
     !> tags of the metadata file created by GHG software
     integer, parameter :: Nan = 884

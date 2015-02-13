@@ -375,6 +375,9 @@
 		<Unit filename="../src/src_rp/biomet_subs.f90">
 			<Option weight="4" />
 		</Unit>
+		<Unit filename="../src/src_rp/biomet_units_conversions.f90">
+			<Option weight="4" />
+		</Unit>
 		<Unit filename="../src/src_rp/burba_terms.f90">
 			<Option weight="4" />
 		</Unit>
@@ -602,7 +605,7 @@
 		<Unit filename="../src/src_rp/write_out_user_stats.f90">
 			<Option weight="4" />
 		</Unit>
-		<Unit filename="../src/src_rp/write_outfiles.f90">
+		<Unit filename="../src/src_rp/write_output_files.f90">
 			<Option weight="4" />
 		</Unit>
 		<Unit filename="../src/src_rp/writeout_qc_details.f90">

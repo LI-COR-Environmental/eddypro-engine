@@ -229,6 +229,12 @@ subroutine WriteVariablesRP()
     !> select whether to output binned ogives
     RPsetup%out_bin_og = SCTags(51)%value(1:1) == '1'
 
+    !> Regardless of user selection, if ensemble averaged (co)spectra or any
+    !> in-situ spectral correction method have been requested
+    !> and binned spectra files are not available, need to create them.
+    if (EddyProProj%out_avrg_cosp .or. EddyProProj%out_avrg_spec &
+        .or. EddyProProj%hf_meth_in_situ) RPsetup%out_bin_sp = .true.
+
     !> select output file
     RPsetup%out_full_sp(u)   = SCTags(27)%value(1:1) == '1'
     RPsetup%out_full_sp(v)   = SCTags(28)%value(1:1) == '1'
