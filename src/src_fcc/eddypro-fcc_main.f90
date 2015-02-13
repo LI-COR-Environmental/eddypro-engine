@@ -183,10 +183,7 @@ Program EddyproFCC
         if (FCCsetup%do_spectral_assessment) write(*, '(a)') &
             ' Starting "spectral assessment" session..'
         if (EddyProProj%out_avrg_cosp .or. EddyProProj%out_avrg_spec) &
-            write(*, '(a)') ' Reading (co)spectra for ensemble averaging &
-                &from folder:'
-            write(*, '(a)') '  "' // trim(adjustl(Dir%binned)) // '"'
-
+            write(*, '(a)') ' Reading (co)spectra for ensemble averaging..'
         !> Convert start/end to timestamps
         call DateTimeToDateType(FCCsetup%SA%start_date, &
             '00:00', saStartTimestamp)

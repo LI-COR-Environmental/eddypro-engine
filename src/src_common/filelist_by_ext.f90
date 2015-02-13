@@ -31,7 +31,7 @@
 ! \todo
 !***************************************************************************
 subroutine FileListByExt(DirIn, Ext, MatchTemplate, HardMatch, Template, &
-        doy_format, GetTimestamp, Recurse, FileList, nrow, logout, indent)
+        doy_format, GetTimestamp, Recurse, FileList, nrow, printout, indent)
     use m_common_global_var
     implicit none
     !> in/out variables
@@ -45,7 +45,7 @@ subroutine FileListByExt(DirIn, Ext, MatchTemplate, HardMatch, Template, &
     logical, intent(in) :: doy_format
     logical, intent(in) :: GetTimestamp
     logical, intent(in) :: Recurse
-    logical, intent(in) :: logout
+    logical, intent(in) :: printout
     type(FileListType), intent(out) :: FileList(nrow)
     !> local variables
     integer :: i
@@ -59,14 +59,11 @@ subroutine FileListByExt(DirIn, Ext, MatchTemplate, HardMatch, Template, &
     logical, external :: NameMatchesTemplate
 
 
-    if (logout) then
-        if (Recurse) then
-            write(*,'(a)') indent // ' Retrieving file names from directory: "' &
-                // DirIn(1:len_trim(DirIn)) // '" and its sub-directories..'
-        else
-            write(*,'(a)') indent // ' Retrieving file names from directory: "' &
-                // DirIn(1:len_trim(DirIn)) // '"..'
-        end if
+    if (printout) then
+        write(*,'(a)') indent // ' Retrieving file names from directory:'
+        write(*,'(a)') indent // '  "' // trim(adjustl(DirIn)) // '"'
+        if (Recurse) &
+            write(*,'(a)') indent // '   and its sub-directories..'
     end if
 
     !> List files, recursively in all cases
@@ -157,7 +154,7 @@ subroutine FileListByExt(DirIn, Ext, MatchTemplate, HardMatch, Template, &
     end do
 
     !> Some logging
-    if (logout) then
+    if (printout) then
         write(LogInteger, '(i8)') cnt
         write(*,'(a)') indent // '  ' // trim(adjustl(LogInteger)) &
             // ' files found.'
@@ -165,19 +162,19 @@ subroutine FileListByExt(DirIn, Ext, MatchTemplate, HardMatch, Template, &
 
     !> Retrieve timestamps from file names if requested
     if(GetTimestamp) then
-        if (logout) write(*, '(a)', advance = 'no') &
+        if (printout) write(*, '(a)', advance = 'no') &
             '  Retrieving timestamps from &
             &file names..'
         do i = 1, cnt
             call FilenameToTimestamp(FileList(i)%name, Template, doy_format, &
                 FileList(i)%Timestamp)
         end do
-        if (logout) write(*, '(a)') ' Done.'
+        if (printout) write(*, '(a)') ' Done.'
     end if
 
     !> Delete temporary file
     call system(comm_del // '"' // trim(adjustl(TmpDir)) // 'flist*.tmp"' &
         // comm_err_redirect)
 
-    if (logout) write(*,'(a)')   indent // ' Done.'
+    if (printout) write(*,'(a)')   indent // ' Done.'
 end subroutine FileListByExt
