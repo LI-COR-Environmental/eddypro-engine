@@ -210,16 +210,10 @@ module m_common_global_var
     real(kind = dbl) :: ITS(E2NumVar)
 
     !> filename tools
-    character(30), parameter :: ProgIniFile = 'eddypro_logging.ini'
-    character(30), parameter :: DelErrorFile = 'ene_converter_del.log'
-    character(3), parameter  :: DataArchiveExt          = 'ene'
-    character(3), parameter  :: DataFileExt             = 'ane'
-    character(4), parameter  :: EcOutFileExt            = '.csv'
     character(4), parameter  :: CsvExt                  = '.csv'
     character(4), parameter  :: TmpExt                  = '.tmp'
     character(8), parameter  :: CsvTmpExt               = '.csv.tmp'
     character(4), parameter  :: TxtExt                  = '.txt'
-    character(4), parameter  :: LogExt                  = '.log'
 
     !> logging variables and parameters
     character(10) :: LogInteger

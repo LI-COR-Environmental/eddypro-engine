@@ -144,7 +144,7 @@ subroutine InitEnv()
         TmpDir = trim(homedir) // 'tmp' // slash
     end if
 
-    !> Create log dir in case it doesn't exist (for use from command line)
+    !> Create TmpDir in case it doesn't exist (for use from command line)
     make_dir = CreateDir('"' // trim(TmpDir) // '"')
 end subroutine InitEnv
 
