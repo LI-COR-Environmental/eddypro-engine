@@ -47,7 +47,7 @@ subroutine EliminateCorruptedVariables(LocSet, nrow, ncol, skip_period, logout)
 
     do i = 1, ncol
         mask(:) = Locset(:, i) == error
-        if (count(mask) > nrow * 4d-1) E2Col(i) = NullCol
+        if (count(mask) > MaxPeriodNumRecords * RPsetup%max_lack/1d2) E2Col(i) = NullCol
     end do
 
     skip_period = .false.

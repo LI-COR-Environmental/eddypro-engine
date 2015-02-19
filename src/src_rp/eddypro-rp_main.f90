@@ -74,7 +74,6 @@ program EddyproRP
     integer :: rpStartTimestampIndx
     integer :: rpEndTimestampIndx
     integer :: tlagn(E2NumVar)
-    integer :: MaxPeriodNumRecords
     integer :: MaxNumFileRecords
     integer :: NextRawFileIndx
     integer :: InitGas4CalRefCol
@@ -615,7 +614,6 @@ program EddyproRP
                 !**** DATASET DEFINITION FINISHES HERE *************************
                 !**** NOW STARTS RAW DATA REDUCTION ****************************
                 !***************************************************************
-
                 !> Interpret LI-COR's diagnostic flags
                 if (NumDiag > 0) then
                     call InterpretLicorDiagnostics(DiagSet, &
@@ -1659,7 +1657,6 @@ program EddyproRP
             !**** DATASET DEFINITION FINISHES HERE. ****************************
             !**** STARTS RAW DATA REDUCTION         ****************************
             !*******************************************************************
-
             !> Interpret LI-COR's diagnostic flags
             if (NumDiag > 0) then
                 call InterpretLicorDiagnostics(DiagSet, &

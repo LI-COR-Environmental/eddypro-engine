@@ -37,6 +37,7 @@ module m_rp_global_var
 
     integer :: NumAllRow = 0
     integer :: NumSlowVar = 0
+    integer :: MaxPeriodNumRecords
 
     type :: DateTimeArrayType
         character(10) :: date
