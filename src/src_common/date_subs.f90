@@ -33,6 +33,29 @@
 
 !***************************************************************************
 !
+! \brief       Weak check of compatibility of provided raw file prototype
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+subroutine tsValidateTemplate(Template)
+    implicit none
+    !> local variables
+    character(*), intent(in) :: Template
+
+    !> Weak test
+    if ( index(Template, 'yy') == 0 &
+    .or. index(Template, 'dd') == 0 &
+    .or. index(Template, 'HH') == 0 &
+    .or. index(Template, 'MM') == 0) call ExceptionHandler(20)
+end subroutine tsValidateTemplate
+
+!***************************************************************************
+!
 ! \brief       Subtracts a date-step to a starting date
 ! \author      Gerardo Fratini
 ! \note

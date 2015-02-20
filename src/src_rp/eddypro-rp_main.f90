@@ -243,7 +243,7 @@ program EddyproRP
     mkdir_status = CreateDir('"' //trim(adjustl(Dir%main_out)) // '"')
 
     !> Check on filename template
-    call ValidateFilenameTemplate()
+    call tsValidateTemplate(EddyProProj%fname_template)
 
     !> Detect number of raw files and allocate RawFileList
     call NumberOfFilesInDir(Dir%main_in, '.'//EddyProProj%fext, .true., &
@@ -2181,7 +2181,8 @@ program EddyproRP
     close(u_user_st7)
     close(umd)
     close(uflx)
-    close(ughgeu)
+    close(ufnet_e)
+    close(ufnet_b)
     close(uaflx)
     close(uex)
     close(uslow)

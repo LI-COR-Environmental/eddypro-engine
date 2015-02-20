@@ -485,7 +485,7 @@ Program EddyproFCC
     end do ex_loop
     close(uex)
     close(uflx)
-    close(ughgeu)
+    close(ufnet_e)
     close(uaflx)
     close(umd)
 

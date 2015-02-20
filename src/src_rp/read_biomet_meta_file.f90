@@ -184,6 +184,16 @@ subroutine WriteBiometMetaVariables(skip_file)
            end if
         end if
     end do
+
+    !> Validate timestamp pattern
+    call tsValidateTemplate(bFileMetadata%tsPattern)
+
+    !> Set ISO timestamp or not
+    if (index(bFileMetadata%tsPattern, 'ddd') /= 0) then
+        bFileMetadata%tsIso = .false.
+    else
+        bFileMetadata%tsIso = .true.
+    end if
     bFileMetadata%numTsCol = tsCnt
 
     !> If variable has no label, stick ID to label

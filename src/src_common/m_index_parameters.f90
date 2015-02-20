@@ -196,10 +196,11 @@ module m_index_parameters
     integer, parameter :: u_user_st5 = 124
     integer, parameter :: u_user_st6 = 125
     integer, parameter :: u_user_st7 = 126
-    integer, parameter ::     ughgeu = 127
-    integer, parameter ::     uaflx  = 128
-    integer, parameter ::     uex    = 129
-    integer, parameter ::     uslow  = 130
+    integer, parameter ::     ufnet_e = 127
+    integer, parameter ::     ufnet_b = 128
+    integer, parameter ::     uaflx  = 129
+    integer, parameter ::     uex    = 130
+    integer, parameter ::     uslow  = 131
 
     integer, parameter :: uout  = 142
     integer, parameter :: upf   = 143

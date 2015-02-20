@@ -530,7 +530,6 @@ subroutine WriteOutputFiles(lEx)
     !>****************************************************************
     !>****************************************************************
     !> FLUXNET output
-
     if (EddyProProj%out_fluxnet) then
         call clearstr(dataline)
 
@@ -633,7 +632,6 @@ subroutine WriteOutputFiles(lEx)
         call WriteDatumFloat(Foot%x90, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
 
-
         !> Ambient pressure in kPa
         if (lEx%Pa /= error) then
             call WriteDatumFloat(lEx%Pa * 1d-3, datum, '-9999.')
@@ -678,7 +676,7 @@ subroutine WriteOutputFiles(lEx)
             call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
         end if
 
-        write(ughgeu, '(a)') dataline(1:len_trim(dataline) - 1)
+        write(ufnet_e, '(a)') dataline(1:len_trim(dataline) - 1)
     end if
 
     !>****************************************************************

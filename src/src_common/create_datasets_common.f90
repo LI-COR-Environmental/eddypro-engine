@@ -54,12 +54,20 @@ subroutine CreateDatasetsCommon(TimeSeries, nrow, StartIndx, EndIndx)
         write(*,'(a)') ' Done.'
     end if
 
-    !> GHG-EUROPE file - it is NEVER filled. Only renamed.
-    if (EddyProProj%out_fluxnet) then
-        tmp_indx = index(GHGEUROPE_Path, TmpExt)
-        OutPath = GHGEUROPE_Path(1: tmp_indx - 1)
+    !> FLUXNET files - they are NEVER filled. Only renamed.
+    if (EddyProProj%out_fluxnet_eddy) then
+        tmp_indx = index(FLUXNET_EDDY_Path, TmpExt)
+        OutPath = FLUXNET_EDDY_Path(1: tmp_indx - 1)
         move_status = system(comm_move // '"' &
-            // GHGEUROPE_Path(1:len_trim(GHGEUROPE_Path)) // '" "' &
+            // FLUXNET_EDDY_Path(1:len_trim(FLUXNET_EDDY_Path)) // '" "' &
+            // OutPath(1:len_trim(OutPath)) // '"' &
+            // comm_out_redirect // comm_err_redirect)
+    end if
+    if (EddyProProj%out_fluxnet_biomet) then
+        tmp_indx = index(FLUXNET_BIOMET_Path, TmpExt)
+        OutPath = FLUXNET_BIOMET_Path(1: tmp_indx - 1)
+        move_status = system(comm_move // '"' &
+            // FLUXNET_BIOMET_Path(1:len_trim(FLUXNET_BIOMET_Path)) // '" "' &
             // OutPath(1:len_trim(OutPath)) // '"' &
             // comm_out_redirect // comm_err_redirect)
     end if

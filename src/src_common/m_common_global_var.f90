@@ -117,10 +117,11 @@ module m_common_global_var
     character(18), parameter :: QC_FilePadding          = '_stationarity_test'
     character(12), parameter :: FullOut_FilePadding     = '_full_output'
     character(11), parameter :: PlanarFit_FilePadding   = '_planar_fit'
-    character(12), parameter :: TimelagOpt_FilePadding   = '_timelag_opt'
-    character(11), parameter :: GHGEUROPE_FilePadding   = '_ghg-europe'
+    character(12), parameter :: TimelagOpt_FilePadding  = '_timelag_opt'
+    character(16), parameter :: FLUXNET_EDDY_FilePadding = '_ghg-europe_eddy'
+    character(18), parameter :: FLUXNET_BIOMET_FilePadding = '_ghg-europe_biomet'
     character(11), parameter :: Essentials_FilePadding  = '_essentials'
-    character(7), parameter  :: Biomet_FilePadding        = '_biomet'
+    character(7), parameter  :: Biomet_FilePadding      = '_biomet'
     character(14), parameter :: Quality_FilePadding     = '_quality_check'
     character(10), parameter :: Ameriflux_FilePadding   = '_ameriflux'
     character(18), parameter :: WPL_FilePadding         = '_wpl_contributions'
@@ -155,7 +156,8 @@ module m_common_global_var
     character(56), parameter  :: BinnedFilePrototype    = 'yyyymmdd-HHMM_xxxxxx_xxxxxxxxx_xxxx-xx-xxTxxxxxx_xxx.csv'
     character(54), parameter  :: FullFilePrototype      = 'yyyymmdd-HHMM_xxxx_xxxxxxxxx_xxxx-xx-xxTxxxxxx_xxx.csv'
 
-    character(PathLen) :: GHGEUROPE_Path
+    character(PathLen) :: FLUXNET_EDDY_Path
+    character(PathLen) :: FLUXNET_BIOMET_Path
     character(PathLen) :: Ameriflux_Path
     character(PathLen) :: FullOut_Path
     character(PathLen) :: Metadata_Path

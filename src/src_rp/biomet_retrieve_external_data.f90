@@ -120,10 +120,12 @@ subroutine BiometRetrieveExternalData(bFileList, bnFiles, bLastFile, &
                 cycle file_loop
             end if
 
+            !> Parse record into cSet and cTs
             call BiometParseRow(dataline, cTs, cSet, size(cSet), skip_row)
             if (skip_row) cycle rec_loop
 
             call BiometAdjustTimestamp(cTs)
+
             !> Exit instruction if current biomet timestamp if beyond latest
             !> timestamp relevant to the averaging interval
             if (cTs >= tsEnd + tol) exit file_loop

@@ -94,11 +94,11 @@ subroutine MakeDataset(PathIn, MasterTimeSeries, nrow, StartIndx, &
     periods_loop: do i = StartIndx, EndIndx
         !> Search for current time step in the file
         do
-
             if (MasterTimeSeries(i) > fTimestamp + DateStep) then
                 call AddErrorString(udf2, MasterTimeSeries(i), &
                     ErrString, len(ErrString), &
-                    PathIn == GHGEUROPE_Path(1:len_trim(GHGEUROPE_Path)), &
+                    PathIn == trim(adjustl(FLUXNET_EDDY_Path)) &
+                    .or. PathIn == trim(adjustl(FLUXNET_BIOMET_Path)) , &
                     AddNoFile)
                 cycle periods_loop
             end if
@@ -140,7 +140,8 @@ subroutine MakeDataset(PathIn, MasterTimeSeries, nrow, StartIndx, &
                 if (i < EndIndx) then
                     call AddErrorString(udf2, MasterTimeSeries(i+1), &
                         ErrString, len(ErrString), &
-                        PathIn == GHGEUROPE_Path(1:len_trim(GHGEUROPE_Path)), &
+                        PathIn == trim(adjustl(FLUXNET_EDDY_Path)) &
+                        .or. PathIn == trim(adjustl(FLUXNET_BIOMET_Path)) , &
                         AddNoFile)
                 end if
                 backspace(udf)

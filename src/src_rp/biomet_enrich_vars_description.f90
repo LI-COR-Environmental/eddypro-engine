@@ -357,14 +357,14 @@ subroutine BiometEnrichVarsDescription()
                 bVars(i)%unit_out = 'UMOL+1M-2S-1'
                 bVars(i)%pretty_unit_out = '[' // char(181) // 'mol/m^2s]'
                 bVars(i)%fluxnet_unit_out = '[umolPhoton m-2s-1]'
-            case('PPFD_DIF', 'PPFDDIF')
+            case('PPFD_DIF', 'PPFDDIF', 'PPFDD', 'PPFD_D')
                 bVars(i)%fluxnet_base_name = 'PPFD_DIF'
                 bVars(i)%nature = 'PHOTON_FLUX'
                 bVars(i)%accumul_type = 'AVERAGING'
                 bVars(i)%unit_out = 'UMOL+1M-2S-1'
                 bVars(i)%pretty_unit_out = '[' // char(181) // 'mol/m^2s]'
                 bVars(i)%fluxnet_unit_out = '[umolPhoton m-2s-1]'
-            case('PPFDR', 'PPFD_R', 'PPFDD_OUT')
+            case('PPFDR', 'PPFD_R', 'PPFD_OUT')
                 bVars(i)%fluxnet_base_name = 'PPFD_OUT'
                 bVars(i)%nature = 'PHOTON_FLUX'
                 bVars(i)%accumul_type = 'AVERAGING'

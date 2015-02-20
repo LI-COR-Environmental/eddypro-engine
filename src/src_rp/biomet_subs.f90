@@ -101,6 +101,17 @@ subroutine RetrieveExtBiometVars(row1, row2, nitems)
             bVars(cnt)%base_name = biometBaseName(bVars(cnt)%label)
         end if
     end do
+
+    !> Validate timestamp pattern
+    call tsValidateTemplate(bFileMetadata%tsPattern)
+
+    !> Set ISO timestamp or not
+    if (index(bFileMetadata%tsPattern, 'ddd') /= 0) then
+        bFileMetadata%tsIso = .false.
+    else
+        bFileMetadata%tsIso = .true.
+    end if
+
     bFileMetadata%numTsCol = tsCnt
 end subroutine RetrieveExtBiometVars
 
@@ -571,8 +582,7 @@ subroutine BiometParseRow(row, tstamp, vals, ncol, skip_row)
 
     !> Retrieve timestamp from timestamp-string
     call FilenameToTimestamp(trim(tsString), &
-        bFileMetadata%tsPattern, EddyProLog%iso_format, tstamp)
-
+        bFileMetadata%tsPattern, bFileMetadata%tsIso, tstamp)
 end subroutine BiometParseRow
 
 !***************************************************************************

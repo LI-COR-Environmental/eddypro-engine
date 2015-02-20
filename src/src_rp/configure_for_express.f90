@@ -117,6 +117,8 @@ subroutine ConfigureForExpress
 
     !> Output files and other settings
     EddyProProj%out_fluxnet  = .true.
+    EddyProProj%out_fluxnet_eddy  = .true.
+    EddyProProj%out_fluxnet_biomet  = .true.
     EddyProProj%out_amflux   = .true.
     EddyProProj%out_full     = .true.
     EddyProProj%out_md       = .true.

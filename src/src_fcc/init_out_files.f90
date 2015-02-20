@@ -497,14 +497,14 @@ subroutine InitOutFiles()
 
     !>==========================================================================
     !>==========================================================================
-    !> GHG-EUROPE output
+    !> FLUXNET output
     if (EddyProProj%out_fluxnet) then
         Test_Path = Dir%main_out(1:len_trim(Dir%main_out)) &
                   // EddyProProj%id(1:len_trim(EddyProProj%id)) &
-                  // GHGEUROPE_FilePadding // Timestamp_FilePadding // CsvExt
+                  // FLUXNET_EDDY_FilePadding // Timestamp_FilePadding // CsvExt
         dot = index(Test_Path, CsvExt, .true.) - 1
-        GHGEUROPE_Path = Test_Path(1:dot) // CsvTmpExt
-        open(ughgeu, file = GHGEUROPE_Path, &
+        FLUXNET_EDDY_Path = Test_Path(1:dot) // CsvTmpExt
+        open(ufnet_e, file = FLUXNET_EDDY_Path, &
             iostat = open_status, encoding = 'utf-8')
 
         !> Initialize header strings to void
@@ -579,13 +579,13 @@ subroutine InitOutFiles()
         call latin1_to_utf8(header3, head3_utf8)
 
         !> Write on output file
-        write(ughgeu, '(a)') head2_utf8(1:len_trim(head2_utf8) - 1)
-        write(ughgeu, '(a)') head3_utf8(1:len_trim(head3_utf8) - 1)
+        write(ufnet_e, '(a)') head2_utf8(1:len_trim(head2_utf8) - 1)
+        write(ufnet_e, '(a)') head3_utf8(1:len_trim(head3_utf8) - 1)
     end if
 
     !************************************************************************************************************************************
     !************************************************************************************************************************************
-
+    !> METADATA file
     if (EddyProProj%out_md) then
         !> Create metadata output file name
         !> Open dynamic matadata file

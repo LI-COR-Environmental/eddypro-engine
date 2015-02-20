@@ -68,6 +68,8 @@ subroutine ConfigureForMdRetrieval()
     !> Output files and other settings
     EddyProProj%out_md         = .true.
     EddyProProj%out_fluxnet    = .false.
+    EddyProProj%out_fluxnet_eddy = .false.
+    EddyProProj%out_fluxnet_biomet = .false.
     EddyProProj%out_amflux     = .false.
     EddyProProj%out_full       = .false.
     EddyProProj%out_avrg_cosp  = .false.

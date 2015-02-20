@@ -213,6 +213,7 @@ module m_typedef
         character(32)    :: tstamp_ref
         character(32)    :: tsPattern
         character(32)    :: data_label
+        logical :: tsIso
     end type BiometFileMetadataType
 
     type :: BiometVarsType
@@ -499,6 +500,8 @@ module m_typedef
         logical :: use_dynmd_file
         logical :: out_full
         logical :: out_fluxnet
+        logical :: out_fluxnet_eddy
+        logical :: out_fluxnet_biomet
         logical :: out_amflux
         logical :: out_md
         logical :: out_avrg_cosp
