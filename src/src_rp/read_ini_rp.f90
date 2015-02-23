@@ -365,11 +365,18 @@ subroutine WriteVariablesRP()
     if (Meth%det == 'ld' .or. Meth%det == 'rm' .or. Meth%det == 'ewa') &
         RPsetup%Tconst = nint(SNTags(46)%value)
 
-    !> If method is linear detrending and time constant is larger than flux
-    !> averaging interval, silently reset time constant to flux aver. interval
-    if (Meth%det == 'ld' .and. RPsetup%Tconst > RPsetup%avrg_len) then
-        call ExceptionHandler(91)
-        RPsetup%Tconst = RPsetup%avrg_len
+    if (Meth%det == 'ld') then
+        !> If time constant is larger than flux averaging interval,
+        !> limit time constant to flux averaging interval and notify
+        if (RPsetup%Tconst > RPsetup%avrg_len) then
+            call ExceptionHandler(91)
+            RPsetup%Tconst = RPsetup%avrg_len
+        end if
+        !> Default to avrg_len anyway
+        if (RPsetup%Tconst <= 0) RPsetup%Tconst = RPsetup%avrg_len
+
+        !> Convert from minutes to seconds
+        RPsetup%Tconst = RPsetup%Tconst * 6d1
     end if
 
     !> select rotation method

@@ -739,14 +739,8 @@ program EddyproRP
                     cycle to_periods_loop
                 end if
 
-                !> De-trend variables
-                if (Meth%det(1:len_trim(Meth%det)) == 'ld' &
-                    .and. RPsetup%Tconst <= 0) &
-                    toTimeConstant = RPsetup%avrg_len * 60
-
-                call Fluctuations(E2Set, E2Primes, &
-                    size(E2Set, 1), size(E2Set, 2), &
-                    toTimeConstant, Stats6, E2Col)
+                call Fluctuations(E2Set, E2Primes, size(E2Set, 1), &
+                    size(E2Set, 2), RPsetup%Tconst, Stats6, E2Col)
                 if (allocated(E2Set)) deallocate(E2Set)
 
                 !> Calculate basic stats
@@ -1966,11 +1960,8 @@ program EddyproRP
             end if
 
             !> ===== 7. DETRENDING =============================================
-            !> Calculate fluctuations based on chosen de-trending method
+            !> Calculate fluctuations based on chosen detrending method
             write(*, '(a)', advance = 'no') '  Detrending..'
-            if (Meth%det(1:len_trim(Meth%det)) == 'ld' &
-                .and. RPsetup%Tconst <= 0) &
-                RPsetup%Tconst = RPsetup%avrg_len * 60
 
             call Fluctuations(E2Set, E2Primes, &
                 size(E2Set, 1), size(E2Set, 2), RPsetup%Tconst, Stats, E2Col)
