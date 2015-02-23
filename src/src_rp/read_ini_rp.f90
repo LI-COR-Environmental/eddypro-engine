@@ -362,10 +362,15 @@ subroutine WriteVariablesRP()
         case default
         Meth%det = 'ba'
     end select
-    if (Meth%det(1:len_trim(Meth%det)) == 'ld' .or. &
-        Meth%det(1:len_trim(Meth%det)) == 'rm' .or. &
-        Meth%det(1:len_trim(Meth%det)) == 'ewa') &
+    if (Meth%det == 'ld' .or. Meth%det == 'rm' .or. Meth%det == 'ewa') &
         RPsetup%Tconst = nint(SNTags(46)%value)
+
+    !> If method is linear detrending and time constant is larger than flux
+    !> averaging interval, silently reset time constant to flux aver. interval
+    if (Meth%det == 'ld' .and. RPsetup%Tconst > RPsetup%avrg_len) then
+        call ExceptionHandler(91)
+        RPsetup%Tconst = RPsetup%avrg_len
+    end if
 
     !> select rotation method
     select case (SCTags(15)%value(1:1))

@@ -328,5 +328,8 @@ subroutine ExceptionHandler(error_code)
             write(*,*) '  Error(90)> or calculate ensemble averaged co-spectra.'
             write(*,*) '  Error(90)> Continuing by switching to Moncrieff et al. (1997) spectral corrections and'
             write(*,*) '  Error(90)> ignoring selection of ensemble averaged spectra or co-spectra outputs'
+        case(91)
+            write(*,*) '  Alert(91)> Time constant of linear detrending cannot be larger than flux averaging interval.'
+            write(*,*) '  Alert(91)> Automatically set time constant equal to flux averaging interval.'
     end select
 end subroutine ExceptionHandler
