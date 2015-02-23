@@ -370,13 +370,10 @@ subroutine WriteVariablesRP()
         !> limit time constant to flux averaging interval and notify
         if (RPsetup%Tconst > RPsetup%avrg_len) then
             call ExceptionHandler(91)
-            RPsetup%Tconst = RPsetup%avrg_len
+            RPsetup%Tconst = RPsetup%avrg_len * 6d1
         end if
         !> Default to avrg_len anyway
-        if (RPsetup%Tconst <= 0) RPsetup%Tconst = RPsetup%avrg_len
-
-        !> Convert from minutes to seconds
-        RPsetup%Tconst = RPsetup%Tconst * 6d1
+        if (RPsetup%Tconst <= 0) RPsetup%Tconst = RPsetup%avrg_len * 6d1
     end if
 
     !> select rotation method
