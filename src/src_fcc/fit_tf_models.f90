@@ -86,7 +86,7 @@ subroutine FitTFModels(nbins)
     if (.not. allocated(zFit)) allocate(zFit(maxval(nlong)))
     if (.not. allocated(ddum)) allocate(ddum(maxval(nlong)))
 
-    !> Substract high-frequencynoise if requested
+    !> Subtract high-frequency noise if requested
     call SubtractHighFreqNoise(lSpec, size(lSpec, 1), size(lSpec, 2), &
         nlong, size(nlong, 1), size(nlong, 2), nbins)
 

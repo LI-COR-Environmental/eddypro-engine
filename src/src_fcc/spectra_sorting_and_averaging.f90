@@ -43,47 +43,34 @@ subroutine SpectraSortingAndAveraging(lEx, BinSpec, nrow, nbins)
     integer :: gas
     integer :: month
 
-    !> H2O spectrum
-    sort = 0
-    if (lEx%RH > 5d0 .and. lEx%RH < 15d0) then
-        sort = RH10
-    elseif (lEx%RH > 15d0 .and. lEx%RH < 25d0) then
-        sort = RH20
-    elseif (lEx%RH > 25d0 .and. lEx%RH < 35d0) then
-        sort = RH30
-    elseif (lEx%RH > 35d0 .and. lEx%RH < 45d0) then
-        sort = RH40
-    elseif (lEx%RH > 45d0 .and. lEx%RH < 55d0) then
-        sort = RH50
-    elseif (lEx%RH > 55d0 .and. lEx%RH < 65d0) then
-        sort = RH60
-    elseif (lEx%RH > 65d0 .and. lEx%RH < 75d0) then
-        sort = RH70
-    elseif (lEx%RH > 75d0 .and. lEx%RH < 85d0) then
-        sort = RH80
-    elseif (lEx%RH > 85d0 .and. lEx%RH < 95d0) then
-        sort = RH90
-    end if
-    if (sort /= 0) then
-        do i = 1, nbins
-            if (BinSpec(i)%fnum /= 0 .and. BinSpec(i)%of(h2o) /= error .and. BinSpec(i)%of(ts) /= error) then
-                MeanBinSpec(i, sort)%cnt(h2o)  = MeanBinSpec(i, sort)%cnt(h2o)  + 1
-                MeanBinSpec(i, sort)%fnum(h2o) = MeanBinSpec(i, sort)%fnum(h2o) + BinSpec(i)%fnum
-                MeanBinSpec(i, sort)%fn(h2o)   = MeanBinSpec(i, sort)%fn(h2o)   + BinSpec(i)%fn
-                MeanBinSpec(i, sort)%of(h2o)   = MeanBinSpec(i, sort)%of(h2o)   + BinSpec(i)%of(h2o)
-                MeanBinSpec(i, sort)%ts(h2o)   = MeanBinSpec(i, sort)%ts(h2o)   + BinSpec(i)%of(ts)
-            end if
-        end do
-    end if
 
-    !> Passive gases spectra
-    !> select month class
-    sort = 0
     call char2int(lEx%date(6:7), month, 2)
-
     do gas = co2, gas4
-        if (gas == h2o) cycle
-        sort = FCCsetup%SA%class(gas, month)
+        sort = 0
+        if (gas /= h2o) then
+            sort = FCCsetup%SA%class(gas, month)
+        else
+            if (lEx%RH > 5d0 .and. lEx%RH < 15d0) then
+                sort = RH10
+            elseif (lEx%RH > 15d0 .and. lEx%RH < 25d0) then
+                sort = RH20
+            elseif (lEx%RH > 25d0 .and. lEx%RH < 35d0) then
+                sort = RH30
+            elseif (lEx%RH > 35d0 .and. lEx%RH < 45d0) then
+                sort = RH40
+            elseif (lEx%RH > 45d0 .and. lEx%RH < 55d0) then
+                sort = RH50
+            elseif (lEx%RH > 55d0 .and. lEx%RH < 65d0) then
+                sort = RH60
+            elseif (lEx%RH > 65d0 .and. lEx%RH < 75d0) then
+                sort = RH70
+            elseif (lEx%RH > 75d0 .and. lEx%RH < 85d0) then
+                sort = RH80
+            elseif (lEx%RH > 85d0 .and. lEx%RH < 95d0) then
+                sort = RH90
+            end if
+        end if
+
         if (sort /= 0) then
             do i = 1, nbins
                 if (BinSpec(i)%fnum /= 0 .and. BinSpec(i)%of(gas) /= error .and. BinSpec(i)%of(ts) /= error) then

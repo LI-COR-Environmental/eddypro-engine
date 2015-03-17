@@ -37,9 +37,6 @@ subroutine AvailableMeanSpectraCospectra(nbins)
     !> local variables
     integer :: gas
     integer :: cls
-    integer :: RH
-    integer :: bin
-    integer :: err_cnt
 
 
     MeanBinSpecAvailable = .true.
@@ -48,45 +45,28 @@ subroutine AvailableMeanSpectraCospectra(nbins)
 
     !> Spectra
     do gas = co2, gas4
-        if (gas /= h2o) then
-            do cls = 1, MaxGasClasses
-                err_cnt = 0
-                do bin = 1, nbins
-                    if (MeanBinSpec(bin, cls)%fnum(gas) == error) err_cnt = err_cnt + 1
-                end do
-                if (err_cnt == nbins) MeanBinSpecAvailable(cls, gas) = .false.
-            end do
-        else
-            do RH = RH10, RH90
-                err_cnt = 0
-                do bin = 1, nbins
-                    if (MeanBinSpec(bin, RH)%fnum(gas) == error) err_cnt = err_cnt + 1
-                end do
-                if (err_cnt == nbins) MeanBinSpecAvailable(RH, gas) = .false.
-            end do
-        end if
+        do cls = 1, MaxGasClasses
+            if (all(MeanBinSpec(1:nbins, cls)%fnum(gas) == error) &
+                .or. all(MeanBinSpec(1:nbins, cls)%fnum(gas) == 0d0)) &
+                MeanBinSpecAvailable(cls, gas) = .false.
+        end do
     end do
 
     !> Cospectra
     do gas = ts, gas4
         do cls = 1, 8
-            err_cnt = 0
-            do bin = 1, nbins
-                if (MeanBinCosp(bin, cls)%fnum(gas) == error) err_cnt = err_cnt + 1
-            end do
-            if (err_cnt == nbins) MeanBinCospAvailable(cls, gas) = .false.
+            if (all(MeanBinCosp(1:nbins, cls)%fnum(gas) == error) &
+                .or. all(MeanBinSpec(1:nbins, cls)%fnum(gas) == 0d0)) &
+                MeanBinCospAvailable(cls, gas) = .false.
         end do
     end do
 
     !> Stability cospectra
     do gas = ts, gas4
         do cls = unstable, stable
-            err_cnt = 0
-            do bin = 1, ndkf
-                if (MeanStabilityCosp(bin, cls)%cnt(gas) == 0) err_cnt = err_cnt + 1
-            end do
-            if (err_cnt == ndkf) MeanStabCospAvailable(cls, gas) = .false.
+                if (all(MeanStabilityCosp(1:ndkf, cls)%cnt(gas) == error) &
+                    .or. all(MeanStabilityCosp(1:ndkf, cls)%cnt(gas) == 0)) &
+                    MeanStabCospAvailable(cls, gas) = .false.
         end do
     end do
-
 end subroutine AvailableMeanSpectraCospectra

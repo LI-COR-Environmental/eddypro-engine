@@ -200,8 +200,10 @@ Program EddyproFCC
             EddyProProj%out_avrg_cosp = .false.
             EddyProProj%out_avrg_spec = .false.
             FCCsetup%do_spectral_assessment = .false.
-            EddyProProj%hf_meth = 'moncrieff_97'
-            FCCsetup%SA%in_situ = .false.
+            if (FCCsetup%SA%in_situ) then
+                EddyProProj%hf_meth = 'moncrieff_97'
+                FCCsetup%SA%in_situ = .false.
+            end if
             call ExceptionHandler(89)
             goto 100
         end if
@@ -228,8 +230,10 @@ Program EddyproFCC
             EddyProProj%out_avrg_cosp = .false.
             EddyProProj%out_avrg_spec = .false.
             FCCsetup%do_spectral_assessment = .false.
-            EddyProProj%hf_meth = 'moncrieff_97'
-            FCCsetup%SA%in_situ = .false.
+            if (FCCsetup%SA%in_situ) then
+                EddyProProj%hf_meth = 'moncrieff_97'
+                FCCsetup%SA%in_situ = .false.
+            end if
             call ExceptionHandler(90)
             goto 100
         end if
@@ -289,7 +293,7 @@ Program EddyproFCC
             if (exEndReached) exit binned_loop
             if (skip) cycle binned_loop
 
-            !> Allocate variables that depend on nbins and initialize them
+            !> Allocate variables that depend upon nbins and initialize them
             if (.not. allocated(MeanBinSpec)) then
                 allocate(MeanBinSpec(nbins, MaxGasClasses))
                 MeanBinSpec = NullMeanSpec

@@ -125,7 +125,8 @@ subroutine ReadBinnedFile(InFile, BinSpec, BinCosp, nrow, nbins, skip)
     !> Similar filter as above, but now imposes that f*spectrum < 1 for each frequency
     ol3: do var = w, gas4
         il3: do i = 1, nbins
-            if (BinSpec(i)%fn /= error .and. BinSpec(i)%of(var) /= error .and. BinSpec(i)%fn * BinSpec(i)%of(var) > 1d0) then
+            if (BinSpec(i)%fn /= error .and. BinSpec(i)%of(var) /= error &
+                .and. BinSpec(i)%fn * BinSpec(i)%of(var) > 1d0) then
                 BinSpec(:)%of(var) = error
                 exit il3
             end if

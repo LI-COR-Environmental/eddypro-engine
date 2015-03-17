@@ -170,13 +170,15 @@ subroutine WriteVariablesFX()
     if (FCCsetup%pass_thru_spectral_assessment) then
         inquire(file = Dir%binned, exist=dirExists)
         if (.not. dirExists) then
-            call ExceptionHandler(87)
             EddyProProj%out_avrg_cosp = .false.
             EddyProProj%out_avrg_spec = .false.
             FCCsetup%do_spectral_assessment = .false.
             FCCsetup%pass_thru_spectral_assessment = .false.
-            EddyProProj%hf_meth = 'moncrieff_97'
-            FCCsetup%SA%in_situ = .false.
+            if (FCCsetup%SA%in_situ) then
+                EddyProProj%hf_meth = 'moncrieff_97'
+                FCCsetup%SA%in_situ = .false.
+            end if
+            call ExceptionHandler(87)
         end if
     end if
 
