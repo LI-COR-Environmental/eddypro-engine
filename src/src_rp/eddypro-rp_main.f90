@@ -325,6 +325,18 @@ program EddyproRP
     if (EddyProProj%run_mode == 'md_retrieval') &
         RPsetup%avrg_len = nint(Metadata%file_length)
 
+    !> Adjust time constant for planar fit if needed
+    if (Meth%det == 'ld') then
+        !> If time constant is larger than flux averaging interval,
+        !> limit time constant to flux averaging interval and notify
+        if (RPsetup%Tconst > RPsetup%avrg_len) then
+            call ExceptionHandler(91)
+            RPsetup%Tconst = RPsetup%avrg_len * 6d1
+        end if
+        !> Default to avrg_len anyway
+        if (RPsetup%Tconst <= 0) RPsetup%Tconst = RPsetup%avrg_len * 6d1
+    end if
+
     !> Some convenient variables
     DatafileDateStep = DateType(0, 0, 0, 0, nint(Metadata%file_length))
     DateStep         = DateType(0, 0, 0, 0, RPsetup%avrg_len)
@@ -1961,7 +1973,6 @@ program EddyproRP
             !> ===== 7. DETRENDING =============================================
             !> Calculate fluctuations based on chosen detrending method
             write(*, '(a)', advance = 'no') '  Detrending..'
-
             call Fluctuations(E2Set, E2Primes, &
                 size(E2Set, 1), size(E2Set, 2), RPsetup%Tconst, Stats, E2Col)
             if (allocated(E2Set)) deallocate(E2Set)
@@ -2185,6 +2196,7 @@ program EddyproRP
             // '*' // Timestamp_FilePadding //'*"'  // comm_err_redirect)
 
         !> Alerting and closing run
+        write(*,'(a)')
         call ExceptionHandler(35)
     end if
 

@@ -349,6 +349,9 @@ subroutine WriteVariablesRP()
     !> Output QC details
     RPsetup%out_qc_details = SCTags(85)%value(1:1) == '1'
 
+    !> select the averaging length. If zero, files are processed as they are
+    RPsetup%avrg_len = nint(SNTags(50)%value)
+
     !> select detrending method
     select case (SCTags(14)%value(1:1))
         case ('0')
@@ -364,17 +367,6 @@ subroutine WriteVariablesRP()
     end select
     if (Meth%det == 'ld' .or. Meth%det == 'rm' .or. Meth%det == 'ewa') &
         RPsetup%Tconst = nint(SNTags(46)%value)
-
-    if (Meth%det == 'ld') then
-        !> If time constant is larger than flux averaging interval,
-        !> limit time constant to flux averaging interval and notify
-        if (RPsetup%Tconst > RPsetup%avrg_len) then
-            call ExceptionHandler(91)
-            RPsetup%Tconst = RPsetup%avrg_len * 6d1
-        end if
-        !> Default to avrg_len anyway
-        if (RPsetup%Tconst <= 0) RPsetup%Tconst = RPsetup%avrg_len * 6d1
-    end if
 
     !> select rotation method
     select case (SCTags(15)%value(1:1))
@@ -452,9 +444,6 @@ subroutine WriteVariablesRP()
 
     !> max acceptable lack of data lines in a raw file
     RPsetup%max_lack = SNTags(49)%value
-
-    !> select the averaging length. If zero, files are processed as they are
-    RPsetup%avrg_len = nint(SNTags(50)%value)
 
     !> read wind speed offsets
     RPsetup%offset(u) = 0d0
