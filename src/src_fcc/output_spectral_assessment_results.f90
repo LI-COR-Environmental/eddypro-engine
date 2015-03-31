@@ -325,62 +325,6 @@ subroutine OutputSpectralAssessmentResults(nbins)
             !> =====================================================================
             !> Average CO2/CH4/GAS4 spectra, sorted by month, and predicted spectra (RHS of
             !> eq. 6 in Ibrom et al. (2007, AFM)
-            Filename = EddyProProj%id(1:len_trim(EddyProProj%id)) // PASGAS_Avrg_FilePadding  &
-                // Timestamp_FilePadding // CsvExt
-            FilePath = SpecDir(1:len_trim(SpecDir)) // Filename(1:len_trim(Filename))
-            open(udf, file = FilePath, iostat = open_status)
-            if (open_status /= 0) call ExceptionHandler(64)
-
-        !FOR MONTH-SORTING    write(udf,'(a)') 'Binned_average_and_predicted_spectra_for_passive_gases._Sorted_by_month'
-            write(udf,'(a)') 'Binned_average_and_predicted_spectra_for_passive_gases'
-        !FOR MONTH-SORTING    write(udf,'(a)') ',JAN,,,,,,,,,FEB,,,,,,,,,MAR,,,,,,,,,APR,,,,,,,,,MAY,,,,,,,,,JUN&
-        !FOR MONTH-SORTING        &,,,,,,,,,JUL,,,,,,,,,AUG,,,,,,,,,SEP,,,,,,,,,OCT,,,,,,,,,NOV,,,,,,,,,DEC'
-
-            !> Add number of spectra per class
-            dataline = ''
-            call AddDatum(dataline, '', separator)
-        !FOR MONTH-SORTING    do month = JAN, DEC
-            do month = JAN, JAN
-                do gas = co2, gas4
-                    if (gas /= h2o) then
-                        if (FCCsetup%SA%class(gas, month) /= 0) then
-                            call WriteDatumInt(MeanBinSpec(1, FCCsetup%SA%class(gas, month))%cnt(gas) &
-                                , datum, EddyProProj%err_label)
-                        else
-                            call WriteDatumInt(0, datum, EddyProProj%err_label)
-                        end if
-                        call AddDatum(dataline, 'n_=_' // datum(1:len_trim(datum)), separator)
-                        call AddDatum(dataline, '', separator)
-                        call AddDatum(dataline, '', separator)
-                    end if
-                end do
-            end do
-            write(udf,'(a)') dataline(1:len_trim(dataline) - 1)
-            write(udf,'(a)') 'nat_freq,&
-                &avrg_sp(T),avrg_sp(co2),pred_sp(co2),avrg_sp(T),avrg_sp(ch4),pred_sp(ch4),&
-                &avrg_sp(T),avrg_sp(' // g4lab(1:g4l) // '),pred_sp(' // g4lab(1:g4l) // ')' !,&
-        !FOR MONTH-SORTING   &avrg_sp(T),avrg_sp(co2),pred_sp(co2),avrg_sp(T),avrg_sp(ch4),pred_sp(ch4),&
-        !        &avrg_sp(T),avrg_sp(' // g4lab(1:g4l) // '),pred_sp(' // g4lab(1:g4l) // '),&
-        !        &avrg_sp(T),avrg_sp(co2),pred_sp(co2),avrg_sp(T),avrg_sp(ch4),pred_sp(ch4),&
-        !        &avrg_sp(T),avrg_sp(' // g4lab(1:g4l) // '),pred_sp(' // g4lab(1:g4l) // '),&
-        !        &avrg_sp(T),avrg_sp(co2),pred_sp(co2),avrg_sp(T),avrg_sp(ch4),pred_sp(ch4),&
-        !        &avrg_sp(T),avrg_sp(' // g4lab(1:g4l) // '),pred_sp(' // g4lab(1:g4l) // '),&
-        !        &avrg_sp(T),avrg_sp(co2),pred_sp(co2),avrg_sp(T),avrg_sp(ch4),pred_sp(ch4),&
-        !        &avrg_sp(T),avrg_sp(' // g4lab(1:g4l) // '),pred_sp(' // g4lab(1:g4l) // '),&
-        !        &avrg_sp(T),avrg_sp(co2),pred_sp(co2),avrg_sp(T),avrg_sp(ch4),pred_sp(ch4),&
-        !        &avrg_sp(T),avrg_sp(' // g4lab(1:g4l) // '),pred_sp(' // g4lab(1:g4l) // '),&
-        !        &avrg_sp(T),avrg_sp(co2),pred_sp(co2),avrg_sp(T),avrg_sp(ch4),pred_sp(ch4),&
-        !        &avrg_sp(T),avrg_sp(' // g4lab(1:g4l) // '),pred_sp(' // g4lab(1:g4l) // '),&
-        !        &avrg_sp(T),avrg_sp(co2),pred_sp(co2),avrg_sp(T),avrg_sp(ch4),pred_sp(ch4),&
-        !        &avrg_sp(T),avrg_sp(' // g4lab(1:g4l) // '),pred_sp(' // g4lab(1:g4l) // '),&
-        !        &avrg_sp(T),avrg_sp(co2),pred_sp(co2),avrg_sp(T),avrg_sp(ch4),pred_sp(ch4),&
-        !        &avrg_sp(T),avrg_sp(' // g4lab(1:g4l) // '),pred_sp(' // g4lab(1:g4l) // '),&
-        !        &avrg_sp(T),avrg_sp(co2),pred_sp(co2),avrg_sp(T),avrg_sp(ch4),pred_sp(ch4),&
-        !        &avrg_sp(T),avrg_sp(' // g4lab(1:g4l) // '),pred_sp(' // g4lab(1:g4l) // '),&
-        !        &avrg_sp(T),avrg_sp(co2),pred_sp(co2),avrg_sp(T),avrg_sp(ch4),pred_sp(ch4),&
-        !        &avrg_sp(T),avrg_sp(' // g4lab(1:g4l) // '),pred_sp(' // g4lab(1:g4l) // '),&
-        !        &avrg_sp(T),avrg_sp(co2),pred_sp(co2),avrg_sp(T),avrg_sp(ch4),pred_sp(ch4),&
-        !FOR MONTH-SORTING   &avrg_sp(T),avrg_sp(' // g4lab(1:g4l) // '),pred_sp(' // g4lab(1:g4l) // ')'
 
             !> Select one frequency vector which does not contain only -9999.
             !> If none, it means all spectra are -9999, so -9999 is written.
@@ -388,47 +332,80 @@ subroutine OutputSpectralAssessmentResults(nbins)
             call GetFnIndex(MeanBinSpec, &
                 size(MeanBinSpec, 1), size(MeanBinSpec, 2), goodj, pick)
 
-            !> Now write on output file
-            do i = 1, nbins - 1
-                call clearstr(dataline)
-                if (MeanBinSpec(i, goodj)%fn(pick) /= error) then
-                    call WriteDatumFloat(MeanBinSpec(i, goodj)%fn(pick), datum, EddyProProj%err_label)
-                    call AddDatum(dataline, datum, separator)
-        !FOR MONTH-SORTING     do month = JAN, DEC
-                    do month = JAN, JAN
-                        do gas = co2, gas4
-                            if (gas == h2o) cycle
+            !> Write output file if valid goodj and pick were found
+            if (goodj > 0 .and. goodj < MaxGasClasses &
+                .and. pick > 0 .and. pick < gas4) then
+                Filename = EddyProProj%id(1:len_trim(EddyProProj%id)) // PASGAS_Avrg_FilePadding  &
+                    // Timestamp_FilePadding // CsvExt
+                FilePath = SpecDir(1:len_trim(SpecDir)) // Filename(1:len_trim(Filename))
+                open(udf, file = FilePath, iostat = open_status)
+                if (open_status /= 0) call ExceptionHandler(64)
+                write(udf,'(a)') 'Binned_average_and_predicted_spectra_for_passive_gases'
+                !> Add number of spectra per class
+                dataline = ''
+                call AddDatum(dataline, '', separator)
+                do month = JAN, JAN
+                    do gas = co2, gas4
+                        if (gas /= h2o) then
                             if (FCCsetup%SA%class(gas, month) /= 0) then
-                                if (MeanBinSpecAvailable(FCCsetup%SA%class(gas, month), gas))then
-                                    call WriteDatumFloat(MeanBinSpec(i, goodj)%fn(pick) * MeanBinSpec(i, &
-                                        FCCsetup%SA%class(gas, month))%ts(gas), datum, EddyProProj%err_label)
-                                    call AddDatum(dataline, datum, separator)
-                                    call WriteDatumFloat(MeanBinSpec(i, goodj)%fn(pick) * MeanBinSpec(i, &
-                                        FCCsetup%SA%class(gas, month))%of(gas), datum, EddyProProj%err_label)
-                                    call AddDatum(dataline, datum, separator)
-                                    call WriteDatumFloat(RegPar(gas, FCCsetup%SA%class(gas, month))%fn &
-                                        * (1d0 / (1d0 + (MeanBinSpec(i, goodj)%fn(pick) &
-                                        / RegPar(gas, FCCsetup%SA%class(gas, month))%fc)**2 )) &
-                                        * MeanBinSpec(i, FCCsetup%SA%class(gas, month))%ts(gas) &
-                                        * MeanBinSpec(i, goodj)%fn(pick), datum, EddyProProj%err_label)
-                                    call AddDatum(dataline, datum, separator)
+                                call WriteDatumInt(MeanBinSpec(1, FCCsetup%SA%class(gas, month))%cnt(gas) &
+                                    , datum, EddyProProj%err_label)
+                            else
+                                call WriteDatumInt(0, datum, EddyProProj%err_label)
+                            end if
+                            call AddDatum(dataline, 'n_=_' // datum(1:len_trim(datum)), separator)
+                            call AddDatum(dataline, '', separator)
+                            call AddDatum(dataline, '', separator)
+                        end if
+                    end do
+                end do
+                write(udf,'(a)') dataline(1:len_trim(dataline) - 1)
+                write(udf,'(a)') 'nat_freq,&
+                    &avrg_sp(T),avrg_sp(co2),pred_sp(co2),avrg_sp(T),avrg_sp(ch4),pred_sp(ch4),&
+                    &avrg_sp(T),avrg_sp(' // g4lab(1:g4l) // '),pred_sp(' // g4lab(1:g4l) // ')' !,&
 
+                do i = 1, nbins - 1
+                    call clearstr(dataline)
+                    if (MeanBinSpec(i, goodj)%fn(pick) /= error) then
+                        call WriteDatumFloat(MeanBinSpec(i, goodj)%fn(pick), datum, EddyProProj%err_label)
+                        call AddDatum(dataline, datum, separator)
+                        do month = JAN, JAN
+                            do gas = co2, gas4
+                                if (gas == h2o) cycle
+                                if (FCCsetup%SA%class(gas, month) /= 0) then
+                                    if (MeanBinSpecAvailable(FCCsetup%SA%class(gas, month), gas))then
+                                        call WriteDatumFloat(MeanBinSpec(i, goodj)%fn(pick) * MeanBinSpec(i, &
+                                            FCCsetup%SA%class(gas, month))%ts(gas), datum, EddyProProj%err_label)
+                                        call AddDatum(dataline, datum, separator)
+                                        call WriteDatumFloat(MeanBinSpec(i, goodj)%fn(pick) * MeanBinSpec(i, &
+                                            FCCsetup%SA%class(gas, month))%of(gas), datum, EddyProProj%err_label)
+                                        call AddDatum(dataline, datum, separator)
+                                        call WriteDatumFloat(RegPar(gas, FCCsetup%SA%class(gas, month))%fn &
+                                            * (1d0 / (1d0 + (MeanBinSpec(i, goodj)%fn(pick) &
+                                            / RegPar(gas, FCCsetup%SA%class(gas, month))%fc)**2 )) &
+                                            * MeanBinSpec(i, FCCsetup%SA%class(gas, month))%ts(gas) &
+                                            * MeanBinSpec(i, goodj)%fn(pick), datum, EddyProProj%err_label)
+                                        call AddDatum(dataline, datum, separator)
+
+                                    else
+                                        call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+                                        call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+                                        call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+                                    end if
                                 else
                                     call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
                                     call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
                                     call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
                                 end if
-                            else
-                                call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
-                                call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
-                                call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
-                            end if
+                            end do
                         end do
-                    end do
-                    write(udf, '(a)') dataline(1:len_trim(dataline) - 1)
-                end if
-            end do
-            close(udf)
+                        write(udf, '(a)') dataline(1:len_trim(dataline) - 1)
+                    end if
+                end do
+                close(udf)
+            else
+                call ExceptionHandler(92)
+            end if
         end if
     end if
 
@@ -738,18 +715,17 @@ subroutine GetFnIndex(LocSpec, nrow, ncol, goodj, pick)
 
     ol: do cls = 1, ncol
         il: do i = 1, nrow - 1
-                if (LocSpec(i, cls)%fn(ts) /= error) then
+                if (LocSpec(i, cls)%fn(ts) > 0d0) then
                     goodj = cls
                     pick = ts
                     exit ol
                 end if
         end do il
     end do ol
-
-    if (goodj == 0) then
+    if (goodj == ierror) then
         ol1: do cls = 1, ncol
             il1: do i = 1, nrow - 1
-                    if (LocSpec(i, cls)%fn(co2) /= error) then
+                    if (LocSpec(i, cls)%fn(co2) > 0d0) then
                         goodj = cls
                         pick = co2
                         exit ol1
@@ -757,11 +733,10 @@ subroutine GetFnIndex(LocSpec, nrow, ncol, goodj, pick)
             end do il1
         end do ol1
     end if
-
-    if (goodj == 0) then
+    if (goodj == ierror) then
         ol2: do cls = 1, ncol
             il2: do i = 1, nrow - 1
-                    if (LocSpec(i, cls)%fn(ch4) /= error) then
+                    if (LocSpec(i, cls)%fn(ch4) > 0d0) then
                         goodj = cls
                         pick = ch4
                         exit ol2
@@ -769,12 +744,12 @@ subroutine GetFnIndex(LocSpec, nrow, ncol, goodj, pick)
             end do il2
         end do ol2
     end if
-    if (goodj == 0) then
+    if (goodj == ierror) then
         ol3: do cls = 1, ncol
             il3: do i = 1, nrow - 1
-                    if (LocSpec(i, cls)%fn(gas4) /= error) then
+                    if (LocSpec(i, cls)%fn(gas4) > 0d0) then
                         goodj = cls
-                        pick = ch4
+                        pick = gas4
                         exit ol3
                     end if
             end do il3

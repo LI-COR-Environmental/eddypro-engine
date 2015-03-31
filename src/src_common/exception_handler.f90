@@ -334,5 +334,8 @@ subroutine ExceptionHandler(error_code)
         case(91)
             write(*,*) '  Alert(91)> Time constant of linear detrending cannot be larger than flux averaging interval.'
             write(*,*) '  Alert(91)> Automatically set time constant equal to flux averaging interval.'
+        case(92)
+            write(*,*) ' Error(92)> Occurred while writing passive gases ensemble spectra on output file.'
+            write(*,*) ' Error(92)> File not created.'
     end select
 end subroutine ExceptionHandler

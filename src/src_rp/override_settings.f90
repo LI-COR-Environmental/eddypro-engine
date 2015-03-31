@@ -46,7 +46,7 @@ subroutine OverrideSettings()
     !> If biomet measurements are not to be used, they are also not to be output
     if (EddyProProj%biomet_data == 'none') EddyProProj%out_biomet = .false.
 
-    !> if there is no LI-7500 among the intruments, burba terms should not be calculated
+    !> if there is no LI-7500 among the instruments, Burba terms should not be calculated
     if (index(E2Col(co2)%Instr%model, 'li7500') == 0 &
         .and. index(E2Col(h2o)%Instr%model,'li7500') == 0) &
         RPsetup%bu_corr = 'none'

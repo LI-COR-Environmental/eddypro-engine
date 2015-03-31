@@ -57,6 +57,7 @@ subroutine CospectraQAQC(BinSpec, BinCosp, nrow, lEx, &
     BinCospForStable = BinCosp
     BinCospForUnstable = BinCosp
 
+
     !> Razor blade on spectra and co-spectra for unstable case, \n
     !> based on corresponding fluxes.
     !> Unstable case
@@ -136,7 +137,6 @@ subroutine CospectraQAQC(BinSpec, BinCosp, nrow, lEx, &
         skip_cospectra = .true.
     end if
 
-
     !> Filter co-spectra for u*
     if (lEx%ustar < FCCsetup%SA%min_st_ustar &
         .or. lEx%ustar > FCCsetup%SA%max_ustar) then
@@ -175,5 +175,4 @@ subroutine CospectraQAQC(BinSpec, BinCosp, nrow, lEx, &
             end if
         end do
     end if
-
 end subroutine CospectraQAQC

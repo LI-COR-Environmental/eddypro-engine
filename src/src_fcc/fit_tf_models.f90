@@ -67,7 +67,7 @@ subroutine FitTFModels(nbins)
 
 
     write(*, '(a)', advance = 'no') &
-        ' Performing assessment of spectral attenuations..'
+        ' Assessing spectral attenuations..'
 
     !> Calculate length of un-binned spectra (lSpec),
     !> by looking at fnum for each bin
