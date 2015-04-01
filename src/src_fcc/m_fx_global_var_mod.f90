@@ -62,6 +62,7 @@ module m_fx_global_var
     type(FileListType), allocatable :: BinnedFileList(:)
 
     type(MeanSpectraType), allocatable :: MeanBinSpec(:, :)
+    type(MeanSpectraType), allocatable :: dMeanBinSpec(:, :)
     type(MeanSpectraType), allocatable :: MeanBinCosp(:, :)
 
     type(MeanSpectraType) :: MeanStabilityCosp(ndkf, 2)

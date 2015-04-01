@@ -67,7 +67,7 @@ subroutine FitTFModels(nbins)
 
 
     write(*, '(a)', advance = 'no') &
-        ' Assessing spectral attenuations..'
+        ' Eliminating high-frequency noise from ensemble spectra if requested..'
 
     !> Calculate length of un-binned spectra (lSpec),
     !> by looking at fnum for each bin
@@ -80,15 +80,21 @@ subroutine FitTFModels(nbins)
     call UnbinSpectra(lSpec, size(lSpec, 1), size(lSpec, 2), &
         nlong, size(nlong, 1), size(nlong, 2), nbins)
 
+    !> Subtract high-frequency noise if requested
+    call SubtractHighFreqNoise(lSpec, size(lSpec, 1), size(lSpec, 2), &
+        nlong, size(nlong, 1), size(nlong, 2), nbins)
+
+    write(*, '(a)') ' done.'
+
+    !> Assessment of spectral attenuation
+    write(*, '(a)', advance = 'no') &
+        ' Assessing spectral attenuations..'
+
     !> Allocate vectors for fit
     if (.not. allocated(xFit)) allocate(xFit(maxval(nlong)))
     if (.not. allocated(yFit)) allocate(yFit(maxval(nlong)))
     if (.not. allocated(zFit)) allocate(zFit(maxval(nlong)))
     if (.not. allocated(ddum)) allocate(ddum(maxval(nlong)))
-
-    !> Subtract high-frequency noise if requested
-    call SubtractHighFreqNoise(lSpec, size(lSpec, 1), size(lSpec, 2), &
-        nlong, size(nlong, 1), size(nlong, 2), nbins)
 
     !> regression for transfer functions, class-sorted
     do gas = co2, gas4

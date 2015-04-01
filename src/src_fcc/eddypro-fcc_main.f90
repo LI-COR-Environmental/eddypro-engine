@@ -296,7 +296,9 @@ Program EddyproFCC
             !> Allocate variables that depend upon nbins and initialize them
             if (.not. allocated(MeanBinSpec)) then
                 allocate(MeanBinSpec(nbins, MaxGasClasses))
+                allocate(dMeanBinSpec(nbins, MaxGasClasses))
                 MeanBinSpec = NullMeanSpec
+                dMeanBinSpec = NullMeanSpec
             end if
             if (.not. allocated(MeanBinCosp)) then
                 allocate(MeanBinCosp(nbins, MaxGasClasses))
@@ -354,11 +356,12 @@ Program EddyproFCC
         !> for each gas and each class
         call AvailableMeanSpectraCospectra(nbins)
 
-        if (FCCsetup%do_spectral_assessment) then
+        !> Determine low-pass TF cut-off frequencies, RH-sorted (H2O)
+        !> and time-sorted (CO2/CH4/GAS4)
+        call FitTFModels(nbins)
 
-            !> Determine low-pass TF cut-off frequencies, RH-sorted (H2O)
-            !> and time-sorted (CO2/CH4/GAS4)
-            call FitTFModels(nbins)
+        !> Spectral attenuation assessment
+        if (FCCsetup%do_spectral_assessment) then
 
             !> Determine analytical relation fc/RH
             call FitRh2Fco()

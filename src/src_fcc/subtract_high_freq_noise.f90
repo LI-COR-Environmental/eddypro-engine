@@ -31,7 +31,7 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine SubtractHighFreqNoise(lSpec, nrow, ncol, nlong, N, nclass, nbins)
+subroutine SubtractHighFreqNoise(Spec, nrow, ncol, nlong, N, nclass, nbins)
     use m_fx_global_var
     implicit none
     !> in/out variables
@@ -40,7 +40,7 @@ subroutine SubtractHighFreqNoise(lSpec, nrow, ncol, nlong, N, nclass, nbins)
     integer, intent(in) :: nclass
     integer, intent(in) :: nrow, ncol
     integer, intent(in) :: nlong(N, nclass)
-    type(LongSpectraType), intent(inout) :: lSpec(nrow, ncol)
+    type(LongSpectraType), intent(inout) :: Spec(nrow, ncol)
     !> local variables
     integer :: gas
     integer :: cls
@@ -52,6 +52,7 @@ subroutine SubtractHighFreqNoise(lSpec, nrow, ncol, nlong, N, nclass, nbins)
     real(kind = dbl) :: m, q
     real(kind = dbl) :: noise(nrow)
 
+
     !> Linear regression of high frequency spectral range
     do gas = co2, gas4
         if (FCCsetup%SA%hfn_fmin(gas) > 0d0) then
@@ -60,7 +61,7 @@ subroutine SubtractHighFreqNoise(lSpec, nrow, ncol, nlong, N, nclass, nbins)
                     !> first, detect index of minimum frequency
                     imin = 0
                     do i = 1, nlong(gas, cls)
-                        if (lSpec(i, cls)%fn(gas) > FCCsetup%SA%hfn_fmin(gas)) then
+                        if (Spec(i, cls)%fn(gas) > FCCsetup%SA%hfn_fmin(gas)) then
                             imin = i
                             exit
                         end if
@@ -74,30 +75,30 @@ subroutine SubtractHighFreqNoise(lSpec, nrow, ncol, nlong, N, nclass, nbins)
                     sumff  = 0d0
                     sumfy  = 0d0
                     do i = imin, nlong(gas, cls)
-                        sumf  = sumf  + lSpec(i, cls)%fn(gas)
-                        sumy  = sumy  + lSpec(i, cls)%of(gas)
-                        sumff = sumff + lSpec(i, cls)%fn(gas)**2
-                        sumfy = sumfy + lSpec(i, cls)%fn(gas) * lSpec(i, cls)%of(gas)
+                        sumf  = sumf  + Spec(i, cls)%fn(gas)
+                        sumy  = sumy  + Spec(i, cls)%of(gas)
+                        sumff = sumff + Spec(i, cls)%fn(gas)**2
+                        sumfy = sumfy + Spec(i, cls)%fn(gas) * Spec(i, cls)%of(gas)
                     end do
                     avgf = sumf / dfloat(ipt)
                     avgy = sumy / dfloat(ipt)
                     m = (sumfy - sumf * avgy) / (sumff - sumf * avgf)
                     q = avgy - m * avgf
                     !> Define noise
-                    noise(1:nlong(gas, cls)) = m * lSpec(1:nlong(gas, cls), cls)%fn(gas) + q
+                    noise(1:nlong(gas, cls)) = m * Spec(1:nlong(gas, cls), cls)%fn(gas) + q
 
                     !> Subtract noise from spectra (both long and short)
                     do i = 1, nlong(gas, cls)
-                        !if (lSpec(i, cls)%fn(gas) >= FCCsetup%SA%hfn_fmin(gas) * 0.3d0)
-                            lSpec(i, cls)%of(gas) = lSpec(i, cls)%of(gas) - noise(i)
+                            Spec(i, cls)%of(gas) = Spec(i, cls)%of(gas) - noise(i)
                     end do
                     do i = 1, nbins
-                        !if (MeanBinSpec(i, cls)%fn(gas) >= FCCsetup%SA%hfn_fmin(gas) * 0.3d0)
-                        MeanBinSpec(i, cls)%of(gas) =  MeanBinSpec(i, cls)%of(gas) &
+                        dMeanBinSpec(i, cls)%of(gas) =  MeanBinSpec(i, cls)%of(gas) &
                             -  (m * MeanBinSpec(i, cls)%fn(gas) + q)
                     end do
                 end if
             end do
+        else
+            dMeanBinSpec = MeanBinSpec
         end if
     end do
 end subroutine SubtractHighFreqNoise

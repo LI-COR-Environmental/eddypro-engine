@@ -260,8 +260,8 @@ subroutine OutputSpectralAssessmentResults(nbins)
             if (open_status /= 0) call ExceptionHandler(64)
 
             write(udf,'(a)') 'Binned_average_and_predicted_H2O_spectra_sorted_by_RH-class.'
-            write(udf,'(a)') ',RH=0.1,,,RH=0.2,,,RH=0.3,,,RH=0.4,,,RH=0.5,,,RH=0.6&
-                &,,,RH=0.7,,,RH=0.8,,,RH=0.9'
+            write(udf,'(a)') ',RH=0.1,,,,RH=0.2,,,,RH=0.3,,,,RH=0.4,,,,RH=0.5,,,,RH=0.6&
+                &,,,,RH=0.7,,,,RH=0.8,,,,RH=0.9'
 
             !> Add number of spectra per class
             dataline = ''
@@ -273,17 +273,18 @@ subroutine OutputSpectralAssessmentResults(nbins)
                     separator)
                 call AddDatum(dataline, '', separator)
                 call AddDatum(dataline, '', separator)
+                call AddDatum(dataline, '', separator)
             end do
             write(udf,'(a)') dataline(1:len_trim(dataline) - 1)
-            write(udf,'(a)') 'nat_freq,avrg_sp(T),avrg_sp(h2o),pred_sp(h2o)&
-                            &,avrg_sp(T),avrg_sp(h2o),pred_sp(h2o)&
-                            &,avrg_sp(T),avrg_sp(h2o),pred_sp(h2o)&
-                            &,avrg_sp(T),avrg_sp(h2o),pred_sp(h2o)&
-                            &,avrg_sp(T),avrg_sp(h2o),pred_sp(h2o)&
-                            &,avrg_sp(T),avrg_sp(h2o),pred_sp(h2o)&
-                            &,avrg_sp(T),avrg_sp(h2o),pred_sp(h2o)&
-                            &,avrg_sp(T),avrg_sp(h2o),pred_sp(h2o)&
-                            &,avrg_sp(T),avrg_sp(h2o),pred_sp(h2o)'
+            write(udf,'(a)') 'nat_freq,avrg_sp(T),avrg_sp(h2o),denoised_avrg_sp(h2o),pred_sp(h2o)&
+                            &,avrg_sp(T),avrg_sp(h2o),denoised_avrg_sp(h2o),pred_sp(h2o)&
+                            &,avrg_sp(T),avrg_sp(h2o),denoised_avrg_sp(h2o),pred_sp(h2o)&
+                            &,avrg_sp(T),avrg_sp(h2o),denoised_avrg_sp(h2o),pred_sp(h2o)&
+                            &,avrg_sp(T),avrg_sp(h2o),denoised_avrg_sp(h2o),pred_sp(h2o)&
+                            &,avrg_sp(T),avrg_sp(h2o),denoised_avrg_sp(h2o),pred_sp(h2o)&
+                            &,avrg_sp(T),avrg_sp(h2o),denoised_avrg_sp(h2o),pred_sp(h2o)&
+                            &,avrg_sp(T),avrg_sp(h2o),denoised_avrg_sp(h2o),pred_sp(h2o)&
+                            &,avrg_sp(T),avrg_sp(h2o),denoised_avrg_sp(h2o),pred_sp(h2o)'
 
             do i = 1, nbins - 1
                 call clearstr(dataline)
@@ -293,14 +294,22 @@ subroutine OutputSpectralAssessmentResults(nbins)
                     call AddDatum(dataline, datum, separator)
                     do cls = RH10, RH90
                         if (MeanBinSpecAvailable(cls, h2o)) then
+                            !> Natural frequency
                             call WriteDatumFloat(MeanBinSpec(i, goodj)%fn(h2o) &
                                 * MeanBinSpec(i, cls)%ts(h2o), datum, &
                                 EddyProProj%err_label)
                             call AddDatum(dataline, datum, separator)
+                            !> Ensemble averaged spectrum
                             call WriteDatumFloat(MeanBinSpec(i, goodj)%fn(h2o) &
                                 * MeanBinSpec(i, cls)%of(h2o), datum, &
                                 EddyProProj%err_label)
                             call AddDatum(dataline, datum, separator)
+                            !> Denoised ensemble averaged spectrum
+                            call WriteDatumFloat(MeanBinSpec(i, goodj)%fn(h2o) &
+                                * dMeanBinSpec(i, cls)%of(h2o), datum, &
+                                EddyProProj%err_label)
+                            call AddDatum(dataline, datum, separator)
+                            !> Modelled spectrum
                             call WriteDatumFloat(RegPar(h2o, cls)%Fn &
                                 * (1d0 / (1d0 + (MeanBinSpec(i, goodj)%fn(h2o) &
                                 / RegPar(h2o, cls)%fc)**2 )) &
@@ -308,7 +317,10 @@ subroutine OutputSpectralAssessmentResults(nbins)
                                 * MeanBinSpec(i, goodj)%fn(h2o), datum, &
                                 EddyProProj%err_label)
                             call AddDatum(dataline, datum, separator)
+
                         else
+                            call AddDatum(dataline, &
+                                trim(adjustl(EddyProProj%err_label)), separator)
                             call AddDatum(dataline, &
                                 trim(adjustl(EddyProProj%err_label)), separator)
                             call AddDatum(dataline, &
@@ -356,13 +368,16 @@ subroutine OutputSpectralAssessmentResults(nbins)
                             call AddDatum(dataline, 'n_=_' // datum(1:len_trim(datum)), separator)
                             call AddDatum(dataline, '', separator)
                             call AddDatum(dataline, '', separator)
+                            call AddDatum(dataline, '', separator)
                         end if
                     end do
                 end do
                 write(udf,'(a)') dataline(1:len_trim(dataline) - 1)
                 write(udf,'(a)') 'nat_freq,&
-                    &avrg_sp(T),avrg_sp(co2),pred_sp(co2),avrg_sp(T),avrg_sp(ch4),pred_sp(ch4),&
-                    &avrg_sp(T),avrg_sp(' // g4lab(1:g4l) // '),pred_sp(' // g4lab(1:g4l) // ')' !,&
+                    &avrg_sp(T),avrg_sp(co2),denoised_avrg_sp(co2),pred_sp(co2),&
+                    &avrg_sp(T),avrg_sp(ch4),denoised_avrg_sp(ch4),pred_sp(ch4),&
+                    &avrg_sp(T),avrg_sp(' // g4lab(1:g4l) // '),denoised_avrg_sp(' // g4lab(1:g4l) // '),&
+                    &pred_sp(' // g4lab(1:g4l) // ')' !,&
 
                 do i = 1, nbins - 1
                     call clearstr(dataline)
@@ -374,12 +389,19 @@ subroutine OutputSpectralAssessmentResults(nbins)
                                 if (gas == h2o) cycle
                                 if (FCCsetup%SA%class(gas, month) /= 0) then
                                     if (MeanBinSpecAvailable(FCCsetup%SA%class(gas, month), gas))then
+                                        !> Natural frequency
                                         call WriteDatumFloat(MeanBinSpec(i, goodj)%fn(pick) * MeanBinSpec(i, &
                                             FCCsetup%SA%class(gas, month))%ts(gas), datum, EddyProProj%err_label)
                                         call AddDatum(dataline, datum, separator)
+                                        !> Ensemble averaged spectrum
                                         call WriteDatumFloat(MeanBinSpec(i, goodj)%fn(pick) * MeanBinSpec(i, &
                                             FCCsetup%SA%class(gas, month))%of(gas), datum, EddyProProj%err_label)
                                         call AddDatum(dataline, datum, separator)
+                                        !> Denoised ensemble averaged spectrum
+                                        call WriteDatumFloat(MeanBinSpec(i, goodj)%fn(pick) * dMeanBinSpec(i, &
+                                            FCCsetup%SA%class(gas, month))%of(gas), datum, EddyProProj%err_label)
+                                        call AddDatum(dataline, datum, separator)
+                                        !> Modelled spectrum
                                         call WriteDatumFloat(RegPar(gas, FCCsetup%SA%class(gas, month))%fn &
                                             * (1d0 / (1d0 + (MeanBinSpec(i, goodj)%fn(pick) &
                                             / RegPar(gas, FCCsetup%SA%class(gas, month))%fc)**2 )) &
@@ -391,8 +413,10 @@ subroutine OutputSpectralAssessmentResults(nbins)
                                         call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
                                         call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
                                         call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+                                        call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
                                     end if
                                 else
+                                    call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
                                     call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
                                     call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
                                     call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
