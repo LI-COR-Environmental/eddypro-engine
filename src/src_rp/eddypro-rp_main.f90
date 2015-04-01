@@ -331,10 +331,10 @@ program EddyproRP
         !> limit time constant to flux averaging interval and notify
         if (RPsetup%Tconst > RPsetup%avrg_len) then
             call ExceptionHandler(91)
-            RPsetup%Tconst = RPsetup%avrg_len * 6d1
+            RPsetup%Tconst = nint(RPsetup%avrg_len * 6d1)
         end if
         !> Default to avrg_len anyway
-        if (RPsetup%Tconst <= 0) RPsetup%Tconst = RPsetup%avrg_len * 6d1
+        if (RPsetup%Tconst <= 0) RPsetup%Tconst = nint(RPsetup%avrg_len * 6d1)
     end if
 
     !> Some convenient variables
@@ -2220,9 +2220,12 @@ program EddyproRP
     write(*, '(a)') ' Done.'
 
     !> Edit .eddypro file updating path to ex_file
-    call ForceForwardSlash(Essentials_Path)
+    call ForceSlash(Essentials_Path, .false.)
     call EditIniFile(trim(PrjPath), 'ex_file', &
         trim(Essentials_Path(1:index(Essentials_Path, '.tmp')-1)))
+
+    write(*, '(a)') ' Essentials file path: ' &
+        // trim(Essentials_Path(1:index(Essentials_Path, '.tmp')-1))
 
     !> Copy ".eddypro" file into output folder
     call CopyFile(trim(adjustl(PrjPath)), &

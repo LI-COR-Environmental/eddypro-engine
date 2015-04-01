@@ -359,7 +359,7 @@ end subroutine AdjDir
 
 !***************************************************************************
 !
-! \brief       Forces backslashes to slashes
+! \brief       Forces slashes to either forward (default) or backward.
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -368,18 +368,21 @@ end subroutine AdjDir
 ! \test
 ! \todo
 !***************************************************************************
-subroutine ForceForwardSlash(dataline)
+subroutine ForceSlash(string, backslash)
     implicit none
     !> in/out variables
-    character(*), intent(inout) :: dataline
+    character(*), intent(inout) :: string
+    logical, intent(in) :: backslash
     !> local variables
     integer :: i = 0
+    character(1) :: slash
 
-
-    do i = 1, len_trim(dataline)
-        if(dataline(i:i) == '\') dataline(i:i) = '/'
+    slash = '/'
+    if (backslash) slash = '\'
+    do i = 1, len_trim(string)
+        if(string(i:i) == '\' .or. string(i:i) == '/' ) string(i:i) = slash
     end do
-end subroutine ForceForwardSlash
+end subroutine ForceSlash
 
 !***************************************************************************
 !
