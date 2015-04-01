@@ -280,6 +280,11 @@ subroutine WriteVariablesFX()
     !> Whether to use results of Vickers and Mahrt tests to eliminate (co)spectra
     FCCsetup%SA%filter_cosp_by_vm_flags = SCTags(23)%value(1:1) == '1'
 
+    !> Whether to use results of Foken tests to eliminate (co)spectra
+    FCCsetup%SA%foken_lim = -1
+    if (SCTags(24)%value(1:1) == '1') FCCsetup%SA%foken_lim = 2
+    if (SCTags(25)%value(1:1) == '1') FCCsetup%SA%foken_lim = 1
+
     !> Minimum frequency for high-frequency noise detection and elimination
     FCCsetup%SA%hfn_fmin(co2)  = dble(SNTags(16)%value)
     FCCsetup%SA%hfn_fmin(h2o)  = dble(SNTags(17)%value)

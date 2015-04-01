@@ -523,6 +523,9 @@ module m_typedef
 
     type :: SASetupType
         integer :: min_smpl
+        integer :: foken_lim
+        integer :: nclass(E2NumVar)
+        integer :: class(E2NumVar, 12)
         real(kind = dbl) :: fmin(E2NumVar)
         real(kind = dbl) :: fmax(E2NumVar)
         real(kind = dbl) :: hfn_fmin(GHGNumVar)
@@ -544,8 +547,6 @@ module m_typedef
         real(kind = dbl) :: max_co2
         real(kind = dbl) :: max_ch4
         real(kind = dbl) :: max_gas4
-        integer :: nclass(E2NumVar)
-        integer :: class(E2NumVar, 12)
         character(32) :: lptf
         character(32) :: cosp
         character(32) :: cosp_type

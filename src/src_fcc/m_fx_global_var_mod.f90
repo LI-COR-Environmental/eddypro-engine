@@ -74,7 +74,7 @@ module m_fx_global_var
 
     !> tags of the setup ".ini" file for eccoce
     integer, parameter :: Nsn = 109
-    integer, parameter :: Nsc = 23
+    integer, parameter :: Nsc = 25
     logical            :: SNTagFound(Nsn)
     logical            :: SCTagFound(Nsc)
     type (Numerical)   :: SNTags(Nsn)
@@ -211,5 +211,7 @@ module m_fx_global_var
          SCTags(20)%Label / 'sa_file'           / &
          SCTags(21)%Label / 'horst_lens'        / &
          SCTags(22)%Label / 'sa_subset'         / &
-         SCTags(23)%Label / 'sa_use_vm_flags'   /
+         SCTags(23)%Label / 'sa_use_vm_flags'   / &
+         SCTags(24)%Label / 'sa_use_foken_low'  / &
+         SCTags(25)%Label / 'sa_use_foken_mid'  /
 end module m_fx_global_var

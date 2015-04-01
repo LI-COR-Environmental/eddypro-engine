@@ -1,4 +1,4 @@
-!***************************************************************************
+!*******************************************************************************
 ! cospectra_qaqc.f90
 ! ------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
@@ -19,7 +19,7 @@
 ! You should have received a copy of the GNU General Public License
 ! along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
 !
-!***************************************************************************
+!*******************************************************************************
 !
 ! \brief       Set (co)spectra to error if user-provided quality criteria \n
 !              are not met
@@ -30,7 +30,7 @@
 ! \deprecated
 ! \test
 ! \todo
-!***************************************************************************
+!*******************************************************************************
 subroutine CospectraQAQC(BinSpec, BinCosp, nrow, lEx, &
     BinCospForStable, BinCospForUnstable, skip_spectra, skip_cospectra)
     use m_fx_global_var
@@ -50,6 +50,10 @@ subroutine CospectraQAQC(BinSpec, BinCosp, nrow, lEx, &
     character(9) :: hf_do
     character(9) :: hf_sk, sf_sk
     character(9) :: hf_ds, sf_ds
+    integer :: STFlg(GHGNumVar)
+    integer :: DTFlg(GHGNumVar)
+    integer :: qc_tau, qc_H, qc_co2, qc_h2o, qc_ch4, qc_gas4
+
 
     !> Initialization
     skip_spectra   = .false.
@@ -174,5 +178,65 @@ subroutine CospectraQAQC(BinSpec, BinCosp, nrow, lEx, &
                 BinCosp%of(i) = error
             end if
         end do
+    end if
+
+    !> Filter based on results of Foken quality tests if requested.
+    !> Regardless of user's choice on how to flag fluxes, here the 0/1/2 scheme
+    !> of Mauder and Foken 2004 is used
+    if (FCCsetup%SA%foken_lim >= 0) then
+        !> Partial flags
+        !> Stationarity flags
+        call PartialFlagLF(nint(lEx%st_w_co2), STFlg(w_co2))
+        call PartialFlagLF(nint(lEx%st_w_h2o), STFlg(w_h2o))
+        call PartialFlagLF(nint(lEx%st_w_ch4), STFlg(w_ch4))
+        call PartialFlagLF(nint(lEx%st_w_gas4), STFlg(w_gas4))
+        call PartialFlagLF(nint(lEx%st_w_ts),  STFlg(w_ts))
+        call PartialFlagLF(nint(lEx%st_w_u),   STFlg(w_u))
+        !> Developed turbulence flags
+        call PartialFlagLF(nint(lEx%dt_u), DTFlg(u))
+        call PartialFlagLF(nint(lEx%dt_w), DTFlg(w))
+        call PartialFlagLF(nint(lEx%dt_ts), DTFlg(ts))
+        DTFlg(u)  = max(DTFlg(u),  DTFlg(w))
+
+        !> Composite flags
+        call GTK2Flag(STFlg(w_u),   DTFlg(u), qc_tau)
+        call GTK2Flag(STFlg(w_ts),  DTFlg(w), qc_H)
+        call GTK2Flag(STFlg(w_co2), DTFlg(w), qc_co2)
+        call GTK2Flag(STFlg(w_h2o), DTFlg(w), qc_h2o)
+        call GTK2Flag(STFlg(w_ch4), DTFlg(w), qc_ch4)
+        call GTK2Flag(STFlg(w_gas4), DTFlg(w), qc_gas4)
+
+        !> Actual (co)spectra elimination
+        if (qc_H < FCCsetup%SA%foken_lim &
+            .and. qc_tau < FCCsetup%SA%foken_lim) then
+            if (qc_h2o >= FCCsetup%SA%foken_lim) then
+                BinSpec%of(h2o) = error
+                BinCospForUnstable%of(h2o) = error
+            end if
+            if (qc_co2 >= FCCsetup%SA%foken_lim)  then
+                BinSpec%of(co2) = error
+                BinCospForUnstable%of(co2) = error
+            end if
+            if (qc_ch4 >= FCCsetup%SA%foken_lim)  then
+                BinSpec%of(ch4) = error
+                BinCospForUnstable%of(ch4) = error
+            end if
+            if (qc_gas4 >= FCCsetup%SA%foken_lim) then
+                BinSpec%of(gas4) = error
+                BinCospForUnstable%of(gas4) = error
+            end if
+            if (qc_h2o >= FCCsetup%SA%foken_lim &
+                .and. qc_co2 >= FCCsetup%SA%foken_lim &
+                .and. qc_ch4 >= FCCsetup%SA%foken_lim &
+                .and. qc_gas4 >= FCCsetup%SA%foken_lim) then
+                BinSpec = ErrSpec
+                BinCospForUnstable = ErrSpec
+                skip_spectra = .true.
+            end if
+        else
+            BinSpec = ErrSpec
+            BinCospForUnstable = ErrSpec
+            skip_spectra = .true.
+        end if
     end if
 end subroutine CospectraQAQC

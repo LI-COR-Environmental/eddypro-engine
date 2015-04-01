@@ -41,6 +41,7 @@ subroutine QualityFlags(lFlux2, StDiff, DtDiff, STFlg, DTFlg, lQCFlag, printout)
     integer, intent(out) :: STFlg(GHGNumVar)
     integer, intent(out) :: DTFlg(GHGNumVar)
 
+
     if (printout) write(*,'(a)', advance = 'no') '  Calculating quality flags..'
 
     !> Stationarity flags
