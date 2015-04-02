@@ -148,9 +148,6 @@ subroutine CospectraQAQC(BinSpec, BinCosp, nrow, lEx, &
         skip_cospectra = .true.
     end if
 
-    !> For time sorted cospectra use milder filtering
-    BinCosp = BinCospForStable
-
     !> Filter based on results of Vickers and Mahrt (1997) quality tests
     !> if requested
     if (FCCsetup%SA%filter_cosp_by_vm_flags) then
@@ -166,7 +163,7 @@ subroutine CospectraQAQC(BinSpec, BinCosp, nrow, lEx, &
         !> If vertical wind speed is flagged, all cospectra are eliminated
         if (hf_sr(w:w) == '1' .or. hf_do(w:w) == '1' &
             .or. hf_sk(w:w) == '1' .or. hf_ds(w:w) == '1') then
-            BinCosp = ErrSpec
+            BinCospForUnstable = ErrSpec
         end if
 
         !> Elimination of individual (co)spectra based on the flags on
@@ -175,7 +172,7 @@ subroutine CospectraQAQC(BinSpec, BinCosp, nrow, lEx, &
             if (hf_sr(i:i) == '1' .or. hf_do(i:i) == '1' &
                 .or. hf_sk(i:i) == '1' .or. hf_ds(i:i) == '1') then
                 BinSpec%of(i) = error
-                BinCosp%of(i) = error
+                BinCospForUnstable%of(i) = error
             end if
         end do
     end if
@@ -239,4 +236,8 @@ subroutine CospectraQAQC(BinSpec, BinCosp, nrow, lEx, &
             skip_spectra = .true.
         end if
     end if
+
+    !> For time sorted cospectra use milder filtering
+    BinCosp = BinCospForStable
+
 end subroutine CospectraQAQC

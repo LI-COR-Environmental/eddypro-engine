@@ -163,7 +163,7 @@ subroutine FileListByExt(DirIn, Ext, MatchTemplate, HardMatch, Template, &
     !> Retrieve timestamps from file names if requested
     if(GetTimestamp) then
         if (printout) write(*, '(a)', advance = 'no') &
-            '  Retrieving timestamps from &
+            indent // '  Retrieving timestamps from &
             &file names..'
         do i = 1, cnt
             call FilenameToTimestamp(FileList(i)%name, Template, doy_format, &

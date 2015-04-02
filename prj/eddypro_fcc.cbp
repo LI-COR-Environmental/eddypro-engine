@@ -216,7 +216,9 @@
 		<Unit filename="../src/src_common/string_sub.f90">
 			<Option weight="3" />
 		</Unit>
-		<Unit filename="../src/src_common/tag_run_mode.f90" />
+		<Unit filename="../src/src_common/tag_run_mode.f90">
+			<Option weight="3" />
+		</Unit>
 		<Unit filename="../src/src_common/timestamp.f90">
 			<Option weight="1" />
 		</Unit>
@@ -290,7 +292,7 @@
 			<Option weight="4" />
 		</Unit>
 		<Unit filename="../src/src_fcc/retrieve_ex_var_by_timestamp.f90">
-			<Option weight="3" />
+			<Option weight="4" />
 		</Unit>
 		<Unit filename="../src/src_fcc/spectra_sorting_and_averaging.f90">
 			<Option weight="4" />

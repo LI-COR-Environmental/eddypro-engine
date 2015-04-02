@@ -385,7 +385,7 @@ program EddyproRP
     !> Retrieve timestamp array in chronological order and
     !> order RawFileList, also in chronological order
     call FilesInChronologicalOrder(RawFileList, size(RawFileList), &
-        tsDatasetStart, tsDatasetEnd)
+        tsDatasetStart, tsDatasetEnd, '')
 
     !> Adjust Start/End timestamps to define the boundaries of the
     !> RawTimeSeries. Retrieve the beginning time of first file

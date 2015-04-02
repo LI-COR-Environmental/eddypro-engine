@@ -31,11 +31,12 @@
 ! \todo
 !***************************************************************************
 subroutine FilesInChronologicalOrder(FileList, nrow, &
-    StartTimestamp, EndTimestamp)
+    StartTimestamp, EndTimestamp, indent)
     use m_common_global_var
     implicit none
     !> in/out variables
     integer, intent(inout) :: nrow
+    character(*), intent(in) :: indent
     type(FileListType), intent(inout) :: FileList(nrow)
     type(DateType), intent(out) :: StartTimestamp
     type(DateType), intent(out) :: EndTimestamp
@@ -50,7 +51,7 @@ subroutine FilesInChronologicalOrder(FileList, nrow, &
 
 
     write(*,'(a)', advance = 'no') &
-        ' Arranging files in chronological order..'
+        indent // ' Arranging files in chronological order..'
     !> Initialization
     StartTimestamp = datetype(2100, 12, 31, 23, 30)
     EndTimestamp = datetype(1900, 0, 0, 0, 0)

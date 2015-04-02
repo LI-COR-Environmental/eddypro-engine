@@ -49,6 +49,9 @@ Program EddyproFCC
     integer :: nrow_full
     integer :: del_status
 
+    character(10) :: sDate, eDate
+    character(5) :: sTime, eTime
+
     logical :: skip
     logical :: InitializeOuputFiles
     logical :: skip_spectra
@@ -216,7 +219,7 @@ Program EddyproFCC
 
         !> Set file list in chronological order
         call FilesInChronologicalOrder(BinnedFileList, size(BinnedFileList), &
-            binStartTimestamp, binEndTimestamp)
+            binStartTimestamp, binEndTimestamp, ' ')
 
         !> Detect first and last binned files to be used for spectral \n
         !> assessment based on user's dates selection
@@ -239,6 +242,23 @@ Program EddyproFCC
         end if
 
         !> Some logging
+        call DateTypeToDateTime(binStartTimestamp, sDate, sTime)
+        call DateTypeToDateTime(binEndTimestamp, eDate, eTime)
+        write(*, '(a)') ''
+        write(*, '(a)') '  Period covered by available binned (co)spectra files:'
+        write(*, '(a)') '   Start: ' // sDate // ' ' // sTime
+        write(*, '(a)') '   End:   ' // eDate // ' ' // eTime
+
+        if (FCCsetup%SA%start_date /= '1900-01-01') then
+            call DateTypeToDateTime(saStartTimestamp, sDate, sTime)
+            call DateTypeToDateTime(saEndTimestamp + Datetype(0, 0, 0, 0, 1), eDate, eTime)
+            write(*, '(a)') ''
+            write(*, '(a)') '  Selected (co)spectra sub-period:'
+            write(*, '(a)') '   Start: ' // sDate // ' ' // sTime
+            write(*, '(a)') '   End:   ' // eDate // ' ' // eTime
+        end if
+
+        write(*, '(a)') ''
         write(LogInteger, '(i8)') saEndTimestampIndx - saStartTimestampIndx + 1
         write(*, '(a)') '  Importing, sorting and ensemble-averaging up to ' &
             // trim(adjustl(LogInteger)) // ' binned (co)spectra from files.. '
