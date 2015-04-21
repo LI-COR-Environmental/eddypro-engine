@@ -151,7 +151,6 @@ subroutine WriteBiometMetaVariables(skip_file)
     do i = 1, nbVars + nbTimestamp
         ix = initc_col + i*leapc_col
         if(BiometCTagFound(ix)) then
-            !> if
             label = trim(adjustl(BiometCTags(ix)%value))
             call uppercase(label)
             if (label == 'DATE') then
@@ -197,9 +196,10 @@ subroutine WriteBiometMetaVariables(skip_file)
     bFileMetadata%numTsCol = tsCnt
 
     !> If variable has no label, stick ID to label
-    do i = 1, nbVars
-        if (len_trim(bVars(i)%label) == 0) bVars(i)%label = bVars(i)%id
-    end do
+    where (len_trim(bVars(:)%label) == 0)
+        bVars(:)%label = bVars(:)%id
+        bVars(:)%base_name = bVars(:)%id
+    end where
 
     !> Append suffix if variables have not
     call BiometAppendLocationSuffix()

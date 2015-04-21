@@ -27,10 +27,7 @@
 !              are not expected to need unit conversion
 !              Photons flux densities (PPFD, PPFDd, PPFDr, PPFDbc, APAR) \n
 !              are not expected to need unit conversion
-!              Alb is not expected to need unit conversion
-!              PRI is not expected to need unit conversion
-!              SWC is not expected to need unit conversion
-!              SHF is not expected to need unit conversion
+!              Alb, PRI, SWC, SHF are not expected to need unit conversion
 ! \sa
 ! \bug
 ! \deprecated

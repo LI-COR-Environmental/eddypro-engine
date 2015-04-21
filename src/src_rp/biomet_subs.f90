@@ -301,7 +301,7 @@ end subroutine BiometTimestamp
 !
 ! \brief       Basic validation of biomet labels
 ! \author      Gerardo Fratini
-! \note
+! \note        The bWaved machinery isn't active yet
 ! \sa
 ! \bug
 ! \deprecated
@@ -314,9 +314,12 @@ logical function BiometValidateVar(bVar) result(valid)
     type(BiometVarsType), intent(in) :: bVar
     !> Local variables
     integer, external :: CountCharInString
+    character(32) :: bWaved(10)
+    data bWaved(1:1) /'LOGGERTEMP'/
 
 
     valid = .true.
+    if (any(bWaved == bVar%label) .or. len_trim(bVar%label) == 0) return
     if (CountCharInString(bVar%label, '_') < 3) then
         valid = .false.
         return
@@ -389,22 +392,34 @@ logical function BiometVarHasSuffix(label)
     !> In/out variables
     character(*), intent(in) :: label
     !> Local variables
+    integer :: nsep
     integer :: i
     integer :: ix, ix2
     integer :: int_num
     integer :: io_status
     character(32) :: token, num
+    integer, external :: CountCharInString
+
 
     !> Check if variable name contains 3 underscores and text between them
     !> is an integer number.
     token = trim(label)
     BiometVarHasSuffix = .true.
-    do i = 1, 3
-        ix = index(token, '_')
-        if (ix == 0 .or. ix == len_trim(token)) then
-            BiometVarHasSuffix = .false.
-            return
-        else
+
+    nsep = CountCharInString(token, '_')
+    if (nsep < 3) then
+        BiometVarHasSuffix = .false.
+        return
+    else
+        !> Extract substring eligible to be suffix
+        do i = 1, nsep - 3
+            token = token(index(token, '_')+1: len_trim(token))
+        end do
+        token = token(index(token, '_'): len_trim(token))
+        !> Now we are left with something like _xx_yyy_zzzz. Check that
+        !> xx, yyy and zzz are integers
+        do i = 1, 3
+            ix = index(token, '_')
             token = token(ix+1:len_trim(token))
             ix2 = index(token, '_')
             if (i < 3) then
@@ -422,10 +437,8 @@ logical function BiometVarHasSuffix(label)
                 BiometVarHasSuffix = .false.
                 return
             end if
-        end if
-    end do
-    return
-
+        end do
+    end if
 end function BiometVarHasSuffix
 
 
@@ -527,7 +540,7 @@ subroutine BiometParseRow(row, tstamp, vals, ncol, skip_row)
     logical, intent(out) :: skip_row
     character(*), intent(inout) :: row
     !> Local variables
-    integer :: j, jj
+    integer :: jj, cnt
     character(64) :: tsString
     character(32) :: item
     character(1)  :: sepa
@@ -535,48 +548,53 @@ subroutine BiometParseRow(row, tstamp, vals, ncol, skip_row)
 
     skip_row = .false.
     sepa = bFileMetadata%separator
-
     !> Check that row contains something
-    if (len_trim(row) <= len_trim(bFileMetadata%data_label)) then
-        skip_row = .true.
-        return
-    else
-        !> Skip label if present
-        row = row(len_trim(bFileMetadata%data_label)+1: len_trim(row))
+    if (len_trim(bFileMetadata%data_label) > 0) then
+        if (index(row(:32), trim(bFileMetadata%data_label)) == 0) then
+            skip_row = .true.
+            return
+        else
+            !> Skip label if present
+            row = row(len_trim(bFileMetadata%data_label)+2: len_trim(row))
+        end if
     end if
 
     tsString = ''
     jj = 0
-    do j = 1, nbVars + bFileMetadata%numTsCol
-        if (index(row, sepa) /= 0) then
-            item = row(1: index(row, sepa)-1)
-        else
-            item = row(1: len_trim(row))
-        end if
+    cnt = 0
+    do
+        if (jj > nbVars + bFileMetadata%numTsCol - 1) exit
+        select case(index(row, sepa))
+            case(0)
+                item = row(1: len_trim(row))
+            case(1)
+                !> Eliminate leading separator
+                row = row(2:len_trim(row))
+                cycle
+            case default
+                item = row(1: index(row, sepa)-1)
+        end select
 
-        !> If item is empty, something went wrong, so
-        !> exit with error
-        if (j < nbVars + bFileMetadata%numTsCol .and. len_trim(item) == 0) then
-            skip_row = .true.
-            return
-        end if
+        !> If item is empty, cycle
+        if (jj < nbVars + bFileMetadata%numTsCol - 1 .and. len_trim(item) == 0) cycle
+        jj = jj + 1
 
         !> Eliminate item from row
         row = row(len_trim(item)+2: len_trim(row))
 
         !> If row is now empty, something went wrong (row was too short), so
         !> exit with error
-        if (j < nbVars + bFileMetadata%numTsCol .and. len_trim(row) == 0) then
+        if (jj < nbVars + bFileMetadata%numTsCol .and. len_trim(row) == 0) then
             skip_row = .true.
             return
         end if
 
         !> From item, extract timestamp or biomet value as appropriate
-        if (any(bFileMetadata%tsCols(1:bFileMetadata%numTsCol) == j)) then
+        if (any(bFileMetadata%tsCols(1:bFileMetadata%numTsCol) == jj)) then
             tsString = trim(tsString) // trim(item)
         else
-            jj = jj + 1
-            read(item, *) vals(jj)
+            cnt = cnt + 1
+            read(item, *) vals(cnt)
         end if
     end do
 
@@ -923,7 +941,7 @@ end subroutine BiometStandardUnits
 ! \deprecated
 ! \test
 !***************************************************************************
-subroutine BiometAggretate(Set, nrow, ncol, Aggr)
+subroutine BiometAggregate(Set, nrow, ncol, Aggr)
     use m_rp_global_var
     implicit none
     !> in/out variables
@@ -946,7 +964,7 @@ subroutine BiometAggretate(Set, nrow, ncol, Aggr)
         end select
         Aggr(i) = vAggr
     end do
-end subroutine BiometAggretate
+end subroutine BiometAggregate
 
 !***************************************************************************
 !
@@ -1055,8 +1073,8 @@ subroutine biometSniffMetaFile(IniFile, skip_file)
         skip_file = .true.
         return
     else
-        !> parse the ini file and store all tags found in it
-        call StoreIniTags(udf, 'biomet_variables', Tags, nlines)
+        !> parse ini file and store all tags found in it
+        call StoreIniTags(udf, '', Tags, nlines)
         close(udf)
         nbVars = 0
         do i = 1, nlines

@@ -133,7 +133,6 @@ subroutine ImportTOB1(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nrow, nco
 
     !> Read scratch file without header
     select case (FileInterpreter%tob1_format)
-
         case('IEEE4')
             open(udf, file = OnlyDataPath(1:len_trim(OnlyDataPath)), status = 'old', &
                 access='direct', form = 'unformatted', recl = 4)

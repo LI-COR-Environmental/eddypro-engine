@@ -46,14 +46,14 @@ subroutine BiometRetrieveEmbeddedData(proceed, printout)
 
     if (proceed) then
         if (printout) write(LogInteger, '(i3)') nbRecs
-        if (printout) write(*, '(a)') '   ' // trim(adjustl(LogInteger )) &
+        if (printout) write(*, '(a)') '   ' // trim(adjustl(LogInteger)) &
             // ' biomet records imported.'
 
         !> Convert data to standard units
         call BiometStandardEddyProUnits()
 
         !> Aggregate biomet variables over the averaging interval
-        call BiometAggretate(bSet, size(bSet, 1), size(bSet, 2), bAggr)
+        call BiometAggregate(bSet, size(bSet, 1), size(bSet, 2), bAggr)
 
         !> Convert aggregated values to FLUXNET units
         call BiometStandardFluxnetUnits()

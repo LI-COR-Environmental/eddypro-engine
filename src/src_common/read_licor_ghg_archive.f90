@@ -86,7 +86,6 @@ subroutine ReadLicorGhgArchive(ZipFile, FirstRecord, LastRecord, LocCol, &
             call ReadBiometMetaFile(BiometMetaFile, skip_biomet_file)
             if (.not. skip_biomet_file) &
                 call ReadBiometFile(BiometFile, skip_biomet_file)
-
             if (skip_biomet_file) &
                 call ExceptionHandler(44)
         end if
@@ -102,6 +101,7 @@ subroutine ReadLicorGhgArchive(ZipFile, FirstRecord, LastRecord, LocCol, &
         call ReadMetadataFile(LocCol, MetaFile, skip_file)
         if (skip_file) return
         if (DataIsNeeded) then
+
             !> If it's in the raw file processing loop, define used variables
             !> based on variables already identified (LocBypassCol)
             call RetrieveVarsSelection(LocBypassCol, LocCol)

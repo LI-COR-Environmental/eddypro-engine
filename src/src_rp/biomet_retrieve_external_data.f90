@@ -76,7 +76,6 @@ subroutine BiometRetrieveExternalData(bFileList, bnFiles, bLastFile, &
     !>Start from last visited file in bFileList
     cnt = 0
     file_loop: do nfl = bLastFile, bnFiles
-
         !> Cycle if current bFile does not have timestamp attached to it
         if (bFileList(nfl)%timestamp == nullTimestamp) cycle file_loop
 
@@ -150,7 +149,7 @@ subroutine BiometRetrieveExternalData(bFileList, bnFiles, bLastFile, &
         call BiometStandardEddyProUnits()
 
         !> Calculate mean values of biomet over the averaging interval
-        call BiometAggretate(bSet, size(bSet, 1), size(bSet, 2), bAggr)
+        call BiometAggregate(bSet, size(bSet, 1), size(bSet, 2), bAggr)
 
         !> Convert aggregated values to FLUXNET units
         call BiometStandardFluxnetUnits()

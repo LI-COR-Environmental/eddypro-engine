@@ -205,7 +205,7 @@ subroutine ImportCurrentPeriod(InitialTimestamp, FinalTimestamp, FileList, &
             Raw(pN + 1: pN + N, :) = fRaw(1:N, :)
             pN = pN + N
 
-            !> Biomet date handling
+            !> Biomet data handling
             if (BiometIsNeeded .and. fnbRecs > 0) then
 
                 !> substitute NaN and Inf with error code
@@ -260,7 +260,6 @@ subroutine ImportCurrentPeriod(InitialTimestamp, FinalTimestamp, FileList, &
     !> Define NextFile
     NextFile = CurrentFile
     N = pN
-
     MetaIsNeeded = InitialMetaIsNeeded
     if (nbRecs > 0) bDataFound = .true.
 

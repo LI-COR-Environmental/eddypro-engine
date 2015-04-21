@@ -263,7 +263,7 @@ subroutine ExceptionHandler(error_code)
             write(*,*) '  Warning(72)> No valid biomet record found for this period.'
         case(73)
             write(*,*) '  Error(73)> The label of at least one biomet variable misses'
-            write(*,*) '  Error(73)> or has incomplete metadata indication ("_x_x_x" suffix).'
+            write(*,*) '  Error(73)> or has incomplete positional qualifier ("_x_y_z" suffix).'
             write(*,*) '  Error(73)> EddyPro will proceed without using biomet data.'
         case(74)
             write(*,*) '  Error(74)> No valid binned (co)spectra files were found'

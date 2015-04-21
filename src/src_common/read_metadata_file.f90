@@ -91,6 +91,7 @@ subroutine WriteEddyProMetadataVariables(LocCol)
     !> Altitude cannot be lower than Dead Sea or higher than top of
     !> Mount Everest (which includes reasonable flying altitudes)
     if (Metadata%alt < -428d0 .or. Metadata%alt > 8850d0) then
+        write(*,*)
         call ExceptionHandler(80)
         Metadata%alt = 0d0
     end if
@@ -103,8 +104,8 @@ subroutine WriteEddyProMetadataVariables(LocCol)
     Metadata%lat = dble(ANTags(2)%value)
 
     !> Latitude cannot be less than -90 or more than 90
-    if (Metadata%lat < -90d0 .or. Metadata%lat > 90d0 &
-        .or. Metadata%lat == 0d0) then
+    if (Metadata%lat < -90d0 .or. Metadata%lat > 90d0) then
+        write(*,*)
         call ExceptionHandler(81)
         Metadata%lat = 0.001d0
     end if
@@ -112,8 +113,9 @@ subroutine WriteEddyProMetadataVariables(LocCol)
     !> Longitude[deg]
     Metadata%lon = dble(ANTags(3)%value)
 
-    !> Longitude cannot be less than -1800 or more than 180
+    !> Longitude cannot be less than -180 or more than 180
     if (Metadata%lon < -180d0 .or. Metadata%lon > 180d0) then
+        write(*,*)
         call ExceptionHandler(82)
         Metadata%lon = 0.001d0
     end if
