@@ -235,7 +235,7 @@ subroutine ImportTOB1(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nrow, nco
     !> If a column was found with weird values, reads the file again with another chunk size
     if(repeat) then
         open(udf, file = Filepath(1:len_trim(Filepath)), status = 'old', &
-            access='direct', form = 'unformatted', recl = 8195)
+            access='direct', form = 'unformatted', recl = 8193)
 
         if (FileInterpreter%header_rows > 0) then
 
