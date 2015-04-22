@@ -138,11 +138,11 @@ subroutine ReadLicorGhgArchive(ZipFile, FirstRecord, LastRecord, LocCol, &
     end if
 
     !> Delete data and metadata files
-    comm = (comm_del // DataFile(1:len_trim(DataFile)) // ' ' &
+    comm = (trim(comm_del) // ' ' // DataFile(1:len_trim(DataFile)) // ' ' &
         // trim(adjustl(MetaFile)) // ' ' &
         // trim(adjustl(BiometFile)) // ' ' &
         // trim(adjustl(BiometMetaFile)) &
         // ' *.status ' // comm_err_redirect)
-    del_status = system(comm)
 
+    del_status = system(trim(comm))
 end subroutine ReadLicorGhgArchive

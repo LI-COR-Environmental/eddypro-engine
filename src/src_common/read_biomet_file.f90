@@ -57,6 +57,7 @@ subroutine ReadBiometFile(BiometFile, skip_file)
     open(udf, file = BiometFile, iostat = open_status)
     if (open_status /= 0) then
         skip_file = .true.
+        close(udf)
         return
     end if
 
@@ -89,5 +90,6 @@ subroutine ReadBiometFile(BiometFile, skip_file)
             size(fbSet, 2), skip_row)
         if (skip_row) cycle
     end do
+    close(udf)
 end subroutine ReadBiometFile
 

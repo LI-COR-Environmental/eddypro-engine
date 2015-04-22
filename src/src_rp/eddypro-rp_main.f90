@@ -1548,7 +1548,6 @@ program EddyproRP
                     call InitBiometOut()
                     initializeBiometOut  = .false.
                 end if
-
                 !> Write biomet output
                 call WriteOutBiomet(suffixOutString)
             end if
@@ -2012,7 +2011,6 @@ program EddyproRP
             !**** RAW DATA REDUCTION FINISHES HERE *****************************
             !**** CALCULATE AND OUTPUT CO-SPECTRA  *****************************
             !*******************************************************************
-
             if (RPsetup%do_spectral_analysis) then
                 SpecCol = E2Col
                 !> Replace gaps with linear interpolation of neighbouring data
@@ -2163,7 +2161,6 @@ program EddyproRP
     !**** FLUX COMPUTATION FINISHES HERE.                      *****************
     !**** NOW STARTS DATASET CREATION AND OUTPUT FILE HANDLING *****************
     !***************************************************************************
-
     close(ust1)
     close(ust2)
     close(ust3)

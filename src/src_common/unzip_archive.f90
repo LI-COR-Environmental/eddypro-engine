@@ -144,12 +144,4 @@ subroutine UnZipArchive(ZipFile, MetaExt, DataExt, MetaFile, DataFile, &
     call basename(TmpString, DataFile, slash)
     TmpString = BiometFile
     call basename(TmpString, BiometFile, slash)
-
-    !> Fast metadata and data file names definition, based on zip file name
-    !> Less robust
-    !ZipFileNameBody = ZipFile(index(ZipFile, slash, .true.) + 1: len_trim(ZipFile) - 3)
-    !MetaFile = ZipFileNameBody(1:len_trim(ZipFileNameBody)) // MetaExt
-    !DataFile = ZipFileNameBody(1:len_trim(ZipFileNameBody))  // DataExt
-    !BiometFile = ZipFileNameBody(1:len_trim(ZipFileNameBody))  // BiometExt
-    !BiometMetaFile = ZipFileNameBody(1:len_trim(ZipFileNameBody))  // BiometMetaExt
 end subroutine UnZipArchive

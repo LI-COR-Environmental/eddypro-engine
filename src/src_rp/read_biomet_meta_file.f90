@@ -172,12 +172,16 @@ subroutine WriteBiometMetaVariables(skip_file)
                 bVars(cnt)%instr    = trim(adjustl(BiometCTags(ix + 2)%value))
                 bVars(cnt)%unit_in  = trim(adjustl(BiometCTags(ix + 3)%value))
                 call uppercase(bVars(cnt)%unit_in)
+
                 !> Check validity of biomet variable label
-                if (.not. BiometValidateVar(bVars(cnt))) then
-                    call ExceptionHandler(73)
-                    skip_file = .true.
-                    return
-                end if
+                !if (.not. BiometValidateVar(bVars(cnt))) then
+                !    call ExceptionHandler(73)
+                !    skip_file = .true.
+                !    return
+                !end if
+
+                if (len_trim(bVars(cnt)%label) == 0) bVars(cnt)%label = bVars(cnt)%id
+
                 !> Retrieve variable base name
                 bVars(cnt)%base_name = biometBaseName(bVars(cnt)%label)
            end if
@@ -194,12 +198,6 @@ subroutine WriteBiometMetaVariables(skip_file)
         bFileMetadata%tsIso = .true.
     end if
     bFileMetadata%numTsCol = tsCnt
-
-    !> If variable has no label, stick ID to label
-    where (len_trim(bVars(:)%label) == 0)
-        bVars(:)%label = bVars(:)%id
-        bVars(:)%base_name = bVars(:)%id
-    end where
 
     !> Append suffix if variables have not
     call BiometAppendLocationSuffix()

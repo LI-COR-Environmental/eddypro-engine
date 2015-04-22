@@ -1193,8 +1193,10 @@ character(32) function biometBaseName(bLabel) result(base_name)
             s = s(index(s, '_') + 1: len_trim(s))
         end do
         base_name = base_name(1:len_trim(base_name)-1)
-    else
+    elseif (n == 3) then
         base_name = s(1:index(s, '_')-1)
+    else
+        base_name = trim(s)
     end if
 end function biometBaseName
 

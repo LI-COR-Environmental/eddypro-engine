@@ -31,14 +31,14 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine CreateDatasetsRP(MasterTimeSeries, nrow, rpStartIndx, rpEndIndx)
+subroutine CreateDatasetsRP(TimeSeries, nrow, StartIndx, EndIndx)
     use m_rp_global_var
     implicit none
     !> in/out variables
     integer, intent(in) :: nrow
-    integer, intent(in) :: rpStartIndx
-    integer, intent(in) :: rpEndIndx
-    type (DateType), intent(in) :: MasterTimeSeries(nrow)
+    integer, intent(in) :: StartIndx
+    integer, intent(in) :: EndIndx
+    type (DateType), intent(in) :: TimeSeries(nrow)
     !> local variables
     integer :: del_status
     integer :: tmp_indx
@@ -51,8 +51,8 @@ subroutine CreateDatasetsRP(MasterTimeSeries, nrow, rpStartIndx, rpEndIndx)
     if (RPsetup%out_st(1)) then
         write(*,'(a)', advance = 'no') '  Creating Level 1 Statistics dataset..'
         call MakeDataset(St1_Path(1:len_trim(St1_Path)), &
-            MasterTimeSeries, size(MasterTimeSeries), &
-            rpStartIndx, rpEndIndx, .true., 2)
+            TimeSeries, size(TimeSeries), &
+            StartIndx, EndIndx, .true., 2)
         write(*,'(a)') ' Done.'
     end if
 
@@ -60,8 +60,8 @@ subroutine CreateDatasetsRP(MasterTimeSeries, nrow, rpStartIndx, rpEndIndx)
     if (RPsetup%out_st(2)) then
         write(*,'(a)', advance = 'no') '  Creating Level 2 Statistics dataset..'
         call MakeDataset(St2_Path(1:len_trim(St2_Path)), &
-            MasterTimeSeries, size(MasterTimeSeries), &
-            rpStartIndx, rpEndIndx, .true., 2)
+            TimeSeries, size(TimeSeries), &
+            StartIndx, EndIndx, .true., 2)
         write(*,'(a)') ' Done.'
     end if
 
@@ -69,8 +69,8 @@ subroutine CreateDatasetsRP(MasterTimeSeries, nrow, rpStartIndx, rpEndIndx)
     if (RPsetup%out_st(3)) then
         write(*,'(a)', advance = 'no') '  Creating Level 3 Statistics dataset..'
         call MakeDataset(St3_Path(1:len_trim(St3_Path)), &
-            MasterTimeSeries, size(MasterTimeSeries), &
-            rpStartIndx, rpEndIndx, .true., 2)
+            TimeSeries, size(TimeSeries), &
+            StartIndx, EndIndx, .true., 2)
         write(*,'(a)') ' Done.'
     end if
 
@@ -78,8 +78,8 @@ subroutine CreateDatasetsRP(MasterTimeSeries, nrow, rpStartIndx, rpEndIndx)
     if (RPsetup%out_st(4)) then
         write(*,'(a)', advance = 'no') '  Creating Level 4 Statistics dataset..'
         call MakeDataset(St4_Path(1:len_trim(St4_Path)), &
-            MasterTimeSeries, size(MasterTimeSeries), &
-            rpStartIndx, rpEndIndx, .true., 2)
+            TimeSeries, size(TimeSeries), &
+            StartIndx, EndIndx, .true., 2)
         write(*,'(a)') ' Done.'
     end if
 
@@ -87,8 +87,8 @@ subroutine CreateDatasetsRP(MasterTimeSeries, nrow, rpStartIndx, rpEndIndx)
     if (RPsetup%out_st(5)) then
         write(*,'(a)', advance = 'no') '  Creating Level 5 Statistics dataset..'
         call MakeDataset(St5_Path(1:len_trim(St5_Path)), &
-            MasterTimeSeries, size(MasterTimeSeries), &
-            rpStartIndx, rpEndIndx, .true., 2)
+            TimeSeries, size(TimeSeries), &
+            StartIndx, EndIndx, .true., 2)
         write(*,'(a)') ' Done.'
     end if
 
@@ -96,8 +96,8 @@ subroutine CreateDatasetsRP(MasterTimeSeries, nrow, rpStartIndx, rpEndIndx)
     if (RPsetup%out_st(6)) then
         write(*,'(a)', advance = 'no') '  Creating Level 6 Statistics dataset..'
         call MakeDataset(St6_Path(1:len_trim(St6_Path)), &
-            MasterTimeSeries, size(MasterTimeSeries), &
-            rpStartIndx, rpEndIndx, .true., 2)
+            TimeSeries, size(TimeSeries), &
+            StartIndx, EndIndx, .true., 2)
         write(*,'(a)') ' Done.'
     end if
 
@@ -105,8 +105,8 @@ subroutine CreateDatasetsRP(MasterTimeSeries, nrow, rpStartIndx, rpEndIndx)
     if (RPsetup%out_st(7)) then
         write(*,'(a)', advance = 'no') '  Creating Level 7 Statistics dataset..'
         call MakeDataset(St7_Path(1:len_trim(St7_Path)), &
-            MasterTimeSeries, size(MasterTimeSeries), &
-            rpStartIndx, rpEndIndx, .true., 2)
+            TimeSeries, size(TimeSeries), &
+            StartIndx, EndIndx, .true., 2)
         write(*,'(a)') ' Done.'
     end if
 
@@ -116,8 +116,8 @@ subroutine CreateDatasetsRP(MasterTimeSeries, nrow, rpStartIndx, rpEndIndx)
             write(*,'(a)', advance = 'no') &
                 '  Creating Level 1 Statistics dataset for user variables..'
             call MakeDataset(UserSt1_Path(1:len_trim(UserSt1_Path)), &
-                MasterTimeSeries, size(MasterTimeSeries), &
-                rpStartIndx, rpEndIndx, .true., 2)
+                TimeSeries, size(TimeSeries), &
+                StartIndx, EndIndx, .true., 2)
             write(*,'(a)') ' Done.'
         end if
 
@@ -125,8 +125,8 @@ subroutine CreateDatasetsRP(MasterTimeSeries, nrow, rpStartIndx, rpEndIndx)
             write(*,'(a)', advance = 'no') &
                 '  Creating Level 2 Statistics dataset for user variables..'
             call MakeDataset(UserSt2_Path(1:len_trim(UserSt2_Path)), &
-                MasterTimeSeries, size(MasterTimeSeries), &
-                rpStartIndx, rpEndIndx, .true., 2)
+                TimeSeries, size(TimeSeries), &
+                StartIndx, EndIndx, .true., 2)
             write(*,'(a)') ' Done.'
         end if
 
@@ -134,8 +134,8 @@ subroutine CreateDatasetsRP(MasterTimeSeries, nrow, rpStartIndx, rpEndIndx)
             write(*,'(a)', advance = 'no') &
                 '  Creating Level 3 Statistics dataset for user variables..'
             call MakeDataset(UserSt3_Path(1:len_trim(UserSt3_Path)), &
-                MasterTimeSeries, size(MasterTimeSeries), &
-                rpStartIndx, rpEndIndx, .true., 2)
+                TimeSeries, size(TimeSeries), &
+                StartIndx, EndIndx, .true., 2)
             write(*,'(a)') ' Done.'
         end if
 
@@ -143,8 +143,8 @@ subroutine CreateDatasetsRP(MasterTimeSeries, nrow, rpStartIndx, rpEndIndx)
             write(*,'(a)', advance = 'no') &
                 '  Creating Level 4 Statistics dataset for user variables..'
             call MakeDataset(UserSt4_Path(1:len_trim(UserSt4_Path)), &
-                MasterTimeSeries, size(MasterTimeSeries), &
-                rpStartIndx, rpEndIndx, .true., 2)
+                TimeSeries, size(TimeSeries), &
+                StartIndx, EndIndx, .true., 2)
             write(*,'(a)') ' Done.'
         end if
 
@@ -152,8 +152,8 @@ subroutine CreateDatasetsRP(MasterTimeSeries, nrow, rpStartIndx, rpEndIndx)
             write(*,'(a)', advance = 'no') &
                 '  Creating Level 5 Statistics dataset for user variables..'
             call MakeDataset(UserSt5_Path(1:len_trim(UserSt5_Path)), &
-                MasterTimeSeries, size(MasterTimeSeries), &
-                rpStartIndx, rpEndIndx, .true., 2)
+                TimeSeries, size(TimeSeries), &
+                StartIndx, EndIndx, .true., 2)
             write(*,'(a)') ' Done.'
         end if
 
@@ -161,8 +161,8 @@ subroutine CreateDatasetsRP(MasterTimeSeries, nrow, rpStartIndx, rpEndIndx)
             write(*,'(a)', advance = 'no') &
                 '  Creating Level 6 Statistics dataset for user variables..'
             call MakeDataset(UserSt6_Path(1:len_trim(UserSt6_Path)), &
-                MasterTimeSeries, size(MasterTimeSeries), &
-                rpStartIndx, rpEndIndx, .true., 2)
+                TimeSeries, size(TimeSeries), &
+                StartIndx, EndIndx, .true., 2)
             write(*,'(a)') ' Done.'
         end if
 
@@ -170,8 +170,8 @@ subroutine CreateDatasetsRP(MasterTimeSeries, nrow, rpStartIndx, rpEndIndx)
             write(*,'(a)', advance = 'no') &
                 '  Creating Level 7 Statistics dataset for user variables..'
             call MakeDataset(UserSt7_Path(1:len_trim(UserSt7_Path)), &
-                MasterTimeSeries, size(MasterTimeSeries), &
-                rpStartIndx, rpEndIndx, .true., 2)
+                TimeSeries, size(TimeSeries), &
+                StartIndx, EndIndx, .true., 2)
             write(*,'(a)') ' Done.'
         end if
     end if
@@ -203,8 +203,8 @@ subroutine CreateDatasetsRP(MasterTimeSeries, nrow, rpStartIndx, rpEndIndx)
     if(RPsetup%out_qc_details .and. Meth%qcflag /= 'none') then
         write(*,'(a)', advance = 'no') '  Creating QC details dataset..'
         call MakeDataset(QCdetails_Path(1:len_trim(QCdetails_Path)), &
-            MasterTimeSeries, size(MasterTimeSeries), &
-            rpStartIndx, rpEndIndx, .true., 3)
+            TimeSeries, size(TimeSeries), &
+            StartIndx, EndIndx, .true., 3)
         write(*,'(a)') ' Done.'
     end if
 
@@ -212,8 +212,8 @@ subroutine CreateDatasetsRP(MasterTimeSeries, nrow, rpStartIndx, rpEndIndx)
     if (EddyProProj%out_biomet .and. nbVars > 0) then
         write(*,'(a)', advance = 'no') '  Creating Biomet dataset..'
         call MakeDataset(Biomet_Path(1:len_trim(Biomet_Path)), &
-            MasterTimeSeries, size(MasterTimeSeries), &
-            rpStartIndx, rpEndIndx, .false., 2)
+            TimeSeries, size(TimeSeries), &
+            StartIndx, EndIndx, .false., 2)
         write(*,'(a)') ' Done.'
     end if
 

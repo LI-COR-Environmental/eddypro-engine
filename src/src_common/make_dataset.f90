@@ -81,7 +81,7 @@ subroutine MakeDataset(PathIn, MasterTimeSeries, nrow, StartIndx, &
         return
     end if
 
-    !> Copy header from input file and copy it to output file
+    !> Copy header from input file and paste it to output file
     do i = 1, hnrow
         read(udf, '(a)', iostat = read_status) dataline
         call latin1_to_utf8(dataline, dataline_utf8)
@@ -94,15 +94,6 @@ subroutine MakeDataset(PathIn, MasterTimeSeries, nrow, StartIndx, &
     periods_loop: do i = StartIndx, EndIndx
         !> Search for current time step in the file
         do
-            if (MasterTimeSeries(i) > fTimestamp + DateStep) then
-                call AddErrorString(udf2, MasterTimeSeries(i), &
-                    ErrString, len(ErrString), &
-                    PathIn == trim(adjustl(FLUXNET_EDDY_Path)) &
-                    .or. PathIn == trim(adjustl(FLUXNET_BIOMET_Path)) , &
-                    AddNoFile)
-                cycle periods_loop
-            end if
-
             !> Read the data string
             read(udf, '(a)', iostat = read_status) dataline
 
@@ -127,6 +118,15 @@ subroutine MakeDataset(PathIn, MasterTimeSeries, nrow, StartIndx, &
             !> beginning of the averaging period
             call DateTimeToDateType(fdate, ftime, fTimestamp)
             fTimestamp = fTimestamp - DateStep
+
+            if (MasterTimeSeries(i) > fTimestamp + DateStep) then
+                call AddErrorString(udf2, MasterTimeSeries(i), &
+                    ErrString, len(ErrString), &
+                    PathIn == trim(adjustl(FLUXNET_EDDY_Path)) &
+                    .or. PathIn == trim(adjustl(FLUXNET_BIOMET_Path)) , &
+                    AddNoFile)
+                cycle periods_loop
+            end if
 
             !> Check if fTimestamp is equal to current time step timestamp
             if(fTimestamp == MasterTimeSeries(i)) then
