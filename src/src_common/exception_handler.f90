@@ -302,7 +302,7 @@ subroutine ExceptionHandler(error_code)
             write(*,*) ' Error(85)> Roughness length  defaulted to 0.15 times the canopy height.'
         case(86)
             write(*,*) ' Fatal error(86)> Could not retrieve files from directory. Either directory does not exist'
-            write(*,*) ' Fatal error(86)> or it does not contains files matching the selected requirements.'
+            write(*,*) ' Fatal error(86)> or it does not contain files matching the selected requirements.'
             write(*,*) ' Fatal error(86)> Program execution aborted.'
             stop 1
         case(87)
