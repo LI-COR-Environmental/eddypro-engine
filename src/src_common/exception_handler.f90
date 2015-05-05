@@ -299,7 +299,8 @@ subroutine ExceptionHandler(error_code)
             write(*,*) ' Error(84)> Displacement height defaulted to 0.67 times the canopy height.'
         case(85)
             write(*,*) ' Error(85)> Implausible roughness length value detected.'
-            write(*,*) ' Error(85)> Roughness length  defaulted to 0.15 times the canopy height.'
+            write(*,*) ' Error(85)> Roughness length  defaulted to 0.15 times the canopy height,'
+            write(*,*) ' Error(85)> or to 1.0mm if canopy height is zero.'
         case(86)
             write(*,*) ' Fatal error(86)> Could not retrieve files from directory. Either directory does not exist'
             write(*,*) ' Fatal error(86)> or it does not contain files matching the selected requirements.'

@@ -132,7 +132,7 @@ subroutine WriteEddyProMetadataVariables(LocCol)
     !> Displacement height [m]
     Metadata%d = dble(ANTags(5)%value)
 
-    !> Displacement height cannot be < 0 or larger than canopy height
+    !> Displacement height cannot be <= 0 or larger than canopy height
     if (Metadata%d < 0d0 .or. Metadata%d > Metadata%canopy_height) then
         call ExceptionHandler(84)
         Metadata%d = Metadata%canopy_height * 0.67d0
@@ -141,10 +141,11 @@ subroutine WriteEddyProMetadataVariables(LocCol)
     !> Roughness length [m]
     Metadata%z0 = dble(ANTags(6)%value)
 
-    !> Roughness length cannot be < 0 or larger than canopy height
-    if (Metadata%z0 < 0d0 .or. Metadata%z0 > Metadata%canopy_height) then
+    !> Roughness length cannot be <= 0 or larger than canopy height
+    if (Metadata%z0 <= 0d0 .or. Metadata%z0 > Metadata%canopy_height) then
+        write(*,*)
         call ExceptionHandler(85)
-        Metadata%z0 = Metadata%canopy_height * 0.15d0
+        Metadata%z0 = max(Metadata%canopy_height * 0.15d0, 0.001d0)
     end if
 
     !> Further meta info
