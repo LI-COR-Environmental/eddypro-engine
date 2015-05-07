@@ -31,12 +31,13 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine ReadMetadataFile(LocCol, MetaFile, IniFileNotFound)
+subroutine ReadMetadataFile(LocCol, MetaFile, IniFileNotFound, printout)
     use m_common_global_var
     implicit none
     !> in/out variables
     character(*), intent(in) :: MetaFile
     type(ColType), intent(inout) :: LocCol(MaxNumCol)
+    logical, intent(in) :: printout
     logical, intent(out) :: IniFileNotFound
 
 
@@ -46,7 +47,7 @@ subroutine ReadMetadataFile(LocCol, MetaFile, IniFileNotFound)
 
     !> selects only tags needed in this software,
     !> and store them in relevant variables
-    call WriteEddyProMetadataVariables(LocCol)
+    call WriteEddyProMetadataVariables(LocCol, printout)
 end subroutine ReadMetadataFile
 
 !***************************************************************************
@@ -61,10 +62,11 @@ end subroutine ReadMetadataFile
 ! \test
 ! \todo
 !***************************************************************************
-subroutine WriteEddyProMetadataVariables(LocCol)
+subroutine WriteEddyProMetadataVariables(LocCol, printout)
     use m_common_global_var
     implicit none
     !> in/out variables
+    logical, intent(in) :: printout
     type(ColType), intent(inout) :: LocCol(MaxNumCol)
     !> local variables
     integer :: init_ac_instr
@@ -79,6 +81,7 @@ subroutine WriteEddyProMetadataVariables(LocCol)
     integer :: i = 0
     integer :: j = 0
 
+
     Metadata%sitename = trim(adjustl(ACTags(9)%value))
     Metadata%canopy_height = 0d0
     Metadata%d = 0d0
@@ -91,7 +94,6 @@ subroutine WriteEddyProMetadataVariables(LocCol)
     !> Altitude cannot be lower than Dead Sea or higher than top of
     !> Mount Everest (which includes reasonable flying altitudes)
     if (Metadata%alt < -428d0 .or. Metadata%alt > 8850d0) then
-        write(*,*)
         call ExceptionHandler(80)
         Metadata%alt = 0d0
     end if
@@ -105,8 +107,7 @@ subroutine WriteEddyProMetadataVariables(LocCol)
 
     !> Latitude cannot be less than -90 or more than 90
     if (Metadata%lat < -90d0 .or. Metadata%lat > 90d0) then
-        write(*,*)
-        call ExceptionHandler(81)
+        if (printout) call ExceptionHandler(81)
         Metadata%lat = 0.001d0
     end if
 
@@ -115,8 +116,7 @@ subroutine WriteEddyProMetadataVariables(LocCol)
 
     !> Longitude cannot be less than -180 or more than 180
     if (Metadata%lon < -180d0 .or. Metadata%lon > 180d0) then
-        write(*,*)
-        call ExceptionHandler(82)
+        if (printout) call ExceptionHandler(82)
         Metadata%lon = 0.001d0
     end if
 
@@ -125,7 +125,7 @@ subroutine WriteEddyProMetadataVariables(LocCol)
 
     !> Canopy height cannot be less than 0
     if (Metadata%canopy_height < 0d0) then
-        call ExceptionHandler(83)
+        if (printout) call ExceptionHandler(83)
         Metadata%canopy_height = 0d0
     end if
 
@@ -134,7 +134,7 @@ subroutine WriteEddyProMetadataVariables(LocCol)
 
     !> Displacement height cannot be <= 0 or larger than canopy height
     if (Metadata%d < 0d0 .or. Metadata%d > Metadata%canopy_height) then
-        call ExceptionHandler(84)
+        if (printout) call ExceptionHandler(84)
         Metadata%d = Metadata%canopy_height * 0.67d0
     end if
 
@@ -143,8 +143,7 @@ subroutine WriteEddyProMetadataVariables(LocCol)
 
     !> Roughness length cannot be <= 0 or larger than canopy height
     if (Metadata%z0 <= 0d0 .or. Metadata%z0 > Metadata%canopy_height) then
-        write(*,*)
-        call ExceptionHandler(85)
+        if (printout) call ExceptionHandler(85)
         Metadata%z0 = max(Metadata%canopy_height * 0.15d0, 0.001d0)
     end if
 

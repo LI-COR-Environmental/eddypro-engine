@@ -181,6 +181,7 @@ subroutine WriteBiometMetaVariables(skip_file)
                 !end if
 
                 if (len_trim(bVars(cnt)%label) == 0) bVars(cnt)%label = bVars(cnt)%id
+                if (len_trim(bVars(cnt)%label) == 0) bVars(cnt)%label = 'UNNAMED'
 
                 !> Retrieve variable base name
                 bVars(cnt)%base_name = biometBaseName(bVars(cnt)%label)

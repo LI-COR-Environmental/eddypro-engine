@@ -31,7 +31,7 @@
 !***************************************************************************
 subroutine ReadLicorGhgArchive(ZipFile, FirstRecord, LastRecord, LocCol, &
     LocBypassCol, MetaIsNeeded, BiometIsNeeded, DataIsNeeded, ValidateMetadata, &
-    fRaw, nrow, ncol, skip_file, passed, faulty_col, N, FileEndReached)
+    fRaw, nrow, ncol, skip_file, passed, faulty_col, N, FileEndReached, printout)
 
     use m_common_global_var
     implicit none
@@ -44,6 +44,7 @@ subroutine ReadLicorGhgArchive(ZipFile, FirstRecord, LastRecord, LocCol, &
     logical, intent(in) :: BiometIsNeeded
     logical, intent(in) :: DataIsNeeded
     logical, intent(in) :: ValidateMetadata
+    logical, intent(in) :: printout
     integer, intent(out) :: N
     integer, intent(out) :: faulty_col
     real(kind = sgl), intent(out) :: fRaw(nrow, ncol)
@@ -98,7 +99,7 @@ subroutine ReadLicorGhgArchive(ZipFile, FirstRecord, LastRecord, LocCol, &
             skip_file = .true.
             return
         end if
-        call ReadMetadataFile(LocCol, MetaFile, skip_file)
+        call ReadMetadataFile(LocCol, MetaFile, skip_file, printout)
         if (skip_file) return
         if (DataIsNeeded) then
 

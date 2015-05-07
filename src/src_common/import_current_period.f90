@@ -159,7 +159,7 @@ subroutine ImportCurrentPeriod(InitialTimestamp, FinalTimestamp, FileList, &
                     BiometIsNeeded, EddyProProj%run_mode /= 'md_retrieval', &
                     EddyProProj%run_mode /= 'md_retrieval', &
                     fRaw, size(fRaw, 1), size(fRaw, 2), skip_file, passed, &
-                    faulty_col, N, FileEndReached)
+                    faulty_col, N, FileEndReached, .true.)
 
                 !> File skip control
                 if (skip_file .or. (.not.passed(1))) then

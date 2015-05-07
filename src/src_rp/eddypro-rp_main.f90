@@ -264,7 +264,7 @@ program EddyproRP
         !> explicitly selects an alternative metadata file
         write(*,'(a)', advance = 'no') ' Reading alternative metadata file: "' &
             // AuxFile%metadata(1:len_trim(AuxFile%metadata)) // '"..'
-        call ReadMetadataFile(Col, AuxFile%metadata, IniFileNotFound)
+        call ReadMetadataFile(Col, AuxFile%metadata, IniFileNotFound, .true.)
         if (IniFileNotFound) then
             write(*, *)
             call ExceptionHandler(22)
@@ -294,7 +294,7 @@ program EddyproRP
                     BypassCol, .true., .false., .false., &
                     EddyProProj%run_mode /= 'md_retrieval', &
                     Raw, size(Raw, 1), size(Raw, 2), skip_period, passed, &
-                    faulty_col, PeriodRecords, FileEndReached)
+                    faulty_col, PeriodRecords, FileEndReached, .false.)
                 if (.not. skip_period .and. passed(1)) exit
                 i = i + 1
                 call InformOfMetadataProblem(passed, faulty_col)
