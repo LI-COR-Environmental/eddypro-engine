@@ -242,7 +242,7 @@ Program EddyproFCC
         end if
 
         !> Some logging
-        call DateTypeToDateTime(binStartTimestamp, sDate, sTime)
+        call DateTypeToDateTime(binStartTimestamp - DateStep, sDate, sTime)
         call DateTypeToDateTime(binEndTimestamp, eDate, eTime)
         write(*, '(a)') ''
         write(*, '(a)') '  Period covered by available binned (co)spectra files:'

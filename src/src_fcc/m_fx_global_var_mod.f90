@@ -48,7 +48,7 @@ module m_fx_global_var
 
     character(11), parameter :: fcc_app = 'EddyPro-FCC'
     character(32) :: g4lab
-    character(256) :: UserVarHeader
+    character(1024) :: UserVarHeader
     character(25), parameter :: SubDirSpecAn = 'eddypro_spectral_analysis'
 
     logical :: MeanBinSpecAvailable(MaxGasClasses, GHGNumVar)
