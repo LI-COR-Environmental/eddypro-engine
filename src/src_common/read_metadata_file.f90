@@ -94,7 +94,10 @@ subroutine WriteEddyProMetadataVariables(LocCol, printout)
     !> Altitude cannot be lower than Dead Sea or higher than top of
     !> Mount Everest (which includes reasonable flying altitudes)
     if (Metadata%alt < -428d0 .or. Metadata%alt > 8850d0) then
-        call ExceptionHandler(80)
+        if (printout) then
+            write(*, '(a)')
+            call ExceptionHandler(80)
+        end if
         Metadata%alt = 0d0
     end if
 
@@ -107,7 +110,10 @@ subroutine WriteEddyProMetadataVariables(LocCol, printout)
 
     !> Latitude cannot be less than -90 or more than 90
     if (Metadata%lat < -90d0 .or. Metadata%lat > 90d0) then
-        if (printout) call ExceptionHandler(81)
+        if (printout) then
+            write(*, '(a)')
+            call ExceptionHandler(81)
+        end if
         Metadata%lat = 0.001d0
     end if
 
@@ -116,7 +122,10 @@ subroutine WriteEddyProMetadataVariables(LocCol, printout)
 
     !> Longitude cannot be less than -180 or more than 180
     if (Metadata%lon < -180d0 .or. Metadata%lon > 180d0) then
-        if (printout) call ExceptionHandler(82)
+        if (printout) then
+            write(*, '(a)')
+            call ExceptionHandler(82)
+        end if
         Metadata%lon = 0.001d0
     end if
 
@@ -125,7 +134,10 @@ subroutine WriteEddyProMetadataVariables(LocCol, printout)
 
     !> Canopy height cannot be less than 0
     if (Metadata%canopy_height < 0d0) then
-        if (printout) call ExceptionHandler(83)
+        if (printout) then
+            write(*, '(a)')
+            call ExceptionHandler(83)
+        end if
         Metadata%canopy_height = 0d0
     end if
 
@@ -134,7 +146,10 @@ subroutine WriteEddyProMetadataVariables(LocCol, printout)
 
     !> Displacement height cannot be <= 0 or larger than canopy height
     if (Metadata%d < 0d0 .or. Metadata%d > Metadata%canopy_height) then
-        if (printout) call ExceptionHandler(84)
+        if (printout) then
+            write(*, '(a)')
+            call ExceptionHandler(84)
+        end if
         Metadata%d = Metadata%canopy_height * 0.67d0
     end if
 
@@ -143,7 +158,10 @@ subroutine WriteEddyProMetadataVariables(LocCol, printout)
 
     !> Roughness length cannot be <= 0 or larger than canopy height
     if (Metadata%z0 <= 0d0 .or. Metadata%z0 > Metadata%canopy_height) then
-        if (printout) call ExceptionHandler(85)
+        if (printout) then
+            write(*, '(a)')
+            call ExceptionHandler(85)
+        end if
         Metadata%z0 = max(Metadata%canopy_height * 0.15d0, 0.001d0)
     end if
 

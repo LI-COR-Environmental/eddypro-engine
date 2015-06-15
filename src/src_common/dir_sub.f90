@@ -82,7 +82,7 @@ logical function NameMatchesTemplate(FileName, Template, HardMatch)
     integer :: s_ts, e_ts
     logical, external :: is_not_numeric
     logical, external :: strings_match
-
+    character(1), parameter :: wild_card = '?'
 
     !> Initialization
     NameMatchesTemplate = .false.
@@ -155,15 +155,17 @@ logical function NameMatchesTemplate(FileName, Template, HardMatch)
     !> Check rest of the template if hard-match was requested
     if(HardMatch) then
         s_ts = min(s_year, s_month, s_day, s_hour, s_minute)
+
+        !> Check prefix
         if (s_ts > 1 &
             .and. .not. strings_match(Template(1:s_ts-1), &
-            Filename(1:s_ts-1), '*')) return
+            Filename(1:s_ts-1), wild_card)) return
 
         !> Check suffix
         e_ts = max(e_year, e_month, e_day, e_hour, e_minute)
         if (e_ts < len_trim(Template) - 1 &
             .and. .not. strings_match(Template(e_ts+1:len_trim(Template)), &
-            Filename(e_ts+1:len_trim(Filename)), '*')) return
+            Filename(e_ts+1:len_trim(Filename)), wild_card)) return
     end if
 
     !> If all tests were passed, filename matches template
