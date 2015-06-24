@@ -465,6 +465,7 @@ subroutine BiometEnrichVarsDescription()
                 bVars(i)%unit_out = 'M'
                 bVars(i)%pretty_unit_out = '[m]'
                 bVars(i)%fluxnet_unit_out = '[mm]'
+
             case('RUNOFF','RUN_OFF')
                 bVars(i)%fluxnet_base_name = 'RUNOFF'
                 bVars(i)%nature = 'LENGTH'

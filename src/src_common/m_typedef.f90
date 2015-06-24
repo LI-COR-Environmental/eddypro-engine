@@ -815,7 +815,6 @@ module m_typedef
 
     type :: RPsetupType
         integer :: Tconst
-        integer :: nfiles
         integer :: nspec
         integer :: avrg_len
         real(kind = dbl) :: max_lack

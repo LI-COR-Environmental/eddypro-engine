@@ -198,7 +198,7 @@ module m_rp_global_var
          SNTags(44)%Label  / 'aa_lim'        / &
          SNTags(45)%Label  / 'ns_hf_lim'     / &
          SNTags(46)%Label  / 'timeconst'     / &
-         SNTags(47)%Label  / 'nfiles'        / &
+         SNTags(47)%Label  / 'nfiles'        / &  !> no longer used
          SNTags(48)%Label  / 'nbins'         / &
          SNTags(49)%Label  / 'max_lack'      / &
          SNTags(50)%Label  / 'avrg_len'      / &

@@ -51,6 +51,7 @@ subroutine ConfigureForExpress
     RPsetup%filter_sr = .true.
     RPsetup%filter_al = .true.
     RPsetup%calib_cw = .false.
+    RPSetup%despike_vickers97 = .true.
 
     !> Raw statistical tests
     Test%sr = .true.
@@ -131,6 +132,7 @@ subroutine ConfigureForExpress
     RPsetup%out_full_sp    = .false.
     RPsetup%out_full_cosp  = .false.
     EddyProProj%out_avrg_cosp = .false.
+    EddyProProj%out_avrg_spec = .false.
     EddyProProj%fcc_follows  = .false.
     EddyProProj%make_dataset = .true.
 

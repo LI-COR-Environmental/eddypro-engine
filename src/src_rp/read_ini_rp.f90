@@ -207,9 +207,6 @@ subroutine WriteVariablesRP()
     !> Non-statiorarity of horizontal wind
     ns%hf_lim = SNTags(45)%value
 
-    !> select number of files to process together
-    RPsetup%nfiles = nint(SNTags(47)%value)
-
     !> select angle-of-attack calibration option
     select case (SCTags(12)%value(1:1))
         case ('0')
@@ -570,7 +567,7 @@ subroutine WriteVariablesRP()
     !> Burba correction params
     RPsetup%bu_corr = 'none'
     if(SCTags(65)%value == '1')  RPsetup%bu_corr = 'yes'
-    if(SCTags(65)%value == '-1') RPsetup%bu_corr = 'smart'
+    if(SCTags(65)%value == '-1') RPsetup%bu_corr = 'none'
     RPsetup%bu_multi = SCTags(66)%value(1:1) == '1'
 
     !> Whether to use power-of-two samples for FFT
