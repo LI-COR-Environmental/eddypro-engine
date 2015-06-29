@@ -216,7 +216,7 @@ subroutine NumberOfFilesInDir(DirIn, ext, MatchTemplate, Template, N, rN)
                 // Ext(1:len_trim(Ext)) // ' > ' // '"' &
                 // trim(adjustl(TmpDir)) // 'flist.tmp" ' // comm_err_redirect
         case('mac')
-            comm = 'find "' // DirIn(1:len_trim(DirIn)) &
+            comm = 'find "' // DirIn(1:len_trim(DirIn)-1) &
                 // '" -iname *' &
                 // Ext(1:len_trim(Ext)) // ' > ' // '"' &
                 // trim(adjustl(TmpDir)) // 'flist.tmp" ' // comm_err_redirect
