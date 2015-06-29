@@ -48,7 +48,7 @@ subroutine BPCF_Ibrom07(measuring_height, displ_height, loc_var_present, wind_sp
     real(kind = dbl), intent(in) :: ac_frequency
     integer, intent(in) :: avrg_length
     integer, intent(in) :: detrending_time_constant
-    character(8), intent(in) :: detrending_method
+    character(2), intent(in) :: detrending_method
     !> Optional input arguments
     type(ExType), optional, intent(in) :: lEx
     type(FCCsetupType), optional, intent(in) :: LocSetup

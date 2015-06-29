@@ -166,6 +166,36 @@ program EddyproRP
     real (kind = dbl), external :: Poly6
     integer, external :: CreateDir
 
+
+
+interface
+    subroutine BandPassSpectralCorrections(measuring_height, displ_height, loc_var_present, wind_speed, t_air, zL, &
+        ac_frequency, avrg_length, detrending_method, detrending_time_constant, printout, LocInstr, &
+        nfull, LocFileList, nrow_full, lEx, LocSetup)
+        use m_common_global_var
+        implicit none
+        real(kind = dbl), intent(in) :: measuring_height
+        real(kind = dbl), intent(in) :: displ_height
+        logical, intent(in) :: loc_var_present(GHGNumVar)
+        type(InstrumentType), intent(in) :: LocInstr(GHGNumVar)
+        real(kind = dbl), intent(in) :: wind_speed
+        real(kind = dbl), intent(in) :: t_air
+        real(kind = dbl), intent(in) :: zL
+        real(kind = dbl), intent(in) :: ac_frequency
+        integer, intent(in) :: avrg_length
+        character(2), intent(in) :: detrending_method
+        integer, intent(in) :: detrending_time_constant
+        logical, intent(in) :: printout
+        integer, intent(in) :: nfull
+        !> Optional variables
+        integer, optional, intent(in) :: nrow_full
+        type(FileListType), optional, intent(in) :: LocFileList(nfull)
+        type(ExType), optional, intent(in) :: lEx
+        type(FCCsetupType), optional, intent(in) :: LocSetup
+    end subroutine BandPassSpectralCorrections
+end interface
+
+
     !***************************************************************************
     !***************************************************************************
     !****** INITIALIZATION PART COMMON TO ALL SW COMPONENTS ********************
@@ -2088,7 +2118,7 @@ program EddyproRP
                 call BandPassSpectralCorrections(E2Col(u)%Instr%height, &
                     Metadata%d, E2Col(u:gas4)%present, Ambient%WS, Ambient%Ta, &
                     Ambient%zL, Metadata%ac_freq, RPsetup%avrg_len, Meth%det, &
-                    RPsetup%Tconst, 1, .true., E2Col(u:GHGNumVar)%instr)
+                    RPsetup%Tconst, .true., E2Col(u:GHGNumVar)%instr, 1)
 
                 !> Calculate fluxes at Level 1
                 call Fluxes1_rp()

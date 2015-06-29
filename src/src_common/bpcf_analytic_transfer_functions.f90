@@ -155,7 +155,7 @@ subroutine AnalyticHighPassTransferFunction(nf, N, var, ac_frequency, avrg_lengt
     real(kind = dbl), intent(in) :: ac_frequency
     integer, intent(in) :: avrg_length
     integer, intent(in) :: detrending_time_constant
-    character(8), intent(in) :: detrending_method
+    character(2), intent(in) :: detrending_method
     type(BPTFType), intent(out) :: BPTF(N)
     !> local variables
     real(kind = dbl) :: dt
@@ -189,7 +189,7 @@ subroutine AnalyticHighPassTransferFunction(nf, N, var, ac_frequency, avrg_lengt
                 else
                     BPTF(1:N)%HP(var) = 1d0
                 end if
-            case('rm', 'ewa')
+            case('rm', 'ew')
                 !> For the definition of eta and tau (a and t_d) see Geissler & Ibrom 2008
                 if (detrending_time_constant /= 0 .and. detrending_time_constant /= nint(error)) then
                     eta = dexp(-dt / dble(detrending_time_constant))

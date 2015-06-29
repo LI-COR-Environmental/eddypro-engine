@@ -47,7 +47,7 @@ subroutine BPCF_Moncrieff97(measuring_height, displ_height, loc_var_present, Loc
     real(kind = dbl), intent(in) :: ac_frequency
     integer, intent(in) :: avrg_length
     integer, intent(in) :: detrending_time_constant
-    character(8), intent(in) :: detrending_method
+    character(2), intent(in) :: detrending_method
     logical, intent(in) :: printout
     !> local variables
     integer :: i

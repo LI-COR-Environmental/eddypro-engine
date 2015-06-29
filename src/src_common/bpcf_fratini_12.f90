@@ -42,7 +42,7 @@ subroutine BPCF_Fratini12(loc_var_present, LocInstr, wind_speed, t_air, ac_frequ
     real(kind = dbl), intent(in) :: ac_frequency
     integer, intent(in) :: avrg_length
     integer, intent(in) :: detrending_time_constant
-    character(8), intent(in) :: detrending_method
+    character(2), intent(in) :: detrending_method
     integer, intent(in) :: nfull
     integer, intent(in) :: nfreq
     !> Optional input arguments

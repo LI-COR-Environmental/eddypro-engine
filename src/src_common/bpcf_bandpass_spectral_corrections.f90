@@ -30,8 +30,8 @@
 ! \todo
 !***************************************************************************
 subroutine BandPassSpectralCorrections(measuring_height, displ_height, loc_var_present, wind_speed, t_air, zL, &
-    ac_frequency, avrg_length, detrending_method, detrending_time_constant, nfull, printout, LocInstr, &
-    LocFileList, nrow_full, lEx, LocSetup)
+    ac_frequency, avrg_length, detrending_method, detrending_time_constant, printout, LocInstr, &
+    nfull, LocFileList, nrow_full, lEx, LocSetup)
     use m_common_global_var
     implicit none
     !> In/out variables
@@ -44,12 +44,12 @@ subroutine BandPassSpectralCorrections(measuring_height, displ_height, loc_var_p
     real(kind = dbl), intent(in) :: zL
     real(kind = dbl), intent(in) :: ac_frequency
     integer, intent(in) :: avrg_length
-    integer, intent(in) :: nrow_full
-    character(8), intent(in) :: detrending_method
+    character(2), intent(in) :: detrending_method
     integer, intent(in) :: detrending_time_constant
     logical, intent(in) :: printout
     integer, intent(in) :: nfull
     !> Optional variables
+    integer, optional, intent(in):: nrow_full
     type(FileListType), optional, intent(in) :: LocFileList(nfull)
     type(ExType), optional, intent(in) :: lEx
     type(FCCsetupType), optional, intent(in) :: LocSetup
