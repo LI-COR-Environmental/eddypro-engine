@@ -50,7 +50,7 @@ subroutine Fluctuations(Set, Primes, nrow, ncol, Tconst, LocStats, LocCol)
             call LinDetrend(Set, Primes, Tconst, LocCol, nrow, ncol)
         case('rm')
             call RunningMean(Set, Primes, Tconst, LocCol, nrow, ncol)
-        case('ewa')
+        case('ew')
             call ExpWeightAvrg(Set, Primes, Tconst, LocCol, nrow, ncol)
         case('ba')
             do var = 1, ncol

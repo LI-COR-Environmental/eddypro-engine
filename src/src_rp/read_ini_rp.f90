@@ -358,11 +358,11 @@ subroutine WriteVariablesRP()
         case ('2')
         Meth%det = 'rm'
         case ('3')
-        Meth%det = 'ewa'
+        Meth%det = 'ew'
         case default
         Meth%det = 'ba'
     end select
-    if (Meth%det == 'ld' .or. Meth%det == 'rm' .or. Meth%det == 'ewa') &
+    if (Meth%det == 'ld' .or. Meth%det == 'rm' .or. Meth%det == 'ew') &
         RPsetup%Tconst = nint(SNTags(46)%value)
 
     !> select rotation method
