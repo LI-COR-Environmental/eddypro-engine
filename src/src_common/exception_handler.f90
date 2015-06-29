@@ -66,7 +66,7 @@ subroutine ExceptionHandler(error_code)
             write(*,*)
             write(*,*) ' Error(7)> Occurred while opening INI-format file. Looking for a solution..'
         case(8)
-            write(*,*) ' Fatal error(8)> No files with the correct extension were found in the selected folder.'
+            write(*,*) ' Fatal error(8)> No files matching the specified extension were found in the selected folder.'
             write(*,*) ' Fatal error(8)> Program execution aborted.'
             stop 1
         case(14)
