@@ -6,24 +6,10 @@
 		<Option pch_mode="2" />
 		<Option compiler="gfortran" />
 		<Build>
-			<Target title="debug">
-				<Option output="../bin/debug/eddypro_rp_debug" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="../bin/debug/" />
-				<Option object_output="../obj/debug/eddypro_rp/" />
-				<Option type="1" />
-				<Option compiler="gfortran" />
-				<Compiler>
-					<Add option="-pg" />
-					<Add option="-g" />
-				</Compiler>
-				<Linker>
-					<Add option="-pg -lgmon" />
-				</Linker>
-			</Target>
 			<Target title="release">
-				<Option output="../bin/release/eddypro_rp" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="../bin/release/" />
-				<Option object_output="../obj/release/eddypro_rp/" />
+				<Option output="../bin/win/eddypro_rp" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../bin/win/" />
+				<Option object_output="../obj/win/eddypro_rp/" />
 				<Option type="1" />
 				<Option compiler="gfortran" />
 				<Compiler>

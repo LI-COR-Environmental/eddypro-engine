@@ -35,23 +35,10 @@
 			</notes>
 		</Option>
 		<Build>
-			<Target title="debug">
-				<Option output="../bin/debug/eddypro_fcc_debug" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="../bin/debug/" />
-				<Option object_output="../obj/debug/fluxes/" />
-				<Option type="1" />
-				<Option compiler="gfortran" />
-				<Compiler>
-					<Add option="-g" />
-				</Compiler>
-				<Linker>
-					<Add option="-static-libgcc -static-libgfortran" />
-				</Linker>
-			</Target>
 			<Target title="release">
-				<Option output="../bin/release/eddypro_fcc" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="../bin/release/" />
-				<Option object_output="../obj/release/fluxes/" />
+				<Option output="../bin/win/eddypro_fcc" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../bin/win/" />
+				<Option object_output="../obj/win/fluxes/" />
 				<Option type="1" />
 				<Option compiler="gfortran" />
 				<Compiler>
