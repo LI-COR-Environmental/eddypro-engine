@@ -453,6 +453,8 @@ subroutine WriteVariablesRP()
     !> Planar fit settings
     PFSetup%start_date    = SCTags(49)%value(1:len_trim(SCTags(49)%value))
     PFSetup%end_date      = SCTags(50)%value(1:len_trim(SCTags(50)%value))
+    PFSetup%start_time    = SCTags(22)%value(1:len_trim(SCTags(22)%value))
+    PFSetup%end_time      = SCTags(23)%value(1:len_trim(SCTags(23)%value))
     PFSetup%min_per_sec   = nint(SNTags(70)%value)
     PFSetup%w_max         = SNTags(71)%value
     PFSetup%u_min         = SNTags(72)%value
@@ -501,6 +503,8 @@ subroutine WriteVariablesRP()
         TOSetup%h2o_nclass    = 0
         TOSetup%start_date    = SCTags(93)%value(1:len_trim(SCTags(93)%value))
         TOSetup%end_date      = SCTags(94)%value(1:len_trim(SCTags(94)%value))
+        TOSetup%start_time    = SCTags(24)%value(1:len_trim(SCTags(24)%value))
+        TOSetup%end_time      = SCTags(25)%value(1:len_trim(SCTags(25)%value))
         TOSetup%co2_min_flux  = SNTags(194)%value
         TOSetup%ch4_min_flux  = SNTags(195)%value
         TOSetup%gas4_min_flux = SNTags(196)%value

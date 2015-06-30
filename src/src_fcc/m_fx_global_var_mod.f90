@@ -190,9 +190,9 @@ module m_fx_global_var
          SNTags(109)%Label  / 'sa_max_h'        /
 
     data SCTags(1)%Label  / 'sa_start_date'     / &
-         SCTags(2)%Label  / 'sa_start_time'     / &       !> not used
+         SCTags(2)%Label  / 'sa_start_time'     / &
          SCTags(3)%Label  / 'sa_end_date'       / &
-         SCTags(4)%Label  / 'sa_end_time'       / &       !> not used
+         SCTags(4)%Label  / 'sa_end_time'       / &
          SCTags(5)%Label  / 'start_sa_date'     / &       !> not used
          SCTags(6)%Label  / 'end_sa_date'       / &       !> not used
          SCTags(7)%Label  / 'ex_file'           / &

@@ -472,8 +472,8 @@ end interface
             write(*,'(a)') ' Performing time-lag optimization:'
 
             !> Timestamps of start and end of time lag optimization period
-            call DateTimeToDateType(TOSetup%start_date, '00:00', auxStartTimestamp)
-            call DateTimeToDateType(TOSetup%end_date, '23:59', auxEndTimestamp)
+            call DateTimeToDateType(TOSetup%start_date, TOSetup%start_time, auxStartTimestamp)
+            call DateTimeToDateType(TOSetup%end_date, TOSetup%end_time, auxEndTimestamp)
 
             !> In RawTimeSeries, detect indices of first and last files
             !> relevant to time lag optimization
@@ -875,9 +875,9 @@ end interface
                 allocate(pfNumElem(PFSetup%num_sec))
 
             !> Timestamps of start and end of planar fit period
-            call DateTimeToDateType(PFSetup%start_date, '00:00', &
+            call DateTimeToDateType(PFSetup%start_date, PFSetup%start_time, &
                 auxStartTimestamp)
-            call DateTimeToDateType(PFSetup%end_date, '23:59', &
+            call DateTimeToDateType(PFSetup%end_date, PFSetup%end_time, &
                 auxEndTimestamp)
 
             !> In RawTimeSeries, detect indexes of first and last files

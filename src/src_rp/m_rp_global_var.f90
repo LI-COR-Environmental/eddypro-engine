@@ -519,10 +519,10 @@ module m_rp_global_var
          SCTags(19)%Label / 'recurse'          / &
          SCTags(20)%Label / 'me_file'          / &
          SCTags(21)%Label / 'to_file'          / &
-         SCTags(22)%Label / 'start_date'       / &  !> no longer used
-         SCTags(23)%Label / 'start_time'       / &  !> no longer used
-         SCTags(24)%Label / 'end_date'         / &  !> no longer used
-         SCTags(25)%Label / 'end_time'         / &  !> no longer used
+         SCTags(22)%Label / 'pf_start_time'    / &
+         SCTags(23)%Label / 'pf_end_time'      / &
+         SCTags(24)%Label / 'to_start_time'    / &
+         SCTags(25)%Label / 'to_end_time'      / &
          SCTags(26)%Label / 'out_bin_sp'       / &
          SCTags(27)%Label / 'out_full_sp_u'    / &
          SCTags(28)%Label / 'out_full_sp_v'    / &

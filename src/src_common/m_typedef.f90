@@ -553,6 +553,8 @@ module m_typedef
         character(32) :: horst_lens09
         character(10) :: start_date
         character(10) :: end_date
+        character(5) :: start_time
+        character(5) :: end_time
         logical :: filter_cosp_by_vm_flags
         logical :: add_sonic_lptf
         logical :: ibrom_model
@@ -802,6 +804,8 @@ module m_typedef
         character(4) :: year
         character(10) :: start_date
         character(10) :: end_date
+        character(5) :: start_time
+        character(5) :: end_time
         character(32) :: fix
         logical :: wsect_exclude(MaxNumWSect)
     end type PFSetupType
@@ -1084,6 +1088,8 @@ module m_typedef
         real(kind = dbl) :: max_lag(GHGNumVar)
         character(10) :: start_date
         character(10) :: end_date
+        character(5) :: start_time
+        character(5) :: end_time
     end type TOSetupType
 
     type :: TLType

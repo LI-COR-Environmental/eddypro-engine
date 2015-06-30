@@ -189,9 +189,9 @@ Program EddyproFCC
             write(*, '(a)') ' Reading (co)spectra for ensemble averaging..'
         !> Convert start/end to timestamps
         call DateTimeToDateType(FCCsetup%SA%start_date, &
-            '00:00', saStartTimestamp)
+            FCCsetup%SA%start_time, saStartTimestamp)
         call DateTimeToDateType(FCCsetup%SA%end_date, &
-            '23:59', saEndTimestamp)
+            FCCsetup%SA%end_time, saEndTimestamp)
 
         !> Read names of binned (co)spectra files
         call NumberOfFilesInDir(Dir%binned, '.csv', .false., '', &
@@ -358,7 +358,7 @@ Program EddyproFCC
         close(uex)
         write(*,'(a)') '  Done.'
 
-         if (EddyProProj%out_avrg_cosp) then
+        if (EddyProProj%out_avrg_cosp) then
             !> If cospectra were found for fitting, fit Massman model
             call FitCospectralModel(nfit, size(nfit, 1), size(nfit, 2), &
                 FitStable, FitUnstable, size(FitStable))
@@ -378,7 +378,7 @@ Program EddyproFCC
 
         !> Determine low-pass TF cut-off frequencies, RH-sorted (H2O)
         !> and time-sorted (CO2/CH4/GAS4)
-        call FitTFModels(nbins)
+        call FitTFModels(nbins, FCCsetup%do_spectral_assessment)
 
         !> Spectral attenuation assessment
         if (FCCsetup%do_spectral_assessment) then
@@ -391,9 +391,14 @@ Program EddyproFCC
             call CorrectionFactorModel(AuxFile%ex, NumExRecords)
         end if
 
+        !> Write number of imported spectra and cospectra on stdout
+        if (EddyProProj%out_avrg_spec .or. FCCsetup%do_spectral_assessment) &
+            call ReportImportedSpectra(nbins)
+
         !> Write everything on output files
         call OutputSpectralAssessmentResults(nbins)
         write(*,'(a)')
+
 
     else
         !> If an in-situ method was chosen, and spectral
@@ -468,8 +473,8 @@ Program EddyproFCC
         call BandPassSpectralCorrections(lEx%instr(sonic)%height, &
             lEx%disp_height, lEx%var_present, lEx%WS, lEx%Ta, lEx%zL, &
             lEx%ac_freq, nint(lEx%avrg_length), lEx%det_meth, &
-            nint(lEx%det_timec), size(FullFileList), .false., AuxInstrument, &
-            FullFileList, nrow_full, lEx, FCCsetup)
+            nint(lEx%det_timec), .false., AuxInstrument, &
+            size(FullFileList), FullFileList, nrow_full, lEx, FCCsetup)
 
 
         !> Calculate fluxes at Level 1
