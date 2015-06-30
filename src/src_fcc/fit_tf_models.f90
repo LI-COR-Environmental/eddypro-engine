@@ -30,7 +30,7 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine FitTFModels(nbins)
+subroutine FitTFModels(nbins, printout)
     use m_fx_global_var
     use m_levenberg_marquardt
     implicit none
@@ -50,6 +50,7 @@ subroutine FitTFModels(nbins)
 
     !> In/out variables
     integer, intent(in) :: nbins
+    logical, intent(in) :: printout
     !> local variables
     integer :: nlong(GHGNumVar, MaxGasClasses)
     integer :: gas
@@ -67,7 +68,7 @@ subroutine FitTFModels(nbins)
 
 
     write(*, '(a)', advance = 'no') &
-        ' Eliminating high-frequency noise from ensemble spectra if requested..'
+        '  Eliminating high-frequency noise from ensemble spectra if requested..'
 
     !> Calculate length of un-binned spectra (lSpec),
     !> by looking at fnum for each bin
@@ -84,10 +85,10 @@ subroutine FitTFModels(nbins)
     call SubtractHighFreqNoise(lSpec, size(lSpec, 1), size(lSpec, 2), &
         nlong, size(nlong, 1), size(nlong, 2), nbins)
 
-    write(*, '(a)') ' done.'
+    write(*, '(a)') '  done.'
 
     !> Assessment of spectral attenuation
-    write(*, '(a)', advance = 'no') &
+    if (printout) write(*, '(a)', advance = 'no') &
         ' Assessing spectral attenuations..'
 
     !> Allocate vectors for fit
