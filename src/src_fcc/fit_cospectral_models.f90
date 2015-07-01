@@ -121,7 +121,7 @@ subroutine FitCospectralModel(nfit, dim1, dim2, FitStable, FitUnstable, fnrow)
             MassPar(var, unstable)%mu    = lMassPar(3)
         end if
         deallocate(fvec, fjac)
-        write(*,'(a)') ' done'
+        write(*,'(a)') ' Done'
     end do
 
     !> Stable case
@@ -164,7 +164,7 @@ subroutine FitCospectralModel(nfit, dim1, dim2, FitStable, FitUnstable, fnrow)
             MassPar(var, stable)%mu    = lMassPar(3)
         end if
         deallocate(fvec, fjac)
-        write(*,'(a)') ' done'
+        write(*,'(a)') ' Done'
     end do
 
     if (allocated(xFit)) deallocate(xFit)

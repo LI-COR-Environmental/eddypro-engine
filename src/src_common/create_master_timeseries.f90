@@ -45,7 +45,7 @@ subroutine CreateTimeSeries(StartTimestamp, EndTimestamp, &
     integer :: cnt
 
 
-    if (printout) write(*, '(a)', advance = 'no') ' Creating time series..'
+    if (printout) write(*, '(a)', advance = 'no') ' Creating master time series..'
 
     !> create master timestamps array
     RawTimeSeries(1) = StartTimestamp

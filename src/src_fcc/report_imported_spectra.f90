@@ -44,5 +44,5 @@ subroutine ReportImportedSpectra(nbins)
     write(*, '(a, i5)')  '   H2O:   ', nh2o
     write(*, '(a, i5)')  '   CH4:   ', MeanBinSpec(nbins/2, 1)%cnt(ch4)
     write(*, '(a, i5)')  '   Gas 4: ', MeanBinSpec(nbins/2, 1)%cnt(gas4)
-    write(*, '(a)') '  done.'
+    write(*, '(a)') '  Done.'
 end subroutine ReportImportedSpectra

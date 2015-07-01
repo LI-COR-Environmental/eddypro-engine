@@ -87,6 +87,6 @@ subroutine EnsembleCospectraByStability(nfit, dim1, dim2, FitStable, FitUnstable
             end if
         end do
     end do
-    write(*, '(a)') ' done.'
+    write(*, '(a)') ' Done.'
 end subroutine EnsembleCospectraByStability
 

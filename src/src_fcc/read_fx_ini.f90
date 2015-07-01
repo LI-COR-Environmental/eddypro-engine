@@ -58,7 +58,7 @@ subroutine ReadIniFX(key)
     !> them in relevant variables
     call WriteVariablesFX()
 
-    write(*,'(a)')   ' done.'
+    write(*,'(a)')   ' Done.'
 end subroutine ReadIniFX
 
 !***************************************************************************

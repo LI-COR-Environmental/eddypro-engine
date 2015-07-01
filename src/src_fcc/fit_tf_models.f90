@@ -85,7 +85,7 @@ subroutine FitTFModels(nbins, printout)
     call SubtractHighFreqNoise(lSpec, size(lSpec, 1), size(lSpec, 2), &
         nlong, size(nlong, 1), size(nlong, 2), nbins)
 
-    write(*, '(a)') '  done.'
+    write(*, '(a)') '  Done.'
 
     !> Assessment of spectral attenuation
     if (printout) write(*, '(a)', advance = 'no') &
@@ -159,7 +159,7 @@ subroutine FitTFModels(nbins, printout)
     if (allocated(zFit)) deallocate(zFit)
     if (allocated(ddum)) deallocate(ddum)
 
-    write(*, '(a)') ' done.'
+    write(*, '(a)') ' Done.'
 end subroutine FitTFModels
 
 !***************************************************************************
