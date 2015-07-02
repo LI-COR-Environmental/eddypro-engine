@@ -56,7 +56,7 @@ subroutine SetOSEnvironment()
             comm_out_redirect = ' > /dev/null'
             comm_del          = 'rm '
             comm_rmdir        = 'rm -r -f'
-            comm_7zip         = './7za '
+            comm_7zip         = '7za '
             comm_7zip_x_opt   = 'x -y '
             comm_copy         = 'cp '
             comm_move         = 'mv '
