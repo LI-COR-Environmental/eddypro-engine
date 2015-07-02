@@ -39,7 +39,7 @@ subroutine TestSpikeDetectionMauder13(Set, N)
     !> local variables
     integer :: max_pass = 10
     integer :: passes = 0
-    integer :: i
+    integer :: i, ii, lN
     integer :: j
     integer :: k
     integer :: cnt = 0
@@ -48,8 +48,6 @@ subroutine TestSpikeDetectionMauder13(Set, N)
     integer :: tot_spikes(E2NumVar)
     integer :: tot_spikes_sng(E2NumVar)
     integer :: hflags(u:gas4)
-    real(kind = dbl) :: tmpx(N)
-    real(kind = dbl) :: devx(N)
     real(kind = dbl) :: MAD
     real(kind = dbl) :: medx
     real(kind = dbl) :: zlim
@@ -58,6 +56,8 @@ subroutine TestSpikeDetectionMauder13(Set, N)
     logical :: again
     logical :: IsSpike(N, E2NumVar)
     logical :: new_spike
+    real(kind = dbl), allocatable :: tmpx(:)
+
 
     zlim = 7d0
     passes = 0
@@ -71,18 +71,33 @@ subroutine TestSpikeDetectionMauder13(Set, N)
     do j = u, pe
         if (E2Col(j)%present) then
             cnt = 0
-            tmpx(1:N) = Set(1:N, j)
-            call median(tmpx, N, medx)
-            devx(1:N) = dabs(Set(1:N, j) - medx)
-            call median(devx, N, MAD)
+            !> Define array tmpx made of Set(:, j) stripped of potential error values.
+            lN = N - count(Set(:, j) == error)
+            allocate(tmpx(lN))
+            ii = 0
+            do i = 1, N
+                if (Set(i, j) == error) cycle
+                ii = ii + 1
+                tmpx(ii) = Set(i, j)
+            end do
 
+            !> Calculate median (medx) and MAD
+            call median(tmpx, lN, medx)
+            tmpx = dabs(tmpx - medx)
+            call median(tmpx, lN, MAD)
+            deallocate(tmpx)
+
+            !> Spike detection (and replacement if needed)
             if (RPsetup%filter_sr) then
-                do i = 1, N
+                do i = 2, N-1
+                    if (Set(i, j) == error) cycle
+
                     if(Set(i, j) > medx + (zlim * MAD / 0.6745d0) .or. &
                         Set(i, j) < medx - (zlim * MAD / 0.6745d0)) then
                         cnt = cnt + 1
                     else
-                        if ((cnt /= 0) .and. (cnt <= sr%num_spk)) then
+!                        if ((cnt /= 0) .and. (cnt <= sr%num_spk)) then
+                        if (cnt /= 0) then
                             !> check whether it was a spike already,
                             !> if not increment the number of spikes found
                             new_spike = .true.
@@ -107,18 +122,26 @@ subroutine TestSpikeDetectionMauder13(Set, N)
                                 end do
                             end if
                             cnt = 0
-                        else if (cnt > sr%num_spk) then
-                            cnt = 0
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! In Mauder's method there is no concept of max num of outliers to define a spike
+! so these two lines need eliminating.
+!                        else if (cnt > sr%num_spk) then
+!                            cnt = 0
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
                         end if
                     end if
                 end do
             else
-                do i = 2, N
+                do i = 2, N-1
+                    if (Set(i, j) == error) cycle
+
                     if(Set(i, j) > medx + (zlim * MAD / 0.6745d0) .or. &
                         Set(i, j) < medx - (zlim * MAD / 0.6745d0)) then
                         cnt = cnt + 1
                     else
-                        if ((cnt /= 0) .and. (cnt <= sr%num_spk)) then
+                        if (cnt /= 0) then
                             !> check whether it was a spike already, if not increment the
                             !> number of spikes found
                             new_spike = .true.
@@ -135,15 +158,18 @@ subroutine TestSpikeDetectionMauder13(Set, N)
                             IsSpike(i-k, j) = .true.
                             enddo
                             cnt = 0
-                        else if (cnt > sr%num_spk) then
-                            cnt = 0
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! In Mauder's method there is no concept of max num of outliers to define a spike
+! so these two lines need eliminating.
+!                        else if (cnt > sr%num_spk) then
+!                            cnt = 0
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                         end if
                     end if
                 end do
             end if
         end if
     end do
-
 
     !> accumulates the number of spikes
     tot_spikes = tot_spikes + nspikes
