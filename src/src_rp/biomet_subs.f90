@@ -93,6 +93,7 @@ subroutine RetrieveExtBiometVars(row1, row2, nitems)
             call uppercase(bVars(cnt)%unit_in)
             !> Check validity of biomet variable label
             if (.not. BiometValidateVar(bVars(cnt))) then
+                write(*,'(a)')
                 call ExceptionHandler(73)
                 EddyProProj%biomet_data = 'none'
                 return
@@ -952,14 +953,17 @@ subroutine BiometAggregate(Set, nrow, ncol, Aggr)
     integer :: i
     real(kind = dbl) :: vAggr
 
+
     !> Aggregate biomet variables over the averaging interval
     do i = 1, size(Set, 2)
         select case(trim(adjustl(bVars(i)%accumul_type)))
             !> Variables that need averaging
-            case ('AVERAGING')
-                call AverageNoError(bSet(:, i), size(bSet, 1), 1, vAggr, error)
             case ('INTEGRATION')
                 call SumNoError(bSet(:, i), size(bSet, 1), 1, vAggr, error)
+            case ('AVERAGING')
+                call AverageNoError(bSet(:, i), size(bSet, 1), 1, vAggr, error)
+            case ('ANGULAR_AVERAGING')
+                call AngularAverageNoError(bSet(:, i), size(bSet, 1), 1, vAggr, error)
             case default
         end select
         Aggr(i) = vAggr

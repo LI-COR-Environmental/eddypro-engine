@@ -29,20 +29,30 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine WriteOutBiomet(init_string)
+subroutine WriteOutBiomet(init_string, embedded)
     use m_rp_global_var
     implicit none
     !> in/out variables
     character(*), intent(in) :: init_string
+    logical, intent(in) :: embedded
     !> local variables
     integer :: i
     character(LongOutstringLen) :: dataline
     character(DatumLen) :: datum
+    character(len=len(init_string)) :: prefix
+
+
+    if (embedded) then
+        prefix = init_string(index(init_string, ',') + 1: &
+                             len_trim(init_string))
+    else
+        prefix = trim(init_string)
+    end if
 
     if (EddyProProj%out_biomet .and. nbVars > 0) then
         call clearstr(dataline)
-        call AddDatum(dataline, init_string(index(init_string, ',') &
-            + 1:len_trim(init_string)), separator)
+        call AddDatum(dataline, trim(adjustl(prefix)), separator)
+
         do i = 1, nbVars
             call WriteDatumFloat(bAggr(i), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)

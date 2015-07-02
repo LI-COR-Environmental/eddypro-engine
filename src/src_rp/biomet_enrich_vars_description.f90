@@ -439,7 +439,7 @@ subroutine BiometEnrichVarsDescription()
             case('WD','WIND_DIRECTION')
                 bVars(i)%fluxnet_base_name = 'WD'
                 bVars(i)%nature = 'ANGULAR_DIRECTION'
-                bVars(i)%accumul_type = 'ANGULAR_AVERAGE'
+                bVars(i)%accumul_type = 'ANGULAR_AVERAGING'
                 bVars(i)%unit_out = 'DEGREES'
                 bVars(i)%pretty_unit_out = '[Degrees_past_North]'
                 bVars(i)%fluxnet_unit_out = '[Decimal degrees]'

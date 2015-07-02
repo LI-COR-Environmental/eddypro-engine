@@ -48,8 +48,9 @@ subroutine ExceptionHandler(error_code)
             write(*,*) ' Fatal error(1)> Program execution aborted.'
             stop 1
         case(2)
-            write(*,*) ' Error(2)> Occurred while reading biomet data file. File not found or empty.'
-            write(*,*) ' Error(2)> Biomet data in this file will not be used.'
+            write(*,*) ' Error(2)> Occurred while scanning file for biomet data.'
+            write(*,*) ' Error(2)> EddyPro could not retrieve biomet data from this file.'
+            write(*,*) ' Error(2)> File will be ignored.'
         case(3)
             write(*,*) ' Error(3)> Occurred while reading metadata file in GHG archive. File not found or empty.'
             write(*,*) ' Error(3)> GHG archive appears to be corrupted or invalid and will thus be skipped.'

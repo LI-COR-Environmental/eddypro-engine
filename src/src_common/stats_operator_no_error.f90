@@ -126,6 +126,70 @@ subroutine AverageNoError(Set, nrow, ncol, Mean, err_float)
     end where
 end subroutine AverageNoError
 
+!***************************************************************************
+!
+! \brief       Calculate column-wise angular averages on a 2d array \n
+!              ignoring specified error values. In EddyPro, mainly meant for \n
+!              calculation of mean wind direction given a set of wind direction \n
+!              measurements.
+!
+!              Implementation reference:
+!              "Circular Statistics in R"
+!              by A. Pewsey, M. Neuhaeuser and G. D. Ruxton.
+!
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+subroutine AngularAverageNoError(Set, nrow, ncol, Mean, err_float)
+    use m_common_global_var
+    implicit none
+    !> in/out variables
+    integer, intent(in) :: nrow, ncol
+    real(kind = dbl), intent(in) :: err_float
+    real(kind = dbl), intent(in) :: Set(nrow, ncol)
+    real(kind = dbl), intent(out) :: Mean(ncol)
+    !> local variables
+    integer :: i = 0
+    integer :: j = 0
+    integer :: Nact = 0
+    real(kind = dbl) :: CosSum
+    real(kind = dbl) :: SinSum
+
+
+    do j = 1, ncol
+
+        !> Calculate a (CosSum) and b (SinSum)
+        CosSum = 0d0
+        SinSum = 0d0
+        Nact = 0
+        do i = 1, nrow
+            if (Set(i, j) /= err_float) then
+                Nact = Nact + 1
+                CosSum = CosSum + dcos(Set(i, j)/180d0*p)
+                SinSum = SinSum + dsin(Set(i, j)/180d0*p)
+            end if
+        end do
+        if (Nact /= 0) then
+            CosSum = CosSum / dble(Nact)
+            SinSum = SinSum / dble(Nact)
+        else
+            Mean(j) = err_float
+            cycle
+        end if
+
+        !> Angular average is atan2 of b and a (the expressed in degrees)
+        Mean(j) = datan2(SinSum, CosSum) * 180d0 / p
+
+        !> Take angle form (-180, 180) to (0, 360)
+        if (Mean(j) < 0d0) Mean(j) = 360d0 + Mean(j)
+    end do
+end subroutine AngularAverageNoError
+
 
 !***************************************************************************
 !

@@ -53,9 +53,10 @@ subroutine InitExternalBiomet(bFileList, N)
     integer, external :: countsubstring
     character(len(dataline)), external :: replace
     type(BiometVarsType), allocatable :: lbVars(:)
+    logical :: excluded_file(N)
 
 
-    write(*, '(a)', advance = 'no') ' Initializing external biomet usage..'
+    write(*, '(a)', advance = 'no') ' Interpreting biomet data..'
 
     !> Retrieve list of biomet files
     if (EddyProProj%biomet_data == 'ext_file') then
@@ -70,6 +71,7 @@ subroutine InitExternalBiomet(bFileList, N)
     !> Loop to retrieve number of rows and cols, so that biomet variables
     !> can be allocated
     nRec = 0
+    excluded_file = .false.
     size_loop: do nfl = 1, N
 
         !> Count number of items and rows in file
@@ -78,7 +80,9 @@ subroutine InitExternalBiomet(bFileList, N)
 
         !> If above failed, pass to next one
         if (failed) then
+            excluded_file(nfl) = .true.
             write(*,*)
+            write(*, '(a)') '  File: ' // trim(adjustl(bFileList(nfl)%path))
             call ExceptionHandler(2)
             cycle size_loop
         end if
@@ -116,6 +120,10 @@ subroutine InitExternalBiomet(bFileList, N)
     !> Loop over all biomet files
     lastcnt = 0
     files_loop: do nfl = 1, N
+
+        !> If file was excluded above, cycle
+        if (excluded_file(nfl)) cycle files_loop
+
 
         !> Open biomet file
         open(udf, file = bFileList(nfl)%path, status = 'old', &
@@ -155,6 +163,7 @@ subroutine InitExternalBiomet(bFileList, N)
         !> Retrieve variables and timestamp prototype from
         !> header (labels and units rows)
         call RetrieveExtBiometVars(dataline, dataline2, nbItems)
+        if (EddyProProj%biomet_data == 'none') return
 
         !> Variables consistency among different biomet files
         if (nfl == 1) then
@@ -197,9 +206,9 @@ subroutine InitExternalBiomet(bFileList, N)
     bFileMetadata%time_step = int(tsInferTimestep(bTimestamp(:nRec), nRec) / 60)
     bFileMetadata%tolerance = bFileMetadata%time_step / 2
     write(*, '(a)')
-    write(*, '(a, i6)') '  Number of biomet variables: ', nbVars
-    write(*, '(a, i6)') '  Number of biomet records:   ', nRec
-    write(*, '(a, i6, a)') '  Inferred biomet time-step:  ', &
+    write(*, '(a, i6)')    '  Number of variables: ', nbVars
+    write(*, '(a, i6)')    '  Number of records:   ', nRec
+    write(*, '(a, i6, a)') '  Inferred time-step:  ', &
         bFileMetadata%time_step, 'min'
 
     !> Determine nbRecs, the maximum number of biomet data available for

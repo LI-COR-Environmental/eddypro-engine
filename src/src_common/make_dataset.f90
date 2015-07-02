@@ -55,6 +55,8 @@ subroutine MakeDataset(PathIn, MasterTimeSeries, nrow, StartIndx, &
     character(10) :: fdate
     character(5)  :: ftime
     type (DateType) :: fTimestamp
+    logical :: add_error
+
 
     tmp_indx = index(PathIn, TmpExt)
     PathOut  = PathIn(1:tmp_indx - 1)
@@ -91,6 +93,7 @@ subroutine MakeDataset(PathIn, MasterTimeSeries, nrow, StartIndx, &
     !> Now creates actual dataset, inserting either actual
     !> results or ErrString depending on whether results are available
     !> for each time step of the MasterTimeSeries
+    add_error = .false.
     periods_loop: do i = StartIndx, EndIndx
         !> Search for current time step in the file
         do
@@ -98,6 +101,7 @@ subroutine MakeDataset(PathIn, MasterTimeSeries, nrow, StartIndx, &
             read(udf, '(a)', iostat = read_status) dataline
 
             if(read_status /= 0) then
+                add_error = .true.
                 !> Insert here a control
                 exit
             end if
@@ -148,6 +152,16 @@ subroutine MakeDataset(PathIn, MasterTimeSeries, nrow, StartIndx, &
                 cycle periods_loop
             end if
         end do
+
+        !> This takes care of time periods following the end of the raw data period
+        if (add_error .and. i < EndIndx) then
+            call AddErrorString(udf2, MasterTimeSeries(i+1), &
+                ErrString, len(ErrString), &
+                PathIn == trim(adjustl(FLUXNET_EDDY_Path)) &
+                .or. PathIn == trim(adjustl(FLUXNET_BIOMET_Path)) , &
+                AddNoFile)
+            add_error = .false.
+        end if
     end do periods_loop
 
     close(udf)

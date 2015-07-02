@@ -378,6 +378,8 @@ end interface
     !> Initialize external biomet data
     if (index(EddyProProj%biomet_data, 'ext_') /= 0) then
         if (EddyProProj%biomet_data == 'ext_dir') then
+            write(*,'(a)') ' Reading external biomet file(s) from:'
+            write(*,'(a)') '  ' // trim(adjustl(Dir%biomet))
             call NumberOfFilesInDir(Dir%biomet, &
                 trim(adjustl(EddyProProj%biomet_tail)), &
                 .false., 'none', TotNumFile, NumFileNoRecurse)
@@ -386,6 +388,7 @@ end interface
             else
                 NumBiometFiles = NumFileNoRecurse
             end if
+            write(*, '(a)') ' Done.'
         else
             NumBiometFiles = 1
         end if
@@ -1260,7 +1263,7 @@ end interface
             SelectedEndTimestamp, DateStep)
         allocate(MasterTimeSeries(NumberOfPeriods + 1))
         call CreateTimeSeries(SelectedStartTimestamp, SelectedEndTimestamp, &
-            DateStep, MasterTimeSeries, size(MasterTimeSeries), .true.)
+            DateStep, MasterTimeSeries, size(MasterTimeSeries), .false.)
 
         !> Verify at least partial overlap
         if (MasterTimeSeries(1) > RawTimeSeries(size(RawTimeSeries)) &
@@ -1505,6 +1508,30 @@ end interface
                 // trim(Stats%date) // ' ' // trim(Stats%time)
         end if
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        !> Define initial part of each output string
+        call DateTimeToDOY(Stats%date, Stats%time, int_doy, float_doy)
+
+        call WriteDatumFloat(float_doy, char_doy, EddyProProj%err_label)
+        call ShrinkString(char_doy)
+!        suffixOutString =  trim(adjustl(RawFileList(NextRawFileIndx)%name)) &
+!                   // ',' // trim(Stats%date) // ',' // trim(Stats%time) &
+!                   // ',' // char_doy(1: index(char_doy, '.')+ 3)
+        suffixOutString =  trim(Stats%date) // ',' // trim(Stats%time) &
+                   // ',' // char_doy(1: index(char_doy, '.')+ 3)
+
+        !> Only for external biomet files: retrieve biomet data for current
+        !> period and write on output. Even if current period is skipped,
+        !> biomet data will be on output.
+        if (index(EddyProProj%biomet_data, 'ext_') /= 0) then
+            call BiometRetrieveExternalData(bFileList, size(bFileList), &
+                bLastFile, bLastRec, tsStart, &
+                tsEnd, BiometDataFound, .true.)
+            call WriteOutBiomet(suffixOutString, .false.)
+        end if
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
         !> If files are finished, keep going until the end of the selected
         !> period
         if (LatestRawFileIndx > NumRawFiles) then
@@ -1521,24 +1548,10 @@ end interface
             RawFileList, NumRawFiles, LatestRawFileIndx, &
             NextRawFileIndx, skip_period)
 
-        !> Define initial part of each output string
-        call DateTimeToDOY(Stats%date, Stats%time, int_doy, float_doy)
-
-        call WriteDatumFloat(float_doy, char_doy, EddyProProj%err_label)
-        call ShrinkString(char_doy)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         suffixOutString =  trim(adjustl(RawFileList(NextRawFileIndx)%name)) &
-                   // ',' // trim(Stats%date) // ',' // trim(Stats%time) &
-                   // ',' // char_doy(1: index(char_doy, '.')+ 3)
-
-        !> Only for external biomet files: retrieve biomet data for current
-        !> period and write on output. Even if current period is skipped,
-        !> biomet data will be on output.
-        if (index(EddyProProj%biomet_data, 'ext_') /= 0) then
-            call BiometRetrieveExternalData(bFileList, size(bFileList), &
-                bLastFile, bLastRec, tsStart, &
-                tsEnd, BiometDataFound, .true.)
-            call WriteOutBiomet(suffixOutString)
-        end if
+            // ',' // suffixOutString
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         !> Exception handling
         if (skip_period) then
@@ -1579,7 +1592,7 @@ end interface
                     initializeBiometOut  = .false.
                 end if
                 !> Write biomet output
-                call WriteOutBiomet(suffixOutString)
+                call WriteOutBiomet(suffixOutString, .true.)
             end if
 
             !> Period skip control

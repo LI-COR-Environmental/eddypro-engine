@@ -28,7 +28,7 @@
 ! \bug
 ! \deprecated
 ! \test
-! \todo        Allow user to customize the 40% (or take the allowance?)
+! \todo
 !***************************************************************************
 subroutine EliminateCorruptedVariables(LocSet, nrow, ncol, skip_period, logout)
     use m_rp_global_var

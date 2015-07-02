@@ -469,5 +469,5 @@ subroutine scanCsvFile(fpath, separator, cols_from_header, nrow, ncol, failed)
     end do
     close(10)
 
-    if (ncol * nrow == 0) failed = .true.
+    if (ncol < 3 .or. nrow < 3) failed = .true.
 end subroutine scanCsvFile
