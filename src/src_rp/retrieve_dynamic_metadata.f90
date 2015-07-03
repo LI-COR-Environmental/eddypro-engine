@@ -218,8 +218,8 @@ subroutine ReadMetadataFromTextVars(mdStringVars, nrow)
     if (DynamicMetadataOrder(canopy_height) /= nint(error)) then
         read(mdStringVars(DynamicMetadataOrder(canopy_height)), *) &
         DynamicMetadata%canopy_height
-        DynamicMetadata%d = 0.66d0 * DynamicMetadata%canopy_height
-        DynamicMetadata%z0 = 0.2d0 * DynamicMetadata%canopy_height
+        DynamicMetadata%d = 0.67d0 * DynamicMetadata%canopy_height
+        DynamicMetadata%z0 = 0.15d0 * DynamicMetadata%canopy_height
     end if
     if (DynamicMetadataOrder(displacement_height) /= nint(error)) &
         read(mdStringVars(DynamicMetadataOrder(displacement_height)), *) &
@@ -562,21 +562,44 @@ subroutine ExtractUsableMetadataFromDynamic(LocCol, ncol)
     logical :: instr_updated(GHGNumVar)
 
 
-    !> General
-    if (DynamicMetadata%lat /= error) Metadata%lat = DynamicMetadata%lat
-    if (DynamicMetadata%lon /= error) Metadata%lon = DynamicMetadata%lon
-    if (DynamicMetadata%alt /= error) Metadata%alt = DynamicMetadata%alt
-    if (DynamicMetadata%canopy_height /= error) Metadata%canopy_height = DynamicMetadata%canopy_height
-    if (DynamicMetadata%d /= error) Metadata%d = DynamicMetadata%d
-    if (DynamicMetadata%z0 /= error) Metadata%z0 = DynamicMetadata%z0
-    if (DynamicMetadata%ac_freq /= error) Metadata%ac_freq = DynamicMetadata%ac_freq
-    if (DynamicMetadata%file_length /= error) Metadata%file_length = DynamicMetadata%file_length
+    !> Coordinates
+    if (DynamicMetadata%lat >= -90d0 &
+        .and. DynamicMetadata%lat <= 90d0) Metadata%lat = DynamicMetadata%lat
+    if (DynamicMetadata%lon >= -180d0 &
+        .and. DynamicMetadata%lon <= 180d0) Metadata%lon = DynamicMetadata%lon
+    if (DynamicMetadata%alt >= -428d0 &
+        .and. DynamicMetadata%alt <= 8850d0) Metadata%alt = DynamicMetadata%alt
+
+    !> Canopy height
+    if (DynamicMetadata%canopy_height >= 0d0) &
+        Metadata%canopy_height = DynamicMetadata%canopy_height
+    !> Displacement height
+    if (DynamicMetadata%d /= error &
+        .and. DynamicMetadata%d <= Metadata%canopy_height) &
+            Metadata%d = DynamicMetadata%d
+    !> Roughness length
+    if (DynamicMetadata%z0 /= error &
+        .and. DynamicMetadata%z0 <= Metadata%canopy_height &
+        .and. DynamicMetadata%z0 > 0d0) Metadata%z0 = DynamicMetadata%z0
+
+    !> File props
+    if (DynamicMetadata%ac_freq > 0d0) &
+        Metadata%ac_freq = DynamicMetadata%ac_freq
+    if (DynamicMetadata%file_length > 0d0) &
+        Metadata%file_length = DynamicMetadata%file_length
+
     !> Sonic
-    if (DynamicMetadata%instr(u)%model /= 'none') LocCol(u:ts)%instr%model = DynamicMetadata%instr(u)%model
-    if (DynamicMetadata%instr(u)%wformat /= 'none') LocCol(u:ts)%instr%wformat = DynamicMetadata%instr(u)%wformat
-    if (DynamicMetadata%instr(u)%wref /= 'none') LocCol(u:ts)%instr%wref = DynamicMetadata%instr(u)%wref
-    if (DynamicMetadata%instr(u)%height /= error) LocCol(u:ts)%instr%height = DynamicMetadata%instr(u)%height
-    if (DynamicMetadata%instr(u)%north_offset /= error) LocCol(u:ts)%instr%north_offset = DynamicMetadata%instr(u)%north_offset
+    if (DynamicMetadata%instr(u)%model /= 'none') &
+        LocCol(u:ts)%instr%model = DynamicMetadata%instr(u)%model
+
+    if (DynamicMetadata%instr(u)%wformat /= 'none') &
+        LocCol(u:ts)%instr%wformat = DynamicMetadata%instr(u)%wformat
+    if (DynamicMetadata%instr(u)%wref /= 'none') &
+        LocCol(u:ts)%instr%wref = DynamicMetadata%instr(u)%wref
+    if (DynamicMetadata%instr(u)%height /= error) &
+        LocCol(u:ts)%instr%height = DynamicMetadata%instr(u)%height
+    if (DynamicMetadata%instr(u)%north_offset /= error) &
+        LocCol(u:ts)%instr%north_offset = DynamicMetadata%instr(u)%north_offset
     !> Gases
     instr_updated = .false.
     do gas = co2, gas4
