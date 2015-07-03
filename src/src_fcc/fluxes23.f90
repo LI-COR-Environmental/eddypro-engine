@@ -20,8 +20,8 @@
 !
 !***************************************************************************
 !
-! \brief       Completes fluxes correction (Level 2/3). Applies WPL and \n
-!              spectral corrections
+! \brief       Completes flux correction (Level 2/3). Applies WPL and \n
+!              spectral corrections in the appropriate order
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -255,7 +255,7 @@ subroutine Fluxes23(lEx)
             case('molar_density')
 
                 !> E, T and P effects (should never be actually used)
-                if (Flux1%co2 /= error .and. lEx%Va > 0d0 .and. lEx%chi(co2) > 0d0 &
+                if (Flux1%co2 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(co2) > 0d0 &
                     .and. Flux3%E_co2 /= error .and. lEx%RHO%w > 0d0 &
                     .and. Flux3%Hi_co2 /= error .and. lEx%RhoCp > 0d0 .and. lEx%Tcell > 0d0 &
                     .and. lEx%cov_w(pi) /= error .and. lEx%Pcell /= error) then
@@ -268,7 +268,7 @@ subroutine Fluxes23(lEx)
                         * lEx%chi(co2) / lEx%Va
 
                 !> Onlt E and T effects
-                elseif (Flux1%co2 /= error .and. lEx%Va > 0d0 .and. lEx%chi(co2) > 0d0 &
+                elseif (Flux1%co2 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(co2) > 0d0 &
                     .and. Flux3%E_co2 /= error .and. lEx%RHO%w > 0d0 &
                     .and. Flux3%Hi_co2 /= error .and. lEx%RhoCp > 0d0 .and. lEx%Tcell > 0d0) then
                     Flux2%co2 = Flux1%co2 * lEx%Vcell(co2) / lEx%Va &
@@ -278,7 +278,7 @@ subroutine Fluxes23(lEx)
                         * lEx%chi(co2) / lEx%Va
 
                 !> Onlt T and P effects
-                elseif (Flux1%co2 /= error .and. lEx%Va > 0d0 .and. lEx%chi(co2) > 0d0 &
+                elseif (Flux1%co2 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(co2) > 0d0 &
                     .and. Flux3%Hi_co2 /= error .and. lEx%RhoCp > 0d0 .and. lEx%Tcell > 0d0 &
                     .and. lEx%cov_w(pi) /= error .and. lEx%Pcell /= error) then
                     Flux2%co2 = Flux1%co2 * lEx%Vcell(co2) / lEx%Va &
@@ -288,7 +288,7 @@ subroutine Fluxes23(lEx)
                         * lEx%chi(co2) / lEx%Va
 
                 !> Only E and P effects
-                elseif (Flux1%co2 /= error .and. lEx%Va > 0d0 .and. lEx%chi(co2) > 0d0 &
+                elseif (Flux1%co2 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(co2) > 0d0 &
                     .and. Flux3%E_co2 /= error .and. lEx%RHO%w > 0d0 &
                     .and. lEx%cov_w(pi) /= error .and. lEx%Pcell /= error) then
                     Flux2%co2 = Flux1%co2 * lEx%Vcell(co2) / lEx%Va &
@@ -298,21 +298,21 @@ subroutine Fluxes23(lEx)
                         * lEx%chi(co2) / lEx%Va
 
                 !> Onlt E effects
-                elseif (Flux1%co2 /= error .and. lEx%Va > 0d0 .and. lEx%chi(co2) > 0d0 &
+                elseif (Flux1%co2 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(co2) > 0d0 &
                     .and. Flux3%E_co2 /= error .and. lEx%RHO%w > 0d0 ) then
                     Flux2%co2 = Flux1%co2 * lEx%Vcell(co2) / lEx%Va &
                         + Flux3%E_co2 * mu * lEx%sigma / lEx%RHO%w &
                         * lEx%chi(co2) / lEx%Va
 
                 !> Onlt T effects
-                elseif (Flux1%co2 /= error .and. lEx%Va > 0d0 .and. lEx%chi(co2) > 0d0 &
+                elseif (Flux1%co2 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(co2) > 0d0 &
                     .and. Flux3%Hi_co2 /= error .and. lEx%RhoCp > 0d0 .and. lEx%Tcell > 0d0) then
                     Flux2%co2 = Flux1%co2 * lEx%Vcell(co2) / lEx%Va &
                         + (1d0 + mu * lEx%sigma) * Flux3%Hi_co2 / (lEx%RhoCp * lEx%Tcell) &
                         * lEx%chi(co2) / lEx%Va
 
                 !> Onlt P effects
-                elseif (Flux1%co2 /= error .and. lEx%Va > 0d0 .and. lEx%chi(co2) > 0d0 &
+                elseif (Flux1%co2 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(co2) > 0d0 &
                     .and. lEx%cov_w(pi) /= error .and. lEx%Pcell /= error) then
                     Flux2%co2 = Flux1%co2 * lEx%Vcell(co2) / lEx%Va &
                         - (1d0 + mu * lEx%sigma) * lEx%cov_w(pi) / (lEx%Pcell) &
@@ -328,7 +328,7 @@ subroutine Fluxes23(lEx)
             case('mole_fraction')
 
                 !> E, T and P effects (should never be actually used)
-                if (Flux1%co2 /= error .and. lEx%Va > 0d0 .and. lEx%chi(co2) > 0d0 &
+                if (Flux1%co2 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(co2) > 0d0 &
                     .and. Flux3%E_co2 /= error .and. lEx%RHO%w > 0d0 &
                     .and. Flux3%Hi_co2 /= error .and. lEx%RhoCp > 0d0 .and. lEx%Tcell > 0d0 &
                     .and. lEx%cov_w(pi) /= error .and. lEx%Pcell /= error) then
@@ -341,7 +341,7 @@ subroutine Fluxes23(lEx)
                         * lEx%chi(co2) / lEx%Va
 
                 !> Onlt E and T effects
-                elseif (Flux1%co2 /= error .and. lEx%Va > 0d0 .and. lEx%chi(co2) > 0d0 &
+                elseif (Flux1%co2 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(co2) > 0d0 &
                     .and. Flux3%E_co2 /= error .and. lEx%RHO%w > 0d0 &
                     .and. Flux3%Hi_co2 /= error .and. lEx%RhoCp > 0d0 .and. lEx%Tcell > 0d0) then
                     Flux2%co2 = Flux1%co2 &
@@ -351,7 +351,7 @@ subroutine Fluxes23(lEx)
                         * lEx%chi(co2) / lEx%Va
 
                 !> Onlt T and P effects
-                elseif (Flux1%co2 /= error .and. lEx%Va > 0d0 .and. lEx%chi(co2) > 0d0 &
+                elseif (Flux1%co2 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(co2) > 0d0 &
                     .and. Flux3%Hi_co2 /= error .and. lEx%RhoCp > 0d0 .and. lEx%Tcell > 0d0 &
                     .and. lEx%cov_w(pi) /= error .and. lEx%Pcell /= error) then
                     Flux2%co2 = Flux1%co2 &
@@ -361,7 +361,7 @@ subroutine Fluxes23(lEx)
                         * lEx%chi(co2) / lEx%Va
 
                 !> Only E and P effects
-                elseif (Flux1%co2 /= error .and. lEx%Va > 0d0 .and. lEx%chi(co2) > 0d0 &
+                elseif (Flux1%co2 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(co2) > 0d0 &
                     .and. Flux3%E_co2 /= error .and. lEx%RHO%w > 0d0 &
                     .and. lEx%cov_w(pi) /= error .and. lEx%Pcell /= error) then
                     Flux2%co2 = Flux1%co2 &
@@ -371,21 +371,21 @@ subroutine Fluxes23(lEx)
                         * lEx%chi(co2) / lEx%Va
 
                 !> Onlt E effects
-                elseif (Flux1%co2 /= error .and. lEx%Va > 0d0 .and. lEx%chi(co2) > 0d0 &
+                elseif (Flux1%co2 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(co2) > 0d0 &
                     .and. Flux3%E_co2 /= error .and. lEx%RHO%w > 0d0 ) then
                     Flux2%co2 = Flux1%co2 &
                         + Flux3%E_co2 * mu * lEx%sigma / lEx%RHO%w &
                         * lEx%chi(co2) / lEx%Va
 
                 !> Onlt T effects
-                elseif (Flux1%co2 /= error .and. lEx%Va > 0d0 .and. lEx%chi(co2) > 0d0 &
+                elseif (Flux1%co2 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(co2) > 0d0 &
                     .and. Flux3%Hi_co2 /= error .and. lEx%RhoCp > 0d0 .and. lEx%Tcell > 0d0) then
                     Flux2%co2 = Flux1%co2 &
                         + (1d0 + mu * lEx%sigma) * Flux3%Hi_co2 / (lEx%RhoCp * lEx%Tcell) &
                         * lEx%chi(co2) / lEx%Va
 
                 !> Onlt P effects
-                elseif (Flux1%co2 /= error .and. lEx%Va > 0d0 .and. lEx%chi(co2) > 0d0 &
+                elseif (Flux1%co2 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(co2) > 0d0 &
                     .and. lEx%cov_w(pi) /= error .and. lEx%Pcell /= error) then
                     Flux2%co2 = Flux1%co2 &
                         - (1d0 + mu * lEx%sigma) * lEx%cov_w(pi) / (lEx%Pcell) &
@@ -455,7 +455,7 @@ subroutine Fluxes23(lEx)
             case('molar_density')
 
                 !> E, T and P effects (should never be actually used)
-                if (Flux1%ch4 /= error .and. lEx%Va > 0d0 .and. lEx%chi(ch4) > 0d0 &
+                if (Flux1%ch4 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(ch4) > 0d0 &
                     .and. Flux3%E_ch4 /= error .and. lEx%RHO%w > 0d0 &
                     .and. Flux3%Hi_ch4 /= error .and. lEx%RhoCp > 0d0 .and. lEx%Tcell > 0d0 &
                     .and. lEx%cov_w(pi) /= error .and. lEx%Pcell /= error) then
@@ -468,7 +468,7 @@ subroutine Fluxes23(lEx)
                         * lEx%chi(ch4) / lEx%Va
 
                 !> Onlt E and T effects
-                elseif (Flux1%ch4 /= error .and. lEx%Va > 0d0 .and. lEx%chi(ch4) > 0d0 &
+                elseif (Flux1%ch4 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(ch4) > 0d0 &
                     .and. Flux3%E_ch4 /= error .and. lEx%RHO%w > 0d0 &
                     .and. Flux3%Hi_ch4 /= error .and. lEx%RhoCp > 0d0 .and. lEx%Tcell > 0d0) then
                     Flux2%ch4 = Flux1%ch4 * lEx%Vcell(ch4) / lEx%Va &
@@ -478,7 +478,7 @@ subroutine Fluxes23(lEx)
                         * lEx%chi(ch4) / lEx%Va
 
                 !> Onlt T and P effects
-                elseif (Flux1%ch4 /= error .and. lEx%Va > 0d0 .and. lEx%chi(ch4) > 0d0 &
+                elseif (Flux1%ch4 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(ch4) > 0d0 &
                     .and. Flux3%Hi_ch4 /= error .and. lEx%RhoCp > 0d0 .and. lEx%Tcell > 0d0 &
                     .and. lEx%cov_w(pi) /= error .and. lEx%Pcell /= error) then
                     Flux2%ch4 = Flux1%ch4 * lEx%Vcell(ch4) / lEx%Va &
@@ -488,7 +488,7 @@ subroutine Fluxes23(lEx)
                         * lEx%chi(ch4) / lEx%Va
 
                 !> Only E and P effects
-                elseif (Flux1%ch4 /= error .and. lEx%Va > 0d0 .and. lEx%chi(ch4) > 0d0 &
+                elseif (Flux1%ch4 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(ch4) > 0d0 &
                     .and. Flux3%E_ch4 /= error .and. lEx%RHO%w > 0d0 &
                     .and. lEx%cov_w(pi) /= error .and. lEx%Pcell /= error) then
                     Flux2%ch4 = Flux1%ch4 * lEx%Vcell(ch4) / lEx%Va &
@@ -498,21 +498,21 @@ subroutine Fluxes23(lEx)
                         * lEx%chi(ch4) / lEx%Va
 
                 !> Onlt E effects
-                elseif (Flux1%ch4 /= error .and. lEx%Va > 0d0 .and. lEx%chi(ch4) > 0d0 &
+                elseif (Flux1%ch4 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(ch4) > 0d0 &
                     .and. Flux3%E_ch4 /= error .and. lEx%RHO%w > 0d0 ) then
                     Flux2%ch4 = Flux1%ch4 * lEx%Vcell(ch4) / lEx%Va &
                         + Flux3%E_ch4 * mu * lEx%sigma / lEx%RHO%w &
                         * lEx%chi(ch4) / lEx%Va
 
                 !> Onlt T effects
-                elseif (Flux1%ch4 /= error .and. lEx%Va > 0d0 .and. lEx%chi(ch4) > 0d0 &
+                elseif (Flux1%ch4 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(ch4) > 0d0 &
                     .and. Flux3%Hi_ch4 /= error .and. lEx%RhoCp > 0d0 .and. lEx%Tcell > 0d0) then
                     Flux2%ch4 = Flux1%ch4 * lEx%Vcell(ch4) / lEx%Va &
                         + (1d0 + mu * lEx%sigma) * Flux3%Hi_ch4 / (lEx%RhoCp * lEx%Tcell) &
                         * lEx%chi(ch4) / lEx%Va
 
                 !> Onlt P effects
-                elseif (Flux1%ch4 /= error .and. lEx%Va > 0d0 .and. lEx%chi(ch4) > 0d0 &
+                elseif (Flux1%ch4 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(ch4) > 0d0 &
                     .and. lEx%cov_w(pi) /= error .and. lEx%Pcell /= error) then
                     Flux2%ch4 = Flux1%ch4 * lEx%Vcell(ch4) / lEx%Va &
                         - (1d0 + mu * lEx%sigma) * lEx%cov_w(pi) / (lEx%Pcell) &
@@ -528,7 +528,7 @@ subroutine Fluxes23(lEx)
             case('mole_fraction')
 
                 !> E, T and P effects
-                if (Flux1%ch4 /= error .and. lEx%Va > 0d0 .and. lEx%chi(ch4) > 0d0 &
+                if (Flux1%ch4 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(ch4) > 0d0 &
                     .and. Flux3%E_ch4 /= error .and. lEx%RHO%w > 0d0 &
                     .and. Flux3%Hi_ch4 /= error .and. lEx%RhoCp > 0d0 .and. lEx%Tcell > 0d0 &
                     .and. lEx%cov_w(pi) /= error .and. lEx%Pcell /= error) then
@@ -541,7 +541,7 @@ subroutine Fluxes23(lEx)
                         * lEx%chi(ch4) / lEx%Va
 
                 !> Onlt E and T effects
-                elseif (Flux1%ch4 /= error .and. lEx%Va > 0d0 .and. lEx%chi(ch4) > 0d0 &
+                elseif (Flux1%ch4 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(ch4) > 0d0 &
                     .and. Flux3%E_ch4 /= error .and. lEx%RHO%w > 0d0 &
                     .and. Flux3%Hi_ch4 /= error .and. lEx%RhoCp > 0d0 .and. lEx%Tcell > 0d0) then
                     Flux2%ch4 = Flux1%ch4 &
@@ -551,7 +551,7 @@ subroutine Fluxes23(lEx)
                         * lEx%chi(ch4) / lEx%Va
 
                 !> Onlt T and P effects
-                elseif (Flux1%ch4 /= error .and. lEx%Va > 0d0 .and. lEx%chi(ch4) > 0d0 &
+                elseif (Flux1%ch4 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(ch4) > 0d0 &
                     .and. Flux3%Hi_ch4 /= error .and. lEx%RhoCp > 0d0 .and. lEx%Tcell > 0d0 &
                     .and. lEx%cov_w(pi) /= error .and. lEx%Pcell /= error) then
                     Flux2%ch4 = Flux1%ch4 &
@@ -561,7 +561,7 @@ subroutine Fluxes23(lEx)
                         * lEx%chi(ch4) / lEx%Va
 
                 !> Only E and P effects
-                elseif (Flux1%ch4 /= error .and. lEx%Va > 0d0 .and. lEx%chi(ch4) > 0d0 &
+                elseif (Flux1%ch4 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(ch4) > 0d0 &
                     .and. Flux3%E_ch4 /= error .and. lEx%RHO%w > 0d0 &
                     .and. lEx%cov_w(pi) /= error .and. lEx%Pcell /= error) then
                     Flux2%ch4 = Flux1%ch4 &
@@ -571,21 +571,21 @@ subroutine Fluxes23(lEx)
                         * lEx%chi(ch4) / lEx%Va
 
                 !> Onlt E effects
-                elseif (Flux1%ch4 /= error .and. lEx%Va > 0d0 .and. lEx%chi(ch4) > 0d0 &
+                elseif (Flux1%ch4 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(ch4) > 0d0 &
                     .and. Flux3%E_ch4 /= error .and. lEx%RHO%w > 0d0 ) then
                     Flux2%ch4 = Flux1%ch4 &
                         + Flux3%E_ch4 * mu * lEx%sigma / lEx%RHO%w &
                         * lEx%chi(ch4) / lEx%Va
 
                 !> Onlt T effects
-                elseif (Flux1%ch4 /= error .and. lEx%Va > 0d0 .and. lEx%chi(ch4) > 0d0 &
+                elseif (Flux1%ch4 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(ch4) > 0d0 &
                     .and. Flux3%Hi_ch4 /= error .and. lEx%RhoCp > 0d0 .and. lEx%Tcell > 0d0) then
                     Flux2%ch4 = Flux1%ch4 &
                         + (1d0 + mu * lEx%sigma) * Flux3%Hi_ch4 / (lEx%RhoCp * lEx%Tcell) &
                         * lEx%chi(ch4) / lEx%Va
 
                 !> Onlt P effects
-                elseif (Flux1%ch4 /= error .and. lEx%Va > 0d0 .and. lEx%chi(ch4) > 0d0 &
+                elseif (Flux1%ch4 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(ch4) > 0d0 &
                     .and. lEx%cov_w(pi) /= error .and. lEx%Pcell /= error) then
                     Flux2%ch4 = Flux1%ch4 &
                         - (1d0 + mu * lEx%sigma) * lEx%cov_w(pi) / (lEx%Pcell) &
@@ -653,7 +653,7 @@ subroutine Fluxes23(lEx)
             case('molar_density')
 
                 !> E, T and P effects (should never be actually used)
-                if (Flux1%gas4 /= error .and. lEx%Va > 0d0 .and. lEx%chi(n2o) > 0d0 &
+                if (Flux1%gas4 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(n2o) > 0d0 &
                     .and. Flux3%E_gas4 /= error .and. lEx%RHO%w > 0d0 &
                     .and. Flux3%Hi_gas4 /= error .and. lEx%RhoCp > 0d0 .and. lEx%Tcell > 0d0 &
                     .and. lEx%cov_w(pi) /= error .and. lEx%Pcell /= error) then
@@ -666,7 +666,7 @@ subroutine Fluxes23(lEx)
                         * lEx%chi(n2o) / lEx%Va
 
                 !> Onlt E and T effects
-                elseif (Flux1%gas4 /= error .and. lEx%Va > 0d0 .and. lEx%chi(n2o) > 0d0 &
+                elseif (Flux1%gas4 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(n2o) > 0d0 &
                     .and. Flux3%E_gas4 /= error .and. lEx%RHO%w > 0d0 &
                     .and. Flux3%Hi_gas4 /= error .and. lEx%RhoCp > 0d0 .and. lEx%Tcell > 0d0) then
                     Flux2%gas4 = Flux1%gas4 * lEx%Vcell(n2o) / lEx%Va &
@@ -676,7 +676,7 @@ subroutine Fluxes23(lEx)
                         * lEx%chi(n2o) / lEx%Va
 
                 !> Onlt T and P effects
-                elseif (Flux1%gas4 /= error .and. lEx%Va > 0d0 .and. lEx%chi(n2o) > 0d0 &
+                elseif (Flux1%gas4 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(n2o) > 0d0 &
                     .and. Flux3%Hi_gas4 /= error .and. lEx%RhoCp > 0d0 .and. lEx%Tcell > 0d0 &
                     .and. lEx%cov_w(pi) /= error .and. lEx%Pcell /= error) then
                     Flux2%gas4 = Flux1%gas4 * lEx%Vcell(n2o) / lEx%Va &
@@ -686,7 +686,7 @@ subroutine Fluxes23(lEx)
                         * lEx%chi(n2o) / lEx%Va
 
                 !> Only E and P effects
-                elseif (Flux1%gas4 /= error .and. lEx%Va > 0d0 .and. lEx%chi(n2o) > 0d0 &
+                elseif (Flux1%gas4 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(n2o) > 0d0 &
                     .and. Flux3%E_gas4 /= error .and. lEx%RHO%w > 0d0 &
                     .and. lEx%cov_w(pi) /= error .and. lEx%Pcell /= error) then
                     Flux2%gas4 = Flux1%gas4 * lEx%Vcell(n2o) / lEx%Va &
@@ -696,21 +696,21 @@ subroutine Fluxes23(lEx)
                         * lEx%chi(n2o) / lEx%Va
 
                 !> Onlt E effects
-                elseif (Flux1%gas4 /= error .and. lEx%Va > 0d0 .and. lEx%chi(n2o) > 0d0 &
+                elseif (Flux1%gas4 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(n2o) > 0d0 &
                     .and. Flux3%E_gas4 /= error .and. lEx%RHO%w > 0d0 ) then
                     Flux2%gas4 = Flux1%gas4 * lEx%Vcell(n2o) / lEx%Va &
                         + Flux3%E_gas4 * mu * lEx%sigma / lEx%RHO%w &
                         * lEx%chi(n2o) / lEx%Va
 
                 !> Onlt T effects
-                elseif (Flux1%gas4 /= error .and. lEx%Va > 0d0 .and. lEx%chi(n2o) > 0d0 &
+                elseif (Flux1%gas4 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(n2o) > 0d0 &
                     .and. Flux3%Hi_gas4 /= error .and. lEx%RhoCp > 0d0 .and. lEx%Tcell > 0d0) then
                     Flux2%gas4 = Flux1%gas4 * lEx%Vcell(n2o) / lEx%Va &
                         + (1d0 + mu * lEx%sigma) * Flux3%Hi_gas4 / (lEx%RhoCp * lEx%Tcell) &
                         * lEx%chi(n2o) / lEx%Va
 
                 !> Onlt P effects
-                elseif (Flux1%gas4 /= error .and. lEx%Va > 0d0 .and. lEx%chi(n2o) > 0d0 &
+                elseif (Flux1%gas4 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(n2o) > 0d0 &
                     .and. lEx%cov_w(pi) /= error .and. lEx%Pcell /= error) then
                     Flux2%gas4 = Flux1%gas4 * lEx%Vcell(n2o) / lEx%Va &
                         - (1d0 + mu * lEx%sigma) * lEx%cov_w(pi) / (lEx%Pcell) &
@@ -726,7 +726,7 @@ subroutine Fluxes23(lEx)
             case('mole_fraction')
 
                 !> E, T and P effects (should never be actually used)
-                if (Flux1%gas4 /= error .and. lEx%Va > 0d0 .and. lEx%chi(n2o) > 0d0 &
+                if (Flux1%gas4 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(n2o) > 0d0 &
                     .and. Flux3%E_gas4 /= error .and. lEx%RHO%w > 0d0 &
                     .and. Flux3%Hi_gas4 /= error .and. lEx%RhoCp > 0d0 .and. lEx%Tcell > 0d0 &
                     .and. lEx%cov_w(pi) /= error .and. lEx%Pcell /= error) then
@@ -739,7 +739,7 @@ subroutine Fluxes23(lEx)
                         * lEx%chi(n2o) / lEx%Va
 
                 !> Onlt E and T effects
-                elseif (Flux1%gas4 /= error .and. lEx%Va > 0d0 .and. lEx%chi(n2o) > 0d0 &
+                elseif (Flux1%gas4 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(n2o) > 0d0 &
                     .and. Flux3%E_gas4 /= error .and. lEx%RHO%w > 0d0 &
                     .and. Flux3%Hi_gas4 /= error .and. lEx%RhoCp > 0d0 .and. lEx%Tcell > 0d0) then
                     Flux2%gas4 = Flux1%gas4 &
@@ -749,7 +749,7 @@ subroutine Fluxes23(lEx)
                         * lEx%chi(n2o) / lEx%Va
 
                 !> Onlt T and P effects
-                elseif (Flux1%gas4 /= error .and. lEx%Va > 0d0 .and. lEx%chi(n2o) > 0d0 &
+                elseif (Flux1%gas4 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(n2o) > 0d0 &
                     .and. Flux3%Hi_gas4 /= error .and. lEx%RhoCp > 0d0 .and. lEx%Tcell > 0d0 &
                     .and. lEx%cov_w(pi) /= error .and. lEx%Pcell /= error) then
                     Flux2%gas4 = Flux1%gas4 &
@@ -759,7 +759,7 @@ subroutine Fluxes23(lEx)
                         * lEx%chi(n2o) / lEx%Va
 
                 !> Only E and P effects
-                elseif (Flux1%gas4 /= error .and. lEx%Va > 0d0 .and. lEx%chi(n2o) > 0d0 &
+                elseif (Flux1%gas4 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(n2o) > 0d0 &
                     .and. Flux3%E_gas4 /= error .and. lEx%RHO%w > 0d0 &
                     .and. lEx%cov_w(pi) /= error .and. lEx%Pcell /= error) then
                     Flux2%gas4 = Flux1%gas4 &
@@ -769,21 +769,21 @@ subroutine Fluxes23(lEx)
                         * lEx%chi(n2o) / lEx%Va
 
                 !> Onlt E effects
-                elseif (Flux1%gas4 /= error .and. lEx%Va > 0d0 .and. lEx%chi(n2o) > 0d0 &
+                elseif (Flux1%gas4 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(n2o) > 0d0 &
                     .and. Flux3%E_gas4 /= error .and. lEx%RHO%w > 0d0 ) then
                     Flux2%gas4 = Flux1%gas4 &
                         + Flux3%E_gas4 * mu * lEx%sigma / lEx%RHO%w &
                         * lEx%chi(n2o) / lEx%Va
 
                 !> Onlt T effects
-                elseif (Flux1%gas4 /= error .and. lEx%Va > 0d0 .and. lEx%chi(n2o) > 0d0 &
+                elseif (Flux1%gas4 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(n2o) > 0d0 &
                     .and. Flux3%Hi_gas4 /= error .and. lEx%RhoCp > 0d0 .and. lEx%Tcell > 0d0) then
                     Flux2%gas4 = Flux1%gas4 &
                         + (1d0 + mu * lEx%sigma) * Flux3%Hi_gas4 / (lEx%RhoCp * lEx%Tcell) &
                         * lEx%chi(n2o) / lEx%Va
 
                 !> Onlt P effects
-                elseif (Flux1%gas4 /= error .and. lEx%Va > 0d0 .and. lEx%chi(n2o) > 0d0 &
+                elseif (Flux1%gas4 /= error .and. lEx%sigma >= 0d0 .and. lEx%Va > 0d0 .and. lEx%chi(n2o) > 0d0 &
                     .and. lEx%cov_w(pi) /= error .and. lEx%Pcell /= error) then
                     Flux2%gas4 = Flux1%gas4 &
                         - (1d0 + mu * lEx%sigma) * lEx%cov_w(pi) / (lEx%Pcell) &

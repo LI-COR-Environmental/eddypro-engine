@@ -1507,7 +1507,6 @@ end interface
                 // trim(Stats%date) // ' ' // trim(Stats%time)
         end if
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         !> Define initial part of each output string
         call DateTimeToDOY(Stats%date, Stats%time, int_doy, float_doy)
 
@@ -1528,8 +1527,6 @@ end interface
                 tsEnd, BiometDataFound, .true.)
             call WriteOutBiomet(suffixOutString, .false.)
         end if
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 
         !> If files are finished, keep going until the end of the selected
         !> period
@@ -1547,10 +1544,8 @@ end interface
             RawFileList, NumRawFiles, LatestRawFileIndx, &
             NextRawFileIndx, skip_period)
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         suffixOutString =  trim(adjustl(RawFileList(NextRawFileIndx)%name)) &
             // ',' // suffixOutString
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         !> Exception handling
         if (skip_period) then

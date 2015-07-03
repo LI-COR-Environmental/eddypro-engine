@@ -20,7 +20,7 @@
 !
 !***************************************************************************
 !
-! \brief       Completes flux corrections (Level 2/3). Applies WPL and \n
+! \brief       Completes flux correction (Level 2/3). Applies WPL and \n
 !              spectral corrections in the appropriate order
 ! \author      Gerardo Fratini
 ! \note
@@ -256,7 +256,7 @@ subroutine Fluxes23_rp()
             case('molar_density')
 
                 !> E, T and P effects (should never be actually used)
-                if (Flux1%co2 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(co2) > 0d0 &
+                if (Flux1%co2 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(co2) > 0d0 &
                     .and. Flux3%E_co2 /= error .and. RHO%w > 0d0 &
                     .and. Flux3%Hi_co2 /= error .and. Ambient%RhoCp > 0d0 .and. Ambient%Tcell > 0d0 &
                     .and. Stats%cov(w, pi) /= error .and. Ambient%Pcell /= error) then
@@ -269,7 +269,7 @@ subroutine Fluxes23_rp()
                         * Stats%chi(co2) / Ambient%Va
 
                 !> Onlt E and T effects
-                elseif (Flux1%co2 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(co2) > 0d0 &
+                elseif (Flux1%co2 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(co2) > 0d0 &
                     .and. Flux3%E_co2 /= error .and. RHO%w > 0d0 &
                     .and. Flux3%Hi_co2 /= error .and. Ambient%RhoCp > 0d0 .and. Ambient%Tcell > 0d0) then
                     Flux2%co2 = Flux1%co2 * E2Col(co2)%Va / Ambient%Va &
@@ -279,7 +279,7 @@ subroutine Fluxes23_rp()
                         * Stats%chi(co2) / Ambient%Va
 
                 !> Onlt T and P effects
-                elseif (Flux1%co2 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(co2) > 0d0 &
+                elseif (Flux1%co2 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(co2) > 0d0 &
                     .and. Flux3%Hi_co2 /= error .and. Ambient%RhoCp > 0d0 .and. Ambient%Tcell > 0d0 &
                     .and. Stats%cov(w, pi) /= error .and. Ambient%Pcell /= error) then
                     Flux2%co2 = Flux1%co2 * E2Col(co2)%Va / Ambient%Va &
@@ -289,7 +289,7 @@ subroutine Fluxes23_rp()
                         * Stats%chi(co2) / Ambient%Va
 
                 !> Only E and P effects
-                elseif (Flux1%co2 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(co2) > 0d0 &
+                elseif (Flux1%co2 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(co2) > 0d0 &
                     .and. Flux3%E_co2 /= error .and. RHO%w > 0d0 &
                     .and. Stats%cov(w, pi) /= error .and. Ambient%Pcell /= error) then
                     Flux2%co2 = Flux1%co2 * E2Col(co2)%Va / Ambient%Va &
@@ -299,21 +299,21 @@ subroutine Fluxes23_rp()
                         * Stats%chi(co2) / Ambient%Va
 
                 !> Onlt E effects
-                elseif (Flux1%co2 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(co2) > 0d0 &
+                elseif (Flux1%co2 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(co2) > 0d0 &
                     .and. Flux3%E_co2 /= error .and. RHO%w > 0d0 ) then
                     Flux2%co2 = Flux1%co2 * E2Col(co2)%Va / Ambient%Va &
                         + Flux3%E_co2 * mu * Ambient%sigma / RHO%w &
                         * Stats%chi(co2) / Ambient%Va
 
                 !> Onlt T effects
-                elseif (Flux1%co2 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(co2) > 0d0 &
+                elseif (Flux1%co2 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(co2) > 0d0 &
                     .and. Flux3%Hi_co2 /= error .and. Ambient%RhoCp > 0d0 .and. Ambient%Tcell > 0d0) then
                     Flux2%co2 = Flux1%co2 * E2Col(co2)%Va / Ambient%Va &
                         + (1d0 + mu * Ambient%sigma) * Flux3%Hi_co2 / (Ambient%RhoCp * Ambient%Tcell) &
                         * Stats%chi(co2) / Ambient%Va
 
                 !> Onlt P effects
-                elseif (Flux1%co2 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(co2) > 0d0 &
+                elseif (Flux1%co2 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(co2) > 0d0 &
                     .and. Stats%cov(w, pi) /= error .and. Ambient%Pcell /= error) then
                     Flux2%co2 = Flux1%co2 * E2Col(co2)%Va / Ambient%Va &
                         - (1d0 + mu * Ambient%sigma) * Stats%cov(w, pi) / (Ambient%Pcell) &
@@ -328,7 +328,7 @@ subroutine Fluxes23_rp()
 
             case('mole_fraction')
                 !> E, T and P effects (should never be actually used)
-                if (Flux1%co2 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(co2) > 0d0 &
+                if (Flux1%co2 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(co2) > 0d0 &
                     .and. Flux3%E_co2 /= error .and. RHO%w > 0d0 &
                     .and. Flux3%Hi_co2 /= error .and. Ambient%RhoCp > 0d0 .and. Ambient%Tcell > 0d0 &
                     .and. Stats%cov(w, pi) /= error .and. Ambient%Pcell /= error) then
@@ -341,7 +341,7 @@ subroutine Fluxes23_rp()
                         * Stats%chi(co2) / Ambient%Va
 
                 !> Only E and T effects
-                elseif (Flux1%co2 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(co2) > 0d0 &
+                elseif (Flux1%co2 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(co2) > 0d0 &
                     .and. Flux3%E_co2 /= error .and. RHO%w > 0d0 &
                     .and. Flux3%Hi_co2 /= error .and. Ambient%RhoCp > 0d0 .and. Ambient%Tcell > 0d0) then
                     Flux2%co2 = Flux1%co2 &
@@ -351,7 +351,7 @@ subroutine Fluxes23_rp()
                         * Stats%chi(co2) / Ambient%Va
 
                 !> Only T and P effects
-                elseif (Flux1%co2 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(co2) > 0d0 &
+                elseif (Flux1%co2 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(co2) > 0d0 &
                     .and. Flux3%Hi_co2 /= error .and. Ambient%RhoCp > 0d0 .and. Ambient%Tcell > 0d0 &
                     .and. Stats%cov(w, pi) /= error .and. Ambient%Pcell /= error) then
                     Flux2%co2 = Flux1%co2 &
@@ -362,7 +362,7 @@ subroutine Fluxes23_rp()
                         * Stats%chi(co2) / Ambient%Va
 
                 !> Only E and P effects
-                elseif (Flux1%co2 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(co2) > 0d0 &
+                elseif (Flux1%co2 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(co2) > 0d0 &
                     .and. Flux3%E_co2 /= error .and. RHO%w > 0d0 &
                     .and. Stats%cov(w, pi) /= error .and. Ambient%Pcell /= error) then
                     Flux2%co2 = Flux1%co2 &
@@ -372,21 +372,21 @@ subroutine Fluxes23_rp()
                         * Stats%chi(co2) / Ambient%Va
 
                 !> Only E effects
-                elseif (Flux1%co2 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(co2) > 0d0 &
+                elseif (Flux1%co2 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(co2) > 0d0 &
                     .and. Flux3%E_co2 /= error .and. RHO%w > 0d0 ) then
                     Flux2%co2 = Flux1%co2 &
                         + Flux3%E_co2 * mu * Ambient%sigma / RHO%w &
                         * Stats%chi(co2) / Ambient%Va
 
                 !> Onlt T effects
-                elseif (Flux1%co2 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(co2) > 0d0 &
+                elseif (Flux1%co2 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(co2) > 0d0 &
                     .and. Flux3%Hi_co2 /= error .and. Ambient%RhoCp > 0d0 .and. Ambient%Tcell > 0d0) then
                     Flux2%co2 = Flux1%co2 &
                         + (1d0 + mu * Ambient%sigma) * Flux3%Hi_co2 / (Ambient%RhoCp * Ambient%Tcell) &
                         * Stats%chi(co2) / Ambient%Va
 
                 !> Onlt P effects
-                elseif (Flux1%co2 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(co2) > 0d0 &
+                elseif (Flux1%co2 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(co2) > 0d0 &
                     .and. Stats%cov(w, pi) /= error .and. Ambient%Pcell /= error) then
                     Flux2%co2 = Flux1%co2 &
                         - (1d0 + mu * Ambient%sigma) * Stats%cov(w, pi) / (Ambient%Pcell) &
@@ -455,7 +455,7 @@ subroutine Fluxes23_rp()
             case('molar_density')
 
                 !> E, T and P effects (should never be actually used)
-                if (Flux1%ch4 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(ch4) > 0d0 &
+                if (Flux1%ch4 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(ch4) > 0d0 &
                     .and. Flux3%E_ch4 /= error .and. RHO%w > 0d0 &
                     .and. Flux3%Hi_ch4 /= error .and. Ambient%RhoCp > 0d0 .and. Ambient%Tcell > 0d0 &
                     .and. Stats%cov(w, pi) /= error .and. Ambient%Pcell /= error) then
@@ -468,7 +468,7 @@ subroutine Fluxes23_rp()
                         * Stats%chi(ch4) / Ambient%Va
 
                 !> Onlt E and T effects
-                elseif (Flux1%ch4 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(ch4) > 0d0 &
+                elseif (Flux1%ch4 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(ch4) > 0d0 &
                     .and. Flux3%E_ch4 /= error .and. RHO%w > 0d0 &
                     .and. Flux3%Hi_ch4 /= error .and. Ambient%RhoCp > 0d0 .and. Ambient%Tcell > 0d0) then
                     Flux2%ch4 = Flux1%ch4 * E2Col(ch4)%Va / Ambient%Va &
@@ -478,7 +478,7 @@ subroutine Fluxes23_rp()
                         * Stats%chi(ch4) / Ambient%Va
 
                 !> Onlt T and P effects
-                elseif (Flux1%ch4 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(ch4) > 0d0 &
+                elseif (Flux1%ch4 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(ch4) > 0d0 &
                     .and. Flux3%Hi_ch4 /= error .and. Ambient%RhoCp > 0d0 .and. Ambient%Tcell > 0d0 &
                     .and. Stats%cov(w, pi) /= error .and. Ambient%Pcell /= error) then
                     Flux2%ch4 = Flux1%ch4 * E2Col(ch4)%Va / Ambient%Va &
@@ -488,7 +488,7 @@ subroutine Fluxes23_rp()
                         * Stats%chi(ch4) / Ambient%Va
 
                 !> Only E and P effects
-                elseif (Flux1%ch4 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(ch4) > 0d0 &
+                elseif (Flux1%ch4 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(ch4) > 0d0 &
                     .and. Flux3%E_ch4 /= error .and. RHO%w > 0d0 &
                     .and. Stats%cov(w, pi) /= error .and. Ambient%Pcell /= error) then
                     Flux2%ch4 = Flux1%ch4 &
@@ -498,21 +498,21 @@ subroutine Fluxes23_rp()
                         * Stats%chi(ch4) / Ambient%Va
 
                 !> Onlt E effects
-                elseif (Flux1%ch4 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(ch4) > 0d0 &
+                elseif (Flux1%ch4 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(ch4) > 0d0 &
                     .and. Flux3%E_ch4 /= error .and. RHO%w > 0d0 ) then
                     Flux2%ch4 = Flux1%ch4 * E2Col(ch4)%Va / Ambient%Va &
                         + Flux3%E_ch4 * mu * Ambient%sigma / RHO%w &
                         * Stats%chi(ch4) / Ambient%Va
 
                 !> Onlt T effects
-                elseif (Flux1%ch4 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(ch4) > 0d0 &
+                elseif (Flux1%ch4 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(ch4) > 0d0 &
                     .and. Flux3%Hi_ch4 /= error .and. Ambient%RhoCp > 0d0 .and. Ambient%Tcell > 0d0) then
                     Flux2%ch4 = Flux1%ch4 * E2Col(ch4)%Va / Ambient%Va &
                         + (1d0 + mu * Ambient%sigma) * Flux3%Hi_ch4 / (Ambient%RhoCp * Ambient%Tcell) &
                         * Stats%chi(ch4) / Ambient%Va
 
                 !> Onlt P effects
-                elseif (Flux1%ch4 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(ch4) > 0d0 &
+                elseif (Flux1%ch4 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(ch4) > 0d0 &
                     .and. Stats%cov(w, pi) /= error .and. Ambient%Pcell /= error) then
                     Flux2%ch4 = Flux1%ch4 * E2Col(ch4)%Va / Ambient%Va &
                         - (1d0 + mu * Ambient%sigma) * Stats%cov(w, pi) / (Ambient%Pcell) &
@@ -528,7 +528,7 @@ subroutine Fluxes23_rp()
             case('mole_fraction')
 
                 !> E, T and P effects (should never be actually used)
-                if (Flux1%ch4 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(ch4) > 0d0 &
+                if (Flux1%ch4 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(ch4) > 0d0 &
                     .and. Flux3%E_ch4 /= error .and. RHO%w > 0d0 &
                     .and. Flux3%Hi_ch4 /= error .and. Ambient%RhoCp > 0d0 .and. Ambient%Tcell > 0d0 &
                     .and. Stats%cov(w, pi) /= error .and. Ambient%Pcell /= error) then
@@ -541,7 +541,7 @@ subroutine Fluxes23_rp()
                         * Stats%chi(ch4) / Ambient%Va
 
                 !> Onlt E and T effects
-                elseif (Flux1%ch4 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(ch4) > 0d0 &
+                elseif (Flux1%ch4 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(ch4) > 0d0 &
                     .and. Flux3%E_ch4 /= error .and. RHO%w > 0d0 &
                     .and. Flux3%Hi_ch4 /= error .and. Ambient%RhoCp > 0d0 .and. Ambient%Tcell > 0d0) then
                     Flux2%ch4 = Flux1%ch4 &
@@ -551,7 +551,7 @@ subroutine Fluxes23_rp()
                         * Stats%chi(ch4) / Ambient%Va
 
                 !> Onlt T and P effects
-                elseif (Flux1%ch4 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(ch4) > 0d0 &
+                elseif (Flux1%ch4 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(ch4) > 0d0 &
                     .and. Flux3%Hi_ch4 /= error .and. Ambient%RhoCp > 0d0 .and. Ambient%Tcell > 0d0 &
                     .and. Stats%cov(w, pi) /= error .and. Ambient%Pcell /= error) then
                     Flux2%ch4 = Flux1%ch4 &
@@ -561,7 +561,7 @@ subroutine Fluxes23_rp()
                         * Stats%chi(ch4) / Ambient%Va
 
                 !> Only E and P effects
-                elseif (Flux1%ch4 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(ch4) > 0d0 &
+                elseif (Flux1%ch4 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(ch4) > 0d0 &
                     .and. Flux3%E_ch4 /= error .and. RHO%w > 0d0 &
                     .and. Stats%cov(w, pi) /= error .and. Ambient%Pcell /= error) then
                     Flux2%ch4 = Flux1%ch4 &
@@ -571,21 +571,21 @@ subroutine Fluxes23_rp()
                         * Stats%chi(ch4) / Ambient%Va
 
                 !> Onlt E effects
-                elseif (Flux1%ch4 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(ch4) > 0d0 &
+                elseif (Flux1%ch4 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(ch4) > 0d0 &
                     .and. Flux3%E_ch4 /= error .and. RHO%w > 0d0 ) then
                     Flux2%ch4 = Flux1%ch4 &
                         + Flux3%E_ch4 * mu * Ambient%sigma / RHO%w &
                         * Stats%chi(ch4) / Ambient%Va
 
                 !> Onlt T effects
-                elseif (Flux1%ch4 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(ch4) > 0d0 &
+                elseif (Flux1%ch4 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(ch4) > 0d0 &
                     .and. Flux3%Hi_ch4 /= error .and. Ambient%RhoCp > 0d0 .and. Ambient%Tcell > 0d0) then
                     Flux2%ch4 = Flux1%ch4 &
                         + (1d0 + mu * Ambient%sigma) * Flux3%Hi_ch4 / (Ambient%RhoCp * Ambient%Tcell) &
                         * Stats%chi(ch4) / Ambient%Va
 
                 !> Onlt P effects
-                elseif (Flux1%ch4 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(ch4) > 0d0 &
+                elseif (Flux1%ch4 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(ch4) > 0d0 &
                     .and. Stats%cov(w, pi) /= error .and. Ambient%Pcell /= error) then
                     Flux2%ch4 = Flux1%ch4 &
                         - (1d0 + mu * Ambient%sigma) * Stats%cov(w, pi) / (Ambient%Pcell) &
@@ -653,7 +653,7 @@ subroutine Fluxes23_rp()
             case('molar_density')
 
                 !> E, T and P effects (should never be actually used)
-                if (Flux1%gas4 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(gas4) > 0d0 &
+                if (Flux1%gas4 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(gas4) > 0d0 &
                     .and. Flux3%E_gas4 /= error .and. RHO%w > 0d0 &
                     .and. Flux3%Hi_gas4 /= error .and. Ambient%RhoCp > 0d0 .and. Ambient%Tcell > 0d0 &
                     .and. Stats%cov(w, pi) /= error .and. Ambient%Pcell > 0d0) then
@@ -666,7 +666,7 @@ subroutine Fluxes23_rp()
                         * Stats%chi(gas4) / Ambient%Va
 
                 !> Onlt E and T effects
-                elseif (Flux1%gas4 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(gas4) > 0d0 &
+                elseif (Flux1%gas4 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(gas4) > 0d0 &
                     .and. Flux3%E_gas4 /= error .and. RHO%w > 0d0 &
                     .and. Flux3%Hi_gas4 /= error .and. Ambient%RhoCp > 0d0 .and. Ambient%Tcell > 0d0) then
                     Flux2%gas4 = Flux1%gas4 * E2Col(gas4)%Va / Ambient%Va &
@@ -676,7 +676,7 @@ subroutine Fluxes23_rp()
                         * Stats%chi(gas4) / Ambient%Va
 
                 !> Onlt T and P effects
-                elseif (Flux1%gas4 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(gas4) > 0d0 &
+                elseif (Flux1%gas4 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(gas4) > 0d0 &
                     .and. Flux3%Hi_gas4 /= error .and. Ambient%RhoCp > 0d0 .and. Ambient%Tcell > 0d0 &
                     .and. Stats%cov(w, pi) /= error .and. Ambient%Pcell > 0d0) then
                     Flux2%gas4 = Flux1%gas4 * E2Col(gas4)%Va / Ambient%Va &
@@ -686,7 +686,7 @@ subroutine Fluxes23_rp()
                         * Stats%chi(gas4) / Ambient%Va
 
                 !> Only E and P effects
-                elseif (Flux1%gas4 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(gas4) > 0d0 &
+                elseif (Flux1%gas4 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(gas4) > 0d0 &
                     .and. Flux3%E_gas4 /= error .and. RHO%w > 0d0 &
                     .and. Stats%cov(w, pi) /= error .and. Ambient%Pcell > 0d0) then
                     Flux2%gas4 = Flux1%gas4 * E2Col(gas4)%Va / Ambient%Va &
@@ -696,21 +696,21 @@ subroutine Fluxes23_rp()
                         * Stats%chi(gas4) / Ambient%Va
 
                 !> Onlt E effects
-                elseif (Flux1%gas4 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(gas4) > 0d0 &
+                elseif (Flux1%gas4 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(gas4) > 0d0 &
                     .and. Flux3%E_gas4 /= error .and. RHO%w > 0d0 ) then
                     Flux2%gas4 = Flux1%gas4 * E2Col(gas4)%Va / Ambient%Va &
                         + Flux3%E_gas4 * mu * Ambient%sigma / RHO%w &
                         * Stats%chi(gas4) / Ambient%Va
 
                 !> Onlt T effects
-                elseif (Flux1%gas4 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(gas4) > 0d0 &
+                elseif (Flux1%gas4 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(gas4) > 0d0 &
                     .and. Flux3%Hi_gas4 /= error .and. Ambient%RhoCp > 0d0 .and. Ambient%Tcell > 0d0) then
                     Flux2%gas4 = Flux1%gas4 * E2Col(gas4)%Va / Ambient%Va &
                         + (1d0 + mu * Ambient%sigma) * Flux3%Hi_gas4 / (Ambient%RhoCp * Ambient%Tcell) &
                         * Stats%chi(gas4) / Ambient%Va
 
                 !> Onlt P effects
-                elseif (Flux1%gas4 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(gas4) > 0d0 &
+                elseif (Flux1%gas4 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(gas4) > 0d0 &
                     .and. Stats%cov(w, pi) /= error .and. Ambient%Pcell > 0d0) then
                     Flux2%gas4 = Flux1%gas4 * E2Col(gas4)%Va / Ambient%Va &
                         - (1d0 + mu * Ambient%sigma) * Stats%cov(w, pi) / (Ambient%Pcell) &
@@ -726,7 +726,7 @@ subroutine Fluxes23_rp()
             case('mole_fraction')
 
                 !> E, T and P effects (should never be actually used)
-                if (Flux1%gas4 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(gas4) > 0d0 &
+                if (Flux1%gas4 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(gas4) > 0d0 &
                     .and. Flux3%E_gas4 /= error .and. RHO%w > 0d0 &
                     .and. Flux3%Hi_gas4 /= error .and. Ambient%RhoCp > 0d0 .and. Ambient%Tcell > 0d0 &
                     .and. Stats%cov(w, pi) /= error .and. Ambient%Pcell > 0d0) then
@@ -739,7 +739,7 @@ subroutine Fluxes23_rp()
                         * Stats%chi(gas4) / Ambient%Va
 
                 !> Onlt E and T effects
-                elseif (Flux1%gas4 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(gas4) > 0d0 &
+                elseif (Flux1%gas4 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(gas4) > 0d0 &
                     .and. Flux3%E_gas4 /= error .and. RHO%w > 0d0 &
                     .and. Flux3%Hi_gas4 /= error .and. Ambient%RhoCp > 0d0 .and. Ambient%Tcell > 0d0) then
                     Flux2%gas4 = Flux1%gas4 &
@@ -749,7 +749,7 @@ subroutine Fluxes23_rp()
                         * Stats%chi(gas4) / Ambient%Va
 
                 !> Onlt T and P effects
-                elseif (Flux1%gas4 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(gas4) > 0d0 &
+                elseif (Flux1%gas4 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(gas4) > 0d0 &
                     .and. Flux3%Hi_gas4 /= error .and. Ambient%RhoCp > 0d0 .and. Ambient%Tcell > 0d0 &
                     .and. Stats%cov(w, pi) /= error .and. Ambient%Pcell > 0d0) then
                     Flux2%gas4 = Flux1%gas4 &
@@ -759,7 +759,7 @@ subroutine Fluxes23_rp()
                         * Stats%chi(gas4) / Ambient%Va
 
                 !> Only E and P effects
-                elseif (Flux1%gas4 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(gas4) > 0d0 &
+                elseif (Flux1%gas4 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(gas4) > 0d0 &
                     .and. Flux3%E_gas4 /= error .and. RHO%w > 0d0 &
                     .and. Stats%cov(w, pi) /= error .and. Ambient%Pcell > 0d0) then
                     Flux2%gas4 = Flux1%gas4 &
@@ -769,21 +769,21 @@ subroutine Fluxes23_rp()
                         * Stats%chi(gas4) / Ambient%Va
 
                 !> Onlt E effects
-                elseif (Flux1%gas4 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(gas4) > 0d0 &
+                elseif (Flux1%gas4 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(gas4) > 0d0 &
                     .and. Flux3%E_gas4 /= error .and. RHO%w > 0d0 ) then
                     Flux2%gas4 = Flux1%gas4 &
                         + Flux3%E_gas4 * mu * Ambient%sigma / RHO%w &
                         * Stats%chi(gas4) / Ambient%Va
 
                 !> Onlt T effects
-                elseif (Flux1%gas4 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(gas4) > 0d0 &
+                elseif (Flux1%gas4 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(gas4) > 0d0 &
                     .and. Flux3%Hi_gas4 /= error .and. Ambient%RhoCp > 0d0 .and. Ambient%Tcell > 0d0) then
                     Flux2%gas4 = Flux1%gas4 &
                         + (1d0 + mu * Ambient%sigma) * Flux3%Hi_gas4 / (Ambient%RhoCp * Ambient%Tcell) &
                         * Stats%chi(gas4) / Ambient%Va
 
                 !> Onlt P effects
-                elseif (Flux1%gas4 /= error .and. Ambient%sigma > 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(gas4) > 0d0 &
+                elseif (Flux1%gas4 /= error .and. Ambient%sigma >= 0d0 .and. Ambient%Va > 0d0 .and. Stats%chi(gas4) > 0d0 &
                     .and. Stats%cov(w, pi) /= error .and. Ambient%Pcell > 0d0) then
                     Flux2%gas4 = Flux1%gas4 &
                         - (1d0 + mu * Ambient%sigma) * Stats%cov(w, pi) / (Ambient%Pcell) &

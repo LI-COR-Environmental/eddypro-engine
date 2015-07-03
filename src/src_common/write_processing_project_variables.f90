@@ -59,7 +59,7 @@ subroutine WriteProcessingProjectVariables()
     if (EddyProProj%id(1:1) /= '_') then
         EddyProProj%id = 'eddypro_' // trim(adjustl(EddyProProj%id))
     else
-        EddyProProj%id = 'eddypro_' // trim(adjustl(EddyProProj%id))
+        EddyProProj%id = 'eddypro' // trim(adjustl(EddyProProj%id))
     end if
 
     !>  file type

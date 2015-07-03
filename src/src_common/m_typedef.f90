@@ -475,7 +475,7 @@ module m_typedef
         character(10) :: end_date
         character(5)  :: end_time
         character(32) :: title
-        character(32) :: id
+        character(FilenameLen) :: id
         character(FilenameLen) :: fname_template
         character(32) :: ftype
         character(32) :: fext
