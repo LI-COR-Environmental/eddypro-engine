@@ -166,8 +166,6 @@ program EddyproRP
     real (kind = dbl), external :: Poly6
     integer, external :: CreateDir
 
-
-
 interface
     subroutine BandPassSpectralCorrections(measuring_height, displ_height, loc_var_present, wind_speed, t_air, zL, &
         ac_frequency, avrg_length, detrending_method, detrending_time_constant, printout, LocInstr, &
