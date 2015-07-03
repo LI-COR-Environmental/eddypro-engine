@@ -238,8 +238,9 @@ end interface
 
     !> Selects which files to output, considering the selected
     !> spectral correction method
-    if (EddyProProj%out_avrg_cosp .or. &
-        (EddyProProj%hf_meth /= 'none' &
+    if (EddyProProj%out_avrg_cosp &
+        .or. EddyProProj%out_avrg_spec &
+        .or. (EddyProProj%hf_meth /= 'none' &
         .and. EddyProProj%hf_meth /= 'moncrieff_97' &
         .and. EddyProProj%hf_meth /= 'massman_00')) then
         !> in this cases, passage is needed to FCC, so:
