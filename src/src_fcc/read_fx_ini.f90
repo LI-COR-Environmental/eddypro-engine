@@ -87,11 +87,13 @@ subroutine WriteVariablesFX()
 
     !> Spectra analysis time period
     if (SCTags(22)%value(1:1) == '1') then
+        FCCsetup%SA%subperiod = .true.
         FCCsetup%SA%start_date = SCTags(1)%value(1:len_trim(SCTags(1)%value))
         FCCsetup%SA%start_time = SCTags(2)%value(1:len_trim(SCTags(2)%value))
         FCCsetup%SA%end_date = SCTags(3)%value(1:len_trim(SCTags(3)%value))
         FCCsetup%SA%end_time = SCTags(4)%value(1:len_trim(SCTags(4)%value))
     else
+        FCCsetup%SA%subperiod = .false.
         FCCsetup%SA%start_date = '1900-01-01'
         FCCsetup%SA%end_date   = '2100-12-31'
         FCCsetup%SA%start_time = '00:00'

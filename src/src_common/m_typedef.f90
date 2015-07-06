@@ -559,6 +559,7 @@ module m_typedef
         logical :: add_sonic_lptf
         logical :: ibrom_model
         logical :: in_situ
+        logical :: subperiod
     end type SASetupType
 
     type :: FCCsetupType

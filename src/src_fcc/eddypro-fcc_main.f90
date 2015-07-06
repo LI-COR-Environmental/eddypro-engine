@@ -251,7 +251,7 @@ Program EddyproFCC
         write(*, '(a)') '   Start: ' // sDate // ' ' // sTime
         write(*, '(a)') '   End:   ' // eDate // ' ' // eTime
 
-        if (FCCsetup%SA%start_date /= '1900-01-01') then
+        if (FCCsetup%SA%subperiod) then
             call DateTypeToDateTime(saStartTimestamp, sDate, sTime)
             call DateTypeToDateTime(saEndTimestamp + Datetype(0, 0, 0, 0, 1), eDate, eTime)
             write(*, '(a)') ''
@@ -312,6 +312,7 @@ Program EddyproFCC
             !> Retrieve ex information for current spectra
             call RetrieveExVarsByTimestamp(uex, &
                 BinnedFileList(fcount)%timestamp, lEx, exEndReached, skip)
+
             if (exEndReached) exit binned_loop
             if (skip) cycle binned_loop
 
