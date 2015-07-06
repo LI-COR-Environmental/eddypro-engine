@@ -1,2 +1,2 @@
 character(5), parameter  :: sw_ver = '6.0.0' 
-character(17), parameter :: build_date = '2015-07-03, 16:37' 
+character(17), parameter :: build_date = '2015-07-06, 07:39' 
