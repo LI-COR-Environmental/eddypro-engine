@@ -1484,6 +1484,9 @@ end interface
             Col = NullCol
         end if
 
+        !> Initialize biomet variables to be used in computations
+        biomet%val = error
+
         !> Normal exit instruction: either the last period was dealt with,
         !> or raw files are finished
         if (pcount > rpEndTimestampIndx - 1) exit periods_loop
