@@ -147,7 +147,7 @@ subroutine Fluxes23(lEx)
         !> revising Schotanus et al. (1983)
         if (Flux1%H /= error) then
             if(lEx%Flux0%E /= error .and. lEx%cov_w(ts) /= error &
-                .and. lEx%RHO%a > 0d0 .and. lEx%Q /= error &
+                .and. lEx%RHO%a > 0d0 .and. lEx%Q >= 0d0 &
                 .and. lEx%RhoCp > 0d0 .and. alpha /= error) then
                 Flux2%H = Flux1%H &
                     - lEx%RhoCp * alpha * lEx%Ts * lEx%Flux0%E / lEx%RHO%a &

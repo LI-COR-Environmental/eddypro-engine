@@ -102,9 +102,10 @@ subroutine Fluxes1(lEx)
         end if
     end if
     if (lEx%Flux0%h2o == error) then
-        Flux1%h2o = error
-        Flux1%E   = error
-        Flux1%LE  = error
+        Flux1%h2o   = error
+        lEx%Flux0%E = error
+        Flux1%E     = error
+        Flux1%LE    = error
     end if
 
     !> ch4

@@ -147,7 +147,7 @@ subroutine Fluxes23_rp()
         !> revising Schotanus et al. (1983)
         if (Flux1%H /= error) then
             if(Flux0%E /= error .and. Stats%Cov(w, ts) /= error &
-                .and. RHO%a > 0d0 .and. Ambient%Q > 0d0 &
+                .and. RHO%a > 0d0 .and. Ambient%Q >= 0d0 &
                 .and. Ambient%RhoCp > 0d0 .and. Ambient%alpha /= error) then
                 Flux2%H = Flux1%H &
                     - Ambient%RhoCp * Ambient%alpha * Stats%Mean(ts) * Flux0%E / RHO%a &
