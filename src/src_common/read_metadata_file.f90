@@ -145,7 +145,7 @@ subroutine WriteEddyProMetadataVariables(LocCol, printout)
     Metadata%d = dble(ANTags(5)%value)
 
     !> Displacement height cannot be <= 0 or larger than canopy height
-    if (Metadata%d < 0d0 .or. Metadata%d > Metadata%canopy_height) then
+    if (Metadata%d <= 0d0 .or. Metadata%d > Metadata%canopy_height) then
         if (printout) then
             write(*, '(a)')
             call ExceptionHandler(84)
