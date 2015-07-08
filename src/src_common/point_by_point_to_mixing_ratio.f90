@@ -44,24 +44,23 @@ subroutine PointByPointToMixingRatio(Set, nrow, ncol, printout)
 
 
     !> Point-by-point, accurate conversion to mixing ratio cannot be
-    !> performed if (yes, there's some redundancy here..):
-    !> (1) H2O, cell T and cell P are not all present
-    !> (1) H2O is not measured by a closed-path analyzer
-    !> (2) H2O, cell T and cell P are not all from the same analyzer
-    if (.not. E2Col(h2o)%present  &
-        .or. .not. E2Col(tc)%present &
-        .or. .not. E2Col(pi)%present &
-        .or. E2Col(h2o)%instr%path_type /= 'closed' &
-        .or. E2Col(h2o)%instr%model /= E2Col(tc)%instr%model &
-        .or. E2Col(h2o)%instr%model /= E2Col(pi)%instr%model) return
+    !> performed if H2O is not measured by a closed-path analyzer
+    if (.not. E2Col(h2o)%present &
+        .or. E2Col(h2o)%instr%path_type /= 'closed') return
 
     !> Calculates time series of air molar volume [kg+1m-3] in the cell of the
     !> of the instrument for which T and P are available.
-    where (Set(:, pi) > 0d0 .and. Set(:, tc) > 0d0)
-        Va(:) = Ru * Set(:, tc) / Set(:, pi)
-    elsewhere
+    if (E2Col(tc)%present .and. E2Col(pi)%present &
+        .and. E2Col(tc)%instr%model == E2Col(h2o)%instr%model &
+        .and. E2Col(pi)%instr%model == E2Col(h2o)%instr%model) then
+        where (Set(:, pi) > 0d0 .and. Set(:, tc) > 0d0)
+            Va(:) = Ru * Set(:, tc) / Set(:, pi)
+        elsewhere
+            Va(:) = error
+        end where
+    else
         Va(:) = error
-    end where
+    end if
 
     !> Locally transform h2o into mole fraction [mmol/mol]
     select case (E2Col(h2o)%measure_type)
