@@ -1171,7 +1171,7 @@ subroutine InitOutFiles_rp()
         open(ust5, file = St5_Path, iostat = open_status, encoding = 'utf-8')
 
         write(ust5, '(a)') 'fifth_statistics:_on_raw_data_after_despiking_cross_wind_correction&
-                            &_angle-of-attack_correction_and_double_rotation'
+                            &_angle-of-attack_correction_and_tilt_correction'
         write(ust5, '(a)') 'filename,date,time,DOY,used_records,&
                            &mean(u),mean(v),mean(w),mean(ts),mean(co2),mean(h2o),&
                            &mean(ch4),mean(' // e2sg(gas4)(1:len_trim(e2sg(gas4)) - 1) // '),mean(tc),mean(pc),mean(te),&
@@ -1203,7 +1203,7 @@ subroutine InitOutFiles_rp()
         open(ust6, file = St6_Path, iostat = open_status, encoding = 'utf-8')
 
         write(ust6, '(a)') 'sixth statistics:_on_raw_data_after_despiking_cross_wind_correction&
-            &_angle-of-attack_correction_double_rotation_and_time-lag_compensation'
+            &_angle-of-attack_correction_tilt_correction_and_time-lag_compensation'
         write(ust6, '(a)') 'filename,date,time,DOY,used_records,&
                            &mean(u),mean(v),mean(w),mean(ts),mean(co2),mean(h2o),&
                            &mean(ch4),mean(' // e2sg(gas4)(1:len_trim(e2sg(gas4)) - 1) // '),mean(tc),mean(pc),mean(te),&
@@ -1235,7 +1235,7 @@ subroutine InitOutFiles_rp()
         open(ust7, file = St7_Path, iostat = open_status, encoding = 'utf-8')
 
         write(ust7, '(a)') 'seventh_statistics:seventh_statistics:_on_raw_data_after_despiking_cross_wind_correction&
-            &_angle-of-attack_correction_double_rotation_time-lag_compensation_and_detrending'
+            &_angle-of-attack_correction_tilt_correction_time-lag_compensation_and_detrending'
         write(ust7, '(a)') 'filename,date,time,DOY,used_records,&
                            &mean(u),mean(v),mean(w),mean(ts),mean(co2),mean(h2o),&
                            &mean(ch4),mean(' // e2sg(gas4)(1:len_trim(e2sg(gas4)) - 1) // '),mean(tc),mean(pc),mean(te),&
