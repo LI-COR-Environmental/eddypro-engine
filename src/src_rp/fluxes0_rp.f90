@@ -426,7 +426,7 @@ subroutine Fluxes0_rp(printout)
     end if
 
     !> Bowen ration (Bowen, 1926, Phyis Rev)
-    if (Flux0%LE /= 0d0 .and. Flux0%LE /= error) then
+    if (Flux0%LE /= 0d0 .and. Flux0%LE /= error .and. Flux0%H /= error) then
         Ambient%Bowen = Flux0%H / Flux0%LE
     else
         Ambient%Bowen = error

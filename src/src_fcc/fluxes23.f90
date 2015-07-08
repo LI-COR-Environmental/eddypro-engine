@@ -882,8 +882,11 @@ subroutine Fluxes23(lEx)
         lEx%Tstar = Flux3%H / (lEx%RhoCp * lEx%ustar)
 
     !> Bowen ration (Bowen, 1926, Phyis Rev)
-    if (Flux3%LE /= 0d0 .and. Flux3%LE /= error) &
+    if (Flux3%LE /= 0d0 .and. Flux3%LE /= error .and. Flux3%H /= error) then
         lEx%Bowen = Flux3%H / Flux3%LE
+    else
+        lEx%Bowen = error
+    end if
 
     !> Momentum flux
     Flux2%tau = Flux1%tau

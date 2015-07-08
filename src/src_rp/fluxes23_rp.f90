@@ -881,8 +881,11 @@ subroutine Fluxes23_rp()
         Ambient%Ts = Flux3%H / (Ambient%RhoCp * Ambient%us)
 
     !> Bowen ration (Bowen, 1926, Phyis Rev)
-    if (Flux3%LE /= 0d0 .and. Flux3%LE /= error) &
+    if (Flux3%LE /= 0d0 .and. Flux3%LE /= error .and. Flux3%H /= error) then
         Ambient%Bowen = Flux3%H / Flux3%LE
+    else
+        Ambient%Bowen = error
+    end if
 
     !> Momentum flux
     Flux2%tau = Flux1%tau
