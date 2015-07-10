@@ -176,11 +176,12 @@ subroutine TestSpikeDetectionVickers97(Set, N, printout)
             !> Following lines
             if (RPsetup%filter_sr) then
                 do i = 2, N
-                    if(set(i, j) /= error .and. &
-                        (Set(i, j) > &
+                    if (Set(i, j) == error) then
+                        if (cnt /= 0) cnt = cnt + 1
+                    elseif(Set(i, j) > &
                         LocMean(i, j) + adv_lim(j) * LocStDev(i, j) .or. &
                         Set(i, j) < &
-                        LocMean(i, j) - adv_lim(j) * LocStDev(i, j))) then
+                        LocMean(i, j) - adv_lim(j) * LocStDev(i, j)) then
                         cnt = cnt + 1
                     else
                         if ((cnt /= 0) .and. (cnt <= sr%num_spk)) then
@@ -201,12 +202,16 @@ subroutine TestSpikeDetectionVickers97(Set, N, printout)
                             enddo
 
                             !> replace with linear interpolation if requested
-                            m = (Set(i, j) &
-                                - Set(i - (cnt + 1), j)) / (dble(cnt + 1))
-                            q = Set(i - (cnt + 1), j)
-                            do k = i - cnt, i - 1
-                                Set(k, j) = (m * (dble(k - (i - cnt - 1))) + q)
-                            end do
+                            !> and if possible, i.e. if the last non-spiky point
+                            !> was not an error value
+                            if (Set(i - (cnt + 1), j) /= error) then
+                                m = (Set(i, j) &
+                                    - Set(i - (cnt + 1), j)) / (dble(cnt + 1))
+                                q = Set(i - (cnt + 1), j)
+                                do k = i - cnt, i - 1
+                                    Set(k, j) = (m * (dble(k - (i - cnt - 1))) + q)
+                                end do
+                            end if
                             cnt = 0
                         else if (cnt > sr%num_spk) then
                             cnt = 0
@@ -215,12 +220,13 @@ subroutine TestSpikeDetectionVickers97(Set, N, printout)
                 end do
             else
                 do i = 2, N
-                    if(set(i, j) /= error .and. &
-                        (Set(i, j) > &
-                        LocMean(i, j) + adv_lim(j) * LocStDev(i, j) .or. &
-                        Set(i, j) < &
-                        LocMean(i, j) - adv_lim(j) * LocStDev(i, j))) then
-                        cnt = cnt + 1
+                    if (Set(i, j) == error) then
+                        if (cnt /= 0) cnt = cnt + 1
+                    elseif(Set(i, j) > &
+                            LocMean(i, j) + adv_lim(j) * LocStDev(i, j) .or. &
+                            Set(i, j) < &
+                            LocMean(i, j) - adv_lim(j) * LocStDev(i, j)) then
+                            cnt = cnt + 1
                     else
                         if ((cnt /= 0) .and. (cnt <= sr%num_spk)) then
                             !> check whether it was a spike already,
