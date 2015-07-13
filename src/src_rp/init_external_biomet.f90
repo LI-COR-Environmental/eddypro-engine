@@ -230,7 +230,7 @@ subroutine InitExternalBiomet(bFileList, N)
     !> No data label is allowed in external biomet files
     bFileMetadata%data_label = ''
 
-    !> No data label is allowed in external biomet files
+    !> Accounts for timestamp columns
     call BiometUpdateSelectionOrder()
 
     !> Put biomet files in chronological order, regardless of file names

@@ -62,8 +62,11 @@ subroutine BiometRetrieveEmbeddedData(proceed, printout)
     end if
 
     !> Associate values to variables, as selected by user
+    !> The - 2 is to account for the DATE and TIME columns in the file, which
+    !> are not included in bAggr. The 2 shall eventually be replaced by nbTimestamp
+    !> as per read_biomet_meta_file.f90
     do i = bTa, bRg
-        if (bSetup%sel(i) > 0) biomet%val(i) = bAggr(bSetup%sel(i))
+        if (bSetup%sel(i) > 0) biomet%val(i) = bAggr(bSetup%sel(i) - 2)
     end do
 
     !> Deallocate variables no longer used
