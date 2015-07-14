@@ -451,22 +451,23 @@ subroutine WriteVariablesRP()
     RPsetup%offset(w) = dble(SNTags(53)%value)
 
     !> Planar fit settings
-    PFSetup%start_date    = SCTags(49)%value(1:len_trim(SCTags(49)%value))
-    PFSetup%end_date      = SCTags(50)%value(1:len_trim(SCTags(50)%value))
-    PFSetup%start_time    = SCTags(22)%value(1:len_trim(SCTags(22)%value))
-    PFSetup%end_time      = SCTags(23)%value(1:len_trim(SCTags(23)%value))
-    PFSetup%min_per_sec   = nint(SNTags(70)%value)
-    PFSetup%w_max         = SNTags(71)%value
-    PFSetup%u_min         = SNTags(72)%value
-    !> If w_max is found to be < 0.099, it means it has not been set, so it
-    !> is forced to the max value, which implies no filtering for w_max.
-    if(PFSetup%w_max  <= 0.099d0) PFSetup%w_max = 10d0
-    PFSetup%fix = 'clockwise'
-    if(SCTags(88)%value(1:1) == '1') PFSetup%fix = 'counterclockwise'
-    if(SCTags(88)%value(1:1) == '2') PFSetup%fix = 'double_rotation'
-
-    !> Customization of wind sectors
     if (index(Meth%rot, 'planar_fit') /= 0) then
+        PFSetup%subperiod     = SCTags(97)%value(1:1) == '1'
+        PFSetup%start_date    = SCTags(49)%value(1:len_trim(SCTags(49)%value))
+        PFSetup%end_date      = SCTags(50)%value(1:len_trim(SCTags(50)%value))
+        PFSetup%start_time    = SCTags(22)%value(1:len_trim(SCTags(22)%value))
+        PFSetup%end_time      = SCTags(23)%value(1:len_trim(SCTags(23)%value))
+        PFSetup%min_per_sec   = nint(SNTags(70)%value)
+        PFSetup%w_max         = SNTags(71)%value
+        PFSetup%u_min         = SNTags(72)%value
+        !> If w_max is found to be < 0.099, it means it has not been set, so it
+        !> is forced to the max value, which implies no filtering for w_max.
+        if(PFSetup%w_max  <= 0.099d0) PFSetup%w_max = 10d0
+        PFSetup%fix = 'clockwise'
+        if(SCTags(88)%value(1:1) == '1') PFSetup%fix = 'counterclockwise'
+        if(SCTags(88)%value(1:1) == '2') PFSetup%fix = 'double_rotation'
+
+        !> Customization of wind sectors
         leap_an_wsect = 2
         init_an_wsect = 209 - leap_an_wsect
         PFSetup%num_sec = 0
@@ -501,6 +502,7 @@ subroutine WriteVariablesRP()
     !> Time lag optimizer settings
     if (RPsetup%to_onthefly) then
         TOSetup%h2o_nclass    = 0
+        TOSetup%subperiod     = SCTags(98)%value(1:1) == '1'
         TOSetup%start_date    = SCTags(93)%value(1:len_trim(SCTags(93)%value))
         TOSetup%end_date      = SCTags(94)%value(1:len_trim(SCTags(94)%value))
         TOSetup%start_time    = SCTags(24)%value(1:len_trim(SCTags(24)%value))

@@ -473,19 +473,25 @@ end interface
         else
             write(*,'(a)') ' Performing time-lag optimization:'
 
-            !> Timestamps of start and end of time lag optimization period
-            call DateTimeToDateType(TOSetup%start_date, TOSetup%start_time, auxStartTimestamp)
-            call DateTimeToDateType(TOSetup%end_date, TOSetup%end_time, auxEndTimestamp)
+            if (TOSetup%subperiod) then
+                !> Timestamps of start and end of time lag optimization period
+                call DateTimeToDateType(TOSetup%start_date, TOSetup%start_time, auxStartTimestamp)
+                call DateTimeToDateType(TOSetup%end_date, TOSetup%end_time, auxEndTimestamp)
 
-            !> In RawTimeSeries, detect indices of first and last files
-            !> relevant to time lag optimization
-            call tsExtractSubperiodIndexes(RawTimeSeries, &
-                size(RawTimeSeries), auxStartTimestamp, auxEndTimestamp, &
-                toStartTimestampIndx, toEndTimestampIndx)
+                !> In RawTimeSeries, detect indices of first and last files
+                !> relevant to time lag optimization
+                call tsExtractSubperiodIndexes(RawTimeSeries, &
+                    size(RawTimeSeries), auxStartTimestamp, auxEndTimestamp, &
+                    toStartTimestampIndx, toEndTimestampIndx)
+                toEndTimestampIndx = toEndTimestampIndx + 1
 
-            if (toStartTimestampIndx == nint(error) &
-                .or. toEndTimestampIndx == nint(error)) &
-                call ExceptionHandler(49)
+                if (toStartTimestampIndx == nint(error) &
+                    .or. toEndTimestampIndx == nint(error)) &
+                    call ExceptionHandler(49)
+            else
+                toStartTimestampIndx = 1
+                toEndTimestampIndx = size(RawTimeSeries)
+            end if
 
             !> Count maximum number of periods for timelag optimization
             write(TmpString1, '(i7)') toEndTimestampIndx - toStartTimestampIndx
@@ -521,7 +527,7 @@ end interface
                 !> Normal exit instruction: either the last period was
                 !> dealt with, or raw files are finished
                 if (LatestRawFileIndx > NumRawFiles &
-                    .or. pcount > toEndTimestampIndx) exit to_periods_loop
+                    .or. pcount >= toEndTimestampIndx) exit to_periods_loop
 
                 !> Define initial/final timestamps
                 !> of current period, say [8:00 - 8:30)
@@ -832,10 +838,12 @@ end interface
                 TOSetup%h2o_nclass, TOSetup%h2o_class_size)
 
             !> Write time lag optimization results on output file
-            call WriteOutTimelagOptimization(tlagn, E2NumVar, &
-                toH2On, TOSetup%h2o_nclass, TOSetup%h2o_class_size)
+            if (.not. (Meth%tlag == 'maxcov')) &
+                call WriteOutTimelagOptimization(tlagn, E2NumVar, &
+                    toH2On, TOSetup%h2o_nclass, TOSetup%h2o_class_size)
+
             if (allocated(toH2On)) deallocate(toH2On)
-            write(*,'(a)') ' Time lag optimization session terminated.'
+            write(*,'(a)') ' Time-lag optimization session terminated.'
             write(*,'(a)')
         end if
     end if
@@ -876,21 +884,27 @@ end interface
             if (.not. allocated(pfNumElem))  &
                 allocate(pfNumElem(PFSetup%num_sec))
 
-            !> Timestamps of start and end of planar fit period
-            call DateTimeToDateType(PFSetup%start_date, PFSetup%start_time, &
-                auxStartTimestamp)
-            call DateTimeToDateType(PFSetup%end_date, PFSetup%end_time, &
-                auxEndTimestamp)
+            if (PFSetup%subperiod) then
+                !> Timestamps of start and end of planar fit period
+                call DateTimeToDateType(PFSetup%start_date, PFSetup%start_time, &
+                    auxStartTimestamp)
+                call DateTimeToDateType(PFSetup%end_date, PFSetup%end_time, &
+                    auxEndTimestamp)
 
-            !> In RawTimeSeries, detect indexes of first and last files
-            !> relevant to planar fit
-            call tsExtractSubperiodIndexes(RawTimeSeries, &
-                size(RawTimeSeries), auxStartTimestamp, auxEndTimestamp, &
-                pfStartTimestampIndx, pfEndTimestampIndx)
+                !> In RawTimeSeries, detect indexes of first and last files
+                !> relevant to planar fit
+                call tsExtractSubperiodIndexes(RawTimeSeries, &
+                    size(RawTimeSeries), auxStartTimestamp, auxEndTimestamp, &
+                    pfStartTimestampIndx, pfEndTimestampIndx)
+                pfEndTimestampIndx = pfEndTimestampIndx + 1
 
-            if (pfStartTimestampIndx == nint(error) &
-                .or. pfEndTimestampIndx == nint(error)) &
-                call ExceptionHandler(48)
+                if (pfStartTimestampIndx == nint(error) &
+                    .or. pfEndTimestampIndx == nint(error)) &
+                    call ExceptionHandler(48)
+            else
+                pfStartTimestampIndx = 1
+                pfEndTimestampIndx = size(RawTimeSeries)
+            end if
 
             !> Count maximum number of periods for planar fit
             write(TmpString1, '(i7)') &
@@ -926,7 +940,7 @@ end interface
                 !> Normal exit instruction: either the last period
                 !> was dealt with, or raw files are finished
                 if (LatestRawFileIndx > NumRawFiles &
-                    .or. pcount > pfEndTimestampIndx) exit pf_periods_loop
+                    .or. pcount >= pfEndTimestampIndx) exit pf_periods_loop
 
                 !> Define initial/final timestamps of
                 !> current period, say [8:00 - 8:30)

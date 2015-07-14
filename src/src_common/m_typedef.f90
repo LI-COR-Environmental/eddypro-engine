@@ -808,6 +808,7 @@ module m_typedef
         character(5) :: start_time
         character(5) :: end_time
         character(32) :: fix
+        logical :: subperiod
         logical :: wsect_exclude(MaxNumWSect)
     end type PFSetupType
 
@@ -1091,6 +1092,7 @@ module m_typedef
         character(10) :: end_date
         character(5) :: start_time
         character(5) :: end_time
+        logical :: subperiod
     end type TOSetupType
 
     type :: TLType
