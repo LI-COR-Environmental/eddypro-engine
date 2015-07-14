@@ -12,7 +12,8 @@ Makefile
 *.o
 
 ### MAC ###
-.DS_Store
+*.DS_Store
+*.db
 
 ### MISC ###
 *.bak
