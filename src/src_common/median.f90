@@ -2,7 +2,7 @@
 ! median.f90
 ! ----------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -21,11 +21,10 @@
 !
 !***************************************************************************
 !
-! \brief       Find the median of vec(1), ... , vec(n), using as much of the quicksort
-!              algorithm as is needed to isolate it.
-!              N.B. On exit, the array vec is partially ordered.
-! \author      Patched by Gerardo Fratini from original code from Alan Miller, available
-!              in the public domain:
+! \brief       Find the median of vec(1), ... , vec(n), using as much of the
+!              quicksort algorithm as is needed to isolate it.
+! \author      Patched by Gerardo Fratini from original code from Alan Miller,
+!              available in the public domain at:
 !              http://jblevins.org/mirror/amiller/median.f90
 ! \note
 ! \sa
@@ -34,18 +33,21 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine median(vec, n, med)
+subroutine median(ivec, n, med)
     use m_common_global_var
     implicit none
     !> In/out variables
     integer, intent(in) :: n
-    real(kind = dbl), intent(inout), dimension(:) :: vec(n)
+    real(kind = dbl), intent(in), dimension(:) :: ivec(n)
     real(kind = dbl), intent(out) :: med
     !> local variables
+    real(kind = dbl), dimension(:) :: vec(n)
     real(kind = dbl) :: temp, xhi, xlo, xmax, xmin
     logical :: odd
     integer :: hi, lo, nby2, nby2p1, mid, i, j, k
 
+
+    vec = ivec
     nby2 = n / 2
     nby2p1 = nby2 + 1
     odd = .true.

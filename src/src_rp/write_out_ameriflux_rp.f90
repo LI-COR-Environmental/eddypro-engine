@@ -1,7 +1,7 @@
 !***************************************************************************
 ! write_out_ameriflux_rp.f90
-! --------------------------!
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! --------------------------
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -36,8 +36,8 @@ subroutine WriteOutAmeriFlux_rp(date, time)
     character(*), intent(in) :: date
     character(*), intent(in) :: time
     !> local variables
-    character(10000) :: dataline
-    character(64) :: datum
+    character(LongOutstringLen) :: dataline
+    character(DatumLen) :: datum
     integer :: int_doy
     real(kind=dbl) :: float_doy
 

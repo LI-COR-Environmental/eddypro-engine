@@ -2,7 +2,7 @@
 ! statistical_screening.f90
 ! -------------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -21,7 +21,8 @@
 !
 !***************************************************************************
 !
-! \brief       Driver to statistical screening according to Vicker and Mahrt (1997, JAOT)
+! \brief       Driver to statistical screening according to
+!              Vicker and Mahrt (1997, JAOT)
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -30,45 +31,45 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine StatisticalScreening(Set, nrow, ncol, LocTest, printout)
+subroutine StatisticalScreening(Set, nrow, ncol, Tests, printout)
     use m_rp_global_var
     !> in/out variables
     integer, intent(in) :: nrow, ncol
     logical, intent(in) :: printout
-    type(TestType), intent(in) :: LocTest
+    type(TestType), intent(in) :: Tests
     real(kind = dbl), intent(inout) :: Set(nrow, ncol)
 
     if (printout) write(*, '(a)') '  Raw level statistical screening..'
 
     !> Spike count/removal (sr)
-    if (LocTest%sr) then
-        if (RPSetup%despike_vm) then
-            call TestSpikeDetection(Set, nrow, printout)
+    if (Tests%sr) then
+        if (RPSetup%despike_vickers97) then
+            call TestSpikeDetectionVickers97(Set, nrow, printout)
         else
-            call TestSpikeDetectionComingSoon(Set, nrow, printout)
+            call TestSpikeDetectionMauder13(Set, nrow, printout)
         end if
     end if
 
     !> Amplitude resolution and dropouts (ar, do)
-    if (LocTest%ar .or. LocTest%do) call TestAmpResDropOut(Set, nrow)
+    if (Tests%ar .or. Tests%do) call TestAmpResDropOut(Set, nrow)
 
     !> Absolute limits (al)
-    if (LocTest%al) call TestAbsoluteLimits(Set, nrow, printout)
+    if (Tests%al) call TestAbsoluteLimits(Set, nrow, printout)
 
     !> Skewness and kurtosis (sk)
-    if (LocTest%sk) call TestHigherMoments(Set, nrow)
+    if (Tests%sk) call TestHigherMoments(Set, nrow)
 
     !> Discontinuities (ds)
-    if (LocTest%ds) call TestDiscontinuities(Set, nrow)
+    if (Tests%ds) call TestDiscontinuities(Set, nrow)
 
     !> Time lag (tl)
-    if (LocTest%tl) call TestTimeLag(Set, nrow)
+    if (Tests%tl) call TestTimeLag(Set, nrow)
 
     !> Angle of attack (aa)
-    if (LocTest%aa) call TestAttackAngle(Set, nrow)
+    if (Tests%aa) call TestAttackAngle(Set, nrow)
 
     !> Non-steady horizontal wind speed (ns)
-    if (LocTest%ns) call TestNonSteadyWind(Set, nrow)
+    if (Tests%ns) call TestNonSteadyWind(Set, nrow)
 
     !> Set flags to 9 for tests not performed
     call TestsNotPerformed()

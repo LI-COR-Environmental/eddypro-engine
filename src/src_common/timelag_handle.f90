@@ -2,7 +2,7 @@
 ! timelag_handle.f90
 ! ------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -33,7 +33,8 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine TimeLagHandle(TlagMeth, Set, nrow, ncol, TLag, DefTlagUsed, InTimelagOpt)
+subroutine TimeLagHandle(TlagMeth, Set, nrow, ncol, TLag, &
+    DefTlagUsed, InTimelagOpt)
     use m_common_global_var
     implicit none
     !> in/out variables
@@ -56,13 +57,15 @@ subroutine TimeLagHandle(TlagMeth, Set, nrow, ncol, TLag, DefTlagUsed, InTimelag
     real(kind = dbl) :: SecondCol(nrow)
     real(kind = dbl) :: TmpSet(nrow, ncol)
 
-    if  (.not. InTimelagOpt) write(*, '(a)', advance = 'no') '  Compensating time lags..'
+    if  (.not. InTimelagOpt) write(*, '(a)', advance = 'no') &
+        '  Compensating time lags..'
 
     !> for E2Set scalars, initialise auxiliary vars to zero
     def_rl(:) = 0
     min_rl(:) = 0
     min_rl(:) = 0
-    !> Define "row-lags" for scalars, using timelags retrieved from metadata file
+    !> Define "row-lags" for scalars, using time-lags
+    !> retrieved from metadata file
     where (E2Col(ts:pe)%present)
         def_rl(ts:pe) = nint(E2Col(ts:pe)%def_tl * Metadata%ac_freq)
         min_rl(ts:pe) = nint(E2Col(ts:pe)%min_tl * Metadata%ac_freq)
@@ -79,12 +82,15 @@ subroutine TimeLagHandle(TlagMeth, Set, nrow, ncol, TLag, DefTlagUsed, InTimelag
         case ('maxcov', 'maxcov&default')
             !> covariance maximization method, with or without default
             do j = ts, pe
-                !> Only for present variables, with both min and max "row lags" /= 0
-                if (E2Col(j)%present .and. (min_rl(j) /= 0 .or. max_rl(j) /= 0)) then
+                !> Only for present variables,
+                !> with both min and max "row lags" /= 0
+                if (E2Col(j)%present &
+                    .and. (min_rl(j) /= 0 .or. max_rl(j) /= 0)) then
                     FirstCol(:)  = Set(:, w)
                     SecondCol(:) = Set(:, j)
                     call CovMax(TlagMeth, def_rl(j), min_rl(j), max_rl(j), &
-                        FirstCol, SecondCol, size(FirstCol), TLag(j), RowLags(j), DefTlagUsed(j))
+                        FirstCol, SecondCol, size(FirstCol), &
+                        TLag(j), RowLags(j), DefTlagUsed(j))
                 else
                     RowLags(j) = 0
                     TLag(j) = 0d0
@@ -97,26 +103,34 @@ subroutine TimeLagHandle(TlagMeth, Set, nrow, ncol, TLag, DefTlagUsed, InTimelag
     end select
 
     if  (.not. InTimelagOpt) then
-        !> For closed path instruments,
-        !> calculate H2O covariances for timelags of other scalars from the same instrument
+        !> For closed path instruments, calculate H2O covariances
+        !> for time-lags of other scalars from the same instrument
         Stats%h2ocov_tl_co2 = error
         Stats%h2ocov_tl_ch4 = error
         Stats%h2ocov_tl_gas4 = error
-        if (E2Col(h2o)%present .and. E2Col(h2o)%instr%path_type == 'closed') then
+        if (E2Col(h2o)%present &
+            .and. E2Col(h2o)%instr%path_type == 'closed') then
             ColW(1:nrow) = Set(1:nrow, w)
             ColH2O(1:nrow) = Set(1:nrow, h2o)
-            if (E2Col(co2)%present .and. &
-                E2Col(co2)%instr%model == E2Col(h2o)%instr%model .and. RowLags(co2) > 0) &
-                call CovarianceW(ColW, ColH2O, size(ColW), RowLags(co2), Stats%h2ocov_tl_co2)
-            if (E2Col(ch4)%present .and. &
-                E2Col(ch4)%instr%model == E2Col(h2o)%instr%model .and. RowLags(ch4) > 0) &
-                call CovarianceW(ColW, ColH2O, size(ColW), RowLags(ch4), Stats%h2ocov_tl_ch4)
-            if (E2Col(gas4)%present .and. &
-                E2Col(gas4)%instr%model == E2Col(h2o)%instr%model .and. RowLags(gas4) > 0) &
-                call CovarianceW(ColW, ColH2O, size(ColW), RowLags(gas4), Stats%h2ocov_tl_gas4)
+            if (E2Col(co2)%present &
+                .and. E2Col(co2)%instr%model == E2Col(h2o)%instr%model &
+                .and. RowLags(co2) > 0) &
+                call CovarianceW(ColW, ColH2O, size(ColW), &
+                    RowLags(co2), Stats%h2ocov_tl_co2)
+            if (E2Col(ch4)%present &
+                .and. E2Col(ch4)%instr%model == E2Col(h2o)%instr%model &
+                .and. RowLags(ch4) > 0) &
+                call CovarianceW(ColW, ColH2O, size(ColW), &
+                    RowLags(ch4), Stats%h2ocov_tl_ch4)
+            if (E2Col(gas4)%present &
+                .and. E2Col(gas4)%instr%model == E2Col(h2o)%instr%model &
+                .and. RowLags(gas4) > 0) &
+                call CovarianceW(ColW, ColH2O, size(ColW), &
+                RowLags(gas4), Stats%h2ocov_tl_gas4)
         end if
 
-        !> Calculate cell temperature covariances with timelags of scalars from the same instrument
+        !> Calculate cell temperature covariances with
+        !> time-lags of scalars from the same instrument
         Stats%tc_cov_tl_co2 = error
         Stats%tc_cov_tl_h2o = error
         Stats%tc_cov_tl_ch4 = error
@@ -125,22 +139,31 @@ subroutine TimeLagHandle(TlagMeth, Set, nrow, ncol, TLag, DefTlagUsed, InTimelag
             !> Store vertical wind component and tc in ad-hoc arrays
             ColW(1:nrow) = Set(1:nrow, w)
             ColTC(1:nrow) = Set(1:nrow, tc)
-            if (E2Col(co2)%present .and. &
-                E2Col(co2)%instr%model == E2Col(tc)%instr%model .and. RowLags(co2) > 0) &
-                call CovarianceW(ColW, ColTC, size(ColTC), RowLags(co2), Stats%tc_cov_tl_co2)
-            if (E2Col(h2o)%present .and. &
-                E2Col(h2o)%instr%model == E2Col(tc)%instr%model .and. RowLags(h2o) > 0) &
-                call CovarianceW(ColW, ColTC, size(ColTC), RowLags(h2o), Stats%tc_cov_tl_h2o)
-            if (E2Col(ch4)%present .and. &
-                E2Col(ch4)%instr%model == E2Col(tc)%instr%model .and. RowLags(ch4) > 0) &
-                call CovarianceW(ColW, ColTC, size(ColTC), RowLags(ch4), Stats%tc_cov_tl_ch4)
-            if (E2Col(gas4)%present .and. &
-                E2Col(gas4)%instr%model == E2Col(tc)%instr%model .and. RowLags(gas4) > 0) &
-                call CovarianceW(ColW, ColTC, size(ColTC), RowLags(gas4), Stats%tc_cov_tl_gas4)
+            if (E2Col(co2)%present &
+                .and. E2Col(co2)%instr%model == E2Col(tc)%instr%model &
+                .and. RowLags(co2) > 0) &
+                call CovarianceW(ColW, ColTC, size(ColTC), &
+                    RowLags(co2), Stats%tc_cov_tl_co2)
+            if (E2Col(h2o)%present &
+                .and. E2Col(h2o)%instr%model == E2Col(tc)%instr%model &
+                .and. RowLags(h2o) > 0) &
+                call CovarianceW(ColW, ColTC, size(ColTC), &
+                    RowLags(h2o), Stats%tc_cov_tl_h2o)
+            if (E2Col(ch4)%present &
+                .and. E2Col(ch4)%instr%model == E2Col(tc)%instr%model &
+                .and. RowLags(ch4) > 0) &
+                call CovarianceW(ColW, ColTC, size(ColTC), &
+                    RowLags(ch4), Stats%tc_cov_tl_ch4)
+            if (E2Col(gas4)%present &
+                .and. E2Col(gas4)%instr%model == E2Col(tc)%instr%model &
+                .and. RowLags(gas4) > 0) &
+                call CovarianceW(ColW, ColTC, size(ColTC), &
+                    RowLags(gas4), Stats%tc_cov_tl_gas4)
         end if
     end if
 
-    !> Align data according to relevant time lags, filling remaining with error code.
+    !> Align data according to relevant time-lags,
+    !> filling remaining with error code.
     do j = u, pe
         if (E2Col(j)%present) then
             if (RowLags(j) >= 0) then
@@ -165,10 +188,10 @@ subroutine TimeLagHandle(TlagMeth, Set, nrow, ncol, TLag, DefTlagUsed, InTimelag
         end if
     end do
     Set = TmpSet
-    if  (.not. InTimelagOpt) write(*,'(a)') ' done.'
+    if  (.not. InTimelagOpt) write(*,'(a)') ' Done.'
 end subroutine TimeLagHandle
 
-!***************************************************************************
+!*******************************************************************************
 !
 ! \brief       Performs covariance analysis for determining the "optimal" \n
 !              time lag, the one that maximizes the covariance.
@@ -179,8 +202,9 @@ end subroutine TimeLagHandle
 ! \deprecated
 ! \test
 ! \todo
-!***************************************************************************
-subroutine CovMax(TlagMeth, lagctr, lagmin, lagmax, Col1, Col2, nrow, TLag, RLag, def_used)
+!*******************************************************************************
+subroutine CovMax(TlagMeth, lagctr, lagmin, lagmax, Col1, Col2, nrow, &
+    TLag, RLag, def_used)
     use m_common_global_var
     implicit none
     !> in/out variables

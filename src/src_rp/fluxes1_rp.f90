@@ -2,7 +2,7 @@
 ! fluxes1_rp.f90
 ! --------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -37,24 +37,26 @@ subroutine Fluxes1_rp()
 
     write(*,'(a)', advance = 'no') '  Calculating fluxes Level 1..'
 
-    Flux1 = fluxtype('', '', error, error, error, error, error, error, error, error, error, &
-        error, error, error, error, error, error, error, error)
+    Flux1 = errFlux
 
     !> First, apply oxygen correction to Krypton and Lyman-alpha hygrometers,
     !> according to van Dijk et al. (2003, JAOT, eq. 13b)
     select case (E2Col(h2o)%Instr%model(1:len_trim(E2Col(h2o)%Instr%model) - 2))
-        case('open_path_krypton','closed_path_krypton', 'open_path_lyman','closed_path_lyman')
-            if (E2Col(h2o)%Instr%kw /= 0d0 .and. Ambient%Ta > 0d0 &
-                .and. Ambient%Bowen /= error .and. Ambient%lambda > 0) then
+        case('open_path_krypton','closed_path_krypton', &
+                'open_path_lyman','closed_path_lyman')
+            if (E2Col(h2o)%Instr%ko /= error .and. E2Col(h2o)%Instr%kw /= 0d0 &
+                .and. Ambient%Ta > 0d0 .and. Ambient%Bowen /= error &
+                .and. Ambient%lambda > 0) then
                 Cox = 1d0 + 0.23d0 * E2Col(h2o)%Instr%ko / E2Col(h2o)%Instr%kw &
                     * Ambient%Bowen * Ambient%lambda / Ambient%Ta
                 Stats%Cov(w, h2o) = Cox * Stats%Cov(w, h2o)
                 Stats%Cov(h2o, h2o) = Cox**2 * Stats%Cov(h2o, h2o)
                 !> Alternative formulation by T.W. Horst
-                !> http://www.eol.ucar.edu/instrumentation/sounding/isfs/isff-support-center&
-                !> &/how-tos/corrections-to-sensible-and-latent-heat-flux-measurements
-                !Stats%Cov(w, h2o) = Stats%Cov(w, h2o) / (1 - 8d0 * 0.23d0 * E2Col(h2o)%Instr%ko &
-                ! / E2Col(h2o)%Instr%kw * Ambient%bowen)
+                !> http://www.eol.ucar.edu/instrumentation/sounding&
+                !> &/isfs/isff-support-center/how-tos/&
+                !> $corrections-to-sensible-and-latent-heat-flux-measurements
+                !Stats%Cov(w, h2o) = Stats%Cov(w, h2o) / (1 - 8d0 * 0.23d0 &
+                !* E2Col(h2o)%Instr%ko / E2Col(h2o)%Instr%kw * Ambient%bowen)
             endif
     end select
 
@@ -68,12 +70,12 @@ subroutine Fluxes1_rp()
     Flux1%Hi_gas4 = Flux0%Hi_gas4
 
     !> Level 1 all gases
+    !> For all closed-path gases, Level 1 is same as Level 0
+    !> For all open-path gases, applied BPCF to LO get L1
     !> co2
     if (E2Col(co2)%Instr%path_type == 'closed') then
-        !> For all closed-path gases, Level 1 is same as Level 0
         Flux1%co2 = Flux0%co2
     else
-        !> For all open-path gases, apply BPCF to L0: get L1
         if (BPCF%of(w_co2) /= error) then
             Flux1%co2 = Flux0%co2 * BPCF%of(w_co2)
         else
@@ -84,12 +86,10 @@ subroutine Fluxes1_rp()
 
     !> h2o
     if (E2Col(h2o)%Instr%path_type == 'closed') then
-        !> For all closed-path gases, Level 1 is same as Level 0
         Flux1%h2o = Flux0%h2o
         Flux1%E   = Flux0%E
         Flux1%LE  = Flux0%LE
     else
-        !> For all open-path gases, applied BPCF to LO: get L1
         if (BPCF%of(w_h2o) /= error) then
             Flux1%h2o = Flux0%h2o * BPCF%of(w_h2o)
             Flux1%E   = Flux0%E   * BPCF%of(w_h2o)
@@ -100,16 +100,16 @@ subroutine Fluxes1_rp()
             Flux1%LE  = Flux0%LE
         end if
     end if
-    if (Flux0%h2o == error) Flux1%h2o = error
-    if (Flux0%h2o == error) Flux1%E   = error
-    if (Flux0%h2o == error) Flux1%LE  = error
+    if (Flux0%h2o == error) then
+        Flux1%h2o = error
+        Flux1%E   = error
+        Flux1%LE  = error
+    end if
 
     !> ch4
     if (E2Col(ch4)%Instr%path_type == 'closed') then
-        !> For all closed-path gases, Level 1 is same as Level 0
         Flux1%ch4 = Flux0%ch4
     else
-        !> For all open-path gases, applied BPCF to LO: get L1
         if (BPCF%of(w_ch4) /= error) then
             Flux1%ch4 = Flux0%ch4 * BPCF%of(w_ch4)
         else
@@ -120,20 +120,18 @@ subroutine Fluxes1_rp()
 
     !> gas4
     if (E2Col(gas4)%Instr%path_type == 'closed') then
-        !> For all closed-path gases, Level 1 is same as Level 0
         Flux1%gas4 = Flux0%gas4
     else
-        !> For all open-path gases, applied BPCF to L0: get L1
-        if (BPCF%of(w_n2o) /= error) then
-            Flux1%gas4 = Flux0%gas4 * BPCF%of(w_n2o)
+        if (BPCF%of(w_gas4) /= error) then
+            Flux1%gas4 = Flux0%gas4 * BPCF%of(w_gas4)
         else
             Flux1%gas4 = Flux0%gas4
         end if
     end if
     if (Flux0%gas4 == error) Flux1%gas4 = error
 
-    !> Level 1 evapotranspiration fluxes with H2O covariances at timelags of other scalars
-    !> Do nothing, no spectral correction needed
+    !> Level 1 evapotranspiration fluxes with H2O covariances
+    !> at time-lags of other scalars. Do nothing, no spectral correction needed
     Flux1%E_co2 = Flux0%E_co2
     Flux1%E_ch4 = Flux0%E_ch4
     Flux1%E_gas4 = Flux0%E_gas4
@@ -141,11 +139,12 @@ subroutine Fluxes1_rp()
     !> Momentum flux [kg m-1 s-2] and friction velocity [m s-1]
     if (BPCF%of(w_u) /= error) then
         Flux1%tau = Flux0%tau * BPCF%of(w_u)
-        Ambient%us    = Ambient%us * dsqrt(BPCF%of(w_u))
+        if (Ambient%us /= error) &
+            Ambient%us = Ambient%us * dsqrt(BPCF%of(w_u))
     else
         Flux1%tau = Flux0%tau
     end if
     if (Flux0%tau == error) Flux1%tau = error
 
-    write(*,'(a)')   ' done.'
+    write(*,'(a)')   ' Done.'
 end subroutine Fluxes1_rp

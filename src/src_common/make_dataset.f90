@@ -2,7 +2,7 @@
 ! make_dataset.f90
 ! ----------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -30,7 +30,8 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine MakeDataset(PathIn, MasterTimeSeries, nrow, StartIndx, EndIndx, AddNoFile, hnrow)
+subroutine MakeDataset(PathIn, MasterTimeSeries, nrow, StartIndx, &
+    EndIndx, AddNoFile, hnrow)
     use m_common_global_Var
     implicit none
     !> in/out variables
@@ -46,14 +47,16 @@ subroutine MakeDataset(PathIn, MasterTimeSeries, nrow, StartIndx, EndIndx, AddNo
     integer :: tmp_indx
     integer :: open_status
     integer :: read_status
-    character(256) :: PathOut
-    character(MaxOutstringLen) :: DataString
-    character(MaxOutstringLen) :: DataString_utf8
-    character(MaxOutstringLen) :: TmpDataString
-    character(MaxOutstringLen) :: ErrString
+    character(PathLen) :: PathOut
+    character(LongOutstringLen) :: dataline
+    character(LongOutstringLen) :: dataline_utf8
+    character(LongOutstringLen) :: Tmpdataline
+    character(LongOutstringLen) :: ErrString
     character(10) :: fdate
     character(5)  :: ftime
     type (DateType) :: fTimestamp
+    logical :: add_error
+
 
     tmp_indx = index(PathIn, TmpExt)
     PathOut  = PathIn(1:tmp_indx - 1)
@@ -63,10 +66,12 @@ subroutine MakeDataset(PathIn, MasterTimeSeries, nrow, StartIndx, EndIndx, AddNo
     call InitContinuousDataset(PathIn, ErrString, hnrow)
 
     !> Open input file
-    open(udf, file = PathIn(1:len_trim(PathIn)), status = 'old', iostat = open_status, encoding = 'utf-8')
+    open(udf, file = PathIn(1:len_trim(PathIn)), status = 'old', &
+        iostat = open_status, encoding = 'utf-8')
     if (open_status /= 0 ) then
         write(*,'(a)')
-        write(*,'(a)') '  A problem occurred while opening file: ', PathIn(1:len_trim(PathIn))
+        write(*,'(a)') '  A problem occurred while opening file: ', &
+            trim(adjustl(PathIn))
         write(*,'(a)') '   File not imported.'
         return
     end if
@@ -78,62 +83,87 @@ subroutine MakeDataset(PathIn, MasterTimeSeries, nrow, StartIndx, EndIndx, AddNo
         return
     end if
 
-    !> Copy header from input file and copy it to output file
+    !> Copy header from input file and paste it to output file
     do i = 1, hnrow
-        read(udf, '(a)', iostat = read_status) DataString
-        call latin1_to_utf8(DataString, DataString_utf8)
-        write(udf2, '(a)') trim(adjustl(DataString_utf8))
+        read(udf, '(a)', iostat = read_status) dataline
+        call latin1_to_utf8(dataline, dataline_utf8)
+        write(udf2, '(a)') trim(adjustl(dataline_utf8))
     end do
 
-    !> Now creates actual dataset, inserting either actual results or ErrString depending
-    !> on whether results are available for each time step of the MasterTimeSeries
+    !> Now creates actual dataset, inserting either actual
+    !> results or ErrString depending on whether results are available
+    !> for each time step of the MasterTimeSeries
+    add_error = .false.
     periods_loop: do i = StartIndx, EndIndx
         !> Search for current time step in the file
         do
             !> Read the data string
-            read(udf, '(a)', iostat = read_status) DataString
+            read(udf, '(a)', iostat = read_status) dataline
 
             if(read_status /= 0) then
+                add_error = .true.
                 !> Insert here a control
                 exit
             end if
 
-            !> Retrieve date and time from the Datastring
+            !> Retrieve date and time from dataline
             if (AddNoFile) then
-                TmpDataString = DataString(index(DataString, separator) + 1: len_trim(DataString))
+                Tmpdataline = &
+                dataline(index(dataline, separator) + 1: len_trim(dataline))
             else
-                TmpDataString = DataString
+                Tmpdataline = dataline
             end if
-            fdate = TmpDataString(1:index(TmpDataString, separator) - 1)
-            TmpDataString = TmpDataString(index(TmpDataString, separator) + 1: len_trim(TmpDataString))
-            ftime = TmpDataString(1:index(TmpDataString, separator) - 1)
+            fdate = Tmpdataline(1:index(Tmpdataline, separator) - 1)
+            Tmpdataline = &
+            Tmpdataline(index(Tmpdataline, separator) + 1: len_trim(Tmpdataline))
+            ftime = Tmpdataline(1:index(Tmpdataline, separator) - 1)
 
-            !> Convert into timestamp and take it back to the beginning of the averaging period
+            !> Convert into timestamp and take it back to the
+            !> beginning of the averaging period
             call DateTimeToDateType(fdate, ftime, fTimestamp)
-            if (app == 'EddyPro-RP') fTimestamp = fTimestamp - DateStep
+            fTimestamp = fTimestamp - DateStep
+
+            if (MasterTimeSeries(i) > fTimestamp + DateStep) then
+                call AddErrorString(udf2, MasterTimeSeries(i), &
+                    ErrString, len(ErrString), &
+                    PathIn == trim(adjustl(FLUXNET_EDDY_Path)) &
+                    .or. PathIn == trim(adjustl(FLUXNET_BIOMET_Path)) , &
+                    AddNoFile)
+                cycle periods_loop
+            end if
 
             !> Check if fTimestamp is equal to current time step timestamp
             if(fTimestamp == MasterTimeSeries(i)) then
                 !> If yes, time to write on output file
-                write(udf2,'(a)') trim(adjustl(DataString))
+                write(udf2,'(a)') trim(adjustl(dataline))
                 cycle periods_loop
             elseif (fTimestamp > MasterTimeSeries(i)) then
-                !> If not, checks if timestamp in file is later than current in MasterTimeSeries
-                !> If so, writes error string on output, backspaces and cycle periods_loops
+                !> If not, checks if timestamp in file is later than current
+                !> in MasterTimeSeries. If so, writes error string on output,
+                !> backspaces and cycle periods_loops
                 if (i < EndIndx) then
-                    if (app == 'EddyPro-RP') then
-                        call AddErrorString(udf2, MasterTimeSeries(i+1), ErrString, len(ErrString), &
-                            PathIn == GHGEUROPE_Path(1:len_trim(GHGEUROPE_Path)), AddNoFile)
-                    else
-                        call AddErrorString(udf2, MasterTimeSeries(i), ErrString, len(ErrString), &
-                            PathIn == GHGEUROPE_Path(1:len_trim(GHGEUROPE_Path)), AddNoFile)
-                    end if
+                    call AddErrorString(udf2, MasterTimeSeries(i+1), &
+                        ErrString, len(ErrString), &
+                        PathIn == trim(adjustl(FLUXNET_EDDY_Path)) &
+                        .or. PathIn == trim(adjustl(FLUXNET_BIOMET_Path)) , &
+                        AddNoFile)
                 end if
                 backspace(udf)
                 cycle periods_loop
             end if
         end do
+
+        !> This takes care of time periods following the end of the raw data period
+        if (add_error .and. i < EndIndx) then
+            call AddErrorString(udf2, MasterTimeSeries(i+1), &
+                ErrString, len(ErrString), &
+                PathIn == trim(adjustl(FLUXNET_EDDY_Path)) &
+                .or. PathIn == trim(adjustl(FLUXNET_BIOMET_Path)) , &
+                AddNoFile)
+            add_error = .false.
+        end if
     end do periods_loop
+
     close(udf)
     close(udf2)
 end subroutine MakeDataset
@@ -152,7 +182,8 @@ end subroutine MakeDataset
 ! \test
 ! \todo
 !***************************************************************************
-subroutine AddErrorString(unt, Timestamp, ErrString, LenErrStr, IsGhgEuropeFile, AddNoFile)
+subroutine AddErrorString(unt, Timestamp, ErrString, LenErrStr, &
+    IsGhgEuropeFile, AddNoFile)
     use m_common_global_Var
     implicit none
     !> in/out variables
@@ -168,7 +199,7 @@ subroutine AddErrorString(unt, Timestamp, ErrString, LenErrStr, IsGhgEuropeFile,
     integer :: int_doy
     real(kind = dbl) :: float_doy
     character(32) :: char_doy
-    character(LenErrStr) :: String
+    character(LenErrStr) :: dataline
 
     !> Convert Timestamp to date and time and calculate doy
     call DateTypeToDateTime(Timestamp, date, time)
@@ -179,19 +210,22 @@ subroutine AddErrorString(unt, Timestamp, ErrString, LenErrStr, IsGhgEuropeFile,
     !> Create output string
     if (AddNoFile) then
         if (IsGhgEuropeFile) then
-            String = 'not_enough_data,' // date(1:10) // ',' // time // ',' &
-                                   // EddyProProj%err_label(1:len_trim(EddyProProj%err_label)) &
-                                   // ErrString(index(ErrString, ',,') + 1: len_trim(ErrString))
+            dataline = 'not_enough_data,' // date(1:10) // ',' // time // ',' &
+                     // trim(adjustl(EddyProProj%err_label)) &
+                     // ErrString(index(ErrString, ',,') + 1: len_trim(ErrString))
         else
-            String = 'not_enough_data,' // date(1:10) // ',' // time // ',' // char_doy(1: index(char_doy, '.')+ 3) &
-                                   // ErrString(index(ErrString, ',,') + 1: len_trim(ErrString))
+            dataline = 'not_enough_data,' // date(1:10) // ',' // time // ',' &
+                     // char_doy(1: index(char_doy, '.')+ 3) &
+                     // ErrString(index(ErrString, ',,') + 1: len_trim(ErrString))
         end if
     else
-        String = date(1:10) // ',' // time // ',' // ErrString (index(ErrString, ',,') + 1: len_trim(ErrString))
+        dataline = date(1:10) // ',' // time // ',' &
+                // char_doy(1: index(char_doy, '.')+ 3) &
+                // ErrString (index(ErrString, ',,') + 1: len_trim(ErrString))
     end if
 
     !> write on file
-    write(unt, '(a)') trim(adjustl(String))
+    write(unt, '(a)') trim(adjustl(dataline))
 
 
 end subroutine AddErrorString

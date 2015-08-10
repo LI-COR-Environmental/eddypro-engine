@@ -1,7 +1,7 @@
 !***************************************************************************
 ! init_user_outfiles.f90
 ! ----------------------
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -40,7 +40,7 @@ subroutine InitUserOutFiles()
     integer :: open_status = 1      ! initializing to false
     integer :: dot
     integer :: i
-    character(256) :: Test_Path
+    character(PathLen) :: Test_Path
     logical :: proceed
 
 
@@ -111,7 +111,7 @@ subroutine InitUserOutFiles()
         UserSt5_Path = Test_Path(1:dot) // CsvTmpExt
         open(u_user_st5, file = UserSt5_Path, iostat = open_status, encoding = 'utf-8')
         write(u_user_st5, '(a)') 'fifth_statistics:_on_raw_data_after_despiking_cross_wind_correction&
-            &_angle-of-attack_correction_and_double_rotation'
+            &_angle-of-attack_correction_and_tilt_correction'
     end if
 
     !> Statistics files Level 6
@@ -123,7 +123,7 @@ subroutine InitUserOutFiles()
         UserSt6_Path = Test_Path(1:dot) // CsvTmpExt
         open(u_user_st6, file = UserSt6_Path, iostat = open_status, encoding = 'utf-8')
         write(u_user_st6, '(a)') 'sixth_statistics:_on_raw_data_after_despiking_cross_wind_correction&
-            &_angle-of-attack_correction_double_rotation_and_time-lag_compensation'
+            &_angle-of-attack_correction_tilt_correction_and_time-lag_compensation'
     end if
 
     !> Statistics files Level 7
@@ -135,6 +135,6 @@ subroutine InitUserOutFiles()
         UserSt7_Path = Test_Path(1:dot) // CsvTmpExt
         open(u_user_st7, file = UserSt7_Path, iostat = open_status, encoding = 'utf-8')
         write(u_user_st7, '(a)') 'seventh_statistics:_on_raw_data_after_despiking_cross_wind_correction&
-            &_angle-of-attack_correction_double_rotation_time-lag_compensation_and_detrending'
+            &_angle-of-attack_correction_tilt_correction_time-lag_compensation_and_detrending'
     end if
 end subroutine InitUserOutFiles

@@ -1,7 +1,7 @@
 !***************************************************************************
 ! copy_file.f90
 ! -------------
-!Copyright (C) 2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 !This file is part of EddyPro (TM).
 !
@@ -35,7 +35,7 @@ subroutine CopyFile(ifname, ofname)
     character(*), intent(in) :: ofname
     !> Local variables
     integer :: io_error
-    character(1024) :: row
+    character(LongInstringLen) :: dataline
 
     !> Open existing file
     open(10, file = trim(ifname), status = 'old', iostat = io_error)
@@ -47,8 +47,9 @@ subroutine CopyFile(ifname, ofname)
 
     !> Copy file line by line
     io_error = 0
-    do while (io_error == 0)
-        read(10, '(a)', iostat = io_error) row
-        write(11, '(a)') trim(row)
+    do
+        read(10, '(a)', iostat = io_error) dataline
+        if(io_error /= 0) exit
+        write(11, '(a)') trim(dataline)
     end do
 end subroutine CopyFile

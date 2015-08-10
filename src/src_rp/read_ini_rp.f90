@@ -2,7 +2,7 @@
 ! read_ini_rp.f90
 ! ---------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -43,9 +43,11 @@ subroutine ReadIniRP(key)
     write(*,'(a)') ' Reading EddyPro project file: ' &
                      // PrjPath(1:len_trim(PrjPath)) // '..'
 
-    !> parse processing.eddypro file and store [Project] variables, common to all programs
+    !> parse processing.eddypro file and store [Project] variables,
+    !> common to all programs
     call ParseIniFile(PrjPath, 'Project', EPPrjNTags, EPPrjCTags,&
-        size(EPPrjNTags), size(EPPrjCTags), SNTagFound, SCTagFound, IniFileNotFound)
+        size(EPPrjNTags), size(EPPrjCTags), SNTagFound, SCTagFound, &
+        IniFileNotFound)
 
     if (IniFileNotFound) call ExceptionHandler(21)
     call WriteProcessingProjectVariables()
@@ -55,13 +57,14 @@ subroutine ReadIniRP(key)
         SNTagFound, SCTagFound, IniFileNotFound)
 
     if (IniFileNotFound) call ExceptionHandler(21)
-    !> selects only tags needed in this software, and store them in relevant variables
+    !> selects only tags needed in this software, and store
+    !> them in relevant variables
     call WriteVariablesRP()
 
-    write(*,'(a)')   ' done.'
+    write(*,'(a)')   ' Done.'
 end subroutine ReadIniRP
 
-!***************************************************************************
+!*******************************************************************************
 !
 ! \brief       Looks in "SNTags" and "SCTags" and retrieve variables used for \n
 !              express processing.
@@ -72,7 +75,7 @@ end subroutine ReadIniRP
 ! \deprecated
 ! \test
 ! \todo
-!***************************************************************************
+!*******************************************************************************
 subroutine WriteVariablesRP()
     use m_rp_global_var
     implicit none
@@ -99,8 +102,10 @@ subroutine WriteVariablesRP()
         if (SNTagFound(init_an_flags + i*leap_an_flags) .and. &
             nint(SNTags(init_an_flags + i*leap_an_flags)%value) > 0) then
             NumRawFlags = NumRawFlags + 1
-            RawFlag(NumRawFlags)%col = nint(SNTags(init_an_flags + i*leap_an_flags)%value)
-            RawFlag(NumRawFlags)%threshold = dble(SNTags(init_an_flags + i*leap_an_flags + 1)%value)
+            RawFlag(NumRawFlags)%col = &
+                nint(SNTags(init_an_flags + i*leap_an_flags)%value)
+            RawFlag(NumRawFlags)%threshold = &
+                dble(SNTags(init_an_flags + i*leap_an_flags + 1)%value)
             RawFlag(NumRawFlags)%upper = .true.
             if (SNTags(init_an_flags + i*leap_an_flags + 2)%value > 0) &
                 RawFlag(NumRawFlags)%upper = .false.
@@ -124,7 +129,7 @@ subroutine WriteVariablesRP()
     Test%ns = SCTags(11)%value(1:1) == '1'
 
     !> method of spike removal
-    RPSetup%despike_vm = SCTags(90)%value(1:1) /= '1'
+    RPSetup%despike_vickers97 = SCTags(90)%value(1:1) == '0'
 
     !> Spike removal test
     sr%num_spk = idint(SNTags(1)%value)
@@ -202,9 +207,6 @@ subroutine WriteVariablesRP()
     !> Non-statiorarity of horizontal wind
     ns%hf_lim = SNTags(45)%value
 
-    !> select number of files to process together
-    RPsetup%nfiles = nint(SNTags(47)%value)
-
     !> select angle-of-attack calibration option
     select case (SCTags(12)%value(1:1))
         case ('0')
@@ -217,14 +219,18 @@ subroutine WriteVariablesRP()
 
     !> Cross-wind correction
     RPsetup%calib_cw = SCTags(13)%value(1:1) == '1'
-    !> select whether to look for raw files in sub-folders (recursive file listing)
+    !> select whether to look for raw files in sub-folders
     RPsetup%recurse = SCTags(19)%value(1:1) == '1'
     !> select whether to output binned (co)spectra
     RPsetup%out_bin_sp = SCTags(26)%value(1:1) == '1'
     !> select whether to output binned ogives
     RPsetup%out_bin_og = SCTags(51)%value(1:1) == '1'
-    !> select whether to convert to mixing ratio
-    RPsetup%to_mixing_ratio = SCTags(55)%value(1:1) == '1'
+
+    !> Regardless of user selection, if ensemble averaged (co)spectra
+    !> have been requested and binned spectra files are not available,
+    !> need to create them.
+    if ( (EddyProProj%out_avrg_cosp .or. EddyProProj%out_avrg_spec) &
+        .and. .not. EddyProProj%binned_spec_avail) RPsetup%out_bin_sp = .true.
 
     !> select output file
     RPsetup%out_full_sp(u)   = SCTags(27)%value(1:1) == '1'
@@ -275,19 +281,14 @@ subroutine WriteVariablesRP()
     !> completely the spectral analysis
     RPsetup%do_spectral_analysis = .false.
     if (RPsetup%out_bin_sp .or. RPsetup%out_bin_og &
-        .or. RPsetup%out_full_sp(u) .or. RPsetup%out_full_sp(v) .or. RPsetup%out_full_sp(w) .or. RPsetup%out_full_sp(ts) &
-        .or. RPsetup%out_full_sp(co2) .or. RPsetup%out_full_sp(h2o) .or. RPsetup%out_full_sp(ch4) .or. RPsetup%out_full_sp(gas4) &
-        .or. RPsetup%out_full_cosp(w_u) .or. RPsetup%out_full_cosp(w_v) .or. RPsetup%out_full_cosp(w_ts) &
-        .or. RPsetup%out_full_cosp(w_co2) .or. RPsetup%out_full_cosp(w_h2o) .or. RPsetup%out_full_cosp(w_ch4) &
-        .or. RPsetup%out_full_cosp(w_n2o)) RPsetup%do_spectral_analysis = .true.
+        .or. any(RPsetup%out_full_sp(u:gas4)) &
+        .or. any(RPsetup%out_full_cosp(w_u:w_v)) &
+        .or. any(RPsetup%out_full_cosp(w_ts:w_gas4))) &
+        RPsetup%do_spectral_analysis = .true.
 
-    !> If no variable was selected for output, force out_raw to false regardless of
-    !> user setting
-    if (.not. (RPsetup%out_raw_var(u) .or. RPsetup%out_raw_var(v) .or. RPsetup%out_raw_var(w) &
-    .or. RPsetup%out_raw_var(ts) .or. RPsetup%out_raw_var(co2) .or. RPsetup%out_raw_var(ch4) &
-    .or. RPsetup%out_raw_var(gas4) .or. RPsetup%out_raw_var(te) .or. RPsetup%out_raw_var(pe))) then
-        RPsetup%out_raw = .false.
-    end if
+    !> If no variable was selected for output, force out_raw to false
+    !> regardless of user setting
+    if (.not. any(RPsetup%out_raw_var(u:pe))) RPsetup%out_raw = .false.
 
     !> Raw dataset dir
     proceed = .false.
@@ -297,6 +298,7 @@ subroutine WriteVariablesRP()
             exit
         end if
     end do
+
     !> Define header of raw dataset files
     raw_out_header = '   '
     hlen = 3
@@ -344,6 +346,9 @@ subroutine WriteVariablesRP()
     !> Output QC details
     RPsetup%out_qc_details = SCTags(85)%value(1:1) == '1'
 
+    !> select the averaging length. If zero, files are processed as they are
+    RPsetup%avrg_len = nint(SNTags(50)%value)
+
     !> select detrending method
     select case (SCTags(14)%value(1:1))
         case ('0')
@@ -353,13 +358,12 @@ subroutine WriteVariablesRP()
         case ('2')
         Meth%det = 'rm'
         case ('3')
-        Meth%det = 'ewa'
+        Meth%det = 'ew'
         case default
         Meth%det = 'ba'
     end select
-    if (Meth%det(1:len_trim(Meth%det)) == 'ld' .or. &
-        Meth%det(1:len_trim(Meth%det)) == 'rm' .or. &
-        Meth%det(1:len_trim(Meth%det)) == 'ewa') RPsetup%Tconst = nint(SNTags(46)%value)
+    if (Meth%det == 'ld' .or. Meth%det == 'rm' .or. Meth%det == 'ew') &
+        RPsetup%Tconst = nint(SNTags(46)%value)
 
     !> select rotation method
     select case (SCTags(15)%value(1:1))
@@ -438,9 +442,6 @@ subroutine WriteVariablesRP()
     !> max acceptable lack of data lines in a raw file
     RPsetup%max_lack = SNTags(49)%value
 
-    !> select the averaging length. If zero, files are processed as they are
-    RPsetup%avrg_len = nint(SNTags(50)%value)
-
     !> read wind speed offsets
     RPsetup%offset(u) = 0d0
     RPsetup%offset(v) = 0d0
@@ -450,20 +451,23 @@ subroutine WriteVariablesRP()
     RPsetup%offset(w) = dble(SNTags(53)%value)
 
     !> Planar fit settings
-    PFSetup%start_date    = SCTags(49)%value(1:len_trim(SCTags(49)%value))
-    PFSetup%end_date      = SCTags(50)%value(1:len_trim(SCTags(50)%value))
-    PFSetup%min_per_sec   = nint(SNTags(70)%value)
-    PFSetup%w_max         = SNTags(71)%value
-    PFSetup%u_min         = SNTags(72)%value
-    !> If w_max is found to be < 0.099, it means it has not been set, so it
-    !> is forced to the max value, which implies no filtering for w_max.
-    if(PFSetup%w_max  <= 0.099d0) PFSetup%w_max = 10d0
-    PFSetup%fix = 'clockwise'
-    if(SCTags(88)%value(1:1) == '1') PFSetup%fix = 'counterclockwise'
-    if(SCTags(88)%value(1:1) == '2') PFSetup%fix = 'double_rotation'
-
-    !> Customization of wind sectors
     if (index(Meth%rot, 'planar_fit') /= 0) then
+        PFSetup%subperiod     = SCTags(97)%value(1:1) == '1'
+        PFSetup%start_date    = SCTags(49)%value(1:len_trim(SCTags(49)%value))
+        PFSetup%end_date      = SCTags(50)%value(1:len_trim(SCTags(50)%value))
+        PFSetup%start_time    = SCTags(22)%value(1:len_trim(SCTags(22)%value))
+        PFSetup%end_time      = SCTags(23)%value(1:len_trim(SCTags(23)%value))
+        PFSetup%min_per_sec   = nint(SNTags(70)%value)
+        PFSetup%w_max         = SNTags(71)%value
+        PFSetup%u_min         = SNTags(72)%value
+        !> If w_max is found to be < 0.099, it means it has not been set, so it
+        !> is forced to the max value, which implies no filtering for w_max.
+        if(PFSetup%w_max  <= 0.099d0) PFSetup%w_max = 10d0
+        PFSetup%fix = 'clockwise'
+        if(SCTags(88)%value(1:1) == '1') PFSetup%fix = 'counterclockwise'
+        if(SCTags(88)%value(1:1) == '2') PFSetup%fix = 'double_rotation'
+
+        !> Customization of wind sectors
         leap_an_wsect = 2
         init_an_wsect = 209 - leap_an_wsect
         PFSetup%num_sec = 0
@@ -472,8 +476,11 @@ subroutine WriteVariablesRP()
             if (SNTagFound(init_an_wsect + i*leap_an_wsect) .and. &
                 SNTags(init_an_wsect + i*leap_an_wsect)%value > 0) then
                 PFSetup%num_sec = PFSetup%num_sec + 1
-                PFSetup%width(PFSetup%num_sec) = SNTags(init_an_wsect + i*leap_an_wsect)%value
-                PFSetup%wsect_exclude(PFSetup%num_sec) = nint(SNTags(init_an_wsect + i*leap_an_wsect + 1)%value) == 1
+                PFSetup%width(PFSetup%num_sec) = &
+                    SNTags(init_an_wsect + i*leap_an_wsect)%value
+                PFSetup%wsect_exclude(PFSetup%num_sec) = &
+                    nint(SNTags(init_an_wsect + i*leap_an_wsect + 1)%value) == 1
+
             end if
         end do
         if (PFSetup%num_sec == 0) then
@@ -485,7 +492,8 @@ subroutine WriteVariablesRP()
             !> Calculate ending angle of each sector
             do i = 1, PFSetup%num_sec
                 PFSetup%wsect_end(i) = nint(sum(PFSetup%width(1:i)))
-                if (PFSetup%wsect_end(i) < 0) PFSetup%wsect_end(i) = 360 + PFSetup%wsect_end(i)
+                if (PFSetup%wsect_end(i) < 0) &
+                    PFSetup%wsect_end(i) = 360 + PFSetup%wsect_end(i)
             end do
             PFSetup%wsect_end(PFSetup%num_sec) = 360
         end if
@@ -494,8 +502,11 @@ subroutine WriteVariablesRP()
     !> Time lag optimizer settings
     if (RPsetup%to_onthefly) then
         TOSetup%h2o_nclass    = 0
+        TOSetup%subperiod     = SCTags(98)%value(1:1) == '1'
         TOSetup%start_date    = SCTags(93)%value(1:len_trim(SCTags(93)%value))
         TOSetup%end_date      = SCTags(94)%value(1:len_trim(SCTags(94)%value))
+        TOSetup%start_time    = SCTags(24)%value(1:len_trim(SCTags(24)%value))
+        TOSetup%end_time      = SCTags(25)%value(1:len_trim(SCTags(25)%value))
         TOSetup%co2_min_flux  = SNTags(194)%value
         TOSetup%ch4_min_flux  = SNTags(195)%value
         TOSetup%gas4_min_flux = SNTags(196)%value
@@ -540,32 +551,29 @@ subroutine WriteVariablesRP()
     end if
 
     !> Biomet measurements
-    BiometSetup%use_header = SCTags(58)%value(1:1) == '1'
-
     select case (SCTags(61)%value(1:len_trim(SCTags(61)%value)))
         case('comma')
-            BiometSetup%separator = ','
+            bFileMetadata%separator = ','
         case('semicolon')
-            BiometSetup%separator = ';'
+            bFileMetadata%separator = ';'
         case('space')
-            BiometSetup%separator = ' '
+            bFileMetadata%separator = ' '
         case('tab')
-            BiometSetup%separator = char(9)
+            bFileMetadata%separator = char(9)
         case default
-            BiometSetup%separator = SCTags(61)%value(1:1)
+            bFileMetadata%separator = SCTags(61)%value(1:1)
     end select
-    BiometSetup%tstamp_ref = SCTags(62)%value(1: len_trim(SCTags(62)%value))
-    BiometSetup%head_lines = nint(SNTags(192)%value)
+    bFileMetadata%tstamp_ref = SCTags(62)%value(1: len_trim(SCTags(62)%value))
+    bFileMetadata%nhead = nint(SNTags(192)%value)
 
     !> Wheter to filter for spikes and abolute limits
     RPsetup%filter_sr = SCTags(63)%value(1:1) == '1'
     RPsetup%filter_al = SCTags(64)%value(1:1) == '1'
-    RPsetup%filter_spectra_by_qc = SCTags(95)%value(1:1) == '1'
 
     !> Burba correction params
     RPsetup%bu_corr = 'none'
     if(SCTags(65)%value == '1')  RPsetup%bu_corr = 'yes'
-    if(SCTags(65)%value == '-1') RPsetup%bu_corr = 'smart'
+    if(SCTags(65)%value == '-1') RPsetup%bu_corr = 'none'
     RPsetup%bu_multi = SCTags(66)%value(1:1) == '1'
 
     !> Whether to use power-of-two samples for FFT
@@ -579,53 +587,41 @@ subroutine WriteVariablesRP()
         magnetic_declination = nint(SNTags(193)%value)
 
     !> Biomet measurements numeric params
-    BiometSetup%prof_swc  = nint(SNTags(103)%value)
-    BiometSetup%prof_shf  = nint(SNTags(104)%value)
-    BiometSetup%prof_ts   = nint(SNTags(105)%value)
-    BiometSetup%prof_t    = nint(SNTags(106)%value)
-    BiometSetup%prof_co2  = nint(SNTags(107)%value)
-    BiometSetup%prof_h2o  = nint(SNTags(108)%value)
-    BiometSetup%prof_ch4  = nint(SNTags(109)%value)
-    BiometSetup%prof_gas4 = nint(SNTags(110)%value)
-    BiometSetup%Ta        = nint(SNTags(111)%value)
-    BiometSetup%Pa        = nint(SNTags(112)%value)
-    BiometSetup%RH        = nint(SNTags(113)%value)
-    BiometSetup%PPFD      = nint(SNTags(114)%value)
-    BiometSetup%LWin      = nint(SNTags(115)%value)
-    BiometSetup%Rg        = nint(SNTags(116)%value)
-    BiometSetup%CO2       = nint(SNTags(117)%value)
-    BiometSetup%H2O       = nint(SNTags(118)%value)
-    BiometSetup%CH4       = nint(SNTags(119)%value)
-    BiometSetup%gas4      = nint(SNTags(120)%value)
+    bSetup%sel(bTa)   = nint(SNTags(111)%value)
+    bSetup%sel(bPa)   = nint(SNTags(112)%value)
+    bSetup%sel(bRH)   = nint(SNTags(113)%value)
+    bSetup%sel(bPPFD) = nint(SNTags(114)%value)
+    bSetup%sel(bLWin) = nint(SNTags(115)%value)
+    bSetup%sel(bRg)   = nint(SNTags(116)%value)
 
     init_prof_z = 120
-    BiometSetup%zT    = error
-    BiometSetup%zCO2  = error
-    BiometSetup%zH2O  = error
-    BiometSetup%zCH4  = error
-    BiometSetup%zGAS4 = error
+    bSetup%zT    = error
+    bSetup%zCO2  = error
+    bSetup%zH2O  = error
+    bSetup%zCH4  = error
+    bSetup%zGAS4 = error
     do i = 1, MaxProfNodes
         if (nint(SNTags(init_prof_z + i)%value) >= 0) &
-            BiometSetup%zT(i) = nint(SNTags(init_prof_z + i)%value)
+            bSetup%zT(i) = nint(SNTags(init_prof_z + i)%value)
         if (nint(SNTags(init_prof_z + MaxProfNodes + i)%value) >= 0) &
-            BiometSetup%zCO2(i) = nint(SNTags(init_prof_z + MaxProfNodes + i)%value)
+            bSetup%zCO2(i) = nint(SNTags(init_prof_z + MaxProfNodes + i)%value)
         if (nint(SNTags(init_prof_z + 2 * MaxProfNodes + i)%value) >= 0) &
-            BiometSetup%zH2O(i)  = nint(SNTags(init_prof_z + 2 * MaxProfNodes + i)%value)
+            bSetup%zH2O(i)  = nint(SNTags(init_prof_z + 2 * MaxProfNodes + i)%value)
         if (nint(SNTags(init_prof_z + 3 * MaxProfNodes + i)%value) >= 0) &
-            BiometSetup%zCH4(i)  = nint(SNTags(init_prof_z + 3 * MaxProfNodes + i)%value)
+            bSetup%zCH4(i)  = nint(SNTags(init_prof_z + 3 * MaxProfNodes + i)%value)
         if (nint(SNTags(init_prof_z + 4 * MaxProfNodes + i)%value) >= 0) &
-            BiometSetup%zGAS4(i) = nint(SNTags(init_prof_z + 4 * MaxProfNodes + i)%value)
+            bSetup%zGAS4(i) = nint(SNTags(init_prof_z + 4 * MaxProfNodes + i)%value)
     end do
     do i = 1, MaxProfNodes - 1
-        if (BiometSetup%zT(i + 1) /= error .and. BiometSetup%zT(i) /= error) then
-            BiometSetup%dz(1, i) = BiometSetup%zT(i + 1) - BiometSetup%zT(i)
+        if (bSetup%zT(i + 1) /= error .and. bSetup%zT(i) /= error) then
+            bSetup%dz(1, i) = bSetup%zT(i + 1) - bSetup%zT(i)
         else
-            BiometSetup%dz(1, i) = error
+            bSetup%dz(1, i) = error
         end if
-        BiometSetup%dz(2, i) = BiometSetup%zCO2(i + 1)  - BiometSetup%zCO2(i)
-        BiometSetup%dz(3, i) = BiometSetup%zH2O(i + 1)  - BiometSetup%zH2O(i)
-        BiometSetup%dz(4, i) = BiometSetup%zCH4(i + 1)  - BiometSetup%zCH4(i)
-        BiometSetup%dz(5, i) = BiometSetup%zGAS4(i + 1) - BiometSetup%zGAS4(i)
+        bSetup%dz(2, i) = bSetup%zCO2(i + 1)  - bSetup%zCO2(i)
+        bSetup%dz(3, i) = bSetup%zH2O(i + 1)  - bSetup%zH2O(i)
+        bSetup%dz(4, i) = bSetup%zCH4(i + 1)  - bSetup%zCH4(i)
+        bSetup%dz(5, i) = bSetup%zGAS4(i + 1) - bSetup%zGAS4(i)
     end do
 
     !> Parameters for Burba correction
@@ -690,9 +686,6 @@ subroutine WriteVariablesRP()
     DriftCorr%inv_cal(0:6, h2o) = SNTags(336:342)%value
     DriftCorr%b = SNTags(370)%value
     DriftCorr%c = SNTags(371)%value
-
-    !> If user doesn't want WPL correction, do not even convert to mixing ratio
-    if(.not. EddyProProj%wpl) RPsetup%to_mixing_ratio = .false.
 
     !> adjust paths
     call AdjDir(Dir%main_in, slash)

@@ -2,7 +2,7 @@
 ! test_attack_angle.f90
 ! ---------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -38,30 +38,30 @@ subroutine TestAttackAngle(Set, N)
     real(kind = dbl), intent(inout) :: Set(N, E2NumVar)
     !> local variables
     integer :: i = 0
-    integer :: count
+    integer :: cnt
+    integer :: ocnt
     real(kind = dbl) :: aoa = 0.d0
-    real(kind = dbl) :: HorVel(N)
+    real(kind = dbl) :: hwind
 
 
     write(*, '(a)', advance = 'no') '   Angle of attack test..'
 
     !> Calculation of angle of attack for each row
-    count = 0
+    cnt = 0
+    ocnt = 0
     do i = 1, N
-        HorVel(i) = dsqrt((Set(i, U)**2) + (Set(i, V)**2))
-        if(HorVel(i) == 0.d0) then
-            if (Set(i, W) >= 0.d0) then
-                aoa = 90.d0
-            end if
-            if (Set(i, W) < 0.d0) then
-                aoa = - 90.d0
-            end if
-        else
-            aoa = (atan(Set(i, W) / HorVel(i))) * 180.d0 / p
+        if (Set(i, u) == error &
+            .or. Set(i, v) == error .or. Set(i, w) == error) cycle
+        cnt = cnt + 1
+        hwind = dsqrt(Set(i, u)**2 + Set(i, v)**2)
+        if(hwind == 0d0 .and. Set(i, w) /= 0d0) then
+            ocnt = ocnt + 1
+        elseif (hwind /= 0d0) then
+            aoa = (atan(Set(i, w) / hwind)) * 180.d0 / p
+            if (aoa < aa%min .or. aoa > aa%max) ocnt = ocnt + 1
         end if
-        if ((aoa < aa%min) .or. (aoa > aa%max)) count = count + 1
     end do
     IntHF%aa = 0
-    if (dble(count / N) * 1d2 >= aa%lim) IntHF%aa = 1
-    write(*,'(a)') ' done.'
+    if (dble(ocnt) / dble(cnt) * 1d2 >= aa%lim) IntHF%aa = 1
+    write(*,'(a)') ' Done.'
 end subroutine TestAttackAngle

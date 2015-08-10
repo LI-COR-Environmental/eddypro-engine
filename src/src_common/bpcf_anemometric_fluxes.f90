@@ -2,7 +2,7 @@
 ! bpcf_anemometric_fluxes.f90
 ! ---------------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -46,7 +46,7 @@ subroutine BPCF_AnemometricFluxes(measuring_height, displ_height, loc_var_presen
     real(kind = dbl), intent(in) :: ac_frequency
     integer, intent(in) :: avrg_length
     integer, intent(in) :: detrending_time_constant
-    character(8), intent(in) :: detrending_method
+    character(2), intent(in) :: detrending_method
     logical, intent(in) :: printout
     !> local variables
     integer :: i
@@ -67,7 +67,6 @@ subroutine BPCF_AnemometricFluxes(measuring_height, displ_height, loc_var_presen
 
     !> normalized frequency vector, bkf
     kf(:) = nf(:) * dabs((measuring_height - displ_height) / wind_speed)
-
 
     !> Initialize all transfer functions to 1
     call SetTransferFunctionsToValue(BPTF, nfreq, 1d0)

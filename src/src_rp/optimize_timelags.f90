@@ -1,8 +1,8 @@
 !***************************************************************************
-! optimize_timelag_scalars.f90
-! ------------------------------------
+! optimize_timelags.f90
+! ---------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -199,5 +199,6 @@ subroutine OptimizeTimelags(toSet, nrow, actn, M, h2o_n, MM, cls_size)
     if (toH2O(1)%def == error .and. toH2O(MM)%def == error) then
         call ExceptionHandler(43)
         Meth%tlag = 'maxcov'
+        TimeLagOptSelected = .false.
     end if
 end subroutine OptimizeTimelags

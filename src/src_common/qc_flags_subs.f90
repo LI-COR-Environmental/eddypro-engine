@@ -1,7 +1,7 @@
 !***************************************************************************
 ! qc_flags_subs.f90
 ! -----------------
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -40,6 +40,7 @@ subroutine QualityFlags(lFlux2, StDiff, DtDiff, STFlg, DTFlg, lQCFlag, printout)
     type(QCType), intent(out)   :: lQCFlag
     integer, intent(out) :: STFlg(GHGNumVar)
     integer, intent(out) :: DTFlg(GHGNumVar)
+
 
     if (printout) write(*,'(a)', advance = 'no') '  Calculating quality flags..'
 
@@ -97,7 +98,7 @@ subroutine QualityFlags(lFlux2, StDiff, DtDiff, STFlg, DTFlg, lQCFlag, printout)
     if (lFlux2%ch4  == error) lQCFlag%ch4  = nint(error)
     if (lFlux2%gas4 == error) lQCFlag%gas4 = nint(error)
 
-    if (printout) write(*, '(a)') ' done.'
+    if (printout) write(*, '(a)') ' Done.'
 end subroutine QualityFlags
 
 !***************************************************************************
@@ -154,7 +155,7 @@ end subroutine PartialFlagLF
 ! \todo
 !***************************************************************************
 !subroutine GhgEuropeFlagLF(STFlg, DTFlg, OAFlag)
-!    use m_rp_global_var
+!    use m_common_global_var
 !    implicit none
 !    !> in/out variables
 !    integer, intent(in) :: STFlg

@@ -2,7 +2,7 @@
 ! read_binned_file.f90
 ! --------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -125,7 +125,8 @@ subroutine ReadBinnedFile(InFile, BinSpec, BinCosp, nrow, nbins, skip)
     !> Similar filter as above, but now imposes that f*spectrum < 1 for each frequency
     ol3: do var = w, gas4
         il3: do i = 1, nbins
-            if (BinSpec(i)%fn /= error .and. BinSpec(i)%of(var) /= error .and. BinSpec(i)%fn * BinSpec(i)%of(var) > 1d0) then
+            if (BinSpec(i)%fn /= error .and. BinSpec(i)%of(var) /= error &
+                .and. BinSpec(i)%fn * BinSpec(i)%of(var) > 1d0) then
                 BinSpec(:)%of(var) = error
                 exit il3
             end if

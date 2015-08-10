@@ -1,7 +1,7 @@
 !***************************************************************************
 ! write_out_user_stats.f90
 ! ------------------------
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -39,8 +39,8 @@ subroutine WriteOutUserStats(unt, string, N, AddHeader)
     logical, intent(inout) :: AddHeader
     !> local variables
     integer :: j = 0
-    character(10000) :: dataline = ''
-    character(30) :: datum = ''
+    character(LongOutstringLen) :: dataline
+    character(DatumLen) :: datum = ''
 
 
     if (AddHeader) then
@@ -82,23 +82,23 @@ subroutine AddUserStatsHeader()
     use m_rp_global_var
     implicit none
     !> local variables
-    character(2048) :: headerline
+    character(LongOutstringLen) :: headerline
     integer :: j
 
     call clearstr(headerline)
     headerline = 'filename,date,time,DOY,n_samples'
     do j = 1, NumUserVar
         call strcat(headerline, ',mean(')
-        call strcat(headerline, UserCol(j)%var(1:len_trim(UserCol(j)%var)))
+        call strcat(headerline, trim(adjustl(UserCol(j)%label)))
         call strcat(headerline, '),')
         call strcat(headerline, 'st_dev(')
-        call strcat(headerline, UserCol(j)%var(1:len_trim(UserCol(j)%var)))
+        call strcat(headerline, trim(adjustl(UserCol(j)%label)))
         call strcat(headerline, '),')
         call strcat(headerline, 'skw(')
-        call strcat(headerline, UserCol(j)%var(1:len_trim(UserCol(j)%var)))
+        call strcat(headerline, trim(adjustl(UserCol(j)%label)))
         call strcat(headerline, '),')
         call strcat(headerline, 'kur(')
-        call strcat(headerline, UserCol(j)%var(1:len_trim(UserCol(j)%var)))
+        call strcat(headerline, trim(adjustl(UserCol(j)%label)))
         call strcat(headerline, ')')
     end do
     if(RPsetup%out_st(1)) write(u_user_st1, '(a)') headerline(1:len_trim(headerline))

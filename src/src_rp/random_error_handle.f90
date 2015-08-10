@@ -1,7 +1,7 @@
 !***************************************************************************
-! random_uncertainty_handle.f90
-! -----------------------------
-! Copyright (C) 2012-2014, LI-COR Biosciences
+! random_error_handle.f90
+! -----------------------
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -63,7 +63,7 @@ subroutine RandomUncertaintyHandle(Set, nrow, ncol)
             Essentials%rand_uncer_LE = aflx_error
             return
     end select
-    write(*, '(a)') '  done.'
+    write(*, '(a)') '  Done.'
 end subroutine RandomUncertaintyHandle
 
 !***************************************************************************

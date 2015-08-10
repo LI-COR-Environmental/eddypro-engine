@@ -2,7 +2,7 @@
 ! unzip_archive.f90
 ! -----------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -30,7 +30,8 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine UnZipArchive(ZipFile, MetaExt, DataExt, MetaFile, DataFile, BiometFile, BiometMetaFile, skip_file)
+subroutine UnZipArchive(ZipFile, MetaExt, DataExt, MetaFile, DataFile, &
+    BiometFile, BiometMetaFile, skip_file)
     use m_common_global_var
     implicit none
     !> in/out variables
@@ -48,8 +49,8 @@ subroutine UnZipArchive(ZipFile, MetaExt, DataExt, MetaFile, DataFile, BiometFil
     integer :: del_status
     integer :: unzip_status
     integer :: dir_status
-    character(1024) :: comm
-    character(128) :: string
+    character(CommLen) :: comm
+    character(128) :: dataline
     character(128) :: TmpString
 
 
@@ -60,7 +61,8 @@ subroutine UnZipArchive(ZipFile, MetaExt, DataExt, MetaFile, DataFile, BiometFil
 
     !> Delete residual files in tmp folder
     comm = trim(comm_del) // ' "' // trim(adjustl(TmpDir)) &
-        // '"*.*' // trim(adjustl(DataExt)) // ' ' // comm_err_redirect
+        // '"*.*' // trim(adjustl(DataExt)) &
+        // ' ' // comm_err_redirect
     del_status = system(comm)
     comm = trim(comm_del) // ' "' // trim(adjustl(TmpDir)) &
         // '"*.tmp' // ' ' // comm_err_redirect
@@ -69,8 +71,8 @@ subroutine UnZipArchive(ZipFile, MetaExt, DataExt, MetaFile, DataFile, BiometFil
     !> Extract files from archive
     comm = trim(comm_7zip) // ' ' // trim(comm_7zip_x_opt) &
         // ' "' // ZipFile(1:len_trim(ZipFile)) // '" -o"' &
-        // trim(adjustl(TmpDir)) // '"' // comm_out_redirect &
-        // comm_err_redirect
+        // trim(adjustl(TmpDir)) // '"' &
+        // comm_out_redirect // comm_err_redirect
     unzip_status = system(comm)
     if (unzip_status /= 0) then
         call ExceptionHandler(14)
@@ -80,22 +82,26 @@ subroutine UnZipArchive(ZipFile, MetaExt, DataExt, MetaFile, DataFile, BiometFil
     call clearstr(comm)
 
     !> Metadata files
-    comm = trim(adjustl(comm_dir)) // ' "' // trim(adjustl(TmpDir)) // '"*.' // trim(adjustl(MetaExt))  // &
-        ' > "' // trim(adjustl(TmpDir)) // 'meta_flist.tmp" ' // comm_err_redirect
+    comm = trim(adjustl(comm_dir)) // ' "' &
+        // trim(adjustl(TmpDir)) // '"*.' &
+        // trim(adjustl(MetaExt))  // &
+        ' > "' // trim(adjustl(TmpDir)) // 'meta_flist.tmp" ' &
+        // comm_err_redirect
     dir_status = system(comm)
 
-    open(udf, file = trim(adjustl(TmpDir)) // 'meta_flist.tmp', iostat = io_status)
+    open(udf, file = trim(adjustl(TmpDir)) // 'meta_flist.tmp', &
+        iostat = io_status)
     MetaFile = 'none'
     BiometMetaFile = 'none'
     if (io_status == 0) then
         do i = 1, 2
-            read(udf, '(a128)', iostat = io_status) string
+            read(udf, '(a128)', iostat = io_status) dataline
             if(io_status == 0) then
-                if (index(string, '-biomet.metadata') /= 0) then
-                    BiometMetaFile = string(1:len_trim(string))
+                if (index(dataline, '-biomet.metadata') /= 0) then
+                    BiometMetaFile = dataline(1:len_trim(dataline))
                     call StripFileName(BiometMetaFile)
                 else
-                    MetaFile = string(1:len_trim(string))
+                    MetaFile = dataline(1:len_trim(dataline))
                     call StripFileName(MetaFile)
                 end if
             end if
@@ -106,23 +112,28 @@ subroutine UnZipArchive(ZipFile, MetaExt, DataExt, MetaFile, DataFile, BiometFil
     call basename(TmpString, MetaFile, slash)
     TmpString = BiometMetaFile
     call basename(TmpString, BiometMetaFile, slash)
+
     !> Raw data file
-    comm = trim(adjustl(comm_dir)) // ' "' // trim(adjustl(TmpDir)) // '"*.' // trim(adjustl(DataExt))  // &
-        ' > "' // trim(adjustl(TmpDir)) // 'data_flist.tmp" ' // comm_err_redirect
+    comm = trim(adjustl(comm_dir)) // ' "' &
+        // trim(adjustl(TmpDir)) // '"*.' &
+        // trim(adjustl(DataExt))  // &
+        ' > "' // trim(adjustl(TmpDir)) // 'data_flist.tmp" ' &
+        // comm_err_redirect
     dir_status = system(comm)
 
-    open(udf, file = trim(adjustl(TmpDir)) // 'data_flist.tmp', iostat = io_status)
+    open(udf, file = trim(adjustl(TmpDir)) // 'data_flist.tmp', &
+        iostat = io_status)
     DataFile = 'none'
     BiometFile = 'none'
     if (io_status == 0) then
         do i = 1, 2
-            read(udf, '(a128)', iostat = io_status) string
+            read(udf, '(a128)', iostat = io_status) dataline
             if(io_status == 0) then
-                if (index(string, '-biomet.data') /= 0) then
-                    BiometFile = string(1:len_trim(string))
+                if (index(dataline, '-biomet.data') /= 0) then
+                    BiometFile = dataline(1:len_trim(dataline))
                     call StripFileName(BiometFile)
                 else
-                    DataFile = string(1:len_trim(string))
+                    DataFile = dataline(1:len_trim(dataline))
                     call StripFileName(DataFile)
                 end if
             end if
@@ -133,12 +144,4 @@ subroutine UnZipArchive(ZipFile, MetaExt, DataExt, MetaFile, DataFile, BiometFil
     call basename(TmpString, DataFile, slash)
     TmpString = BiometFile
     call basename(TmpString, BiometFile, slash)
-
-    !> Fast metadata and data file names definition, based on zip file name
-    !> Less robust
-    !ZipFileNameBody = ZipFile(index(ZipFile, slash, .true.) + 1: len_trim(ZipFile) - 3)
-    !MetaFile = ZipFileNameBody(1:len_trim(ZipFileNameBody)) // MetaExt
-    !DataFile = ZipFileNameBody(1:len_trim(ZipFileNameBody))  // DataExt
-    !BiometFile = ZipFileNameBody(1:len_trim(ZipFileNameBody))  // BiometExt
-    !BiometMetaFile = ZipFileNameBody(1:len_trim(ZipFileNameBody))  // BiometMetaExt
 end subroutine UnZipArchive

@@ -2,7 +2,7 @@
 ! burba_terms.f90
 ! ---------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -60,7 +60,7 @@ subroutine BurbaTerms()
 
     !> Air Conductivity [W m-1 K-1]
     if (Stats%T /= error) then
-        k_air = 0.000067d0 * (Stats%T - 273.15d0) + 0.024343d0
+        k_air = 0.000067d0 * (Stats%T - 273.16d0) + 0.024343d0
     else
         k_air = error
     end if
@@ -74,23 +74,23 @@ subroutine BurbaTerms()
 
     !> If any parameter for multi linear is not available, set method to simple linear
     switch_to_linear = .false.
-    if (BiometVar%Rg == error .or. BiometVar%LWin == error) switch_to_linear = .true.
+    if (biomet%val(bRg) == error .or. biomet%val(bLWin) == error) switch_to_linear = .true.
 
     if (RPsetup%bu_multi .and. .not. switch_to_linear) then
         !> multiple regression option
         if (Stats%daytime) then
-            if (Stats%T /= error .and. BiometVar%Rg /= error .and. Umean /= error) then
+            if (Stats%T /= error .and. biomet%val(bRg) /= error .and. Umean /= error) then
                 deT_bot  = BurbaPar%m(daytime, bot, 1)  &
                               + BurbaPar%m(daytime, bot, 2)  * (Stats%T - 273.16d0)  &
-                              + BurbaPar%m(daytime, bot, 3)  * BiometVar%Rg &
+                              + BurbaPar%m(daytime, bot, 3)  * biomet%val(bRg) &
                               + BurbaPar%m(daytime, bot, 4)  * Umean
                 deT_top  = BurbaPar%m(daytime, top, 1)  &
                               + BurbaPar%m(daytime, top, 2)  * (Stats%T - 273.16d0) &
-                              + BurbaPar%m(daytime, top, 3)  * BiometVar%Rg &
+                              + BurbaPar%m(daytime, top, 3)  * biomet%val(bRg) &
                               + BurbaPar%m(daytime, top, 4)  * Umean
                 deT_spar = BurbaPar%m(daytime, spar, 1) &
                               + BurbaPar%m(daytime, spar, 2) * (Stats%T - 273.16d0) &
-                              + BurbaPar%m(daytime, spar, 3) * BiometVar%Rg &
+                              + BurbaPar%m(daytime, spar, 3) * biomet%val(bRg) &
                               + BurbaPar%m(daytime, spar, 4) * Umean
             else
                 deT_bot  = error
@@ -98,18 +98,18 @@ subroutine BurbaTerms()
                 deT_spar  = error
             end if
         else
-            if (Stats%T /= error .and. BiometVar%LWin /= error .and. Umean /= error) then
+            if (Stats%T /= error .and. biomet%val(bLWin) /= error .and. Umean /= error) then
                 deT_bot  = BurbaPar%m(nighttime, bot, 1)  &
                               + BurbaPar%m(nighttime, bot, 2)  * (Stats%T - 273.16d0) &
-                              + BurbaPar%m(nighttime, bot, 3)  * BiometVar%LWin &
+                              + BurbaPar%m(nighttime, bot, 3)  * biomet%val(bLWin) &
                               + BurbaPar%m(nighttime, bot, 4)  * Umean
                 deT_top  = BurbaPar%m(nighttime, top, 1)  &
                               + BurbaPar%m(nighttime, top, 2)  * (Stats%T - 273.16d0)  &
-                              + BurbaPar%m(nighttime, top, 3)  * BiometVar%LWin &
+                              + BurbaPar%m(nighttime, top, 3)  * biomet%val(bLWin) &
                               + BurbaPar%m(nighttime, top, 4)  * Umean
                 deT_spar = BurbaPar%m(nighttime, spar, 1) &
                               + BurbaPar%m(nighttime, spar, 2) * (Stats%T - 273.16d0)  &
-                              + BurbaPar%m(nighttime, spar, 3) * BiometVar%LWin &
+                              + BurbaPar%m(nighttime, spar, 3) * biomet%val(bLWin) &
                               + BurbaPar%m(nighttime, spar, 4) * Umean
             else
                 deT_bot  = error

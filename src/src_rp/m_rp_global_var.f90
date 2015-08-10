@@ -2,7 +2,7 @@
 ! m_rp_global_var.f90
 ! -------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -21,7 +21,7 @@
 !
 !***************************************************************************
 !
-! \brief       Module containing variables common to EddyPro
+! \brief       Module for global variables in eddypro_rp
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -37,6 +37,7 @@ module m_rp_global_var
 
     integer :: NumAllRow = 0
     integer :: NumSlowVar = 0
+    integer :: MaxPeriodNumRecords
 
     type :: DateTimeArrayType
         character(10) :: date
@@ -52,32 +53,32 @@ module m_rp_global_var
     character(18), parameter :: SubDirUserStats     = 'eddypro_user_stats'
     character(21), parameter :: SubDirBinOgives     = 'eddypro_binned_ogives'
     character(512) :: raw_out_header
-    character(256) :: StatsDir
-    character(256) :: UserStatsDir
-    character(256) :: RawDir
-    character(256) :: RawSubDir(7)
-    character(256) :: BinCospectraDir
-    character(256) :: BinOgivesDir
-    character(256) :: CospectraDir
-    character(256) :: St1_Path
-    character(256) :: St2_Path
-    character(256) :: St3_Path
-    character(256) :: St4_Path
-    character(256) :: St5_Path
-    character(256) :: St6_Path
-    character(256) :: St7_Path
-    character(256) :: UserSt1_Path
-    character(256) :: UserSt2_Path
-    character(256) :: UserSt3_Path
-    character(256) :: UserSt4_Path
-    character(256) :: UserSt5_Path
-    character(256) :: UserSt6_Path
-    character(256) :: UserSt7_Path
-    character(256) :: Slow_Path
-    character(256) :: Essentials_Path
-    character(256) :: PlanarFit_Path
-    character(256) :: TimelagOpt_Path
-    character(256) :: QCdetails_Path
+    character(PathLen) :: StatsDir
+    character(PathLen) :: UserStatsDir
+    character(PathLen) :: RawDir
+    character(PathLen) :: RawSubDir(7)
+    character(PathLen) :: BinCospectraDir
+    character(PathLen) :: BinOgivesDir
+    character(PathLen) :: CospectraDir
+    character(PathLen) :: St1_Path
+    character(PathLen) :: St2_Path
+    character(PathLen) :: St3_Path
+    character(PathLen) :: St4_Path
+    character(PathLen) :: St5_Path
+    character(PathLen) :: St6_Path
+    character(PathLen) :: St7_Path
+    character(PathLen) :: UserSt1_Path
+    character(PathLen) :: UserSt2_Path
+    character(PathLen) :: UserSt3_Path
+    character(PathLen) :: UserSt4_Path
+    character(PathLen) :: UserSt5_Path
+    character(PathLen) :: UserSt6_Path
+    character(PathLen) :: UserSt7_Path
+    character(PathLen) :: Biomet_Path
+    character(PathLen) :: Essentials_Path
+    character(PathLen) :: PlanarFit_Path
+    character(PathLen) :: TimelagOpt_Path
+    character(PathLen) :: QCdetails_Path
     logical :: OutVarPresent(E2NumVar)
     logical :: TimeLagOptSelected
 
@@ -125,81 +126,24 @@ module m_rp_global_var
     type (StorType) :: Stor
     type (Mul7700Type)   :: Mul7700
 
+    !> Embedded biomet data variables
+    logical, allocatable :: BiometCTagFound(:)
+    logical, allocatable :: BiometNTagFound(:)
+    type(Text), allocatable :: BiometCTags(:)
+    type(Numerical), allocatable :: BiometNTags(:)
+
     !> Dynamic metadata
     type(DynMDType) :: DynamicMetadata
     integer :: DynamicMetadataOrder(256)
 
     !> biomet data related variables
-    type(BiometSetupType) :: BiometSetup
-
-    type(BiometType) :: Biomet(MaxNumBiometRow)
-    type(ProfileType) :: Profile(MaxNumBiometRow)
-    real(kind = dbl) :: CstmBiometSet(MaxNumBiometRow, MaxNumCstmBiometCol)
-    real(kind = dbl) :: CstmBiomet(MaxNumCstmBiometCol)
-
-    type(BiometType) :: E2Biomet
-    type(ProfileType) :: E2Profile
-    type(BiometCountType) :: CountBiomet
-    type(ProfileCountType) :: CountProfile
-
-    type(BiometVarType) :: BiometVar
-    type(BiometVarType) :: PrevSlowVar
-
-    type(BiometUnitsType) :: BiometUnits
-    type(ProfileUnitsType) :: ProfileUnits
-
-    type(OrdType) :: BiometOrd(300)
-    type(OrdType) :: ProfileOrd(300)
-    type(OrdType) :: CstmOrd(300)
-
-    type(OrdType), parameter :: &
-        NullOrd = OrdType('none', 'none')
+    type(BiometSetupType) :: bSetup
+    type(BiometType) :: biomet
+    type(BiometType) :: prevBiomet
 
     type(DynMDType), parameter :: &
         ErrDynamicMetadata = DynMDType('none', error, error, &
             error, error, error, error, error, error, NullInstrument)
-
-    type(BiometType), parameter :: &
-        ErrBiomet = BiometType('none', 'none', error, error, &
-            error, error, error, error, error, error, error, error, error, error, error, &
-            error, error, error, error, error, error, error, error, error, error, error, &
-            error, error, error, error, error, error, error, error, error, error, error, &
-            error, error, error, error, .false., .false., .false.)
-
-    type(BiometVarType), parameter :: &
-        ErrBiometVar = BiometVarType(error, error, error, error, error, error, error, error, error, error, &
-            error, error, error, error, error, error, error, error)
-
-    type(ProfileType), parameter :: &
-        ErrProfile = ProfileType(error, error, error, error, error, &
-            error, error, error)
-
-    type(BiometType), parameter :: &
-        NullBiomet = BiometType('none', 'none', 0d0, 0d0, &
-            0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, &
-            0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, &
-            0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, &
-            0d0, 0d0, 0d0, 0d0, .false., .false., .false.)
-
-    type(ProfileType), parameter :: &
-        NullProfile = ProfileType(0d0, 0d0, 0d0, 0d0, 0d0, &
-            0d0, 0d0, 0d0)
-
-    type(BiometCountType), parameter :: &
-        NullCountBiomet = BiometCountType(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, &
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-    type(ProfileCountType), parameter :: &
-        NullCountProfile = ProfileCountType(0, 0, 0, 0, 0, 0, 0, 0)
-
-    type(BiometUnitsType), parameter :: &
-        NullBiometUnits = BiometUnitsType('none', 'none', 'none', &
-            'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', &
-            'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', &
-            'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', &
-            'none', 'none', 'none')
-    type(ProfileUnitsType), parameter :: &
-        NullProfileUnits = ProfileUnitsType('none', 'none', 'none', 'none', 'none', &
-            'none', 'none', 'none')
 
     !> Tags of the setup ".ini" file for rawscreening
     integer, parameter :: Nsn = 400
@@ -254,7 +198,7 @@ module m_rp_global_var
          SNTags(44)%Label  / 'aa_lim'        / &
          SNTags(45)%Label  / 'ns_hf_lim'     / &
          SNTags(46)%Label  / 'timeconst'     / &
-         SNTags(47)%Label  / 'nfiles'        / &
+         SNTags(47)%Label  / 'nfiles'        / &  !> no longer used
          SNTags(48)%Label  / 'nbins'         / &
          SNTags(49)%Label  / 'max_lack'      / &
          SNTags(50)%Label  / 'avrg_len'      / &
@@ -575,10 +519,10 @@ module m_rp_global_var
          SCTags(19)%Label / 'recurse'          / &
          SCTags(20)%Label / 'me_file'          / &
          SCTags(21)%Label / 'to_file'          / &
-         SCTags(22)%Label / 'start_date'       / &  !> not used
-         SCTags(23)%Label / 'start_time'       / &  !> not used
-         SCTags(24)%Label / 'end_date'         / &  !> not used
-         SCTags(25)%Label / 'end_time'         / &  !> not used
+         SCTags(22)%Label / 'pf_start_time'    / &
+         SCTags(23)%Label / 'pf_end_time'      / &
+         SCTags(24)%Label / 'to_start_time'    / &
+         SCTags(25)%Label / 'to_end_time'      / &
          SCTags(26)%Label / 'out_bin_sp'       / &
          SCTags(27)%Label / 'out_full_sp_u'    / &
          SCTags(28)%Label / 'out_full_sp_v'    / &
@@ -605,22 +549,22 @@ module m_rp_global_var
          SCTags(49)%Label / 'pf_start_date' / &
          SCTags(50)%Label / 'pf_end_date' / &
          SCTags(51)%Label / 'out_bin_og'  / &
-         SCTags(52)%Label / 'out_ghg_eu'  / &
+         SCTags(52)%Label / 'out_ghg_eu'  / &      !< no longer used
          SCTags(53)%Label / 'out_amflux'  / &
-         SCTags(54)%Label / 'out_rich'    / &      !< not used
-         SCTags(55)%Label / 'to_mixratio' / &
+         SCTags(54)%Label / 'out_rich'    / &      !< no longer used
+         SCTags(55)%Label / 'to_mixratio' / &      !< no longer used
          SCTags(56)%Label / 'pf_mode'     / &
          SCTags(57)%Label / 'pf_file'     / &
          SCTags(58)%Label / 'biom_use_native_header' / &
-         SCTags(59)%Label / 'biom_var_string'  / &   !< not used
-         SCTags(60)%Label / 'biom_unit_string' / &   !< not used
+         SCTags(59)%Label / 'biom_var_string'  / &   !< no longer used
+         SCTags(60)%Label / 'biom_unit_string' / &   !< no longer used
          SCTags(61)%Label / 'biom_separator'   / &
          SCTags(62)%Label / 'biom_tstamp_ref'  / &
          SCTags(63)%Label / 'filter_sr'        / &
          SCTags(64)%Label / 'filter_al'        / &
          SCTags(65)%Label / 'bu_corr'          / &
          SCTags(66)%Label / 'bu_multi'         / &
-         SCTags(67)%Label / 'qc_meth'          / &   !< not used
+         SCTags(67)%Label / 'qc_meth'          / &   !< no longer used
          SCTags(68)%Label / 'out_raw_1'        / &
          SCTags(69)%Label / 'out_raw_2'        / &
          SCTags(70)%Label / 'out_raw_3'        / &
@@ -639,7 +583,7 @@ module m_rp_global_var
          SCTags(83)%Label / 'out_raw_t_air'    / &
          SCTags(84)%Label / 'out_raw_p_air'    / &
          SCTags(85)%Label / 'out_qc_details'   / &
-         SCTags(86)%Label / 'out_biomet'       / &  !< unused (used in EddyProProj instead)
+         SCTags(86)%Label / 'out_biomet'       / &  !< no longer used
          SCTags(87)%Label / 'power_of_two'     / &
          SCTags(88)%Label / 'pf_fix'           / &
          SCTags(89)%Label / 'use_geo_north'    / &

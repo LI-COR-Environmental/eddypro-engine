@@ -1,7 +1,7 @@
 !***************************************************************************
 ! init_ex_vars.f90
 ! ----------------
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -45,11 +45,12 @@ subroutine InitExVars(StartTimestamp, EndTimestamp, NumRecords, NumValidRecords)
     logical :: EndOfFileReached
     logical :: InitializationPerformed
     type (EXType) :: lEX
-    character(4000) :: string
+    character(LongInstringLen) :: dataline
     character(100) :: substr
 
-    write(*,'(a)') ' Initializing retrieval of EddyPro-RP results from file: "' &
-        // AuxFile%ex(1:len_trim(AuxFile%ex)) // '".. '
+    write(*,'(a)') &
+        ' Initializing retrieval of EddyPro-RP results from file: '
+    write(*,'(a)') '  "' // trim(adjustl(AuxFile%ex)) // '"..'
 
     !> Open EX file
     open(udf, file = AuxFile%ex, status = 'old', iostat = open_status)
@@ -59,19 +60,20 @@ subroutine InitExVars(StartTimestamp, EndTimestamp, NumRecords, NumValidRecords)
 
     write(*, '(a)') '  File found, importing content..'
     !> Retrieve label of forth gas from header
-    read(udf, '(a)') string
-    substr = string(index(string, 'ru_ch4'):index(string, 'ru_ch4') + 30)
+    read(udf, '(a)') dataline
+    substr = dataline(index(dataline, 'ru_ch4'):index(dataline, 'ru_ch4') + 30)
     g4lab = substr(8: index(substr, '_flux') - 1)
     g4l = len_trim(g4lab)
     !> Retrieve names of user variables from header
-    if (len_trim(string) >= index(string, 'num_user_var') + 13) then
-        UserVarHeader = string(index(string, 'num_user_var') + 13: len_trim(string))
+    if (len_trim(dataline) >= index(dataline, 'num_user_var') + 13) then
+        UserVarHeader = &
+            dataline(index(dataline, 'num_user_var') + 13: len_trim(dataline))
     else
         UserVarHeader = ''
     end if
 
-    !> Initialize variables that are determined for the whole dataset (presence of
-    !> certain variables)
+    !> Initialize variables that are determined for the whole
+    !> dataset (presence of certain variables)
     Diag7200%present = .false.
     Diag7500%present = .false.
     Diag7700%present = .false.
@@ -91,8 +93,10 @@ subroutine InitExVars(StartTimestamp, EndTimestamp, NumRecords, NumValidRecords)
         if (ValidRecord) NumValidRecords = NumValidRecords + 1
 
         !> Handles dates
-        if (ValidRecord .and. NumValidRecords == 1) call DateTimeToDateType(lEX%date, lEX%time, StartTimestamp)
-        if (ValidRecord) call DateTimeToDateType(lEX%date, lEX%time, EndTimestamp)
+        if (ValidRecord .and. NumValidRecords == 1) &
+            call DateTimeToDateType(lEX%date, lEX%time, StartTimestamp)
+        if (ValidRecord) &
+            call DateTimeToDateType(lEX%date, lEX%time, EndTimestamp)
 
         !> Some initializations
         if (ValidRecord .and. .not. InitializationPerformed) then
@@ -119,8 +123,9 @@ subroutine InitExVars(StartTimestamp, EndTimestamp, NumRecords, NumValidRecords)
             !> Reads DateStep
             DateStep = DateType(0, 0, 0, 0, nint(lEx%avrg_length))
 
-            !> Define whether random uncertainty was calculated by looking at only 1 value
-            !> (if one value is -6999d0, all of them are the same)
+            !> Define whether random uncertainty was calculated by
+            !> looking at only 1 value (if one value is -6999d0, all
+            !> of them are the same)
             if (lEx%rand_uncer(u) == aflx_error) FCCMetadata%ru = .false.
 
             !> Acquisition frequency and gas analyser path type for H2O
@@ -132,9 +137,8 @@ subroutine InitExVars(StartTimestamp, EndTimestamp, NumRecords, NumValidRecords)
     end do
     close(udf)
 
-    !> Adjust Start/End timestamps to define the boundaries of the MasterTimeseries
-    if (.not. EddyProLog%tstamp_end) then
-        StartTimestamp = StartTimestamp - DateStep
-        EndTimestamp = EndTimestamp - DateStep
-    end if
+    !> Adjust start timestamp so that Start/End define the whole period
+    !> From beginning of first period to end of last period
+    StartTimestamp = StartTimestamp - DateStep
+    write(*,'(a)') ' Done.'
 end subroutine InitExVars

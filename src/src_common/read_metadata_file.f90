@@ -2,7 +2,7 @@
 ! read_metadata_file.f90
 ! ----------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -31,21 +31,23 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine ReadMetadataFile(LocCol, MetaFile, IniFileNotFound)
+subroutine ReadMetadataFile(LocCol, MetaFile, IniFileNotFound, printout)
     use m_common_global_var
     implicit none
     !> in/out variables
     character(*), intent(in) :: MetaFile
     type(ColType), intent(inout) :: LocCol(MaxNumCol)
+    logical, intent(in) :: printout
     logical, intent(out) :: IniFileNotFound
 
 
     !> parse ini file and store all numeric and character tags
-    call ParseIniFile(MetaFile, '', ANTags, ACTags, size(ANTags), size(ACTags), &
-         ANTagFound, ACTagFound, IniFileNotFound)
+    call ParseIniFile(MetaFile, '', ANTags, ACTags, &
+        size(ANTags), size(ACTags), ANTagFound, ACTagFound, IniFileNotFound)
 
-    !> selects only tags needed in this software, and store them in relevant variables
-    call WriteEddyProMetadataVariables(LocCol)
+    !> selects only tags needed in this software,
+    !> and store them in relevant variables
+    call WriteEddyProMetadataVariables(LocCol, printout)
 end subroutine ReadMetadataFile
 
 !***************************************************************************
@@ -60,10 +62,11 @@ end subroutine ReadMetadataFile
 ! \test
 ! \todo
 !***************************************************************************
-subroutine WriteEddyProMetadataVariables(LocCol)
+subroutine WriteEddyProMetadataVariables(LocCol, printout)
     use m_common_global_var
     implicit none
     !> in/out variables
+    logical, intent(in) :: printout
     type(ColType), intent(inout) :: LocCol(MaxNumCol)
     !> local variables
     integer :: init_ac_instr
@@ -78,25 +81,89 @@ subroutine WriteEddyProMetadataVariables(LocCol)
     integer :: i = 0
     integer :: j = 0
 
-    Metadata%sitename = ACTags(9)%value
+
+    Metadata%sitename = trim(adjustl(ACTags(9)%value))
     Metadata%canopy_height = 0d0
     Metadata%d = 0d0
     Metadata%z0 = 0d0
 
     !> Site characteristics
-    Metadata%alt = dble(ANTags(1)%value)   !< in m
-    if (Metadata%alt == 0d0 .or. Metadata%alt == error) Metadata%alt = 1.d0  !< altitude cannot be exactly 0
-    !> Barometric pressure (e.g. Campbell & Normann, 1998 - An introduction to env. biophys.)
-    Metadata%bar_press = 1d3 * 101.3d0 *dexp(-Metadata%alt / 8200d0) !< in Pa
+    !> Altitude [m]
+    Metadata%alt = dble(ANTags(1)%value)
+
+    !> Altitude cannot be lower than Dead Sea or higher than top of
+    !> Mount Everest (which includes reasonable flying altitudes)
+    if (Metadata%alt < -428d0 .or. Metadata%alt > 8850d0) then
+        if (printout) then
+            write(*, '(a)')
+            call ExceptionHandler(80)
+        end if
+        Metadata%alt = 0d0
+    end if
+
+    !> Barometric pressure [Pa] (e.g. Campbell & Normann, 1998 -
+    !> An introduction to Environmental Biophysics)
+    Metadata%bar_press = 1d3 * 101.3d0 *dexp(-Metadata%alt / 8200d0)
+
+    !> Latitude [deg]
     Metadata%lat = dble(ANTags(2)%value)
-    if (Metadata%lat == 0d0 .or. Metadata%lat == error) Metadata%lat = 1.d0   !< latitude cannot be exactly 0
+
+    !> Latitude cannot be less than -90 or more than 90
+    if (Metadata%lat < -90d0 .or. Metadata%lat > 90d0) then
+        if (printout) then
+            write(*, '(a)')
+            call ExceptionHandler(81)
+        end if
+        Metadata%lat = 0.001d0
+    end if
+
+    !> Longitude[deg]
     Metadata%lon = dble(ANTags(3)%value)
+
+    !> Longitude cannot be less than -180 or more than 180
+    if (Metadata%lon < -180d0 .or. Metadata%lon > 180d0) then
+        if (printout) then
+            write(*, '(a)')
+            call ExceptionHandler(82)
+        end if
+        Metadata%lon = 0.001d0
+    end if
+
+    !> Canopy height [m]
     Metadata%canopy_height = dble(ANTags(4)%value)
-    if (Metadata%canopy_height == 0d0 .or. Metadata%canopy_height == error) Metadata%canopy_height = 0.01d0   !< canopy height cannot be exactly zero.
+
+    !> Canopy height cannot be less than 0
+    if (Metadata%canopy_height < 0d0) then
+        if (printout) then
+            write(*, '(a)')
+            call ExceptionHandler(83)
+        end if
+        Metadata%canopy_height = 0d0
+    end if
+
+    !> Displacement height [m]
     Metadata%d = dble(ANTags(5)%value)
-    if (Metadata%d == 0d0 .or. Metadata%d == error) Metadata%d = Metadata%canopy_height * 0.67d0
+
+    !> Displacement height cannot be <= 0 or larger than canopy height
+    if (Metadata%d <= 0d0 .or. Metadata%d > Metadata%canopy_height) then
+        if (printout) then
+            write(*, '(a)')
+            call ExceptionHandler(84)
+        end if
+        Metadata%d = Metadata%canopy_height * 0.67d0
+    end if
+
+    !> Roughness length [m]
     Metadata%z0 = dble(ANTags(6)%value)
-    if (Metadata%z0 == 0d0 .or. Metadata%z0 == error) Metadata%z0 = Metadata%canopy_height * 0.15d0
+
+    !> Roughness length cannot be <= 0 or larger than canopy height
+    if (Metadata%z0 <= 0d0 .or. Metadata%z0 > Metadata%canopy_height) then
+        if (printout) then
+            write(*, '(a)')
+            call ExceptionHandler(85)
+        end if
+        Metadata%z0 = max(Metadata%canopy_height * 0.15d0, 0.001d0)
+    end if
 
     !> Further meta info
     EddyProLog%save_native = .false.

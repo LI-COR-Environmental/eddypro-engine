@@ -2,7 +2,7 @@
 ! create_master_timeseries.f90
 ! ----------------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -30,33 +30,35 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine CreateMasterTimeSeries(StartTimestamp, EndTimestamp, Step, MasterTimeSeries, nrow)
+subroutine CreateTimeSeries(StartTimestamp, EndTimestamp, &
+    Step, RawTimeSeries, nrow, printout)
     use m_common_global_var
     implicit none
     !> In/out variables
     integer, intent(in) :: nrow
+    logical, intent(in) :: printout
     type(DateType), intent(in) :: StartTimestamp
     type(DateType), intent(inout) :: EndTimestamp
     type(DateType), intent(in) :: Step
-    type(DateType), intent(out) :: MasterTimeSeries(nrow)
+    type(DateType), intent(out) :: RawTimeSeries(nrow)
     !> in/out variables
     integer :: cnt
 
 
-    write(*, '(a)', advance = 'no') ' Creating master time series for the selected time period.. '
+    if (printout) write(*, '(a)', advance = 'no') ' Creating master time series..'
 
     !> create master timestamps array
-    MasterTimeSeries(1) = StartTimestamp
+    RawTimeSeries(1) = StartTimestamp
     cnt = 1
     do
-        if (MasterTimeSeries(cnt) >= EndTimestamp) exit
+        if (RawTimeSeries(cnt) >= EndTimestamp) exit
         cnt = cnt + 1
         if (cnt > nrow) exit
-        MasterTimeSeries(cnt) = MasterTimeSeries(cnt - 1) + Step
+        RawTimeSeries(cnt) = RawTimeSeries(cnt - 1) + Step
     end do
 
-    write(*, '(a)') ' done.'
-end subroutine CreateMasterTimeSeries
+    if (printout) write(*, '(a)') ' Done.'
+end subroutine CreateTimeSeries
 
 !***************************************************************************
 !
@@ -84,7 +86,7 @@ integer function NumOfPeriods(StartTimestamp, EndTimestamp, Step)
     Timestamp = StartTimestamp
     cnt = 1
     do
-        if (Timestamp > EndTimestamp) exit
+        if (Timestamp >= EndTimestamp) exit
         cnt = cnt + 1
         Timestamp = Timestamp + Step
     end do

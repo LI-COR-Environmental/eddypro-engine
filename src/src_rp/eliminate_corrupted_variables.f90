@@ -1,7 +1,7 @@
 !***************************************************************************
 ! eliminate_corrupted_variables.f90
 ! ---------------------------------
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -28,7 +28,7 @@
 ! \bug
 ! \deprecated
 ! \test
-! \todo        Allow user to customize the 40% (or take the allowance?)
+! \todo
 !***************************************************************************
 subroutine EliminateCorruptedVariables(LocSet, nrow, ncol, skip_period, logout)
     use m_rp_global_var
@@ -47,7 +47,7 @@ subroutine EliminateCorruptedVariables(LocSet, nrow, ncol, skip_period, logout)
 
     do i = 1, ncol
         mask(:) = Locset(:, i) == error
-        if (count(mask) > nrow * 4d-1) E2Col(i) = NullCol
+        if (count(mask) > MaxPeriodNumRecords * RPsetup%max_lack/1d2) E2Col(i) = NullCol
     end do
 
     skip_period = .false.

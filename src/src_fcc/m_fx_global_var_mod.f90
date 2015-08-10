@@ -1,4 +1,35 @@
-!> \brief module for global variables of eccoce
+!***************************************************************************
+! m_fx_global_var.f90
+! -------------------
+! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
+! Copyright (C) 2011-2015, LI-COR Biosciences
+!
+! This file is part of EddyPro (TM).
+!
+! EddyPro (TM) is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! EddyPro (TM) is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
+!
+!***************************************************************************
+!
+! \brief       Module for global variables in eddypro_fcc
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
 module m_fx_global_var
     use m_common_global_var
     implicit none
@@ -17,7 +48,7 @@ module m_fx_global_var
 
     character(11), parameter :: fcc_app = 'EddyPro-FCC'
     character(32) :: g4lab
-    character(256) :: UserVarHeader
+    character(1024) :: UserVarHeader
     character(25), parameter :: SubDirSpecAn = 'eddypro_spectral_analysis'
 
     logical :: MeanBinSpecAvailable(MaxGasClasses, GHGNumVar)
@@ -31,6 +62,7 @@ module m_fx_global_var
     type(FileListType), allocatable :: BinnedFileList(:)
 
     type(MeanSpectraType), allocatable :: MeanBinSpec(:, :)
+    type(MeanSpectraType), allocatable :: dMeanBinSpec(:, :)
     type(MeanSpectraType), allocatable :: MeanBinCosp(:, :)
 
     type(MeanSpectraType) :: MeanStabilityCosp(ndkf, 2)
@@ -41,8 +73,8 @@ module m_fx_global_var
     type(FCCMetadataType) :: FCCMetadata
 
     !> tags of the setup ".ini" file for eccoce
-    integer, parameter :: Nsn = 96
-    integer, parameter :: Nsc = 22
+    integer, parameter :: Nsn = 109
+    integer, parameter :: Nsc = 25
     logical            :: SNTagFound(Nsn)
     logical            :: SCTagFound(Nsc)
     type (Numerical)   :: SNTags(Nsn)
@@ -57,11 +89,11 @@ module m_fx_global_var
          SNTags(8)%Label   / 'sa_fmax_ch4'      / &
          SNTags(9)%Label   / 'sa_fmin_gas4'     / &
          SNTags(10)%Label  / 'sa_fmax_gas4'     / &
-         SNTags(11)%Label  / 'sa_min_co2'       / &
-         SNTags(12)%Label  / 'sa_min_ch4'       / &
-         SNTags(13)%Label  / 'sa_min_gas4'      / &
-         SNTags(14)%Label  / 'sa_min_le'        / &
-         SNTags(15)%Label  / 'sa_min_h'         / &
+         SNTags(11)%Label  / 'sa_min_co2'       / &  !< Depracted from 5.3
+         SNTags(12)%Label  / 'sa_min_ch4'       / &  !< Depracted from 5.3
+         SNTags(13)%Label  / 'sa_min_gas4'      / &  !< Depracted from 5.3
+         SNTags(14)%Label  / 'sa_min_le'        / &  !< Depracted from 5.3
+         SNTags(15)%Label  / 'sa_min_h'         / &  !< Depracted from 5.3
          SNTags(16)%Label  / 'sa_hfn_co2_fmin'  / &
          SNTags(17)%Label  / 'sa_hfn_h2o_fmin'  / &
          SNTags(18)%Label  / 'sa_hfn_ch4_fmin'  / &
@@ -138,16 +170,29 @@ module m_fx_global_var
          SNTags(89)%Label  / 'sa_gas4_g11_stop'  / &
          SNTags(90)%Label  / 'sa_gas4_g12_start' / &
          SNTags(91)%Label  / 'sa_gas4_g12_stop'  / &
-         SNTags(92)%Label  / 'f10_co2_trshld'    / &
-         SNTags(93)%Label  / 'f10_ch4_trshld'    / &
-         SNTags(94)%Label  / 'f10_gas4_trshld'   / &
-         SNTags(95)%Label  / 'f10_h_trshld'    / &
-         SNTags(96)%Label  / 'f10_le_trshld'   /
+         SNTags(92)%Label   / 'sa_min_un_ustar' / &
+         SNTags(93)%Label   / 'sa_min_un_co2'   / &
+         SNTags(94)%Label   / 'sa_min_un_ch4'   / &
+         SNTags(95)%Label   / 'sa_min_un_gas4'  / &
+         SNTags(96)%Label   / 'sa_min_un_le'    / &
+         SNTags(97)%Label   / 'sa_min_un_h'     / &
+         SNTags(98)%Label   / 'sa_min_st_ustar' / &
+         SNTags(99)%Label   / 'sa_min_st_co2'   / &
+         SNTags(100)%Label   / 'sa_min_st_ch4'   / &
+         SNTags(101)%Label  / 'sa_min_st_gas4'  / &
+         SNTags(102)%Label  / 'sa_min_st_le'    / &
+         SNTags(103)%Label  / 'sa_min_st_h'     / &
+         SNTags(104)%Label  / 'sa_max_ustar'    / &
+         SNTags(105)%Label  / 'sa_max_co2'      / &
+         SNTags(106)%Label  / 'sa_max_ch4'      / &
+         SNTags(107)%Label  / 'sa_max_gas4'     / &
+         SNTags(108)%Label  / 'sa_max_le'       / &
+         SNTags(109)%Label  / 'sa_max_h'        /
 
     data SCTags(1)%Label  / 'sa_start_date'     / &
-         SCTags(2)%Label  / 'sa_start_time'     / &       !> not used
+         SCTags(2)%Label  / 'sa_start_time'     / &
          SCTags(3)%Label  / 'sa_end_date'       / &
-         SCTags(4)%Label  / 'sa_end_time'       / &       !> not used
+         SCTags(4)%Label  / 'sa_end_time'       / &
          SCTags(5)%Label  / 'start_sa_date'     / &       !> not used
          SCTags(6)%Label  / 'end_sa_date'       / &       !> not used
          SCTags(7)%Label  / 'ex_file'           / &
@@ -165,5 +210,8 @@ module m_fx_global_var
          SCTags(19)%Label / 'sa_mode'           / &
          SCTags(20)%Label / 'sa_file'           / &
          SCTags(21)%Label / 'horst_lens'        / &
-         SCTags(22)%Label / 'sa_subset'         /
+         SCTags(22)%Label / 'sa_subset'         / &
+         SCTags(23)%Label / 'sa_use_vm_flags'   / &
+         SCTags(24)%Label / 'sa_use_foken_low'  / &
+         SCTags(25)%Label / 'sa_use_foken_mid'  /
 end module m_fx_global_var

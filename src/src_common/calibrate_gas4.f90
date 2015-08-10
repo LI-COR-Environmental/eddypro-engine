@@ -2,7 +2,7 @@
 ! calibrate_gas4.f90
 ! ------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -33,7 +33,7 @@
 ! \todo
 !***************************************************************************
 subroutine CalibrateGas4(Set, nrow, ncol)
-    use m_rp_global_var
+    use m_common_global_var
     !> in/out variables
     integer, intent(in) :: nrow, ncol
     real(kind = dbl), intent(inout) :: Set(nrow, ncol)
@@ -43,7 +43,8 @@ subroutine CalibrateGas4(Set, nrow, ncol)
     do j = 1, NumUserVar
         if (UserCol(j)%var == 'cal-ref') then
             !> Converts mV in ppb and then to ppm (with "/ 1d3")
-            Set(:, gas4) = Set(:, gas4) * UserStats%Mean(j) / Stats%Mean(gas4) / 1d3
+            Set(:, gas4) = Set(:, gas4) * UserStats%Mean(j) &
+            / Stats%Mean(gas4) / 1d3
         end if
     end do
 end subroutine CalibrateGas4

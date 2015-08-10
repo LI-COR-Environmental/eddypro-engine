@@ -1,7 +1,7 @@
 !***************************************************************************
 ! integral_turbulence_scale.f90
 ! -----------------------------
-! Copyright (C) 2012-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -141,5 +141,5 @@ subroutine IntegralTurbulenceScale(Set, nrow, ncol)
     where (ITS(u:gas4) > 2. * RUsetup%tlag_max .or. ITS(u:gas4) == error)
        ITS(u:gas4) = ITS_bill
     end where
-    write(*, '(a)') ' done.'
+    write(*, '(a)') ' Done.'
 end subroutine IntegralTurbulenceScale

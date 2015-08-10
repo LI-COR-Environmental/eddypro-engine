@@ -1,8 +1,8 @@
 !***************************************************************************
 ! fourier_transform.f90
-! -------------------
+! ---------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -52,6 +52,6 @@ subroutine FourierTransform(xx, N, M)
         !> replace time data with spectral data
         xx(:, i) = dble(xxx(:))
     end do
-    write(*,'(a)') ' done.'
+    write(*,'(a)') ' Done.'
 end subroutine FourierTransform
 

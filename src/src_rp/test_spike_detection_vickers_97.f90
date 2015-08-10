@@ -1,8 +1,8 @@
-!***************************************************************************
-! test_spike_detection.f90
-! ------------------------
+!*******************************************************************************
+! test_spike_detection_vickers_97.f90
+! -----------------------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -19,7 +19,7 @@
 ! You should have received a copy of the GNU General Public License
 ! along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
 !
-!***************************************************************************
+!*******************************************************************************
 !
 ! \brief       Detects  and count spikes, and replace by \n
 !              linear interpolation if requested. \n
@@ -31,8 +31,8 @@
 ! \deprecated
 ! \test
 ! \todo
-!***************************************************************************
-subroutine TestSpikeDetection(Set, N, printout)
+!*******************************************************************************
+subroutine TestSpikeDetectionVickers97(Set, N, printout)
     use m_rp_global_var
     implicit none
     !> in/out variables
@@ -41,7 +41,7 @@ subroutine TestSpikeDetection(Set, N, printout)
     real(kind = dbl), intent(inout) :: Set(N, E2NumVar)
     !> local variables
     integer :: win_len
-    integer, parameter :: step = 100 !window advancement through the file, in samples
+    integer, parameter :: step = 100 !window advancement in samples
     integer :: max_pass = 10
     real(kind = dbl), parameter :: lim_step = 0.1d0 !increase of inliers range
     integer :: i = 0
@@ -79,10 +79,12 @@ subroutine TestSpikeDetection(Set, N, printout)
     win_len = RPsetup%avrg_len / 6
     if (win_len == 0) win_len = 1
     nn = idint(dble(win_len) * Metadata%ac_freq * 60.d0) !> win length in samples
-    wdw_num = idint(dble(N - nn) / 1d2) + 1              !> number of wins for the current file
+    wdw_num = idint(dble(N - nn) / 1d2) + 1  !> number of wins for current file
 
-    !> initialisations
+    !> initializations
     allocate(XX(nn, E2NumVar))
+    XX = error
+
     LocMean = 0d0
     LocStDev = 0d0
     passes = 0
@@ -91,9 +93,12 @@ subroutine TestSpikeDetection(Set, N, printout)
     tot_spikes = 0
     tot_spikes_sng = 0
 
-    !> Set different threshold for different variables. Specifically, w, ch4 and gas4 have their own tresholds
+    !> Set different threshold for different variables.
+    !> Specifically, w, co2, h2o, ch4 and gas4 have their own thresholds
     adv_lim(u:pe) = sr%lim_u
     adv_lim(w)    = sr%lim_w
+    adv_lim(co2)  = sr%lim_co2
+    adv_lim(h2o)  = sr%lim_h2o
     adv_lim(ch4)  = sr%lim_ch4
     adv_lim(gas4)  = sr%lim_gas4
 
@@ -102,7 +107,7 @@ subroutine TestSpikeDetection(Set, N, printout)
 100 continue
     passes = passes + 1
     do wdw = 1, wdw_num
-        !> pick up the dataset from Set for the current win
+        !> pick up the dataset from Set for current win
         do i = 1, nn
             where(E2Col(:)%present)
                 XX(i, :) = Set(i + step * (wdw - 1), :)
@@ -111,20 +116,13 @@ subroutine TestSpikeDetection(Set, N, printout)
         !> define min and max of central points
         imin = nn/2 - step/2 + step * (wdw - 1)
         imax = nn/2 + step/2 -1 + step * (wdw - 1)
-        !> mean window values
-        Mean = sum(XX, dim = 1)
-        Mean = Mean / dble(nn)
-        !> window standard deviations
-        StDev = 0.d0
-        do i = 1, nn
-            where(E2Col(:)%present)
-                StDev(:) = StDev(:) + (XX(i, :) - Mean(:)) **2
-            end where
-        end do
-        where(E2Col(:)%present)
-            StDev(:) = StDev(:) / dble(nn - 1)
-            StDev(:) = dsqrt(StDev(:))
-        end where
+
+        !> Window mean values
+        call AverageNoError(XX, size(XX, 1), size(XX, 2), Mean, error)
+
+        !> Window standard deviations
+        call StDevNoError(XX, size(XX, 1), size(XX, 2), StDev, error)
+
         !> stick window values only to central elements
         do i = imin, imax
             where(E2Col(:)%present)
@@ -151,37 +149,44 @@ subroutine TestSpikeDetection(Set, N, printout)
             end do
         end if
     end do
+
     !> spikes detection and removal (if requested) in the whole file
     do j = u, pe
         if (E2Col(j)%present) then
             cnt = 0
             !> special case first record in the file
-            if (Set(1, j) > LocMean(1, j) + adv_lim(j) * LocStDev(1, j)) then
+            if (Set(1, j) /= error .and. Set(1, j) > &
+                LocMean(1, j) + adv_lim(j) * LocStDev(1, j)) then
                 Set(1, j) = LocMean(1, j) + adv_lim(j) * LocStDev(1, j)
-                    if (.not. IsSpike (1, j)) then
+                    if (.not. IsSpike(1, j)) then
                         nspikes(j) = nspikes(j) + 1
                         nspikes_sng(j) = nspikes_sng(j) + 1
-                        IsSpike (1, j) = .true.
+                        IsSpike(1, j) = .true.
                     end if
             end if
-            if (Set(1, j) < LocMean(1, j) - adv_lim(j) * LocStDev(1, j)) then
+            if (Set(1, j) /= error .and. Set(1, j) < &
+                LocMean(1, j) - adv_lim(j) * LocStDev(1, j)) then
                 Set(1, j) = LocMean(1, j) - adv_lim(j) * LocStDev(1, j)
-                    if (.not. IsSpike (1, j)) then
+                    if (.not. IsSpike(1, j)) then
                         nspikes(j) = nspikes(j) + 1
                         nspikes_sng(j) = nspikes_sng(j) + 1
-                        IsSpike (1, j) = .true.
+                        IsSpike(1, j) = .true.
                     end if
             end if
             !> Following lines
             if (RPsetup%filter_sr) then
                 do i = 2, N
-                    if((Set(i, j) > LocMean(i, j) + adv_lim(j) * LocStDev(i, j)) .or. &
-                     (Set(i, j) < LocMean(i, j) - adv_lim(j) * LocStDev(i, j))) then
+                    if (Set(i, j) == error) then
+                        if (cnt /= 0) cnt = cnt + 1
+                    elseif(Set(i, j) > &
+                        LocMean(i, j) + adv_lim(j) * LocStDev(i, j) .or. &
+                        Set(i, j) < &
+                        LocMean(i, j) - adv_lim(j) * LocStDev(i, j)) then
                         cnt = cnt + 1
                     else
                         if ((cnt /= 0) .and. (cnt <= sr%num_spk)) then
-                            !> check whether it was a spike already, if not increment the
-                            !> number of spikes found
+                            !> check whether it was a spike already, if
+                            !> not increment the number of spikes found
                             new_spike = .true.
                             do k = 1, cnt
                                 if (IsSpike(i-k, j)) new_spike = .false.
@@ -195,14 +200,19 @@ subroutine TestSpikeDetection(Set, N, printout)
                             do k = 1, cnt
                             IsSpike(i-k, j) = .true.
                             enddo
-                            !> replace with linear interpolation if requested
-                            m = (Set(i, j) - Set(i - (cnt + 1), j)) / (dble(cnt + 1))
-                            q = Set(i - (cnt + 1), j)
-                            do k = i - cnt, i - 1
-                                Set(k, j) = (m * (dble(k - (i - cnt - 1))) + q)
-                            end do
-                            cnt = 0
 
+                            !> replace with linear interpolation if requested
+                            !> and if possible, i.e. if the last non-spiky point
+                            !> was not an error value
+                            if (Set(i - (cnt + 1), j) /= error) then
+                                m = (Set(i, j) &
+                                    - Set(i - (cnt + 1), j)) / (dble(cnt + 1))
+                                q = Set(i - (cnt + 1), j)
+                                do k = i - cnt, i - 1
+                                    Set(k, j) = (m * (dble(k - (i - cnt - 1))) + q)
+                                end do
+                            end if
+                            cnt = 0
                         else if (cnt > sr%num_spk) then
                             cnt = 0
                         end if
@@ -210,13 +220,17 @@ subroutine TestSpikeDetection(Set, N, printout)
                 end do
             else
                 do i = 2, N
-                    if((Set(i, j) > LocMean(i, j) + adv_lim(j) * LocStDev(i, j)) .or. &
-                     (Set(i, j) < LocMean(i, j) - adv_lim(j) * LocStDev(i, j))) then
-                        cnt = cnt + 1
+                    if (Set(i, j) == error) then
+                        if (cnt /= 0) cnt = cnt + 1
+                    elseif(Set(i, j) > &
+                            LocMean(i, j) + adv_lim(j) * LocStDev(i, j) .or. &
+                            Set(i, j) < &
+                            LocMean(i, j) - adv_lim(j) * LocStDev(i, j)) then
+                            cnt = cnt + 1
                     else
                         if ((cnt /= 0) .and. (cnt <= sr%num_spk)) then
-                            !> check whether it was a spike already, if not increment the
-                            !> number of spikes found
+                            !> check whether it was a spike already,
+                            !> if not increment the number of spikes found
                             new_spike = .true.
                             do k = 1, cnt
                                 if (IsSpike(i-k, j)) new_spike = .false.
@@ -280,5 +294,5 @@ subroutine TestSpikeDetection(Set, N, printout)
 
     !> Write on output variable
     Essentials%e2spikes(u:pe) = tot_spikes(u:pe)
-    if (printout) write(*,'(a)') ' done.'
-end subroutine TestSpikeDetection
+    if (printout) write(*,'(a)') ' Done.'
+end subroutine TestSpikeDetectionVickers97

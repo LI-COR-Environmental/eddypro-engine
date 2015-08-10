@@ -2,7 +2,7 @@
 ! date_subs.f90
 ! -------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -30,6 +30,29 @@
 ! \test
 ! \todo
 !***************************************************************************
+
+!***************************************************************************
+!
+! \brief       Weak check of compatibility of provided raw file prototype
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+subroutine tsValidateTemplate(Template)
+    implicit none
+    !> local variables
+    character(*), intent(in) :: Template
+
+    !> Weak test
+    if ( index(Template, 'yy') == 0 &
+    .or. index(Template, 'dd') == 0 &
+    .or. index(Template, 'HH') == 0 &
+    .or. index(Template, 'MM') == 0) call ExceptionHandler(20)
+end subroutine tsValidateTemplate
 
 !***************************************************************************
 !
@@ -199,7 +222,7 @@ subroutine FilenameToTimestamp(Filename, Prototype, doy_format, Timestamp)
 
 
     !> extract date/time info from file name
-    call ParseFileNameWithPrototype(Filename, Prototype, DateString)
+    call ParseFileNameWithTemplate(Filename, Prototype, DateString)
 
     !> If midnights are expressed as 24, change it into 00:00 of day after
     call Change24Into00(DateString, doy_format)
@@ -217,7 +240,7 @@ end subroutine FilenameToTimestamp
 
 !***************************************************************************
 !
-! \brief       Retrieve date-time string Filename based on Prototype
+! \brief       Retrieve date-time string Filename based on Template
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -226,12 +249,12 @@ end subroutine FilenameToTimestamp
 ! \test
 ! \todo
 !***************************************************************************
-subroutine FilenameToDateTime(Filename, Prototype, doy_format, date, time)
+subroutine FilenameToDateTime(Filename, Template, doy_format, date, time)
     use m_common_global_var
     implicit none
     !> in/out variables
     character(*), intent(in) :: Filename
-    character(*), intent(in) :: Prototype
+    character(*), intent(in) :: Template
     logical, intent(in) :: doy_format
     character(*), intent(out) :: date
     character(*), intent(out) :: time
@@ -240,7 +263,7 @@ subroutine FilenameToDateTime(Filename, Prototype, doy_format, date, time)
 
 
     !> extract date/time info from file name
-    call ParseFileNameWithPrototype(Filename, Prototype, DateString)
+    call ParseFileNameWithTemplate(Filename, Template, DateString)
 
     !> If midnights are expressed as 24, change it into 00:00 of day after
     call Change24Into00(trim(adjustl(DateString)), doy_format)
@@ -503,3 +526,82 @@ subroutine tsRelaxedMatch(tsTest, tsList, nrow, tsRange, side, imatch)
     end select
 
 end subroutine tsRelaxedMatch
+
+
+!***************************************************************************
+!
+! \brief       Infer time step (in seconds) from array of timestamps
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+!***************************************************************************
+integer function tsInferTimestep(timestamps, nrow) result(tstep)
+    use m_common_global_var
+    implicit none
+    !> in/out variables
+    integer, intent(in) :: nrow
+    type(DateType) :: timestamps(nrow)
+    !> local variables
+    integer :: i
+    integer :: step
+    !integer, allocatable :: Steps(:), tmpSteps(:)
+    integer :: maxTimes
+    integer :: nsteps
+
+    type StepsType
+        integer :: v
+        integer :: cnt
+    end type StepsType
+    type(StepsType), allocatable :: Steps(:), tmpSteps(:)
+    type(StepsType), parameter :: nullSteps = StepsType(0, 0)
+
+
+    !> First, count how many different time steps are in the array
+    do i = 2, nrow
+        !> Calculate current time step
+        step = nint(timelag(timestamps(i), timestamps(i-1)) * 24d0 * 60d0 * 60d0)
+
+        !> Special case of first value
+        if (i == 2) then
+            allocate(Steps(1))
+            Steps = nullSteps
+            Steps(1)%v = step
+            Steps(1)%cnt = Steps(1)%cnt + 1
+        end if
+
+        !> Check if step is new or already contained in Steps
+        if (.not. any(Steps%v == step)) then
+            !> A bit involved way to extend size of array
+            allocate(tmpSteps(size(Steps)+1))
+            tmpSteps(1:size(Steps)) = Steps
+            deallocate(Steps)
+            !move_alloc(tmpSteps, Steps)
+            allocate(Steps(size(tmpSteps)))
+            Steps=tmpSteps
+            deallocate(tmpSteps)
+            !> Add new step to array
+            Steps(size(Steps):size(Steps))%v = step
+            Steps(size(Steps):size(Steps))%cnt = 1
+        else
+            where(Steps%v == step)
+                Steps%cnt = Steps%cnt + 1
+            end where
+        end if
+    end do
+    nsteps = size(Steps)
+
+    !> Find the occurrences of the most recurring step
+    maxTimes = maxval(Steps%cnt)
+
+    tstep = nint(error)
+    do i = 1, maxTimes
+        if (Steps(i)%cnt .eq. maxTimes) then
+            tstep = Steps(i)%v
+            exit
+        endif
+    end do
+    if (allocated(Steps)) deallocate(Steps)
+end function tsInferTimestep

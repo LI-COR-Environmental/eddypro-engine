@@ -1,7 +1,7 @@
 !***************************************************************************
 ! read_fx_ini.f90
 ! ---------------
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -40,9 +40,11 @@ subroutine ReadIniFX(key)
     write(*,'(a)') ' Reading EddyPro project file: ' &
                      // PrjPath(1:len_trim(PrjPath)) // '..'
 
-    !> parse processing.eddypro file and store [Project] variables, common to all programs
+    !> parse processing.eddypro file and store [Project] variables,
+    !> common to all programs
     call ParseIniFile(PrjPath, 'Project', EPPrjNTags, EPPrjCTags,&
-        size(EPPrjNTags), size(EPPrjCTags), SNTagFound, SCTagFound, IniFileNotFound)
+        size(EPPrjNTags), size(EPPrjCTags), &
+        SNTagFound, SCTagFound, IniFileNotFound)
 
     if (IniFileNotFound) call ExceptionHandler(21)
     call WriteProcessingProjectVariables()
@@ -52,16 +54,17 @@ subroutine ReadIniFX(key)
         SNTagFound, SCTagFound, IniFileNotFound)
 
     if (IniFileNotFound) call ExceptionHandler(21)
-    !> selects only tags needed in this software, and store them in relevant variables
+    !> selects only tags needed in this software, and store
+    !> them in relevant variables
     call WriteVariablesFX()
 
-    write(*,'(a)')   ' done.'
+    write(*,'(a)')   ' Done.'
 end subroutine ReadIniFX
 
 !***************************************************************************
 !
-! \brief       Looks in "SNTags" and "SCTags" and retrieve variables used for \n
-!              express processing.
+! \brief       Looks in "SNTags" and "SCTags" and retrieve variables \n
+!              used for express processing.
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -79,31 +82,36 @@ subroutine WriteVariablesFX()
     integer :: gas
     integer :: skipped_classes
     integer :: start
+    logical :: dirExists
 
-    Dir%binned   = 'none'
-    Dir%full     = 'none'
-    AuxFile%ex   = 'none'
-    AuxFile%sa   = 'none'
 
     !> Spectra analysis time period
     if (SCTags(22)%value(1:1) == '1') then
+        FCCsetup%SA%subperiod = .true.
         FCCsetup%SA%start_date = SCTags(1)%value(1:len_trim(SCTags(1)%value))
+        FCCsetup%SA%start_time = SCTags(2)%value(1:len_trim(SCTags(2)%value))
         FCCsetup%SA%end_date = SCTags(3)%value(1:len_trim(SCTags(3)%value))
+        FCCsetup%SA%end_time = SCTags(4)%value(1:len_trim(SCTags(4)%value))
     else
+        FCCsetup%SA%subperiod = .false.
         FCCsetup%SA%start_date = '1900-01-01'
         FCCsetup%SA%end_date   = '2100-12-31'
+        FCCsetup%SA%start_time = '00:00'
+        FCCsetup%SA%end_time   = '23:59'
     end if
 
     !> Essentials files
-    AuxFile%ex = SCTags(7)%value(1:len_trim(SCTags(7)%value))
+    AuxFile%ex = trim(adjustl(SCTags(7)%value))
     if (len_trim(AuxFile%ex) == 0) AuxFile%ex = 'none'
+
     !> Binned (co)spectra folder
-    Dir%binned = SCTags(8)%value
-    if (len_trim(Dir%binned) == 0 .or. index(trim(Dir%binned), slash) == 0) &
+    Dir%binned = trim(adjustl(SCTags(8)%value))
+    if (len_trim(Dir%binned) == 0) &
         Dir%binned = trim(Dir%main_out) // trim(SubDirBinCospectra)
+
     !> Full (co)spectra folder
-    Dir%full = SCTags(9)%value
-    if (len_trim(Dir%full) == 0 .or. index(trim(Dir%full), slash) == 0) &
+    Dir%full = trim(adjustl(SCTags(9)%value))
+    if (len_trim(Dir%full) == 0) &
         Dir%full = trim(Dir%main_out) // trim(SubDirCospectra)
 
     !> Method of H correction
@@ -134,7 +142,8 @@ subroutine WriteVariablesFX()
             FCCsetup%SA%ibrom_model = .true.
     end select
 
-    !> Select whether and how to apply correction for sensors separation from Horst & Lenschow 2009
+    !> Select whether and how to apply correction for sensors
+    !> separation from Horst & Lenschow 2009
     FCCsetup%SA%horst_lens09  = 'none'
     select case (SCTags(21)%value(1:1))
         case ('1')
@@ -143,13 +152,50 @@ subroutine WriteVariablesFX()
             FCCsetup%SA%horst_lens09  = 'cross_and_vertical'
     end select
 
-    !> Select whether to perform on the fly spectral analysis or not
-    FCCsetup%sa_onthefly = .false.
-    if (index(SCTags(19)%value(1:1), '1') /= 0) then
-        FCCsetup%sa_onthefly = .true.
-    else
+    !> Spectral assessment file path, if declared available
+    AuxFile%sa   = 'none'
+    if (SCTags(19)%value(1:1) == '0' .and. FCCsetup%SA%in_situ) then
         AuxFile%sa = SCTags(20)%value(1:len_trim(SCTags(20)%value))
         if (len_trim(AuxFile%sa) == 0) AuxFile%sa = 'none'
+    end if
+
+    !> Whether to perform spectral assessment on the fly
+    !> Either because (1) in-situ spectral corrections were selected with
+    !> on-the-fly spectral assessment or spectral assessment file was not found;
+    !> (2) or because ensemble averaged spectra or (3) co-spectra have
+    !> been requested
+    FCCsetup%do_spectral_assessment = &
+        FCCsetup%SA%in_situ .and. AuxFile%sa == 'none'
+
+    FCCsetup%pass_thru_spectral_assessment = &
+        FCCsetup%do_spectral_assessment &
+        .or. EddyProProj%out_avrg_cosp &
+        .or. EddyProProj%out_avrg_spec
+
+    !> Check existence of binned cospectra directory if necessary
+    if (FCCsetup%pass_thru_spectral_assessment) then
+        inquire(file = Dir%binned, exist=dirExists)
+        if (.not. dirExists) then
+            EddyProProj%out_avrg_cosp = .false.
+            EddyProProj%out_avrg_spec = .false.
+            FCCsetup%do_spectral_assessment = .false.
+            FCCsetup%pass_thru_spectral_assessment = .false.
+            if (FCCsetup%SA%in_situ) then
+                EddyProProj%hf_meth = 'moncrieff_97'
+                FCCsetup%SA%in_situ = .false.
+            end if
+            call ExceptionHandler(87)
+        end if
+    end if
+
+    !> Check existence of full cospectra directory if necessary
+    if (EddyProProj%hf_meth == 'fratini_12') then
+        inquire(file = Dir%full, exist=dirExists)
+        if (.not. dirExists) then
+            call ExceptionHandler(88)
+            EddyProProj%hf_meth = 'moncrieff_97'
+            FCCsetup%SA%in_situ = .false.
+        end if
     end if
 
     FCCsetup%SA%lptf = 'none'
@@ -157,14 +203,17 @@ subroutine WriteVariablesFX()
         !> select low-pass transfer function (LPTF) definition method
         select case (SCTags(15)%value(1:1))
             case ('0')
-                !> Transfer function calculated analytically (Moncrieff et al., 1997)
+                !> Transfer function calculated analytically
+                !> (Moncrieff et al., 1997)
                 FCCsetup%SA%lptf = 'analytic'
             case ('1')
-                !> Transfer function calculated in-situ, after Aubinet et al. 2001
-                !> modified to account for RH-dependency (see ECO2S documentation)
+                !> Transfer function calculated in-situ,
+                !> after Aubinet et al. 2001 modified to account
+                !> for RH-dependency
                 FCCsetup%SA%lptf = 'sigma'
             case ('2')
-                !> Ttransfer function calculated in-situ, after Ibrom et al. 2007
+                !> Ttransfer function calculated in-situ,
+                !> after Ibrom et al. 2007
                 FCCsetup%SA%lptf = 'iir'
             case default
                 !> If not specified, set to none
@@ -212,13 +261,37 @@ subroutine WriteVariablesFX()
         i = i + 2
     end do
 
-    !> Thresholds for fluxes, for considering their spectra in the assessment
-    FCCsetup%SA%trshld_co2  = dble(SNTags(11)%value)
-    FCCsetup%SA%trshld_ch4  = dble(SNTags(12)%value)
-    FCCsetup%SA%trshld_gas4 = dble(SNTags(13)%value)
-    FCCsetup%SA%trshld_LE   = dble(SNTags(14)%value)
-    FCCsetup%SA%trshld_H    = dble(SNTags(15)%value)
+    !> Flux thresholds, used to include/exclude corresponding (co)spectra in
+    !> ensemble averages and model fits. Also used to discriminate between
+    !> direct method and model in spectral correction after Fratini et al. (2012).
+    FCCsetup%SA%min_un_ustar = dble(SNTags(92)%value)
+    FCCsetup%SA%min_un_co2   = dble(SNTags(93)%value)
+    FCCsetup%SA%min_un_ch4   = dble(SNTags(94)%value)
+    FCCsetup%SA%min_un_gas4  = dble(SNTags(95)%value)
+    FCCsetup%SA%min_un_LE    = dble(SNTags(96)%value)
+    FCCsetup%SA%min_un_H     = dble(SNTags(97)%value)
+    FCCsetup%SA%min_st_ustar = dble(SNTags(98)%value)
+    FCCsetup%SA%min_st_co2   = dble(SNTags(99)%value)
+    FCCsetup%SA%min_st_ch4   = dble(SNTags(100)%value)
+    FCCsetup%SA%min_st_gas4  = dble(SNTags(101)%value)
+    FCCsetup%SA%min_st_LE    = dble(SNTags(102)%value)
+    FCCsetup%SA%min_st_H     = dble(SNTags(103)%value)
+    FCCsetup%SA%max_ustar    = dble(SNTags(104)%value)
+    FCCsetup%SA%max_co2      = dble(SNTags(105)%value)
+    FCCsetup%SA%max_ch4      = dble(SNTags(106)%value)
+    FCCsetup%SA%max_gas4     = dble(SNTags(107)%value)
+    FCCsetup%SA%max_LE       = dble(SNTags(108)%value)
+    FCCsetup%SA%max_H        = dble(SNTags(109)%value)
 
+    !> Whether to use results of Vickers and Mahrt tests to eliminate (co)spectra
+    FCCsetup%SA%filter_cosp_by_vm_flags = SCTags(23)%value(1:1) == '1'
+
+    !> Whether to use results of Foken tests to eliminate (co)spectra
+    FCCsetup%SA%foken_lim = -1
+    if (SCTags(24)%value(1:1) == '1') FCCsetup%SA%foken_lim = 2
+    if (SCTags(25)%value(1:1) == '1') FCCsetup%SA%foken_lim = 1
+
+    !> Minimum frequency for high-frequency noise detection and elimination
     FCCsetup%SA%hfn_fmin(co2)  = dble(SNTags(16)%value)
     FCCsetup%SA%hfn_fmin(h2o)  = dble(SNTags(17)%value)
     FCCsetup%SA%hfn_fmin(ch4)  = dble(SNTags(18)%value)
@@ -266,13 +339,6 @@ subroutine WriteVariablesFX()
         end if
     end do
     FCCsetup%SA%nclass(gas4) = 12 - skipped_classes
-
-    !> Threshold values between model and in-situ CF, in Fratini et al. 2010
-    FCCsetup%SA%f12_trshld(co2)  = SNTags(92)%value
-    FCCsetup%SA%f12_trshld(ch4)  = SNTags(93)%value
-    FCCsetup%SA%f12_trshld(gas4) = SNTags(94)%value
-    FCCsetup%SA%f12_trshld(ts)   = SNTags(95)%value
-    FCCsetup%SA%f12_trshld(h2o)  = SNTags(96)%value
 
     !> adjust Dirs
     call AdjDir(Dir%binned, slash)

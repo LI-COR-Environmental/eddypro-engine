@@ -2,7 +2,7 @@
 ! test_timelag.f90
 ! ----------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -90,7 +90,7 @@ subroutine TestTimeLag(Set, N)
         IntHF%tl = IntHF%tl + hflags(j)*10**(4 - j)
         IntSF%tl = IntSF%tl + sflags(j)*10**(4 - j)
     end do
-    write(*,'(a)') ' done.'
+    write(*,'(a)') ' Done.'
 end subroutine TestTimeLag
 
 !***************************************************************************
@@ -105,7 +105,7 @@ end subroutine TestTimeLag
 ! \todo
 !***************************************************************************
 subroutine CovMaxRS(lagctr, lagmin, lagmax, Col1, Col2, MaxCov, DefCov, TLag, RLag, N)
-    use m_common_global_var
+    use m_rp_global_var
     implicit none
     !> in/out variables
     integer, intent(in) :: N !< Number of raw data

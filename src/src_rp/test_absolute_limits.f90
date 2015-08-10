@@ -1,8 +1,8 @@
 !***************************************************************************
 ! test_absolute_limits.f90
-! -------------------------
+! ------------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -69,8 +69,8 @@ subroutine TestAbsoluteLimits(Set, N, printout)
             hflags(w) = 0
         end if
         !>  Sonic temperature
-        if ((Set(i, ts) < al%t_min + 273.15d0) .or. &
-            (Set(i, ts) > al%t_max + 273.15d0) ) then
+        if ((Set(i, ts) < al%t_min + 273.16d0) .or. &
+            (Set(i, ts) > al%t_max + 273.16d0) ) then
             hflags(ts) = 1
             if(RPsetup%filter_al) Set(i, ts) = error
         else
@@ -83,7 +83,6 @@ subroutine TestAbsoluteLimits(Set, N, printout)
                 if( (Set(i, co2) * StdVair * 1d3 < al%co2_min) .or. &
                     (Set(i, co2) * StdVair * 1d3 > al%co2_max) ) then
                     hflags(co2) = 1
-                    !if(RPsetup%filter_al) Set(i, co2) = error   !****** deprecated
                 else
                     hflags(co2) = 0
                 end if
@@ -91,7 +90,6 @@ subroutine TestAbsoluteLimits(Set, N, printout)
                 if( (Set(i, co2) < al%co2_min) .or. &
                     (Set(i, co2) > al%co2_max) ) then
                     hflags(co2) = 1
-                    !if(RPsetup%filter_al) Set(i, co2) = error   !****** deprecated
                 else
                     hflags(co2) = 0
                 end if
@@ -104,7 +102,6 @@ subroutine TestAbsoluteLimits(Set, N, printout)
                 if( (Set(i, h2o) * StdVair < al%h2o_min) .or. &
                     (Set(i, h2o) * StdVair > al%h2o_max) ) then
                     hflags(h2o) = 1
-                    !if(RPsetup%filter_al) Set(i, h2o) = error   !****** deprecated
                 else
                     hflags(h2o) = 0
                 end if
@@ -112,7 +109,6 @@ subroutine TestAbsoluteLimits(Set, N, printout)
                 if( (Set(i, h2o) < al%h2o_min) .or. &
                     (Set(i, h2o) > al%h2o_max) ) then
                     hflags(h2o) = 1
-                    !if(RPsetup%filter_al) Set(i, h2o) = error   !****** deprecated
                 else
                     hflags(h2o) = 0
                 end if
@@ -125,7 +121,6 @@ subroutine TestAbsoluteLimits(Set, N, printout)
                 if( (Set(i, ch4) * StdVair * 1d3 < al%ch4_min) .or. &
                     (Set(i, ch4) * StdVair * 1d3 > al%ch4_max) ) then
                     hflags(ch4) = 1
-                    !if(RPsetup%filter_al) Set(i, ch4) = error   !****** deprecated
                 else
                     hflags(ch4) = 0
                 end if
@@ -133,7 +128,6 @@ subroutine TestAbsoluteLimits(Set, N, printout)
                 if( (Set(i, ch4) < al%ch4_min) .or. &
                     (Set(i, ch4) > al%ch4_max) ) then
                     hflags(ch4) = 1
-                    !if(RPsetup%filter_al) Set(i, ch4) = error   !****** deprecated
                 else
                     hflags(ch4) = 0
                 end if
@@ -146,7 +140,6 @@ subroutine TestAbsoluteLimits(Set, N, printout)
                 if( (Set(i, gas4) * StdVair * 1d3 < al%gas4_min) .or. &
                     (Set(i, gas4) * StdVair * 1d3 > al%gas4_max) ) then
                     hflags(gas4) = 1
-                    !if(RPsetup%filter_al) Set(i, gas4) = error   !****** deprecated
                 else
                     hflags(gas4) = 0
                 end if
@@ -154,7 +147,6 @@ subroutine TestAbsoluteLimits(Set, N, printout)
                 if( (Set(i, gas4) < al%gas4_min) .or. &
                     (Set(i, gas4) > al%gas4_max) ) then
                     hflags(gas4) = 1
-                    !if(RPsetup%filter_al) Set(i, gas4) = error   !****** deprecated
                 else
                     hflags(gas4) = 0
                 end if
@@ -166,5 +158,5 @@ subroutine TestAbsoluteLimits(Set, N, printout)
     do j = 1, gas4
         IntHF%al = IntHF%al + hflags(j) * (10**(gas4 - j))
     end do
-     if (printout) write(*,'(a)') ' done.'
+     if (printout) write(*,'(a)') ' Done.'
 end subroutine TestAbsoluteLimits

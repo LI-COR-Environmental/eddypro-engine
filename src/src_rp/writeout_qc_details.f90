@@ -1,7 +1,7 @@
 !***************************************************************************
 ! writeout_qc_details.f90
 ! -----------------------
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -40,8 +40,8 @@ subroutine WriteOutQCDetails(string, StDiff, DtDiff, STFlg, DTFlg)
     integer, intent(in) :: STFlg(GHGNumVar)
     integer, intent(in) :: DTFlg(GHGNumVar)
     !> local variables
-    character(10000) :: dataline
-    character(64) :: datum
+    character(LongOutstringLen) :: dataline
+    character(DatumLen) :: datum
 
     call clearstr(dataline)
 

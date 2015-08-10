@@ -2,7 +2,7 @@
 ! files_in_chronological_order.f90
 ! --------------------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -30,11 +30,13 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine FilesInChronologicalOrder(FileList, nrow, StartTimestamp, EndTimestamp)
+subroutine FilesInChronologicalOrder(FileList, nrow, &
+    StartTimestamp, EndTimestamp, indent)
     use m_common_global_var
     implicit none
     !> in/out variables
     integer, intent(inout) :: nrow
+    character(*), intent(in) :: indent
     type(FileListType), intent(inout) :: FileList(nrow)
     type(DateType), intent(out) :: StartTimestamp
     type(DateType), intent(out) :: EndTimestamp
@@ -43,46 +45,49 @@ subroutine FilesInChronologicalOrder(FileList, nrow, StartTimestamp, EndTimestam
     integer :: mini
     integer :: maxi
     type(FileListType) :: TmpFileList(nrow)
-    type(DateType) :: ListTimestamp(nrow)
+    type(DateType) :: tsList(nrow)
     type(DateType) :: TmpListTimestamp(nrow)
     integer :: rank(nrow)
 
 
-    write(*,'(a)', advance = 'no') ' Arranging raw files in chronological order..'
+    write(*,'(a)', advance = 'no') &
+        indent // ' Arranging files in chronological order..'
     !> Initialization
     StartTimestamp = datetype(2100, 12, 31, 23, 30)
     EndTimestamp = datetype(1900, 0, 0, 0, 0)
 
     !> Detect start/end dates and times and store all dates
     do i = 1, nrow
-        ListTimestamp(i) = FileList(i)%timestamp
+        tsList(i) = FileList(i)%timestamp
         !> update start timestamp
-        if (FileList(i)%timestamp < StartTimestamp) StartTimestamp = FileList(i)%timestamp
+        if (FileList(i)%timestamp < StartTimestamp) &
+            StartTimestamp = FileList(i)%timestamp
         !> update end timestamp
-        if (FileList(i)%timestamp > EndTimestamp) EndTimestamp = FileList(i)%timestamp
+        if (FileList(i)%timestamp > EndTimestamp) &
+            EndTimestamp = FileList(i)%timestamp
     end do
 
     !> Sort files in a chronological sequence
-    call rank_dates(ListTimestamp, rank, nrow)
+    call rank_dates(tsList, rank, nrow)
 
     do i = 1, nrow
         TmpFileList(i) = FileList(rank(i))
-        TmpListTimestamp(i) = ListTimestamp(rank(i))
+        TmpListTimestamp(i) = tsList(rank(i))
     end do
     FileList = TmpFileList
-    ListTimestamp = TmpListTimestamp
+    tsList = TmpListTimestamp
 
-    !> If applicable, reduces filelist to the user-selected period
+    !> If applicable, reduces FileList to the user-selected period
     mini = 1
     maxi = nrow
     do i = 1, nrow
-        if(ListTimestamp(i) >= StartTimestamp) then
+        if(tsList(i) >= StartTimestamp) then
             mini = i
             exit
         end if
     end do
     do i = nrow, 1, -1
-        if(ListTimestamp(i) <= EndTimestamp) then
+        if(tsList(i) <= EndTimestamp) then
             maxi = i
             exit
         end if
@@ -93,7 +98,7 @@ subroutine FilesInChronologicalOrder(FileList, nrow, StartTimestamp, EndTimestam
         FileList(i - mini + 1) = FileList(i)
     end do
     nrow = maxi - mini + 1
-    write(*,'(a)') ' done.'
+    write(*,'(a)') ' Done.'
 end subroutine FilesInChronologicalOrder
 
 !***************************************************************************

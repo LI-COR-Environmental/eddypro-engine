@@ -1,7 +1,7 @@
 !***************************************************************************
 ! read_licor_ghg_archive.f90
 ! --------------------------
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -31,7 +31,7 @@
 !***************************************************************************
 subroutine ReadLicorGhgArchive(ZipFile, FirstRecord, LastRecord, LocCol, &
     LocBypassCol, MetaIsNeeded, BiometIsNeeded, DataIsNeeded, ValidateMetadata, &
-    fRaw, nrow, ncol, skip_file, passed, faulty_col, N, bN, FileEndReached)
+    fRaw, nrow, ncol, skip_file, passed, faulty_col, N, FileEndReached, printout)
 
     use m_common_global_var
     implicit none
@@ -44,8 +44,8 @@ subroutine ReadLicorGhgArchive(ZipFile, FirstRecord, LastRecord, LocCol, &
     logical, intent(in) :: BiometIsNeeded
     logical, intent(in) :: DataIsNeeded
     logical, intent(in) :: ValidateMetadata
+    logical, intent(in) :: printout
     integer, intent(out) :: N
-    integer, intent(out) :: bN
     integer, intent(out) :: faulty_col
     real(kind = sgl), intent(out) :: fRaw(nrow, ncol)
     logical, intent(out) :: skip_file
@@ -55,11 +55,11 @@ subroutine ReadLicorGhgArchive(ZipFile, FirstRecord, LastRecord, LocCol, &
     logical, intent(out) :: FileEndReached
     !> local variables
     integer :: del_status
-    character(256) :: MetaFile
-    character(256) :: DataFile
-    character(256) :: BiometFile
-    character(256) :: BiometMetaFile
-    character(512) :: comm
+    character(PathLen) :: MetaFile
+    character(PathLen) :: DataFile
+    character(PathLen) :: BiometFile
+    character(PathLen) :: BiometMetaFile
+    character(CommLen) :: comm
     logical :: skip_biomet_file
 
 
@@ -86,9 +86,7 @@ subroutine ReadLicorGhgArchive(ZipFile, FirstRecord, LastRecord, LocCol, &
         else
             call ReadBiometMetaFile(BiometMetaFile, skip_biomet_file)
             if (.not. skip_biomet_file) &
-                call ReadBiometFile(BiometFile, bN, &
-                NumBiometVar, skip_biomet_file)
-
+                call ReadBiometFile(BiometFile, skip_biomet_file)
             if (skip_biomet_file) &
                 call ExceptionHandler(44)
         end if
@@ -101,9 +99,10 @@ subroutine ReadLicorGhgArchive(ZipFile, FirstRecord, LastRecord, LocCol, &
             skip_file = .true.
             return
         end if
-        call ReadMetadataFile(LocCol, MetaFile, skip_file)
+        call ReadMetadataFile(LocCol, MetaFile, skip_file, printout)
         if (skip_file) return
         if (DataIsNeeded) then
+
             !> If it's in the raw file processing loop, define used variables
             !> based on variables already identified (LocBypassCol)
             call RetrieveVarsSelection(LocBypassCol, LocCol)
@@ -140,11 +139,11 @@ subroutine ReadLicorGhgArchive(ZipFile, FirstRecord, LastRecord, LocCol, &
     end if
 
     !> Delete data and metadata files
-    comm = (comm_del // DataFile(1:len_trim(DataFile)) // ' ' &
+    comm = (trim(comm_del) // ' ' // DataFile(1:len_trim(DataFile)) // ' ' &
         // trim(adjustl(MetaFile)) // ' ' &
         // trim(adjustl(BiometFile)) // ' ' &
         // trim(adjustl(BiometMetaFile)) &
         // ' *.status ' // comm_err_redirect)
-    del_status = system(comm)
 
+    del_status = system(trim(comm))
 end subroutine ReadLicorGhgArchive

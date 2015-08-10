@@ -2,7 +2,7 @@
 ! cross_wind_corr.f90
 ! -------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -63,7 +63,7 @@ subroutine CrossWindCorr(LocCol, Set, nrow, ncol, printout)
             Set(i, ts) = Set(i, ts) + (Un + Vn + Wn) / 1209.d0
         end if
     end do
-    if (printout) write(*,'(a)') ' done.'
+    if (printout) write(*,'(a)') ' Done.'
 end subroutine CrossWindCorr
 
 !***************************************************************************

@@ -2,7 +2,7 @@
 ! metadata_file_validation.f90
 ! ----------------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -61,16 +61,20 @@ subroutine MetadataFileValidation(LocCol, passed, faulty_col)
         end select
     end if
 
-    !> Each Instrument must be validated only if at least one EddyPro variable is measured with it
-    !> Here the instrument check is performed for columns with property use_it,
-    !> (which is defined only after reading the processing project file .eddypro)
+    !> Each Instrument must be validated only if at least one EddyPro
+    !> variable is measured with it. Here the instrument check is performed
+    !> for columns with property use_it, (which is defined only after reading
+    !> the processing project file .eddypro)
     do i = 1, NumCol
         if (LocCol(i)%useit) then
-            !> Fast temperature measurements are exception here, because they can be measured with an
-            !> undescribed instrument.
-            if (LocCol(i)%var == 'ts' .and. LocCol(i)%instr%category == 'fast_t_sensor') then
-                select case (LocCol(i)%instr%model(1:len_trim(LocCol(i)%instr%model)-2))
-                    case ('li7500', 'li7500a', 'li7200', 'li7700', 'li6262', 'li7000')
+            !> Fast temperature measurements are exception here, because they
+            !> can be measured with an un-described instrument.
+            if (LocCol(i)%var == 'ts' &
+                .and. LocCol(i)%instr%category == 'fast_t_sensor') then
+                select case &
+                    (LocCol(i)%instr%model(1:len_trim(LocCol(i)%instr%model)-2))
+                    case ('li7500', 'li7500a', 'li7200', 'li7700', &
+                        'li6262', 'li7000')
                         passed(1) = .false.
                         passed(25) = .false.
                         faulty_col = i
@@ -80,12 +84,14 @@ subroutine MetadataFileValidation(LocCol, passed, faulty_col)
                 end select
             end if
 
-            !> Similarly, slow temperature and pressure measurements can come from any instrument,
-            !> except from a known sonic.
+            !> Similarly, slow temperature and pressure measurements can
+            !> come from any instrument, except from a known sonic.
             if (LocCol(i)%var == 'air_t' .or. LocCol(i)%var == 'air_p') then
-                select case (LocCol(i)%instr%model(1:len_trim(LocCol(i)%instr%model)-2))
-                    case ('hs_50', 'hs_100', 'r2', 'r3_50', 'r3_100', 'r3a_100', 'wm', 'wmpro', &
-                    'usa1_standard', 'usa1_fast', 'csat3', '81000')
+                select case &
+                    (LocCol(i)%instr%model(1:len_trim(LocCol(i)%instr%model)-2))
+                    case ('hs_50', 'hs_100', 'r2', 'r3_50', 'r3_100', &
+                        'r3a_100', 'wm', 'wmpro', 'usa1_standard', &
+                        'usa1_fast', 'csat3', '81000')
                         passed(1) = .false.
                         passed(26) = .false.
                         faulty_col = i
@@ -95,7 +101,8 @@ subroutine MetadataFileValidation(LocCol, passed, faulty_col)
                 end select
             end if
 
-            if (LocCol(i)%var == 'ignore' .or. LocCol(i)%var == 'not_numeric') then
+            if (LocCol(i)%var == 'ignore' &
+                .or. LocCol(i)%var == 'not_numeric') then
                 passed(1) = .false.
                 passed(24) = .false.
                 faulty_col = i
@@ -104,7 +111,8 @@ subroutine MetadataFileValidation(LocCol, passed, faulty_col)
 
             !> detects instrument in instrument list and calls actual check
             il: do j = 1, NumInstruments
-                if (index(Instr(j)%model, LocCol(i)%Instr%model(1:len_trim(LocCol(i)%Instr%model))) /= 0) then
+                if (index(Instr(j)%model, &
+                    trim(adjustl(LocCol(i)%Instr%model))) /= 0) then
                     if (.not. InstrChecked(j)) then
                         call InstrumentValidation(Instr(j), LocCol(i), passed)
                         if (.not. passed(1)) then
@@ -134,15 +142,21 @@ subroutine MetadataFileValidation(LocCol, passed, faulty_col)
         end if
     end do
 
-    !> Beyond a check of metadata file, checks if the minimum number of variables
-    !> needed for flux calculation are present. These are u, v, w and either sos or ts
-    !> Also checks that there are no more than 1 instance of each.
+    !> Beyond a check of metadata file, checks if the minimum number of
+    !> variables needed for flux calculation are present. These are u, v, w and
+    !> either sos or ts. Also checks that there are no more than 1
+    !> instance of each.
     present = 0
     do i= 1, NumCol
-        if (LocCol(i)%var == 'u' .and. LocCol(i)%useit) present(u) = present(u) + 1
-        if (LocCol(i)%var == 'v' .and. LocCol(i)%useit) present(v) = present(v) + 1
-        if (LocCol(i)%var == 'w' .and. LocCol(i)%useit) present(w) = present(w) + 1
-        if ((LocCol(i)%var == 'ts' .or. LocCol(i)%var == 'sos') .and. LocCol(i)%useit) present(ts) = present(ts) + 1
+        if (LocCol(i)%var == 'u' .and. LocCol(i)%useit) &
+            present(u) = present(u) + 1
+        if (LocCol(i)%var == 'v' .and. LocCol(i)%useit) &
+            present(v) = present(v) + 1
+        if (LocCol(i)%var == 'w' .and. LocCol(i)%useit) &
+            present(w) = present(w) + 1
+        if ((LocCol(i)%var == 'ts' .or. LocCol(i)%var == 'sos') &
+            .and. LocCol(i)%useit) &
+            present(ts) = present(ts) + 1
     end do
     do i = u, ts
         if (present(i) /= 1) then

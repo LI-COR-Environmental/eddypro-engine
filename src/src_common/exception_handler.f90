@@ -2,7 +2,7 @@
 ! exception_handler.f90
 ! ---------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -44,12 +44,13 @@ subroutine ExceptionHandler(error_code)
             stop 1
         case(1)
             write(*,*) ' Fatal error(1)> Temporary file "flist.tmp" not created.'
-            write(*,*) ' Fatal error(1)> Most likely, no files with the selected extension were found in the data folder.'
+            write(*,*) ' Fatal error(1)> Most likely, no files matching the raw file name format were found.'
             write(*,*) ' Fatal error(1)> Program execution aborted.'
             stop 1
         case(2)
-            write(*,*) ' Error(2)> Occurred while reading biomet data file. File not found or empty.'
-            write(*,*) ' Error(2)> Biomet data in this file will not be used.'
+            write(*,*) ' Error(2)> Occurred while scanning file for biomet data.'
+            write(*,*) ' Error(2)> EddyPro could not retrieve biomet data from this file.'
+            write(*,*) ' Error(2)> File will be ignored.'
         case(3)
             write(*,*) ' Error(3)> Occurred while reading metadata file in GHG archive. File not found or empty.'
             write(*,*) ' Error(3)> GHG archive appears to be corrupted or invalid and will thus be skipped.'
@@ -66,9 +67,7 @@ subroutine ExceptionHandler(error_code)
             write(*,*)
             write(*,*) ' Error(7)> Occurred while opening INI-format file. Looking for a solution..'
         case(8)
-            write(*,*) ' Fatal error(8)> Temporary file "flist.tmp" is empty.'
-            write(*,*) ' Fatal error(8)> No files with the selected extension were found in the selected folder, '
-            write(*,*) ' Fatal error(8)> or no file name in that folder matches the expected template.'
+            write(*,*) ' Fatal error(8)> No files matching the specified extension were found in the selected folder.'
             write(*,*) ' Fatal error(8)> Program execution aborted.'
             stop 1
         case(14)
@@ -124,7 +123,8 @@ subroutine ExceptionHandler(error_code)
             write(*,*) ' Error(34)> Planar-fit rotation matrix not calculated for this sector.'
         case(35)
             write(*,*) ' Fatal error(35)> Oops! Something went wrong. EddyPro was not able to process any raw file.'
-            write(*,*) ' Fatal error(35)> Execution aborted without creating any result files.'
+            write(*,*) ' Fatal error(35)> Output files not created.'
+            write(*,*) ' Fatal error(35)> Program execution aborted.'
             stop 1
         case(36)
             write(*,*) ' Fatal error(36)> No "Output directory" was selected. Select an "Output directory" before running EddyPro.'
@@ -154,8 +154,8 @@ subroutine ExceptionHandler(error_code)
             write(*,*) ' Error(44)> Occurred while reading or interpreting biomet file.'
             write(*,*) ' Error(44)> Biomet data not used for this period.'
         case(45)
-            write(*,*) ' Warning(45)> Not enough valid co-spectra were found for fitting models, or fitting procedure failed.'
-            write(*,*) ' Warning(45)> Co-spectra output files not created.'
+            write(*,*) ' Error(45)> Not enough valid co-spectra were found for fitting models, or fitting procedure failed.'
+            write(*,*) ' Error(45)> Stability-sorted ensemble averaged cospectra outputs not created.'
         case(46)
             write(*,*) '  Fatal error(46)> The dataset does not contain any raw file &
                                            &corresponding to the selected sub-period.'
@@ -254,82 +254,90 @@ subroutine ExceptionHandler(error_code)
         case(69)
             write(*,*) ' Error(69)> There is a problem with results of the spectral assessment.'
             write(*,*) ' Error(69)> High-frequency spectral correction method switched to Moncrieff et al. (1997).'
-
+        case(70)
+            write(*,*) ' Error(70)> Inconsistent number of variables in biomet files.'
+            write(*,*) ' Error(70)> EddyPro cannot resolve the conflict and will thus proceed without using biomet data.'
+        case(71)
+            write(*,*) ' Error(71)> No valid biomet record imported.'
+            write(*,*) ' Error(71)> EddyPro will proceed without using biomet data.'
+        case(72)
+            write(*,*) '  Warning(72)> No valid biomet record found for this period.'
+        case(73)
+            write(*,*) '  Error(73)> The label of at least one biomet variable misses'
+            write(*,*) '  Error(73)> or has incomplete positional qualifier ("_x_y_z" suffix).'
+            write(*,*) '  Error(73)> EddyPro will proceed without using biomet data.'
+        case(74)
+            write(*,*) '  Error(74)> No valid binned (co)spectra files were found'
+            write(*,*) '  Error(74)> EddyPro cannot perform spectral asssessment, nor '
+            write(*,*) '  Error(74)> create ensemble averaged (co)spectra. If the case, spectral '
+            write(*,*) '  Error(74)> correction method will be switched to Moncrieff et al. (2007).'
+        case(75)
+            write(*,*) ' Error(75)> Not enough valid co-spectra were found for making ensemble averages.'
+            write(*,*) ' Error(75)> Time-sorted ensemble averaged cospectra outputs not created.'
+        case(76)
+            write(*,*) ' Error(76)> EddyPro could not calculate ensemble spectra.'
+            write(*,*) ' Error(76)> Spectral assessment failed. Spectral assessment file not created.'
+        case(77)
+            write(*,*) ' Error(77)> EddyPro could not calculate ensemble spectra.'
+            write(*,*) ' Error(77)> Ensemble averaged spectral output not created.'
+        case(78)
+            write(*,*) ' Fatal error(78)> No files matching the expected template were found in the selected folder.'
+            write(*,*) ' Fatal error(78)> Program execution aborted.'
+            stop 1
+        case(79)
+            write(*,*) ' Error(79)> Inconsistent variable labels or units in biomet files.'
+            write(*,*) ' Error(79)> EddyPro cannot resolve the conflict and will thus proceed without using biomet data.'
+        case(80)
+            write(*,*) ' Warning(80)> Implausible altitude value detected. Altitude defaulted to zero.'
+        case(81)
+            write(*,*) ' Warning(81)> Implausible latitude value detected. Latitude defaulted to zero.'
+        case(82)
+            write(*,*) ' Warning(82)> Implausible longitude value detected. Longitude defaulted to zero.'
+        case(83)
+            write(*,*) ' Warning(83)> Implausible canopy height value detected. Canopy height defaulted to zero.'
+        case(84)
+            write(*,*) ' Warning(84)> Implausible displacement height value detected.'
+            write(*,*) ' Warning(84)> Displacement height defaulted to 0.67 times the canopy height.'
+        case(85)
+            write(*,*) ' Warning(85)> Implausible roughness length value detected.'
+            write(*,*) ' Warning(85)> Roughness length  defaulted to 0.15 times the canopy height,'
+            write(*,*) ' Warning(85)> or to 1.0mm if canopy height is zero.'
+        case(86)
+            write(*,*) ' Fatal error(86)> Could not retrieve files from directory. Either directory does not exist'
+            write(*,*) ' Fatal error(86)> or it does not contain files matching the selected requirements.'
+            write(*,*) ' Fatal error(86)> Program execution aborted.'
+            stop 1
+        case(87)
+            write(*,*) '  Error(87)> Entered or inferred "Binned co-spectra files directory" does not exist.'
+            write(*,*) '  Error(87)> EddyPro cannot perform spectral assessment, calculate ensemble averaged spectra'
+            write(*,*) '  Error(87)> or calculate ensemble averaged co-spectra.'
+            write(*,*) '  Error(87)> Continuing by switching to Moncrieff et al. (1997) spectral corrections'
+            write(*,*) '  Error(87)> if an in-situ method was selected, and ignoring selection of ensemble'
+            write(*,*) '  Error(87)> averaged spectra or co-spectra outputs'
+        case(88)
+            write(*,*) '  Error(88)> Entered or inferred "Full co-spectra files directory" does not exist.'
+            write(*,*) '  Error(88)> EddyPro cannot use spectral correction method of Fratini et al. (2012)'
+            write(*,*) '  Error(88)> Continuing by switching to Moncrieff et al. (1997)'
+        case(89)
+            write(*,*) '  Error(89)> Entered or inferred "Binned co-spectra files directory" does not contain any valid files.'
+            write(*,*) '  Error(89)> EddyPro cannot perform spectral assessment, calculate ensemble averaged spectra'
+            write(*,*) '  Error(89)> or calculate ensemble averaged co-spectra.'
+            write(*,*) '  Error(89)> Continuing by switching to Moncrieff et al. (1997) spectral corrections'
+            write(*,*) '  Error(89)> if an in-situ method was selected, and ignoring selection of ensemble'
+            write(*,*) '  Error(89)> averaged spectra or co-spectra outputs'
+        case(90)
+            write(*,*) '  Error(90)> Entered or inferred "Binned co-spectra files directory" does not contain'
+            write(*,*) '  Error(90)> any files corresponding to the selected start/end period.'
+            write(*,*) '  Error(90)> EddyPro cannot perform spectral assessment, calculate ensemble averaged spectra'
+            write(*,*) '  Error(90)> or calculate ensemble averaged co-spectra.'
+            write(*,*) '  Error(90)> EddyPro will continue, switching to Moncrieff et al. (1997) spectral corrections'
+            write(*,*) '  Error(90)> if an in-situ method was selected, and ignoring selection of ensemble'
+            write(*,*) '  Error(90)> averaged spectra or co-spectra outputs.'
+        case(91)
+            write(*,*) '  Alert(91)> Time constant of linear detrending cannot be larger than flux averaging interval.'
+            write(*,*) '  Alert(91)> Automatically set time constant equal to flux averaging interval.'
+        case(92)
+            write(*,*) ' Error(92)> Occurred while writing passive gases ensemble spectra on output file.'
+            write(*,*) ' Error(92)> File not created.'
     end select
 end subroutine ExceptionHandler
-
-
-!        !> Obsolete, or to be updated
-!        case(9)
-!            write(*,*) ' Fatal error(9)> Occurred while opening statistics file.'
-!            write(*,*) ' Fatal error(9)> Program execution aborted.'
-!            stop 1
-!        case(10)
-!            write(*,*) ' Fatal error(10)> Occurred while reading statistics file. No valid data lines found in file.'
-!            write(*,*) ' Fatal error(10)> Program execution aborted.'
-!            stop 1
-!        case(11)
-!            write(*,*) ' Fatal error(11)> No statistics data were found for the selected time period.'
-!            write(*,*) ' Fatal error(11)> Program execution aborted.'
-!            stop 1
-!        case(12)
-!            write(*,*) ' Fatal error(12)> Occurred while opening provisional fluxes file.'
-!            write(*,*) ' Fatal error(12)> Program execution aborted.'
-!            stop 1
-!        case(15)
-!            write(*,*) ' Warning(15)> Statistics file is too long. No more than 30000 stats can be processed.'
-!            write(*,*) ' Warning(15)> Check results: most likely the last period will not be processed.'
-!        case(16)
-!            write(*,*) ' Fatal error(16)> The raw data directory does not contain any file matching the "Raw file name format".'
-!            write(*,*) ' Fatal error(16)> Program execution aborted.'
-!            stop 1
-!        case(17)
-!            write(*,*) '  Error(17)> Occurred while opening w/h2o covariances file.'
-!            write(*,*) '  Error(17)> EddyPro will use maximized w/h2o covariances instead. Execution continues.'
-!        case(18)
-!            write(*,*) '  Error(18)> Occurred while reading w/h2o file. No valid data lines were found in the file.'
-!            write(*,*) '  Error(18)> EddyPro will use maximum w/h2o covariances instead. Execution continues.'
-!        case(19)
-!            write(*,*) '  Error(19)> number of covariances found in file larger than max supported (18000).'
-!            write(*,*) '  Error(19)> At least one was not imported.'
-!        case(26)
-!            write(*,*) '  Error(26)> Occurred while opening ENE file.'
-!            write(*,*) '  Error(26)> File skipped.'
-!        case(27)
-!            write(*,*) '  Error(27)> Occurred while validating embedded INI file.'
-!            write(*,*) '  Error(27)> File skipped.'
-!        case(47)
-!            write(*,*) '  Fatal error(47)> Length of raw files appears to be zero. Review metadata file through the Metadata File Editor'
-!            write(*,*) '  Fatal error(47)> Program execution aborted.'
-!            stop 1
-!
-!
-!        case(20008)
-!            write(*,*) ' Error(20008)> error while opening fc=fc(RH) fit parameters file.'
-!            write(*,*) '               parameters set to -9999.'
-!        case(20009)
-!            write(*,*) ' Error(20009)> error while creating file. fitting results &
-!                        &not reported on output.'
-!        case(20010)
-!            write(*,*)
-!            write(*,*) '  Warning(20010)> footprint estimation not requested.'
-!        case(20012)
-!            write(*,*) ' Error(20012)> error while opening file. quality flags not calculated.'
-!        case(20013)
-!            write(*,*) '  Warning(20013)> quality flag calculation not requested.'
-!
-!        case(10901)
-!            write(*,*) ' Warning(10901)> Not all variables (u,v,w,ts,co2,h2o) needed'
-!            write(*,*) '                 in ECCOCE are present in the current data file.'
-!            write(*,*) '                 File skipped and results set to -999.9.'
-!        case(11002)
-!            write(*,*) ' Warning(11002)> At least one transfer function parameter results <=0.'
-!            write(*,*) '                 Experimental spectral correction not applied.'
-!            write(*,*) '                 Switching to analytic spectral correction.'
-!        case(12601)
-!            write(*,*) ' Warning(12601)> Either air pressure or temperature is <= 0.'
-!            stop        '                 Program execution aborted'
-!        case(13001)
-!            write(*,*) ' Warning(13001)> Impossible to run footprint model for this file.'
-!            write(*,*) '                 Footprint results set to -9999.'
-!

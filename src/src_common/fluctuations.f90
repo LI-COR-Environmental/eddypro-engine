@@ -2,7 +2,7 @@
 ! fluctuations.f90
 ! ----------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -50,7 +50,7 @@ subroutine Fluctuations(Set, Primes, nrow, ncol, Tconst, LocStats, LocCol)
             call LinDetrend(Set, Primes, Tconst, LocCol, nrow, ncol)
         case('rm')
             call RunningMean(Set, Primes, Tconst, LocCol, nrow, ncol)
-        case('ewa')
+        case('ew')
             call ExpWeightAvrg(Set, Primes, Tconst, LocCol, nrow, ncol)
         case('ba')
             do var = 1, ncol

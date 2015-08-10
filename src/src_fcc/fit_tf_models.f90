@@ -1,8 +1,8 @@
 !***************************************************************************
-! fit_models.f90
-! --------------
+! fit_tf_models.f90
+! -----------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -30,7 +30,7 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine FitTFModels(nbins)
+subroutine FitTFModels(nbins, printout)
     use m_fx_global_var
     use m_levenberg_marquardt
     implicit none
@@ -50,6 +50,7 @@ subroutine FitTFModels(nbins)
 
     !> In/out variables
     integer, intent(in) :: nbins
+    logical, intent(in) :: printout
     !> local variables
     integer :: nlong(GHGNumVar, MaxGasClasses)
     integer :: gas
@@ -66,25 +67,35 @@ subroutine FitTFModels(nbins)
     type(LongSpectraType), allocatable :: lSpec(:, :)
 
 
-    write(*, '(a)', advance = 'no') ' Calculating cut-off frequencies..'
+    write(*, '(a)', advance = 'no') &
+        '  Eliminating high-frequency noise from ensemble spectra if requested..'
 
-    !> Calculate length of un-binned spectra (lSpec), by looking at fnum for each bin
+    !> Calculate length of un-binned spectra (lSpec),
+    !> by looking at fnum for each bin
     call LongSpectraLength(nbins, maxnlong)
 
     !> Allocate lSpec based on detected nlong
     allocate(lSpec(maxnlong, MaxGasClasses))
 
     !> Create artificial dataset for regression
-    call UnbinSpectra(lSpec, size(lSpec, 1), size(lSpec, 2), nlong, size(nlong, 1), size(nlong, 2), nbins)
+    call UnbinSpectra(lSpec, size(lSpec, 1), size(lSpec, 2), &
+        nlong, size(nlong, 1), size(nlong, 2), nbins)
+
+    !> Subtract high-frequency noise if requested
+    call SubtractHighFreqNoise(lSpec, size(lSpec, 1), size(lSpec, 2), &
+        nlong, size(nlong, 1), size(nlong, 2), nbins)
+
+    write(*, '(a)') '  Done.'
+
+    !> Assessment of spectral attenuation
+    if (printout) write(*, '(a)', advance = 'no') &
+        ' Assessing spectral attenuations..'
 
     !> Allocate vectors for fit
     if (.not. allocated(xFit)) allocate(xFit(maxval(nlong)))
     if (.not. allocated(yFit)) allocate(yFit(maxval(nlong)))
     if (.not. allocated(zFit)) allocate(zFit(maxval(nlong)))
     if (.not. allocated(ddum)) allocate(ddum(maxval(nlong)))
-
-    !> Substract high-frequencynoise if requested
-    call SubtractHighFreqNoise(lSpec, size(lSpec, 1), size(lSpec, 2), nlong, size(nlong, 1), size(nlong, 2), nbins)
 
     !> regression for transfer functions, class-sorted
     do gas = co2, gas4
@@ -100,8 +111,9 @@ subroutine FitTFModels(nbins)
                     IIRPar(1:2) = error
                     SigmaPar(1) = error
                 else
-                    !> create dataset for regression, limiting natural frequencies
-                    !> between fmin and fmax, user-defined for each gas
+                    !> create dataset for regression, limiting natural
+                    !> frequencies between fmin and fmax,
+                    !> user-defined for each gas
                     m = 0
                     do i = 1, nlong(gas, cls)
                         if (lSpec(i, cls)%fn(gas) > FCCsetup%SA%fmin(gas) &
@@ -118,26 +130,17 @@ subroutine FitTFModels(nbins)
                     !> underflow or overflow
                     call NormalizeForRegression(m)
 
-                    !> Compute regression parameters for IIR filter (Ibrom et al. 2007)
+                    !> Compute regression parameters for IIR filter
+                    !> (Ibrom et al. 2007)
                     TFShape = 'iir'
                     allocate(fvec(m), fjac(m, npar_IIR))
-!MAYBE WRONG        allocate(fvec(nlong(gas, cls)), fjac((nlong(gas, cls)), npar_IIR))
-                    call lmder1(fcn, m, npar_IIR, IIRPar, fvec, fjac, tol, info, ipvt_IIR)
+                    call lmder1(fcn, m, npar_IIR, IIRPar, fvec, fjac, tol, &
+                        info, ipvt_IIR)
                     if ((IIRPar(1) == 1d0 .and. IIRPar(2) == 0.02d0) &
                         .or. info < 1 .or. info > 3) then
                         IIRPar(1:2) = error
                     end if
                     deallocate(fvec, fjac)
-
-                    !> Compute regression parameters for sigma function (Aubinet et al. 2001)
-!                    TFShape = 'sigma'
-!                    allocate(fvec(nlong(gas, cls)), fjac((nlong(gas, cls)), npar_sigma))
-!                    call lmder1(fcn, m, npar_sigma, SigmaPar, fvec, fjac, tol, info, ipvt_sigma)
-!                    SigmaPar(1) = dabs(SigmaPar(1))
-!                    if (SigmaPar(1) == 0.5d0 .or. info < 1 .or. info > 3) then
-!                        SigmaPar(1) = error
-!                    end if
-!                    deallocate(fvec, fjac)
                 end if
                 !> Store regression params
                 RegPar(gas, cls)%Fn = IIRPar(1)
@@ -156,7 +159,7 @@ subroutine FitTFModels(nbins)
     if (allocated(zFit)) deallocate(zFit)
     if (allocated(ddum)) deallocate(ddum)
 
-    write(*, '(a)') ' done.'
+    write(*, '(a)') ' Done.'
 end subroutine FitTFModels
 
 !***************************************************************************
@@ -191,7 +194,8 @@ subroutine LongSpectraLength(nbins, maxnlong)
                 !> If spectra are available, creates the long spectra
                 do bin = 1, nbins
                     if (MeanBinSpec(bin, cls)%fnum(gas) > 0) &
-                            nlong(gas, cls) = nlong(gas, cls) + MeanBinSpec(bin, cls)%fnum(gas)
+                            nlong(gas, cls) = nlong(gas, cls) &
+                            + MeanBinSpec(bin, cls)%fnum(gas)
                 end do
             end if
         end do
@@ -231,14 +235,16 @@ subroutine UnbinSpectra(lSpec, nrow, ncol, nlong, nnrow, nncol, nbins)
     do gas = co2, gas4
         do cls = 1, nncol
             if (MeanBinSpecAvailable(cls, gas)) then
-                !> Check if current-class spectra are available by checking if all rows of
-                !> first column (fnum) are set to -9999
+                !> Check if current-class spectra are available by
+                !> checking if all rows of first column (fnum) are set to -9999
                 err_cnt = 0
                 do bin = 1, nbins
-                    if (MeanBinSpec(bin, cls)%fnum(gas) == nint(error)) err_cnt = err_cnt + 1
+                    if (MeanBinSpec(bin, cls)%fnum(gas) == nint(error)) &
+                        err_cnt = err_cnt + 1
                 end do
                 if (err_cnt == nbins) then
-                    !> If current-class spectra are not available, set long spectra to -9999
+                    !> If current-class spectra are not available,
+                    !> set long spectra to -9999
                     lSpec(:, cls)%fn(gas) = error
                     lSpec(:, cls)%ts(gas) = error
                     lSpec(:, cls)%of(gas) = error
@@ -246,12 +252,16 @@ subroutine UnbinSpectra(lSpec, nrow, ncol, nlong, nnrow, nncol, nbins)
                     !> If spectra are available, creates the long spectra
                     nlong(gas, cls) = 0
                     do bin = 1, nbins
-                        if (MeanBinSpec(bin, cls)%fnum(gas) /= 0 .and. MeanBinSpec(bin, cls)%fnum(gas) /= nint(error)) then
+                        if (MeanBinSpec(bin, cls)%fnum(gas) /= 0 &
+                            .and. MeanBinSpec(bin, cls)%fnum(gas) /= nint(error)) then
                             do i = 1, MeanBinSpec(bin, cls)%fnum(gas)
                                 nlong(gas, cls) = nlong(gas, cls) + 1
-                                lSpec(nlong(gas, cls), cls)%fn(gas) = MeanBinSpec(bin, cls)%fn(gas)
-                                lSpec(nlong(gas, cls), cls)%ts(gas) = MeanBinSpec(bin, cls)%ts(gas)
-                                lSpec(nlong(gas, cls), cls)%of(gas) = MeanBinSpec(bin, cls)%of(gas)
+                                lSpec(nlong(gas, cls), cls)%fn(gas) = &
+                                    MeanBinSpec(bin, cls)%fn(gas)
+                                lSpec(nlong(gas, cls), cls)%ts(gas) = &
+                                    MeanBinSpec(bin, cls)%ts(gas)
+                                lSpec(nlong(gas, cls), cls)%of(gas) = &
+                                    MeanBinSpec(bin, cls)%of(gas)
                             end do
                         end if
                     end do
@@ -292,12 +302,14 @@ subroutine NormalizeForRegression(N)
     sum_diff     = sum(sq_diff(1:N))
 
     !> detect the order of magnitude of sum_diff and derive the gain needed to
-    !> take the sum to the order of O(10). This is given by the order of the sum (i),
-    !> changed in sign and added with 1 (try it yourself..). Then this exponent is devided by
-    !> 2 because it applies to the data, which in the sum appear as squared.
+    !> take the sum to the order of O(10). This is given by the order of
+    !> the sum (i), changed in sign and added with 1 (try it yourself..).
+    !> Then this exponent is divided by 2 because it applies to the data,
+    !> which in the sum appear as squared.
     gain = 1d0
     do i = -10, 10, 1
-        if ((sum_diff/(10d0**i) > 1d0) .and. (sum_diff/(10d0**(i+1)) < 1d0)) then
+        if ((sum_diff/(10d0**i) > 1d0) &
+            .and. (sum_diff/(10d0**(i+1)) < 1d0)) then
             gain = 10d0 **((-i + 1)/2)
             exit
         end if

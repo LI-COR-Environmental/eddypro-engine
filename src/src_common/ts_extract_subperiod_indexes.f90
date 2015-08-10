@@ -2,7 +2,7 @@
 ! ts_extract_subperiod_indexes.f90
 ! --------------------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -30,7 +30,8 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine tsExtractSubperiodIndexes(TimeSeries, nrow, StartTimestamp, EndTimestamp, StartIndex, EndIndex)
+subroutine tsExtractSubperiodIndexes(TimeSeries, nrow, StartTimestamp, &
+    EndTimestamp, StartIndex, EndIndex)
     use m_common_global_var
     implicit none
     !> In/out variables
@@ -47,7 +48,8 @@ subroutine tsExtractSubperiodIndexes(TimeSeries, nrow, StartTimestamp, EndTimest
     EndIndex = nint(error)
 
     !> Returns errors if periods do not overlap
-    if (EndTimestamp < TimeSeries(1) .or. StartTimestamp > TimeSeries(nrow)) return
+    if (EndTimestamp < TimeSeries(1) &
+        .or. StartTimestamp > TimeSeries(nrow)) return
 
     !> Search StartTimestamp
     if (StartTimestamp < TimeSeries(1))  then
@@ -63,15 +65,13 @@ subroutine tsExtractSubperiodIndexes(TimeSeries, nrow, StartTimestamp, EndTimest
 
     !> Search EndTimestamp
     if (EndTimestamp >= TimeSeries(nrow)) then
-        !EndIndex = nrow - 1
-        EndIndex = nrow
+        EndIndex = nrow - 1
     else
         do i = StartIndex, nrow
             if (TimeSeries(i) > EndTimestamp) then
-                !EndIndex = i - 1
-                EndIndex = i
+                EndIndex = i - 1
                 exit
             end if
         end do
     end if
-end subroutine TsExtractSubperiodIndexes
+end subroutine tsExtractSubperiodIndexes

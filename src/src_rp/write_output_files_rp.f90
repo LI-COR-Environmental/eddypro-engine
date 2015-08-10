@@ -2,7 +2,7 @@
 ! write_outfiles.f90
 ! ------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -30,7 +30,8 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff, DtDiff)
+subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, &
+    StDiff, DtDiff)
     use m_rp_global_var
     implicit none
     !> in/out variables
@@ -45,10 +46,10 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
     integer :: j
     integer :: i
 !    integer :: prof
-    character(10000) :: dataline
-    character(64) :: datum
+    character(LongOutstringLen) :: dataline
+    character(DatumLen) :: datum
     character(64) :: tmp_init_string
-    character(12) :: iso_basic
+    character(14) :: iso_basic
     logical, external :: NewerSwVer
 
     !> write Essentials output file (csv) for communication
@@ -56,7 +57,8 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
     if (EddyProProj%out_essentials) then
         call clearstr(dataline)
         !> Preliminary file and timestamp information
-        call AddDatum(dataline, init_string(1:index(init_string, ',', .true.) - 1), separator)
+        call AddDatum(dataline, init_string(1:index(init_string, ',', .true.) - 1), &
+            separator)
         write(datum, *) Stats%daytime
         call AddDatum(dataline, datum, separator)
         write(datum, *) PeriodRecords
@@ -577,7 +579,7 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
             call WriteDatumFloat(Essentials%rand_uncer(u), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         elseif(EddyProProj%fix_out_format) then
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
         end if
 
         !> H
@@ -589,7 +591,7 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
             call WriteDatumFloat(Essentials%rand_uncer(ts), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         elseif(EddyProProj%fix_out_format) then
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
         end if
 
         !> LE
@@ -602,12 +604,12 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
                 call WriteDatumFloat(Essentials%rand_uncer_LE, datum, EddyProProj%err_label)
                 call AddDatum(dataline, datum, separator)
              elseif(EddyProProj%fix_out_format) then
-                call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
+                call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
             end if
         elseif(EddyProProj%fix_out_format) then
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
         end if
 
         !> Gases
@@ -620,12 +622,12 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
                 call WriteDatumFloat(Essentials%rand_uncer(co2), datum, EddyProProj%err_label)
                 call AddDatum(dataline, datum, separator)
              elseif(EddyProProj%fix_out_format) then
-                call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
+                call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
             end if
         elseif(EddyProProj%fix_out_format) then
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
         end if
 
         if(OutVarPresent(h2o)) then
@@ -637,12 +639,12 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
                 call WriteDatumFloat(Essentials%rand_uncer(h2o), datum, EddyProProj%err_label)
                 call AddDatum(dataline, datum, separator)
              elseif(EddyProProj%fix_out_format) then
-                call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
+                call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
             end if
         elseif(EddyProProj%fix_out_format) then
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
         end if
 
         if(OutVarPresent(ch4)) then
@@ -654,12 +656,12 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
                 call WriteDatumFloat(Essentials%rand_uncer(ch4), datum, EddyProProj%err_label)
                 call AddDatum(dataline, datum, separator)
              elseif(EddyProProj%fix_out_format) then
-                call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
+                call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
             end if
         elseif(EddyProProj%fix_out_format) then
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
         end if
 
         if(OutVarPresent(gas4)) then
@@ -671,12 +673,12 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
                 call WriteDatumFloat(Essentials%rand_uncer(gas4), datum, EddyProProj%err_label)
                 call AddDatum(dataline, datum, separator)
              elseif(EddyProProj%fix_out_format) then
-                call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
+                call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
             end if
         elseif(EddyProProj%fix_out_format) then
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
         end if
 
         !> storage fluxes
@@ -686,14 +688,14 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
             call WriteDatumFloat(Stor%LE, datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         elseif(EddyProProj%fix_out_format) then
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
         end if
         do gas = co2, gas4
             if(OutVarPresent(gas)) then
                 call WriteDatumFloat(Stor%of(gas), datum, EddyProProj%err_label)
                 call AddDatum(dataline, datum, separator)
             elseif(EddyProProj%fix_out_format) then
-                call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
+                call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
             end if
         end do
 
@@ -709,10 +711,10 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
                         call AddDatum(dataline, datum, separator)
                     end if
                 else
-                    call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
+                    call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
                 end if
             elseif(EddyProProj%fix_out_format) then
-                call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
+                call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
             end if
         end do
 
@@ -733,10 +735,10 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
                     call AddDatum(dataline, '0', separator)
                 endif
             elseif(EddyProProj%fix_out_format) then
-                call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-                call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-                call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-                call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
+                call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+                call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+                call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+                call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
                 call AddDatum(dataline, '9', separator)
             end if
         end do
@@ -754,7 +756,7 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
             call WriteDatumFloat(Ambient%RhoCp / RHO%a, datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         else
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
         end if
         call WriteDatumFloat(Ambient%Va, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
@@ -762,7 +764,7 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
             call WriteDatumFloat(Flux3%h2o * 0.0648d0, datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         else
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
         end if
         call WriteDatumFloat(RHO%w, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
@@ -846,13 +848,13 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
             call AddDatum(dataline, datum, separator)
         elseif(EddyProProj%fix_out_format) then
             call AddDatum(dataline, '9', separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
         end if
 
         !> Uncorrected fluxes (Level 0)
@@ -873,8 +875,8 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
             call WriteDatumFloat(BPCF%of(w_h2o), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         elseif(EddyProProj%fix_out_format) then
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
         end if
         !> Gases
         if(OutVarPresent(co2)) then
@@ -883,8 +885,8 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
             call WriteDatumFloat(BPCF%of(w_co2), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         elseif(EddyProProj%fix_out_format) then
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
         end if
         if(OutVarPresent(h2o)) then
             call WriteDatumFloat(Flux0%h2o, datum, EddyProProj%err_label)
@@ -892,8 +894,8 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
             call WriteDatumFloat(BPCF%of(w_h2o), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         elseif(EddyProProj%fix_out_format) then
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
         end if
         if(OutVarPresent(ch4)) then
             call WriteDatumFloat(Flux0%ch4, datum, EddyProProj%err_label)
@@ -901,8 +903,8 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
             call WriteDatumFloat(BPCF%of(w_ch4), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         elseif(EddyProProj%fix_out_format) then
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
         end if
         if(OutVarPresent(gas4)) then
             call WriteDatumFloat(Flux0%gas4, datum, EddyProProj%err_label)
@@ -910,8 +912,8 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
             call WriteDatumFloat(BPCF%of(w_n2o), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         elseif(EddyProProj%fix_out_format) then
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
         end if
 
         !> Vickers and Mahrt 97 hard flags
@@ -942,7 +944,7 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
                 call WriteDatumInt(Essentials%e2spikes(var), datum, EddyProProj%err_label)
                 call AddDatum(dataline, datum, separator)
             elseif(EddyProProj%fix_out_format) then
-                call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
+                call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
             end if
         end do
 
@@ -967,15 +969,15 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
             call WriteDatumInt(Diag7200%sync, datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         elseif(EddyProProj%fix_out_format) then
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
         end if
         if (Diag7500%present) then
             call WriteDatumInt(Diag7500%chopper, datum, EddyProProj%err_label)
@@ -987,10 +989,10 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
             call WriteDatumInt(Diag7500%sync, datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         elseif(EddyProProj%fix_out_format) then
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
         end if
         if (Diag7700%present) then
             call WriteDatumInt(Diag7700%not_ready, datum, EddyProProj%err_label)
@@ -1026,22 +1028,22 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
             call WriteDatumInt(Diag7700%box_connected, datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         elseif(EddyProProj%fix_out_format) then
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
         end if
 
         !> AGCs and RSSIs for LI-7200 and LI-7500
@@ -1049,13 +1051,13 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
             call WriteDatumInt(nint(Essentials%AGC72), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         elseif(EddyProProj%fix_out_format) then
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
         end if
         if (Diag7500%present) then
             call WriteDatumInt(nint(Essentials%AGC75), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         elseif(EddyProProj%fix_out_format) then
-            call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
         end if
 
         !> Variances
@@ -1068,7 +1070,7 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
                 call WriteDatumFloat(Stats%Cov(gas, gas), datum, EddyProProj%err_label)
                 call AddDatum(dataline, datum, separator)
             elseif(EddyProProj%fix_out_format) then
-                call AddDatum(dataline, EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
+                call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
             end if
         end do
         !> w-covariances
@@ -1080,7 +1082,7 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
                 call AddDatum(dataline, datum, separator)
             elseif(EddyProProj%fix_out_format) then
                 call AddDatum(dataline, &
-                EddyProProj%err_label(1:len_trim(EddyProProj%err_label)), separator)
+                trim(adjustl(EddyProProj%err_label)), separator)
             end if
         enddo
 
@@ -1095,12 +1097,11 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
         write(uflx, '(a)') dataline(1:len_trim(dataline) - 1)
     end if
 
-    !>****************************************************************
-    !>****************************************************************
-    if (EddyProProj%out_ghg_eu) then
-        !> write to GHG-Europe style output file
-
-        !> Edit init_string to fit GHG-Europe format
+    !>==========================================================================
+    !>==========================================================================
+    !> FLUXNET EDDY output
+    if (EddyProProj%out_fluxnet_eddy) then
+        !> Edit init_string to fit FLUXNET format
         !> Strip file name and DOY
         tmp_init_string = &
             init_string(index(init_string, ',') +1: &
@@ -1109,7 +1110,7 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
         !> derive ISO basic format timestamp
         iso_basic = tmp_init_string(1:4) // tmp_init_string(6:7) &
             // tmp_init_string(9:10) // tmp_init_string(12:13)  &
-            // tmp_init_string(15:16)
+            // tmp_init_string(15:16) // '00'
 
         call clearstr(dataline)
         call AddDatum(dataline, trim(adjustl(iso_basic)), separator)
@@ -1153,12 +1154,6 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
             call WriteDatumInt(QCFlag%co2, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
         end if
-        if(OutVarPresent(h2o)) then
-            call WriteDatumFloat(Flux3%h2o, datum, '-9999.')
-            call AddDatum(dataline, datum, separator)
-            call WriteDatumInt(QCFlag%h2o, datum, '-9999.')
-            call AddDatum(dataline, datum, separator)
-        end if
         if(OutVarPresent(ch4)) then
             call WriteDatumFloat(Flux3%ch4 * 1d3, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
@@ -1172,41 +1167,106 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, StDiff
             call AddDatum(dataline, datum, separator)
         end if
 
-        !> Storage
-        call WriteDatumFloat(Stor%H, datum, '-9999.')
+        !> Turbulence and footprint
+        call WriteDatumFloat(Stats%wind_dir, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
-        if(OutVarPresent(h2o)) then
-            call WriteDatumFloat(Stor%LE, datum, '-9999.')
-            call AddDatum(dataline, datum, separator)
-        end if
-        if(OutVarPresent(co2)) then
-            call WriteDatumFloat(Stor%of(co2), datum, '-9999.')
-            call AddDatum(dataline, datum, separator)
-        end if
-
-        !> Turbulence
+        call WriteDatumFloat(Ambient%WS, datum, '-9999.')
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumFloat(Ambient%MWS, datum, '-9999.')
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumFloat(Stats7%StDev(u), datum, '-9999.')
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumFloat(Stats7%StDev(v), datum, '-9999.')
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumFloat(Stats7%StDev(w), datum, '-9999.')
+        call AddDatum(dataline, datum, separator)
         call WriteDatumFloat(Ambient%us, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
         call WriteDatumFloat(Ambient%L, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
         call WriteDatumFloat(Ambient%zL, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
-
-        !> footprint
         call WriteDatumFloat(Foot%peak, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
         call WriteDatumFloat(Foot%x70, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
+        call WriteDatumFloat(Foot%x80, datum, '-9999.')
+        call AddDatum(dataline, datum, separator)
         call WriteDatumFloat(Foot%x90, datum, '-9999.')
         call AddDatum(dataline, datum, separator)
 
-        write(ughgeu, '(a)') dataline(1:len_trim(dataline) - 1)
+        !> Ambient pressure in kPa
+        if (Stats%Pr /= error) then
+            call WriteDatumFloat(Stats%Pr * 1d-3, datum, '-9999.')
+            call AddDatum(dataline, datum, separator)
+        else
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+        end if
+
+        !> RH
+        call WriteDatumFloat(Stats%RH, datum, '-9999.')
+        call AddDatum(dataline, datum, separator)
+
+        !> Ambient temperature in degC
+        if (Ambient%TA /= error) then
+            call WriteDatumFloat(Ambient%TA - 273.16d0, datum, '-9999.')
+            call AddDatum(dataline, datum, separator)
+        else
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+        end if
+
+        !> VPD in hPa
+        if (Ambient%VPD /= error) then
+            call WriteDatumFloat(Ambient%VPD * 1d-2, datum, '-9999.')
+            call AddDatum(dataline, datum, separator)
+        else
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+        end if
+
+        !> Sonic temperature in degC
+        if (Stats7%Mean(ts) /= error) then
+            call WriteDatumFloat(Stats7%Mean(ts) - 273.16d0, datum, '-9999.')
+            call AddDatum(dataline, datum, separator)
+        else
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+        end if
+
+        !> Sonic temperature standard deviation
+        call WriteDatumFloat(Stats7%StDev(ts), datum, '-9999.')
+        call AddDatum(dataline, datum, separator)
+
+        write(ufnet_e, '(a)') dataline(1:len_trim(dataline) - 1)
     end if
 
-    !>****************************************************************
-    !>****************************************************************
+    !>==========================================================================
+    !>==========================================================================
+    !> FLUXNET BIOMET output
+    if (EddyProProj%out_fluxnet_biomet) then
+        !> Edit init_string to fit FLUXNET format
+        !> Strip file name and DOY
+        tmp_init_string = &
+            init_string(index(init_string, ',') +1: &
+                        index(init_string, ',', .true.) - 1)
 
-    !> Metadata file
+        !> derive ISO basic format timestamp
+        iso_basic = tmp_init_string(1:4) // tmp_init_string(6:7) &
+            // tmp_init_string(9:10) // tmp_init_string(12:13)  &
+            // tmp_init_string(15:16) // '00'
+
+        call clearstr(dataline)
+        call AddDatum(dataline, trim(adjustl(iso_basic)), separator)
+
+        !> All aggregated biomet values in FLUXNET units
+        do i = 1, nbVars
+            call WriteDatumFloat(bAggrFluxnet(i), datum, '-9999.')
+            call AddDatum(dataline, datum, separator)
+        end do
+        write(ufnet_b, '(a)') dataline(1:len_trim(dataline) - 1)
+    end if
+
+    !>==========================================================================
+    !>==========================================================================
+    !> METADATA file
     !> Site-specific information
     if (EddyProProj%out_md) then
         call clearstr(dataline)

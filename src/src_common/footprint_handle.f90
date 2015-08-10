@@ -2,7 +2,7 @@
 ! footprint_handle.f90
 ! --------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -118,7 +118,7 @@ subroutine Kljun04(std_w, ustar, zL, sonic_height, disp_height, rough_length)
         1.931982d0, 1.969982d0, 2.009982d0, 2.053984d0, 2.101986d0, 2.153988d0, 2.211991d0, 2.279994d0, 2.355998d0 /
 
     !> Initialization to error
-    Foot = FootType(error, error, error, error, error, error, error)
+    Foot = ErrFootprint
 
     !> Height above displacement height
     zm = sonic_height - disp_height
@@ -137,7 +137,7 @@ subroutine Kljun04(std_w, ustar, zL, sonic_height, disp_height, rough_length)
     d = ad * (bb - dlog(rough_length))
 
     if (std_w == error .or. ustar < kj_us_min .or. zL < kj_zL_min .or. zL > kj_zL_max) then
-        Foot = FootType(error, error, error, error, error, error, error)
+        return
     else
         !> Calculate location of peak influence
         xstarmax = c - d
@@ -156,6 +156,8 @@ subroutine Kljun04(std_w, ustar, zL, sonic_height, disp_height, rough_length)
         Foot%x50 = xstar * zm *(std_w / ustar)**(-0.8d0)
         xstar = L(71) * c - d
         Foot%x70 = xstar * zm *(std_w / ustar)**(-0.8d0)
+        xstar = L(81) * c - d
+        Foot%x80 = xstar * zm *(std_w / ustar)**(-0.8d0)
         xstar = L(91) * c - d
         Foot%x90 = xstar * zm *(std_w / ustar)**(-0.8d0)
     end if
@@ -202,10 +204,11 @@ subroutine KormannMeixner01(ustar, zL, wind_speed, sonic_height, disp_height)
     logical :: do30
     logical :: do50
     logical :: do70
+    logical :: do80
 
 
     !> Initialization to error
-    Foot = FootType(error, error, error, error, error, error, error)
+    Foot = ErrFootprint
 
     zm = sonic_height - disp_height
 
@@ -256,6 +259,7 @@ subroutine KormannMeixner01(ustar, zL, wind_speed, sonic_height, disp_height)
     do30 = .true.
     do50 = .true.
     do70 = .true.
+    do80 = .true.
     int_foot = 0d0
 
     do i = 1, 10000
@@ -280,6 +284,10 @@ subroutine KormannMeixner01(ustar, zL, wind_speed, sonic_height, disp_height)
         if (do70 .and. int_foot > 0.7d0) then
             Foot%x70 = i * di
             do70 = .false.
+        end if
+        if (do80 .and. int_foot > 0.8d0) then
+            Foot%x80 = i * di
+            do80 = .false.
         end if
         if (int_foot > 0.9d0) then
             Foot%x90 = i * di
@@ -327,10 +335,11 @@ subroutine Hsieh00(MO_length, sonic_height, disp_height, rough_length)
     logical :: do30
     logical :: do50
     logical :: do70
+    logical :: do80
 
 
     !> Initialization to error
-    Foot = FootType(error, error, error, error, error, error, error)
+    Foot = ErrFootprint
 
     zm = sonic_height - disp_height
 
@@ -365,6 +374,7 @@ subroutine Hsieh00(MO_length, sonic_height, disp_height, rough_length)
     do30 = .true.
     do50 = .true.
     do70 = .true.
+    do80 = .true.
     do i = 1, 10000
         !> Cross-wind integrated 1D function
         fact = DD * zu**PP * dabs(MO_length)**(1d0 - PP) / (vk**2 * (i * di))
@@ -388,6 +398,10 @@ subroutine Hsieh00(MO_length, sonic_height, disp_height, rough_length)
         if (do70 .and. int_foot > 0.7d0) then
             Foot%x70 = i * di
             do70 = .false.
+        end if
+        if (do80 .and. int_foot > 0.8d0) then
+            Foot%x80 = i * di
+            do80 = .false.
         end if
         if (int_foot > 0.9d0) then
             Foot%x90 = i * di

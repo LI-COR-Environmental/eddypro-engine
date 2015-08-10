@@ -1,7 +1,7 @@
 !***************************************************************************
 ! bpcf_massman_00.f90
 ! -------------------
-! Copyright (C) 2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -44,7 +44,7 @@ subroutine bpcf_Massman00(measuring_height, displ_height, loc_var_present, LocIn
     real(kind = dbl), intent(in) :: zL
     integer, intent(in) :: avrg_length
     integer, intent(in) :: detrending_time_constant
-    character(8), intent(in) :: detrending_method
+    character(2), intent(in) :: detrending_method
     logical, intent(in) :: printout
     !> local variables
     integer :: var
@@ -124,7 +124,7 @@ subroutine bpcf_Massman00(measuring_height, displ_height, loc_var_present, LocIn
             t_det = dble(avrg_length) * 60d0 / 5.3d0
         case ('ba')
             t_det = 1d10    !< a very large value.
-        case ('rm', 'ewa')
+        case ('rm', 'ew')
             t_det = detrending_time_constant
         case default
             t_det = 1d10    !< a very large value.
@@ -181,7 +181,7 @@ subroutine bpcf_Massman00(measuring_height, displ_height, loc_var_present, LocIn
         BPCF%of(w_u:w_gas4) = error
     end where
 
-    if (printout) write(*,'(a)') '   done.'
+    if (printout) write(*,'(a)') '   Done.'
 end subroutine BPCF_Massman00
 
 !***************************************************************************

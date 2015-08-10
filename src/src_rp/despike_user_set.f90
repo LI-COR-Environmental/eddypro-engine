@@ -1,7 +1,7 @@
 !***************************************************************************
 ! despike_user_set.f90
 ! --------------------
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -191,5 +191,5 @@ subroutine DespikeUserSet(UserSet, nrow, ncol)
         goto 100
     end if
     deallocate(XX)
-    write(*,'(a)') ' done.'
+    write(*,'(a)') ' Done.'
 end subroutine DespikeUserSet

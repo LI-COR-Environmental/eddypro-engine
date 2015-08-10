@@ -2,7 +2,7 @@
 ! user_timelag_handle.f90
 ! -----------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -111,5 +111,5 @@ subroutine UserTimeLagHandle(TlagMeth, UserSet, unrow, uncol, E2W, nrow)
         end if
     end do
     UserSet = TmpUserSet
-    write(*,'(a)') ' done.'
+    write(*,'(a)') ' Done.'
 end subroutine UserTimeLagHandle

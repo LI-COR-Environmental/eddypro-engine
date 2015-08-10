@@ -1,7 +1,7 @@
 !***************************************************************************
 ! read_spectral_assessment_file.f90
 ! ---------------------------------
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -38,7 +38,7 @@ subroutine ReadSpectralAssessmentFile()
     integer :: cls
     integer :: i
     integer :: open_status
-    character(512) :: string
+    character(ShortInstringLen) :: dataline
 
 
     !> Open planar fit file and read rotation matrices
@@ -57,9 +57,9 @@ subroutine ReadSpectralAssessmentFile()
         end do
         !> Read H2O transfer functions for IIR filter
         do cls = RH10, RH90
-            read(udf, '(a)') string
-            string = string(index(string, '=') + 1: len_trim(string))
-            read(string, *)  RegPar(h2o, cls)%Fn, RegPar(h2o, cls)%fc
+            read(udf, '(a)') dataline
+            dataline = dataline(index(dataline, '=') + 1: len_trim(dataline))
+            read(dataline, *)  RegPar(h2o, cls)%Fn, RegPar(h2o, cls)%fc
         end do
 
         !> Read CO2, CH4 and GAS4 transfer functions for IIR filter
@@ -69,9 +69,9 @@ subroutine ReadSpectralAssessmentFile()
             read(udf, *)
             read(udf, *)
             do cls = JAN, DEC
-                read(udf, '(a)') string
-                string = string(index(string, '=') + 1: len_trim(string))
-                read(string, *)  RegPar(gas, cls)%Fn, RegPar(gas, cls)%fc
+                read(udf, '(a)') dataline
+                dataline = dataline(index(dataline, '=') + 1: len_trim(dataline))
+                read(dataline, *)  RegPar(gas, cls)%Fn, RegPar(gas, cls)%fc
             end do
         end do
 
@@ -81,23 +81,24 @@ subroutine ReadSpectralAssessmentFile()
         end do
 
         !> Read parameters of exponential fit fc vs. RH
-        read(udf, *)  RegPar(dum, dum)%e1, RegPar(dum, dum)%e2, RegPar(dum, dum)%e3
+        read(udf, *) RegPar(dum, dum)%e1, RegPar(dum, dum)%e2, RegPar(dum, dum)%e3
 
         !> skip 6 lines
         do i = 1, 6
             read(udf, *)
         end do
         !> Read parameters of Ibrom's model for spectral correction factor
-        read(udf, '(a)') string
-        string = string(index(string, '=') + 1: len_trim(string))
-        read(string, *)  UnPar(1), UnPar(2)
-        read(udf, '(a)') string
-        string = string(index(string, '=') + 1: len_trim(string))
-        read(string, *)  StPar(1), StPar(2)
+        read(udf, '(a)') dataline
+        dataline = dataline(index(dataline, '=') + 1: len_trim(dataline))
+        read(dataline, *)  UnPar(1), UnPar(2)
+        read(udf, '(a)') dataline
+        dataline = dataline(index(dataline, '=') + 1: len_trim(dataline))
+        read(dataline, *)  StPar(1), StPar(2)
         close(udf)
         write(*, '(a)') ' Done.'
     else
-       !> If the specified file was not found or is empty,m switches to an analytic method
+        !> If the specified file was not found or is empty,
+        !> switches to an analytic method
         EddyProProj%hf_meth = 'moncrieff_97'
         call ExceptionHandler(65)
     end if

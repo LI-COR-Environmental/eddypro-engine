@@ -2,7 +2,7 @@
 ! test_non_steady_wind.f90
 ! ------------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -121,5 +121,5 @@ subroutine TestNonSteadyWind(Set, N)
     if ((RNv(1) >= ns%hf_lim) .or. (RNv(2) >= ns%hf_lim) .or. (RNS >= ns%hf_lim)) then
         IntHF%ns = 1
     end if
-    write(*,'(a)') ' done.'
+    write(*,'(a)') ' Done.'
 end subroutine TestNonSteadyWind

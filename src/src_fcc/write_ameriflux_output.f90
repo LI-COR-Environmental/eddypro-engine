@@ -1,7 +1,7 @@
 !***************************************************************************
 ! write_ameriflux_output.f90
 ! --------------------------
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -35,8 +35,8 @@ subroutine WriteAmeriFluxOutput(lEx)
     !> in/out variables
     type(ExType), intent(in) :: lEx
     !> local variables
-    character(1000) :: dataline
-    character(64) :: datum
+    character(LongOutstringLen) :: dataline
+    character(DatumLen) :: datum
     type(datetype) :: now
     integer :: doy_now
     real(kind=dbl) :: dtime

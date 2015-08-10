@@ -35,23 +35,10 @@
 			</notes>
 		</Option>
 		<Build>
-			<Target title="debug">
-				<Option output="../bin/debug/eddypro_fcc_debug" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="../bin/debug/" />
-				<Option object_output="../obj/debug/fluxes/" />
-				<Option type="1" />
-				<Option compiler="gfortran" />
-				<Compiler>
-					<Add option="-g" />
-				</Compiler>
-				<Linker>
-					<Add option="-static-libgcc -static-libgfortran" />
-				</Linker>
-			</Target>
 			<Target title="release">
-				<Option output="../bin/release/eddypro_fcc" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="../bin/release/" />
-				<Option object_output="../obj/release/fluxes/" />
+				<Option output="../bin/win/eddypro_fcc" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../bin/win/" />
+				<Option object_output="../obj/win/fluxes/" />
 				<Option type="1" />
 				<Option compiler="gfortran" />
 				<Compiler>
@@ -72,9 +59,6 @@
 		<ExtraCommands>
 			<Add before="current_date_and_version_as_parameters.bat" />
 		</ExtraCommands>
-		<Unit filename="../src/src_common/average_no_error.f90">
-			<Option weight="3" />
-		</Unit>
 		<Unit filename="../src/src_common/bpcf_Horst_97.f90">
 			<Option weight="3" />
 		</Unit>
@@ -120,9 +104,6 @@
 		<Unit filename="../src/src_common/configure_for_embedded.f90">
 			<Option weight="3" />
 		</Unit>
-		<Unit filename="../src/src_common/covariance_matrix_no_error.f90">
-			<Option weight="3" />
-		</Unit>
 		<Unit filename="../src/src_common/create_datasets_common.f90">
 			<Option weight="3" />
 		</Unit>
@@ -149,9 +130,6 @@
 		</Unit>
 		<Unit filename="../src/src_common/files_in_chronological_order.f90">
 			<Option weight="3" />
-		</Unit>
-		<Unit filename="../src/src_common/filter_spectra_by_thresholds.f90">
-			<Option weight="4" />
 		</Unit>
 		<Unit filename="../src/src_common/footprint_handle.f90">
 			<Option weight="3" />
@@ -219,7 +197,13 @@
 		<Unit filename="../src/src_common/show_daily_advancement.f90">
 			<Option weight="3" />
 		</Unit>
+		<Unit filename="../src/src_common/stats_operator_no_error.f90">
+			<Option weight="3" />
+		</Unit>
 		<Unit filename="../src/src_common/string_sub.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/tag_run_mode.f90">
 			<Option weight="3" />
 		</Unit>
 		<Unit filename="../src/src_common/timestamp.f90">
@@ -241,6 +225,9 @@
 			<Option weight="4" />
 		</Unit>
 		<Unit filename="../src/src_fcc/correction_factor_model.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_fcc/cospectra_qaqc.f90">
 			<Option weight="4" />
 		</Unit>
 		<Unit filename="../src/src_fcc/cospectra_sorting_and_averaging.f90">
@@ -291,8 +278,11 @@
 		<Unit filename="../src/src_fcc/read_spectral_assessment_file.f90">
 			<Option weight="4" />
 		</Unit>
+		<Unit filename="../src/src_fcc/report_imported_spectra.f90">
+			<Option weight="4" />
+		</Unit>
 		<Unit filename="../src/src_fcc/retrieve_ex_var_by_timestamp.f90">
-			<Option weight="3" />
+			<Option weight="4" />
 		</Unit>
 		<Unit filename="../src/src_fcc/spectra_sorting_and_averaging.f90">
 			<Option weight="4" />
@@ -303,7 +293,7 @@
 		<Unit filename="../src/src_fcc/write_ameriflux_output.f90">
 			<Option weight="4" />
 		</Unit>
-		<Unit filename="../src/src_fcc/write_output_files.f90">
+		<Unit filename="../src/src_fcc/write_output_files_fcc.f90">
 			<Option weight="4" />
 		</Unit>
 		<Extensions>

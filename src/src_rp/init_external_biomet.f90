@@ -2,7 +2,7 @@
 ! init_external_biomet.f90
 ! ------------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -21,8 +21,7 @@
 !
 !***************************************************************************
 !
-! \brief       Read 1 biomet file and figure out time step with \n
-!              a call to BiometTimeStep()
+! \brief       Read biomet files and figure out time step and number of rows
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -30,559 +29,216 @@
 ! \deprecated
 ! \test
 !***************************************************************************
-subroutine InitExternalBiomet(BiometFileList, N)
+subroutine InitExternalBiomet(bFileList, N)
     use m_rp_global_var
     implicit none
     !> In/out variables
     integer, intent(in) :: N
-    type (FilelistType), intent(out) :: BiometFileList(N)
+    type (FilelistType), intent(out) :: bFileList(N)
     !> Local variables
-    integer :: i
-    integer :: ii
-    integer :: j
-    integer :: jj
-    integer :: nbiomet
+    integer :: cnt
+    integer :: nRec, fnRec
+    integer :: fnbItems
+    integer :: lastcnt
     integer :: nfl
-    integer :: open_status
-    integer :: read_status
-    integer :: sepa
-    integer :: var_num
-    character(32) :: text_vars(1000)
-    character(1024) :: datastring
-    character(64) :: tstamp_string
+    integer :: io_status
+    character(LongInstringLen) :: dataline
+    character(LongInstringLen) :: dataline2
+    character(64) :: tsString
+    logical :: failed
+    logical :: skip_record
+    type(DateType), allocatable :: bTimestamp(:)
+    integer, external :: tsInferTimestep
+    integer, external :: SplitCount
+    integer, external :: countsubstring
+    character(len(dataline)), external :: replace
+    type(BiometVarsType), allocatable :: lbVars(:)
+    logical :: excluded_file(N)
 
 
-    write(*, '(a)', advance = 'no') ' Initializing external biomet usage..'
+    write(*, '(a)', advance = 'no') ' Interpreting biomet data..'
 
     !> Retrieve list of biomet files
     if (EddyProProj%biomet_data == 'ext_file') then
-        BiometFileList(1)%path = AuxFile%biomet
+        bFileList(1)%path = AuxFile%biomet
+        call basename(bFileList(1)%path, bFileList(1)%name, slash)
     elseif (EddyProProj%biomet_data == 'ext_dir') then
-        call FileListByExt(Dir%biomet, trim(adjustl(EddyProProj%biomet_tail)), .false., 'none', .false., &
-            .false., EddyProProj%biomet_recurse, BiometFileList, size(BiometFileList), .false., ' ')
+        call FileListByExt(Dir%biomet, trim(adjustl(EddyProProj%biomet_tail)), &
+            .false., .false., 'none', .false., .false., &
+            EddyProProj%biomet_recurse, bFileList, size(bFileList), .false., ' ')
     end if
 
-    BiometUnits = NullBiometUnits
-    ProfileUnits = NullProfileUnits
-    i = 0
-    file_loop: do nfl = 1, N
+    !> Loop to retrieve number of rows and cols, so that biomet variables
+    !> can be allocated
+    nRec = 0
+    excluded_file = .false.
+    size_loop: do nfl = 1, N
 
-        !> Open biomet measurement file(s) and read data
-        open(udf, file = BiometFileList(nfl)%path, status = 'old', iostat = open_status)
+        !> Count number of items and rows in file
+        call scanCsvFile(bFileList(nfl)%path, ',', 1, &
+            fnRec, fnbItems, failed)
 
-        Biomet(1:MaxNumBiometRow) = ErrBiomet
-        if (open_status == 0) then
-            !> Interpret file header or "header string"
-            call ReadBiometHeader(udf)
-            NumBiometVar = NumSlowVar
-
-            !> Preliminarily define date prototype
-            BiometSetup%tstamp_prototype = ''
-            do ii = 1, NumSlowVar
-                if (index(BiometOrd(ii)%var, 'TIMESTAMP') /= 0) then
-                    BiometSetup%tstamp_prototype = BiometSetup%tstamp_prototype(1:len_trim(BiometSetup%tstamp_prototype)) &
-                        // BiometOrd(ii)%units(1:len_trim(BiometOrd(ii)%units))
-                    NumBiometVar = NumBiometVar - 1
-                end if
-            end do
-
-            !> Start loop on datalines
-            rec_loop: do
-
-                !> Exit instruction
-                if (i > MaxNumBiometRow - 1) exit file_loop
-
-                tstamp_string = ''
-                datastring = ''
-                var_num = 0
-                read(udf, '(a)', iostat = read_status) datastring
-                if (read_status /= 0) then
-                    close(udf)
-                    exit rec_loop
-                end if
-
-                i = i + 1
-                text_vars = 'none'
-                do
-                    sepa = index(datastring, BiometSetup%separator)
-                    if (sepa == 0) sepa = len_trim(datastring) + 1
-                    if (len_trim(datastring) == 0) exit
-                    var_num = var_num + 1
-                    text_vars(var_num) = datastring(1:sepa - 1)
-                    datastring = datastring(sepa + 1: len_trim(datastring))
-                end do
-                if (var_num /= NumSlowVar)then
-                    i = i - 1
-                    cycle rec_loop
-                end if
-
-                var_loop: do j = 1, var_num
-                    if (len_trim(text_vars(j)) == 0) cycle
-                    !> Import timestamp
-                    do jj = TIMESTAMP_1, TIMESTAMP_7
-                        if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                            if (BiometOrd(j)%units == 'ddd' .and. len_trim(text_vars(j)) == 2) &
-                                text_vars(j) = '0' // text_vars(j)(1:len_trim(text_vars(j)))
-                            if (BiometOrd(j)%units == 'ddd' .and. len_trim(text_vars(j)) == 1) &
-                                text_vars(j) = '00' // text_vars(j)(1:len_trim(text_vars(j)))
-                            if (BiometOrd(j)%units == 'dd' .and. len_trim(text_vars(j)) == 1) &
-                                text_vars(j) = '0' // text_vars(j)(1:len_trim(text_vars(j)))
-                            if (BiometOrd(j)%units == 'HH' .and. len_trim(text_vars(j)) == 1) &
-                                text_vars(j) = '0' // text_vars(j)(1:len_trim(text_vars(j)))
-                            if (BiometOrd(j)%units == 'MM' .and. len_trim(text_vars(j)) == 1) &
-                                text_vars(j) = '0' // text_vars(j)(1:len_trim(text_vars(j)))
-                            !> Special case of Excel messing up timestamp in american style mm/dd/yyyy
-                            if (BiometOrd(j)%units == 'mm/dd/yyyy') then
-                                if (text_vars(j)(2:2) == '/') &
-                                    text_vars(j) = '0' // text_vars(j)(1:len_trim(text_vars(j)))
-                                if (text_vars(j)(5:5) == '/') &
-                                    text_vars(j) = text_vars(j)(1:3) // '0' // text_vars(j)(4:len_trim(text_vars(j)))
-                            end if
-                            !> Special case of Excel messing up timestamp in american style HH:MM:SS
-                            if (BiometOrd(j)%units == 'HH:MM:SS') then
-                                if (text_vars(j)(2:2) == ':') &
-                                    text_vars(j) = '0' // text_vars(j)(1:len_trim(text_vars(j)))
-                            end if
-                            tstamp_string = tstamp_string(1:len_trim(tstamp_string)) &
-                                // text_vars(j)(1:len_trim(text_vars(j)))
-                            cycle var_loop
-                        end if
-                    end do
-
-                    !> Read Biomet units
-                    if (i == 1) then
-                        do jj = TA_1_1_1, TA_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%Ta(jj - TA_1_1_1 + 1) = BiometOrd(j)%units
-                                if (BiometSetup%Ta == j) BiometSetup%Ta = jj - TA_1_1_1 + 1
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = PA_1_1_1, PA_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%Pa(jj - PA_1_1_1 + 1) = BiometOrd(j)%units
-                                if (BiometSetup%Pa == j) BiometSetup%Pa = jj - PA_1_1_1 + 1
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = RH_1_1_1, RH_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%RH(jj - RH_1_1_1 + 1) = BiometOrd(j)%units
-                                if (BiometSetup%RH == j) BiometSetup%RH = jj - RH_1_1_1 + 1
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = RG_1_1_1, RG_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%Rg(jj - RG_1_1_1 + 1) = BiometOrd(j)%units
-                                if (BiometSetup%Rg == j) BiometSetup%Rg = jj - RG_1_1_1 + 1
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = RN_1_1_1, RN_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%Rn(jj - RN_1_1_1 + 1) = BiometOrd(j)%units
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = RD_1_1_1, RD_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%Rd(jj - RD_1_1_1 + 1) = BiometOrd(j)%units
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = RR_1_1_1, RR_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%Rr(jj - RR_1_1_1 + 1) = BiometOrd(j)%units
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = R_UVA_1_1_1, R_UVA_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%Ruva(jj - R_UVA_1_1_1 + 1) = BiometOrd(j)%units
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = R_UVB_1_1_1, R_UVB_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%Ruvb(jj - R_UVB_1_1_1 + 1) = BiometOrd(j)%units
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = LWIN_1_1_1, LWIN_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%LWin(jj - LWIN_1_1_1 + 1) = BiometOrd(j)%units
-                                if (BiometSetup%LWin == j) BiometSetup%LWin = jj - LWIN_1_1_1 + 1
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = LWOUT_1_1_1, LWOUT_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%LWout(jj - LWOUT_1_1_1 + 1) = BiometOrd(j)%units
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = TC_1_1_1, TC_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%Tc(jj - TC_1_1_1 + 1) = BiometOrd(j)%units
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = TBOLE_1_1_1, TBOLE_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%Tbole(jj - TBOLE_1_1_1 + 1) = BiometOrd(j)%units
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = P_1_1_1, P_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%P(jj - P_1_1_1 + 1) = BiometOrd(j)%units
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = P_RAIN_1_1_1, P_RAIN_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%Prain(jj - P_RAIN_1_1_1 + 1) = BiometOrd(j)%units
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = P_SNOW_1_1_1, P_SNOW_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%Psnow(jj - P_SNOW_1_1_1 + 1) = BiometOrd(j)%units
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = SNOWD_1_1_1, SNOWD_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%SNOWD(jj - SNOWD_1_1_1 + 1) = BiometOrd(j)%units
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = PPFD_1_1_1, PPFD_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%PPFD(jj - PPFD_1_1_1 + 1) = BiometOrd(j)%units
-                                if (BiometSetup%PPFD == j) BiometSetup%PPFD = jj - PPFD_1_1_1 + 1
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = PPFDd_1_1_1, PPFDd_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%PPFDd(jj - PPFDd_1_1_1 + 1) = BiometOrd(j)%units
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = PPFDr_1_1_1, PPFDr_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%PPFDr(jj - PPFDr_1_1_1 + 1) = BiometOrd(j)%units
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = PPFDbc_1_1_1, PPFDbc_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                 BiometUnits%PPFDbc(jj - PPFDbc_1_1_1 + 1) = BiometOrd(j)%units
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = APAR_1_1_1, APAR_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%APAR(jj - APAR_1_1_1 + 1) = BiometOrd(j)%units
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = ALB_1_1_1, ALB_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%ALB(jj - ALB_1_1_1 + 1) = BiometOrd(j)%units
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = PRI_1_1_1, PRI_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%PRI(jj - PRI_1_1_1 + 1) = BiometOrd(j)%units
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = LAI_1_1_1, LAI_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%LAI(jj - LAI_1_1_1 + 1) = BiometOrd(j)%units
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = SWIN_1_1_1, SWIN_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%SWin(jj - SWIN_1_1_1 + 1) = BiometOrd(j)%units
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = SWOUT_1_1_1, SWOUT_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%SWout(jj - SWOUT_1_1_1 + 1) = BiometOrd(j)%units
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = SWBC_1_1_1, SWBC_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%SWbc(jj - SWBC_1_1_1 + 1) = BiometOrd(j)%units
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = SWDIF_1_1_1, SWDIF_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%SWdif(jj - SWDIF_1_1_1 + 1) = BiometOrd(j)%units
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = TBC_1_1_1, TBC_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%Tbc(jj - TBC_1_1_1 + 1) = BiometOrd(j)%units
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = WS_1_1_1, WS_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%WS(jj - WS_1_1_1 + 1) = BiometOrd(j)%units
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = MWS_1_1_1, MWS_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%MWS(jj - MWS_1_1_1 + 1) = BiometOrd(j)%units
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = WD_1_1_1, WD_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%WD(jj - WD_1_1_1 + 1) = BiometOrd(j)%units
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = SAPFLOW_1_1_1, SAPFLOW_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%SAPFLOW(jj - SAPFLOW_1_1_1 + 1) = BiometOrd(j)%units
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = STEMFLOW_1_1_1, STEMFLOW_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%STEMFLOW(jj - STEMFLOW_1_1_1 + 1) = BiometOrd(j)%units
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = TR_1_1_1, TR_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%TR(jj - TR_1_1_1 + 1) = BiometOrd(j)%units
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = SWC_1_1_1, SWC_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%SWC(jj - SWC_1_1_1 + 1) = BiometOrd(j)%units
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = SHF_1_1_1, SHF_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%SHF(jj - SHF_1_1_1 + 1) = BiometOrd(j)%units
-                                cycle var_loop
-                            end if
-                        end do
-                        do jj = TS_1_1_1, TS_10_1_1
-                            if (index(BiometOrd(j)%var, StdSlow(jj)) == 1) then
-                                BiometUnits%TS(jj - TS_1_1_1 + 1) = BiometOrd(j)%units
-                                cycle var_loop
-                            end if
-                        end do
-                    end if
-                end do var_loop
-
-                call BiometDateTime(trim(adjustl(BiometSetup%tstamp_prototype)), &
-                    tstamp_string, Biomet(i)%date, Biomet(i)%time)
-
-            end do rec_loop
-            exit file_loop
-        else
+        !> If above failed, pass to next one
+        if (failed) then
+            excluded_file(nfl) = .true.
+            write(*,*)
+            write(*, '(a)') '  File: ' // trim(adjustl(bFileList(nfl)%path))
             call ExceptionHandler(2)
+            cycle size_loop
         end if
-    end do file_loop
-    nbiomet = i
+
+        !> From second file on, if number of items in file is different from
+        !> previous one, this is a problem and biomet cannot be used
+        if (nfl == 1) then
+            nbItems = fnbItems
+        else
+            if (fnbItems /= nbItems) then
+                write(*,*)
+                call ExceptionHandler(70)
+                EddyProProj%biomet_data = 'none'
+                return
+            end if
+        end if
+
+        !> Update max number of biomet records (the -2 is because we know
+        !> external biomet files have a 2-line header)
+        nRec = nRec + fnRec - 2
+    end do size_loop
+
+    !> Control
+    if (nRec < 1) then
+        call ExceptionHandler(71)
+        EddyProProj%biomet_data = 'none'
+        return
+    end if
+
+    !> Allocate timestamp variable to store timestamps of biomet data, here only
+    !> to the purpose of inferring the time-step
+    allocate(bTimestamp(nRec))
+    bTimestamp = nullTimestamp
+
+    !> Loop over all biomet files
+    lastcnt = 0
+    files_loop: do nfl = 1, N
+
+        !> If file was excluded above, cycle
+        if (excluded_file(nfl)) cycle files_loop
+
+
+        !> Open biomet file
+        open(udf, file = bFileList(nfl)%path, status = 'old', &
+            iostat = io_status)
+
+        !> If above failed, pass to next one
+        if (io_status /= 0) then
+            call ExceptionHandler(2)
+            cycle files_loop
+        end if
+
+        !> Read header, retrieve variable names and units
+        read(udf, '(a)', iostat = io_status) dataline
+        read(udf, '(a)', iostat = io_status) dataline2
+
+        !> If timestamp labels are 'Date' and 'Time', replace with
+        !> 'Timestamp_1' and 'Timestamp_2', e.g. Sutron case
+        dataline = replace(dataline, 'Date', 'TIMESTAMP_1', len(dataline))
+        dataline = replace(dataline, 'Time,', 'TIMESTAMP_2,', len(dataline))
+
+        !> Retrieve number of biomet variables excluding
+        !> TIMESTAMP-related items from dataline
+        nbVars = SplitCount(dataline, bFileMetadata%separator, &
+            'TIMESTAMP', .false.)
+
+        !> Allocate and initialize bVars
+        if (allocated(bVars)) deallocate(bVars)
+        allocate(bVars(nbVars))
+        bVars = nullbVar
+
+        !> Allocate vars for aggregated biomet values
+        if (allocated(bAggr)) deallocate(bAggr)
+        allocate(bAggr(nbVars))
+        if (allocated(bAggrFluxnet)) deallocate(bAggrFluxnet)
+        allocate(bAggrFluxnet(nbVars))
+
+        !> Retrieve variables and timestamp prototype from
+        !> header (labels and units rows)
+        call RetrieveExtBiometVars(dataline, dataline2, nbItems)
+        if (EddyProProj%biomet_data == 'none') return
+
+        !> Variables consistency among different biomet files
+        if (nfl == 1) then
+            allocate(lbVars(nbVars))
+            lbVars = bVars
+        else
+            if (size(lbVars) /= size(bVars) &
+                .or. (any(lbVars(:)%label /= bVars(:)%label) &
+                .or. any(lbVars(:)%unit_in /= bVars(:)%unit_in))) then
+                write(*,'(a)')
+                call ExceptionHandler(79)
+                EddyProProj%biomet_data = 'none'
+                return
+            end if
+        end if
+
+        !> Start loop on file rows
+        cnt = lastcnt
+        recs_loop: do
+            read(udf, '(a)', iostat = io_status) dataline
+            if (io_status > 0) cycle recs_loop
+            if (io_status < 0) exit recs_loop
+
+            !> Retrieve timestamp info from rec
+            call tsStringFromRec(dataline, nbItems, tsString)
+            cnt = cnt + 1
+
+            !> Retrieve timestamp from timestamp string
+            call BiometTimestamp(trim(adjustl(bFileMetadata%tsPattern)), &
+                tsString, bTimestamp(cnt), skip_record)
+            if (skip_record) cycle recs_loop
+
+            end do recs_loop
+        close(udf)
+        lastcnt = cnt
+    end do files_loop
     close(udf)
 
     !> Assess Timestep
-    call BiometTimeStep(nbiomet)
-    write(*, '(a)') ' done'
+    bFileMetadata%time_step = int(tsInferTimestep(bTimestamp(:nRec), nRec) / 60)
+    bFileMetadata%tolerance = bFileMetadata%time_step / 2
+    write(*, '(a)')
+    write(*, '(a, i6)')    '  Number of variables: ', nbVars
+    write(*, '(a, i6)')    '  Number of records:   ', nRec
+    write(*, '(a, i6, a)') '  Inferred time-step:  ', &
+        bFileMetadata%time_step, 'min'
+
+    !> Determine nbRecs, the maximum number of biomet data available for
+    !> each averaging interval
+    if (mod(RPsetup%avrg_len, bFileMetadata%time_step) == 0) then
+        nbRecs = RPsetup%avrg_len/bFileMetadata%time_step
+    else
+        nbRecs = RPsetup%avrg_len/bFileMetadata%time_step + 1
+    end if
+
+    !> Now that number of vars and of records are known, allocate biomet
+    !> dataset and timestamp array
+    allocate(bSet(nbRecs, nbVars))
+    allocate(bTs(nbRecs))
+
+    !> Fill variables information based on label and other available fields
+    call BiometEnrichVarsDescription()
+
+    !> No data label is allowed in external biomet files
+    bFileMetadata%data_label = ''
+
+    !> Accounts for timestamp columns
+    call BiometUpdateSelectionOrder()
+
+    !> Put biomet files in chronological order, regardless of file names
+    call BiometFileListInChronologicalOrder(bFileList, N)
+
+    !> Put biomet vars in order (by variable label and secondary by profile)
+    !> NOT DONE FOR THE MOMENT
+!    call BiometOrderVars()
+
+    write(*, '(a)') ' Done.'
 end subroutine InitExternalBiomet
-
-!***************************************************************************
-!
-! \brief       Reads and interprets file header, searching for known variables
-! \author      Gerardo Fratini
-! \note
-! \sa
-! \bug
-! \deprecated
-! \test
-!***************************************************************************
-subroutine ReadBiometHeader(unt)
-    use m_rp_global_var
-    implicit none
-    !> in/out variables
-    integer, intent(in) :: unt
-    !> local variables
-    character(2048) :: varstring
-    character(2048) :: unitstring
-    character(32) :: HeaderVars(NumStdSlow + NumStdProfile + NumStdCustom)
-    character(32) :: HeaderUnits(NumStdSlow + NumStdProfile + NumStdCustom)
-    integer :: read_status
-    integer :: var_sep
-    integer :: unit_sep
-    integer :: cnt
-    integer :: i
-    integer :: j
-
-    !> Read strings containing variables and units
-    if (BiometSetup%use_header) then
-        !> Import varstring from Biomet measurement file
-        do
-            read(unt, '(a)', iostat = read_status) varstring
-            if (read_status /= 0) then
-                varstring  = 'none'
-                exit
-            end if
-            if (index(varstring, '_1_1_1') /= 0) exit
-        end do
-        !> Import unitstring from Biomet measurement file
-        do
-            read(unt, '(a)', iostat = read_status) unitstring
-            if (read_status /= 0) then
-                unitstring = 'none'
-                exit
-            end if
-            if (index(unitstring, 'yy') /= 0 .and. index(unitstring, 'dd') /= 0 .and. index(unitstring, 'HH') /= 0) exit
-        end do
-    else
-        !> Take string from ".eddypro" file
-!        varstring = BiometSetup%var_string
-!        unitstring = BiometSetup%unit_string
-    end if
-
-    !> Retrieve variables and units from read string
-    cnt = 0
-    do
-        var_sep = index(varstring, BiometSetup%separator)
-        unit_sep = index(unitstring, BiometSetup%separator)
-        if (var_sep == 0) var_sep = len_trim(varstring) + 1
-        if (unit_sep == 0) unit_sep = len_trim(unitstring) + 1
-        if (len_trim(varstring) == 0) exit
-        cnt = cnt + 1
-        HeaderVars(cnt) = varstring(1:var_sep - 1)
-        HeaderUnits(cnt) = unitstring(1:unit_sep - 1)
-        varstring = varstring(var_sep + 1: len_trim(varstring))
-        unitstring = unitstring(unit_sep + 1: len_trim(unitstring))
-        !> Support for Sutron files
-        if (HeaderVars(cnt) == 'Date') HeaderVars(cnt) = 'TIMESTAMP_1'
-        if (HeaderVars(cnt) == 'Time') HeaderVars(cnt) = 'TIMESTAMP_2'
-    end do
-    !> Adjust all Header labels: capitalize and schrinks
-    do i = 1, cnt
-        call uppercase(HeaderVars(i))
-        call ShrinkString(HeaderVars(i))
-        !> But not for timestamp labels (capitalization meaningful)
-        if(index(HeaderVars(i), 'TIMESTAMP') == 0) then
-            call uppercase(HeaderUnits(i))
-            call ShrinkString(HeaderUnits(i))
-        end if
-    end do
-
-    !> Retrieve available variables
-    n_cstm_biomet = 0
-    CstmOrd(1:300)    = NullOrd
-    BiometOrd(1:300)    = NullOrd
-    ProfileOrd(1:300) = NullOrd
-    ol: do i = 1, cnt
-        !> Biomet variables
-        do j = 1, NumStdSlow
-            if(HeaderVars(i)(1:len_trim(HeaderVars(i))) == &
-                StdSlow(j)(1:len_trim(StdSlow(j)))) then
-                BiometOrd(i)%var = StdSlow(j)(1:len_trim(StdSlow(j)))
-                !> Retrieve units
-                BiometOrd(i)%units =  HeaderUnits(i)(1:len_trim(HeaderUnits(i)))
-                cycle ol
-            end if
-        end do
-        !> Profile variables
-        do j = 1, NumStdProfile
-            if(StdProfile(j)(1:len_trim(StdProfile(j))) == &
-                HeaderVars(i)(1:len_trim(HeaderVars(i)))) then
-                ProfileOrd(i)%var = StdProfile(j)(1:len_trim(StdProfile(j)))
-                !> Retrieve units
-                ProfileOrd(i)%units =  HeaderUnits(i)(1:len_trim(HeaderUnits(i)))
-                cycle ol
-            end if
-        end do
-        !> Custom variables
-        n_cstm_biomet = n_cstm_biomet + 1
-        CstmOrd(n_cstm_biomet)%var = HeaderVars(i)(1:len_trim(HeaderVars(i)))
-        CstmOrd(n_cstm_biomet)%units =  HeaderUnits(i)(1:len_trim(HeaderUnits(i)))
-    end do ol
-    NumSlowVar = cnt
-
-    !> Now skip remaining header lines, if any
-    if (BiometSetup%use_header) then
-        if (BiometSetup%head_lines > 2) then
-            do i = 3, BiometSetup%head_lines
-                read(unt, *)
-            end do
-        end if
-    else
-        do i = 1, BiometSetup%head_lines
-            read(unt, *)
-        end do
-    end if
-end subroutine ReadBiometHeader
-
-!***************************************************************************
-!
-! \brief       Retrieve time step intrinsic in Biomet file (in minutes)
-! \author      Gerardo Fratini
-! \note
-! \sa
-! \bug
-! \deprecated
-! \test
-!***************************************************************************
-subroutine BiometTimeStep(N)
-    use m_rp_global_var
-    implicit none
-    !> in/out variables
-    integer, intent(in) :: N
-    !> local variables
-    integer :: i
-    integer :: j
-    type(DateType) :: curr_date
-    type(DateType) :: prev_date
-    integer :: step
-    integer :: VarStep(1000)
-    integer :: maxi
-    integer :: max
-
-    VarStep = 0
-    do i = 2, N
-        call DateTimeToDateType(Biomet(i)%date, Biomet(i)%time, curr_date)
-        call DateTimeToDateType(Biomet(i-1)%date, Biomet(i-1)%time, prev_date)
-        step = nint(timelag(curr_date, prev_date) * 24d0 * 60d0) !< in minutes
-        do j = 1, 1000
-            if (step == j) then
-                VarStep(j) = VarStep(j) + 1
-                exit
-            end if
-        end do
-    end do
-    maxi = 0
-    max = 0
-    do i = 1, 1000
-        if (VarStep(i) > max) then
-            max = VarStep(i)
-            maxi = i
-        end if
-    end do
-    BiometSetup%tstep = maxi !< in minutes
-end subroutine BiometTimeStep

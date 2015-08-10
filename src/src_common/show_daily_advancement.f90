@@ -1,7 +1,7 @@
 !***************************************************************************
-! display_progress.f90
-! --------------------
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! show_daily_advancement.f90
+! --------------------------
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !

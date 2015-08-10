@@ -1,7 +1,7 @@
 !***************************************************************************
 ! import_tob1.f90
 ! ---------------
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -56,12 +56,11 @@ subroutine ImportTOB1(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nrow, nco
     integer :: int4_fp2
     character(8192) :: chunk_head
     character(8195) :: chunk_head2
-    !character(8192) :: chunk(10000)
     character(8192) :: chunk
     character(8195) :: chunk2
     character(8192) :: newchunk
     character(8195) :: newchunk2
-    character(512)  :: OnlyDataPath
+    character(PathLen)  :: OnlyDataPath
     character(128)  :: TmpFilepath
     real(kind = sgl) :: TmpfRaw(nrow, NumCol)
     real(kind = sgl) :: Dataline(NumCol)
@@ -134,7 +133,6 @@ subroutine ImportTOB1(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nrow, nco
 
     !> Read scratch file without header
     select case (FileInterpreter%tob1_format)
-
         case('IEEE4')
             open(udf, file = OnlyDataPath(1:len_trim(OnlyDataPath)), status = 'old', &
                 access='direct', form = 'unformatted', recl = 4)
@@ -237,7 +235,7 @@ subroutine ImportTOB1(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nrow, nco
     !> If a column was found with weird values, reads the file again with another chunk size
     if(repeat) then
         open(udf, file = Filepath(1:len_trim(Filepath)), status = 'old', &
-            access='direct', form = 'unformatted', recl = 8195)
+            access='direct', form = 'unformatted', recl = 8193)
 
         if (FileInterpreter%header_rows > 0) then
 

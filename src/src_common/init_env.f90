@@ -2,7 +2,7 @@
 ! init_env.f90
 ! ------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -41,7 +41,7 @@ subroutine InitEnv()
     integer :: aux
     character(32) :: timestring
     character(256) :: switch
-    character(256) :: projPath
+    character(PathLen) :: projPath
     character(256) :: arg
     character(32) :: tmpDirPadding
     character(3), parameter :: OS_default = 'win'
@@ -130,7 +130,6 @@ subroutine InitEnv()
     !> Define path of key eddypro files/dirs
     call AdjDir(homedir, slash)
     IniDir = trim(homedir) // 'ini' // slash
-    LogDir = trim(homedir) // 'log' // slash
     if (projPath == '') then
         PrjPath = trim(IniDir) // trim(PrjFile)
     else
@@ -139,13 +138,13 @@ subroutine InitEnv()
 
     !> Define TmpDir differently if it's in desktop or embedded mode
     if (EddyProProj%run_env == 'desktop') then
-        TmpDir = trim(homedir) // 'tmp' // slash // 'tmp' // trim(adjustl(tmpDirPadding)) // slash
+        TmpDir = trim(homedir) // 'tmp' // slash // 'tmp' &
+        // trim(adjustl(tmpDirPadding)) // slash
     else
         TmpDir = trim(homedir) // 'tmp' // slash
     end if
 
-    !> Create log dir in case it doesn't exist (for use from command line)
-    make_dir = CreateDir('"' // trim(LogDir) // '"')
+    !> Create TmpDir in case it doesn't exist (for use from command line)
     make_dir = CreateDir('"' // trim(TmpDir) // '"')
 end subroutine InitEnv
 

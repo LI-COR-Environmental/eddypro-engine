@@ -1,8 +1,7 @@
 !***************************************************************************
-! check_file_prototype.f90
-! ------------------------
-! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! tag_run_mode.f90
+! ----------------
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -21,7 +20,7 @@
 !
 !***************************************************************************
 !
-! \brief       Weak check of compatibility of provided raw file prototype
+! \brief       Add token to Timestamp_FilePadding to tag run mode
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -30,19 +29,19 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine CheckFilePrototype()
+subroutine TagRunMode()
     use m_common_global_var
     implicit none
-    !> local variables
-    character(64) :: Pattern
 
-    !date patterns: yyyy, yy, ddd, dd, mm
-    !time patterns: HH MM
-    Pattern = EddyProProj%fproto(1:len_trim(EddyProProj%fproto))
 
-    !> Weak test
-    if ( index(Pattern, 'yy') == 0 &
-    .or. index(Pattern, 'dd') == 0 &
-    .or. index(Pattern, 'HH') == 0 &
-    .or. index(Pattern, 'MM') == 0) call ExceptionHandler(20)
-end subroutine CheckFilePrototype
+    select case(EddyProProj%run_mode)
+        case('express')
+            Timestamp_FilePadding = trim(Timestamp_FilePadding) // '_exp'
+        case('advanced')
+            Timestamp_FilePadding = trim(Timestamp_FilePadding) // '_adv'
+        case('md_retrieval')
+            Timestamp_FilePadding = trim(Timestamp_FilePadding) // '_mdr'
+        case default
+            Timestamp_FilePadding = trim(Timestamp_FilePadding) // '_nul'
+    end select
+end subroutine TagRunMode

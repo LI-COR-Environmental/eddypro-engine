@@ -1,7 +1,7 @@
 !***************************************************************************
-! band_pass_spectral_corrections.f90
-! ----------------------------------
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! bpcf_bandpass_spectral_corrections.f90
+! --------------------------------------
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -30,8 +30,8 @@
 ! \todo
 !***************************************************************************
 subroutine BandPassSpectralCorrections(measuring_height, displ_height, loc_var_present, wind_speed, t_air, zL, &
-    ac_frequency, avrg_length, detrending_method, detrending_time_constant, nfull, printout, LocInstr, &
-    LocFileList, nrow_full, lEx, LocSetup)
+    ac_frequency, avrg_length, detrending_method, detrending_time_constant, printout, LocInstr, &
+    nfull, LocFileList, nrow_full, lEx, LocSetup)
     use m_common_global_var
     implicit none
     !> In/out variables
@@ -44,12 +44,12 @@ subroutine BandPassSpectralCorrections(measuring_height, displ_height, loc_var_p
     real(kind = dbl), intent(in) :: zL
     real(kind = dbl), intent(in) :: ac_frequency
     integer, intent(in) :: avrg_length
-    integer, intent(in) :: nrow_full
-    character(8), intent(in) :: detrending_method
+    character(2), intent(in) :: detrending_method
     integer, intent(in) :: detrending_time_constant
     logical, intent(in) :: printout
     integer, intent(in) :: nfull
     !> Optional variables
+    integer, optional, intent(in):: nrow_full
     type(FileListType), optional, intent(in) :: LocFileList(nfull)
     type(ExType), optional, intent(in) :: lEx
     type(FCCsetupType), optional, intent(in) :: LocSetup
@@ -79,7 +79,6 @@ subroutine BandPassSpectralCorrections(measuring_height, displ_height, loc_var_p
     !> (defined by RH for H2O and by the month for other gases). If not, sets the method to Moncrieff et al. 1997
     !> Note that even if only one condition fails, the method is set to Moncrieff for all gases
     actual_hf_method = trim(adjustl(EddyProProj%hf_meth))
-
     if (app == 'EddyPro-FCC') then
         select case (trim(adjustl(EddyProProj%hf_meth)))
             case('horst_97', 'ibrom_07', 'fratini_12')

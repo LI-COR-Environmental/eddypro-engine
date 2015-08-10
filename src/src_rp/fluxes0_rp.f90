@@ -1,7 +1,7 @@
 !***************************************************************************
 ! fluxes0_rp.f90
 ! --------------
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -37,10 +37,10 @@ subroutine Fluxes0_rp(printout)
     !> local variables
     real(kind = dbl) :: Tp
 
-    if (printout) write(*,'(a)', advance = 'no') '  Calculating fluxes Level 0..'
+    if (printout) write(*,'(a)', advance = 'no') &
+        '  Calculating fluxes Level 0..'
 
-    Flux0 = fluxtype('', '', error, error, error, error, error, error, error, error, error, &
-        error, error, error, error, error, error, error, error)
+    Flux0 = errFlux
 
     !> Sensible heat flux, H in [W m-2], Cp in [J Kg-1K-1]
     if (Ambient%RhoCp > 0d0 .and. Stats%Cov(w, ts) /= error) then
@@ -49,10 +49,11 @@ subroutine Fluxes0_rp(printout)
         Flux0%H = error
     end if
 
-    !> Random error on sensible heat flux, Cp in [J Kg-1K-1]
+    !> Random error on sensible heat flux
     if (RUsetup%meth /= 'none') then
         if (Ambient%RhoCp > 0d0 .and. Essentials%rand_uncer(ts) /= error) &
-            Essentials%rand_uncer(ts) = Essentials%rand_uncer(ts) * Ambient%RhoCp
+            Essentials%rand_uncer(ts) = &
+                Essentials%rand_uncer(ts) * Ambient%RhoCp
     end if
 
     !> Internal sensible heat flux, Hint in [W m-2], Cp in [J Kg-1K-1]
@@ -98,7 +99,8 @@ subroutine Fluxes0_rp(printout)
             !> Random uncertainty
             if (RUsetup%meth /= 'none') then
                 if (Essentials%rand_uncer(co2) /= error) &
-                    Essentials%rand_uncer(co2) = Essentials%rand_uncer(co2) * 1d3
+                    Essentials%rand_uncer(co2) = &
+                        Essentials%rand_uncer(co2) * 1d3
             end if
         else if(E2Col(co2)%measure_type == 'mixing_ratio') then
             if (Ambient%Vd > 0d0 .and. Stats%Cov(w, co2) /= error) then
@@ -108,22 +110,26 @@ subroutine Fluxes0_rp(printout)
             end if
             !> Random uncertainty
             if (RUsetup%meth /= 'none') then
-                if (Essentials%rand_uncer(co2) /= error .and. Ambient%Vd > 0d0) then
-                    Essentials%rand_uncer(co2) = Essentials%rand_uncer(co2) / Ambient%Vd
+                if (Essentials%rand_uncer(co2) /= error &
+                    .and. Ambient%Vd > 0d0) then
+                    Essentials%rand_uncer(co2) = &
+                        Essentials%rand_uncer(co2) / Ambient%Vd
                 else
                     Essentials%rand_uncer(co2) = error
                 end if
             end if
         else if(E2Col(co2)%measure_type == 'mole_fraction') then
-            if (Ambient%Va /= 0d0 .and. Ambient%Va /= error .and. Stats%Cov(w, co2) /= error) then
+            if (Ambient%Va > 0d0 .and. Stats%Cov(w, co2) /= error) then
                 Flux0%co2 = Stats%Cov(w, co2) / Ambient%Va
             else
                 Flux0%co2 = error
             end if
             !> Random uncertainty
             if (RUsetup%meth /= 'none') then
-                if (Essentials%rand_uncer(co2) /= error .and. Ambient%Va > 0d0) then
-                    Essentials%rand_uncer(co2) = Essentials%rand_uncer(co2) / Ambient%Va
+                if (Essentials%rand_uncer(co2) /= error &
+                    .and. Ambient%Va > 0d0) then
+                    Essentials%rand_uncer(co2) = &
+                        Essentials%rand_uncer(co2) / Ambient%Va
                 else
                     Essentials%rand_uncer(co2) = error
                 end if
@@ -149,8 +155,10 @@ subroutine Fluxes0_rp(printout)
             end if
             !> Random uncertainty
             if (RUsetup%meth /= 'none') then
-                if (Essentials%rand_uncer(h2o) /= error .and. Ambient%Va > 0d0) then
-                    Essentials%rand_uncer(h2o) = Essentials%rand_uncer(h2o) / Ambient%Va
+                if (Essentials%rand_uncer(h2o) /= error &
+                    .and. Ambient%Va > 0d0) then
+                    Essentials%rand_uncer(h2o) = &
+                        Essentials%rand_uncer(h2o) / Ambient%Va
                 else
                     Essentials%rand_uncer(h2o) = error
                 end if
@@ -163,8 +171,10 @@ subroutine Fluxes0_rp(printout)
             end if
             !> Random uncertainty
             if (RUsetup%meth /= 'none') then
-                if (Essentials%rand_uncer(h2o) /= error .and. Ambient%Vd > 0d0) then
-                    Essentials%rand_uncer(h2o) = Essentials%rand_uncer(h2o) / Ambient%Vd
+                if (Essentials%rand_uncer(h2o) /= error &
+                    .and. Ambient%Vd > 0d0) then
+                    Essentials%rand_uncer(h2o) = &
+                        Essentials%rand_uncer(h2o) / Ambient%Vd
                 else
                     Essentials%rand_uncer(h2o) = error
                 end if
@@ -185,7 +195,8 @@ subroutine Fluxes0_rp(printout)
             !> Random uncertainty
             if (RUsetup%meth /= 'none') then
                 if (Essentials%rand_uncer(ch4) /= error) &
-                    Essentials%rand_uncer(ch4) = Essentials%rand_uncer(ch4) * 1d3
+                    Essentials%rand_uncer(ch4) = &
+                        Essentials%rand_uncer(ch4) * 1d3
             end if
         else if(E2Col(ch4)%measure_type == 'mixing_ratio') then
             if (Ambient%Vd > 0d0 .and. Stats%Cov(w, ch4) /= error) then
@@ -195,8 +206,10 @@ subroutine Fluxes0_rp(printout)
             end if
             !> Random uncertainty
             if (RUsetup%meth /= 'none') then
-                if (Essentials%rand_uncer(ch4) /= error .and. Ambient%Vd > 0d0) then
-                    Essentials%rand_uncer(ch4) = Essentials%rand_uncer(ch4) / Ambient%Vd
+                if (Essentials%rand_uncer(ch4) /= error &
+                    .and. Ambient%Vd > 0d0) then
+                    Essentials%rand_uncer(ch4) = &
+                        Essentials%rand_uncer(ch4) / Ambient%Vd
                 else
                     Essentials%rand_uncer(ch4) = error
                 end if
@@ -209,8 +222,10 @@ subroutine Fluxes0_rp(printout)
             end if
             !> Random uncertainty
             if (RUsetup%meth /= 'none') then
-                if (Essentials%rand_uncer(ch4) /= error .and. Ambient%Va > 0d0) then
-                    Essentials%rand_uncer(ch4) = Essentials%rand_uncer(ch4) / Ambient%Va
+                if (Essentials%rand_uncer(ch4) /= error &
+                    .and. Ambient%Va > 0d0) then
+                    Essentials%rand_uncer(ch4) = &
+                        Essentials%rand_uncer(ch4) / Ambient%Va
                 else
                     Essentials%rand_uncer(ch4) = error
                 end if
@@ -231,7 +246,8 @@ subroutine Fluxes0_rp(printout)
             !> Random uncertainty
             if (RUsetup%meth /= 'none') then
                 if (Essentials%rand_uncer(gas4) /= error) &
-                    Essentials%rand_uncer(gas4) = Essentials%rand_uncer(gas4) * 1d3
+                    Essentials%rand_uncer(gas4) = &
+                        Essentials%rand_uncer(gas4) * 1d3
             end if
         else if(E2Col(gas4)%measure_type == 'mixing_ratio') then
             if (Ambient%Vd > 0d0 .and. Stats%Cov(w, gas4) /= error) then
@@ -241,8 +257,10 @@ subroutine Fluxes0_rp(printout)
             end if
             !> Random uncertainty
             if (RUsetup%meth /= 'none') then
-                if (Essentials%rand_uncer(gas4) /= error .and. Ambient%Vd > 0d0) then
-                    Essentials%rand_uncer(gas4) = Essentials%rand_uncer(gas4) / Ambient%Vd
+                if (Essentials%rand_uncer(gas4) /= error &
+                    .and. Ambient%Vd > 0d0) then
+                    Essentials%rand_uncer(gas4) = &
+                        Essentials%rand_uncer(gas4) / Ambient%Vd
                 else
                     Essentials%rand_uncer(gas4) = error
                 end if
@@ -255,8 +273,10 @@ subroutine Fluxes0_rp(printout)
             end if
             !> Random uncertainty
             if (RUsetup%meth /= 'none') then
-                if (Essentials%rand_uncer(gas4) /= error .and. Ambient%Va > 0d0) then
-                    Essentials%rand_uncer(gas4) = Essentials%rand_uncer(gas4) / Ambient%Va
+                if (Essentials%rand_uncer(gas4) /= error &
+                    .and. Ambient%Va > 0d0) then
+                    Essentials%rand_uncer(gas4) = &
+                        Essentials%rand_uncer(gas4) / Ambient%Va
                 else
                     Essentials%rand_uncer(gas4) = error
                 end if
@@ -276,7 +296,8 @@ subroutine Fluxes0_rp(printout)
     !> Random uncertainty on Latent heat flux, lambda in [J+1kg-1]
     if (RUsetup%meth /= 'none') then
         if (Essentials%rand_uncer(h2o) /= error .and. Ambient%lambda > 0d0) then
-            Essentials%rand_uncer_LE = Essentials%rand_uncer(h2o) * Ambient%lambda * MW(h2o) * 1d-3
+            Essentials%rand_uncer_LE = &
+                Essentials%rand_uncer(h2o) * Ambient%lambda * MW(h2o) * 1d-3
         else
             Essentials%rand_uncer_LE = error
         end if
@@ -289,7 +310,8 @@ subroutine Fluxes0_rp(printout)
         Flux0%E = error
     end if
 
-    !> Level 0 evapotranspiration flux [kg m-2 -1] with H2O covariances at timelags of other scalars
+    !> Level 0 evapotranspiration flux [kg m-2 -1]
+    !> with H2O covariances at timelags of other scalars
     if (E2Col(h2o)%Instr%path_type == 'closed') then
         if(E2Col(h2o)%measure_type == 'molar_density') then
             if(Stats%h2ocov_tl_co2 /= error) then
@@ -307,6 +329,7 @@ subroutine Fluxes0_rp(printout)
             else
                 Flux0%E_gas4 = error
             end if
+
         else if(E2Col(h2o)%measure_type == 'mole_fraction') then
             if (Ambient%Va > 0d0 .and. Stats%h2ocov_tl_co2 /= error) then
                 Flux0%E_co2 = Stats%h2ocov_tl_co2  * MW(h2o) * 1d-3 / Ambient%Va
@@ -323,6 +346,7 @@ subroutine Fluxes0_rp(printout)
             else
                 Flux0%E_gas4 = error
             end if
+
         else if (E2Col(h2o)%measure_type == 'mixing_ratio') then
             if (Ambient%Vd > 0d0 .and. Stats%h2ocov_tl_co2 /= error) then
                 Flux0%E_co2 = Stats%h2ocov_tl_co2  * MW(h2o) * 1d-3 / Ambient%Vd
@@ -402,10 +426,10 @@ subroutine Fluxes0_rp(printout)
     end if
 
     !> Bowen ration (Bowen, 1926, Phyis Rev)
-    if (Flux0%LE /= 0d0 .and. Flux0%LE /= error) then
+    if (Flux0%LE /= 0d0 .and. Flux0%LE /= error .and. Flux0%H /= error) then
         Ambient%Bowen = Flux0%H / Flux0%LE
     else
         Ambient%Bowen = error
     end if
-    if (printout) write(*,'(a)')   ' done.'
+    if (printout) write(*,'(a)')   ' Done.'
 end subroutine Fluxes0_rp

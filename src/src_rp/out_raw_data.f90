@@ -2,7 +2,7 @@
 ! out_raw_data.f90
 ! ----------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2014, LI-COR Biosciences
+! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -45,7 +45,7 @@ subroutine OutRawData(date, time, Set, nrow, ncol, level)
     integer :: num_var
     character(1) :: lev_char
     character(13) :: Datestring
-    character(256) :: RawPath
+    character(PathLen) :: RawPath
     character(256) :: string
     character(256) :: string_utf8
     real(kind = dbl) :: OutSet(nrow, ncol)
@@ -70,11 +70,13 @@ subroutine OutRawData(date, time, Set, nrow, ncol, level)
     write(udf, '(a)') 'air_t: ambient temperature [K]'
     write(udf, '(a)') 'air_p: ambient pressure [Pa]'
     string =  'co2, ch4, 4th gas: molar density [mmol m-3],&
-        & mole fraction [' // char(181) // 'mol/mol] or mixing ratio [' // char(181) // 'mol/mol], depending on raw data'
+        & mole fraction [' // char(181) // 'mol/mol] or mixing ratio &
+        &[' // char(181) // 'mol/mol], depending on raw data'
     call latin1_to_utf8(string, string_utf8)
     write(udf, '(a)') trim(adjustl(string_utf8))
     write(udf, '(a)') 'h2o: molar density [mmol m-3],&
-        & mole fraction [mmol/mol] or mixing ratio [mmol/mol], depending on raw data'
+        & mole fraction [mmol/mol] or mixing ratio [mmol/mol]&
+        &, depending on raw data'
     write(udf, '(a)')
     write(udf, '(a)') raw_out_header(1:len_trim(raw_out_header))
 
@@ -92,5 +94,5 @@ subroutine OutRawData(date, time, Set, nrow, ncol, level)
         write(udf,*) OutSet(i, 1: num_var)
     end do
     close(udf)
-    write(*, '(a)') ' done.'
+    write(*, '(a)') ' Done.'
 end subroutine OutRawData
