@@ -1,3 +1,151 @@
+6.0.0 (2015-08-05)
+
+    Engine
+    - Fix: now all dynamic metadata records are taken into account (including
+      the last one that was incorrectly ignored before) and all dynamic
+      metadata are retrieved correctly.
+    - Fix: array deallocation missing. Bug signalled by Sebastien Lafont
+      (INRA, France). Thanks for the contribution!
+    - Fix: now processing.eddypro file is copied correctly in the output folder
+      (Linux/Mac only; not a problem on Windows).
+    - Fix: bug causing execution to stop with error if a 'fast temperature'
+      measurement was used, and from sonic SoS was available, not sonic
+      temperature.
+    - Fix: now output directory is always created correctly and no spurious
+      'none' folder is created within the folder containing the executables.
+      This was not causing any problem in any likely scenario, but could cause
+      it if running in embedded mode on a desktop.
+    - Refine: criteria for (co)spectra filtering are now explicitly set by user.
+    - Refine: settings for (co)spectra filtering are now independent from the
+      selection of the spectral correction method and are the same for ensemble
+      averaging, model fit and discrimination between model and direct method
+      in spectral correction after Fratini et al. (2012).
+    - Refine: support for biomet data. Now any suffix triplet is
+      supported and there is no more limit to the occurrences of the same
+      variable (within the maximum number of biomet supported, which is 250.000).
+      Greatly simplified source code, which is now fully scalable.
+    - Refine: now names of external biomet files no longer need to reflect the
+      chronological order in their alphabetic order. The detection of biomet
+      files is based only on the extension and the chronological order is
+      derived by reading the data.
+    - Refine: now perform a stricter test on raw file names. To be considered
+      for processing, raw files must match the 'Raw file format' completely,
+      with the only exception of asterisk ('*') in the raw file format, that is
+      considered a place-holder for any character.
+    - Refine: now, when both 'Select a sub-period' in Basic Settings
+      page and 'Build continuous dataset' in Output page are selected,
+      all output files will span the selected time period regardless of
+      the period covered by raw data files.
+    - Refine: now biomet output and full output always span the same
+      time period. However, alignment row-by-row is guaranteed only when
+      option 'Build continuous dataset' is selected. Otherwise, alignment
+      will depend on data availability.
+    - Refine: now empty spaces in labels of custom variables are replaces
+      with underscores.
+    - Refine: de-spiking algorithm of Vickers and Mahrt (1997) is now more
+      robust against error values in raw data.
+    - Refine: now WPL interface only allows to select whether to apply the
+      correction or not. The way it is applied is decided internally,
+      depending on the type of analyser (open or closed-path), the type of
+      high-freq concentration data (molar density, mole fraction, mixing
+      ratio) and the availability of other high-frequency data.
+    - Refine: eliminated creation of unused 'log' sub-directory.
+    - Refine: if run ends without processing any averaging period, eliminate
+      temporary files initialized by current run in output folder.
+    - Refine: files names of any length (with the file systems' limit of
+      255 bytes) are now supported. Paths up to 1024 bytes (4 times the
+      Microsoft recommended path lengths) are now supported.
+    - Add: if multiple external biomet files are used in a biomet directory,
+      a new test checks that variable number, order and units is
+      consistent among the different files. If not, resorts to not
+      using biomet data.
+    - Add: in the context of validation of metadata file, introduce
+      some sanity checks on numeric values such as altitude, canopy height etc.
+      Introduce default values in case implausible values are found.
+    - Add: now all output files contain a suffix indicating whether the run
+      was performed in Express mode ('exp'), Advanced mode ('adv') or
+      Metadata Retrieval mode ('mdr').
+    - Add: support for Mac OS.
+    - Add: now de-spiking method after Mauder et al. (2013) is available as an
+      alternative to the default method of Vickers and Mahrt (1997) in the
+      Statistical Analysis page.
+    - Add: now ensemble averaged spectra output also includes de-noised spectra.
+      If noise elimination is not requested by user, de-noised spectra are
+      equal to original spectra.
+    - Refine: now "Missing Sample Allowance" operates not only on full records,
+      but also on individual variables, so that any given variables (and related
+      flux results) is set to error if for that variable more data than the
+      missing allowance is missing, regardless of the records available for
+      other variables. This is most likely the behavior of "Missing samples
+      allowance" expected by most users.
+    - Refine: introduced control on linear detrending time constant,
+      automatically set equal to the flux averaging interval if user set it
+      larger than that.
+    - Refine: now GHG-Europe output complies with new specifications of
+      AmeriFlux and European Carbon databases. EddyPro creates two files
+      - one for EC-results and one for biomet results - that can be directly
+      submitted to the databases.
+    - Refine: now RP writes path of essentials file on stdout so that GUI can
+      safely retrieve it and write it on the .eddypro file. RP keeps writing it
+      on the .eddypro file too, as before.
+    - Add: binned (co)spectra filtering based on results of micro-meteorological
+      tests. User can select whether to discard (co)spectra when the
+      corresponding period is flagged as moderate and/or low quality.
+    - Refine: more explicit subperiod start/end indication when importing
+      binned cospectra files, to clarify overlap between available (co)spectra
+      files and the selected subperiod.
+
+    GUI
+    - Add: built and packaged the Mac OS X version.
+    - Add: graphic design review.
+    - Add: implement drag and drop capabilities in the fie system browsing
+      widgets.
+    - Add: implement warning level guided mode messages, for example to notify
+      when IRGA separations and flow rate are not greater than zero.
+    - Add: new checkbox 'Ensemble averaged spectra' in the output settings page.
+    - Add: introduce handling of file name format in case of GHG files.
+    - Add: new setting for (co)spectra filtering according to Mauder and
+      Foken, 2004.
+    - Add: new despiking method after Mauder et al. 2013.
+    - Refinement: change label of units in Turbulent Fluctuations time constant
+      from [m] to [min].
+    - Refinement: verify that is possible to run multiple instances of the
+      program at the same time.
+    - Refinement: set default time lag test to the nominal values in the
+      Raw file description.
+    - Refinement: remove 7zip dependency to read/write zip files.
+    - Refinement: extract 'spectral' settings from spectral corrections, make
+      it more general and review spectral analysis page.
+    - Refinement: clean the metadata file path opening a project with an
+      inexistent metadata file.
+    - Refinement: review WPL correction interface.
+    - Refinement: improve detection of start/end date of dataset with
+      'Detect dataset dates'.
+    - Refinement: remove setting automatically the Angle of Attack correction.
+    - Refinement: set a maximum limit to 'Missing samples allowance' of 40%, as
+      already implemented in the Engine.
+    - Refinement: improve update notification message reminding the
+      SmartFlux update too.
+    - Refinement: review policies for start/end dates settings.
+    
+5.2.1 (2015-01-29)
+
+    Engine
+    - Fix: bug causing the engine to hang before run completion,
+      if no averaging period could be processed completely. The bug
+      was unlikely to affect EddyPro-desktop users, but could at
+      times show up in SmartFlux.
+
+    GUI
+    - Add: Save and Continue buttons to Spectral, Planar fit and
+      Time lag assessment files testing dialog.
+    - Fix: Time lag assessment file testing crash in case of missing
+      RH classes.
+    - Fix: Planar fit assessment file testing too restrictive.
+    - Fix: 4th gas molecular weight and diffusivity automatic management.
+    - Fix: magnetic declination retrieval from NOAA website was broken
+      due to changes in the website response.
+
 5.2.0 (2014-11-20)
 
     Engine
@@ -28,7 +176,7 @@
     - Fixed: bug in footprint model of Kormann and Meixner 2001, as implemented
       in 'eddypro_fcc' (no corresponding bug in 'eddypro_rp')
     - Fixed: missing exception could cause timelag optimization to associate a
-      timelag instances to first RH class, which were erroneous. The problem 
+      timelag instances to first RH class, which were erroneous. The problem
       would occur if, for a given period, not enough H2O data were available.
     - Fixed: bug causing cross-wind correction to be applied to
       'fast temperature' measurements, but only if those were used in

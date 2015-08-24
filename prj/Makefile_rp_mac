@@ -982,6 +982,7 @@ planar_fit_aux_params.o: \
     m_common_global_var.o
 configure_for_express.o: \
     configure_for_express.f90 \
+>>>>>>> devel:prj/Makefile_rp_mac
     m_rp_global_var.o
 exception_handler.o: \
     exception_handler.f90
