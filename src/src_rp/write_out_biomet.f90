@@ -57,6 +57,6 @@ subroutine WriteOutBiomet(init_string, embedded)
             call WriteDatumFloat(bAggr(i), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         end do
-        write(uslow, '(a)') dataline(1:len_trim(dataline) - 1)
+        write(ubiomet, '(a)') dataline(1:len_trim(dataline) - 1)
     end if
 end subroutine WriteOutBiomet

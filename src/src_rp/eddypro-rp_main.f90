@@ -1444,7 +1444,7 @@ end interface
 
     !***************************************************************************
     !***************************************************************************
-    !***************************** ACTUAL RAW DATA PROCESSING ******************
+    !***************************** RAW DATA PROCESSING *************************
     !***************************************************************************
     !***************************************************************************
 
@@ -1529,9 +1529,6 @@ end interface
 
         call WriteDatumFloat(float_doy, char_doy, EddyProProj%err_label)
         call ShrinkString(char_doy)
-!        suffixOutString =  trim(adjustl(RawFileList(NextRawFileIndx)%name)) &
-!                   // ',' // trim(Stats%date) // ',' // trim(Stats%time) &
-!                   // ',' // char_doy(1: index(char_doy, '.')+ 3)
         suffixOutString =  trim(Stats%date) // ',' // trim(Stats%time) &
                    // ',' // char_doy(1: index(char_doy, '.')+ 3)
 
@@ -2235,7 +2232,7 @@ end interface
     close(ufnet_b)
     close(uaflx)
     close(uex)
-    close(uslow)
+    close(ubiomet)
     close(uqc)
 
     !> If no averaging period was performed, return message and cancel tmp files

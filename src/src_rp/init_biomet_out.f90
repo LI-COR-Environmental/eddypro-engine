@@ -52,7 +52,7 @@ subroutine InitBiometOut()
                   // Biomet_FilePadding // Timestamp_FilePadding // CsvExt
         dot = index(Test_Path, CsvExt, .true.) - 1
         Biomet_Path = Test_Path(1:dot) // CsvTmpExt
-        open(uslow, file = Biomet_Path, iostat = open_status, encoding = 'utf-8')
+        open(ubiomet, file = Biomet_Path, iostat = open_status, encoding = 'utf-8')
 
         !> Initialize string to void
         call Clearstr(header1)
@@ -72,7 +72,7 @@ subroutine InitBiometOut()
         call latin1_to_utf8(header2, head2_utf8)
 
         !> Write on output file
-        write(uslow, '(a)') head1_utf8(1:len_trim(head1_utf8) - 1)
-        write(uslow, '(a)') head2_utf8(1:len_trim(head2_utf8) - 1)
+        write(ubiomet, '(a)') head1_utf8(1:len_trim(head1_utf8) - 1)
+        write(ubiomet, '(a)') head2_utf8(1:len_trim(head2_utf8) - 1)
     end if
 end subroutine InitBiometOut
