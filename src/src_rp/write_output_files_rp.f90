@@ -52,6 +52,7 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, &
     character(14) :: iso_basic
     logical, external :: NewerSwVer
 
+
     !> write Essentials output file (csv) for communication
     !> with Fluxes
     if (EddyProProj%out_essentials) then
@@ -1238,32 +1239,32 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, &
         write(ufnet_e, '(a)') dataline(1:len_trim(dataline) - 1)
     end if
 
-    !>==========================================================================
-    !>==========================================================================
-    !> FLUXNET BIOMET output
-    if (EddyProProj%out_fluxnet_biomet) then
-        !> Edit init_string to fit FLUXNET format
-        !> Strip file name and DOY
-        tmp_init_string = &
-            init_string(index(init_string, ',') +1: &
-                        index(init_string, ',', .true.) - 1)
-
-        !> derive ISO basic format timestamp
-        iso_basic = tmp_init_string(1:4) // tmp_init_string(6:7) &
-            // tmp_init_string(9:10) // tmp_init_string(12:13)  &
-            // tmp_init_string(15:16) // '00'
-
-        call clearstr(dataline)
-        call AddDatum(dataline, trim(adjustl(iso_basic)), separator)
-
-        !> All aggregated biomet values in FLUXNET units
-        do i = 1, nbVars
-            call WriteDatumFloat(bAggrFluxnet(i), datum, '-9999.')
-            call AddDatum(dataline, datum, separator)
-        end do
-        write(ufnet_b, '(a)') dataline(1:len_trim(dataline) - 1)
-    end if
-
+!    !>==========================================================================
+!    !>==========================================================================
+!    !> FLUXNET BIOMET output
+!    if (EddyProProj%out_fluxnet_biomet) then
+!        !> Edit init_string to fit FLUXNET format
+!        !> Strip file name and DOY
+!        tmp_init_string = &
+!            init_string(index(init_string, ',') +1: &
+!                        index(init_string, ',', .true.) - 1)
+!
+!        !> derive ISO basic format timestamp
+!        iso_basic = tmp_init_string(1:4) // tmp_init_string(6:7) &
+!            // tmp_init_string(9:10) // tmp_init_string(12:13)  &
+!            // tmp_init_string(15:16) // '00'
+!
+!        call clearstr(dataline)
+!        call AddDatum(dataline, trim(adjustl(iso_basic)), separator)
+!
+!        !> All aggregated biomet values in FLUXNET units
+!        do i = 1, nbVars
+!            call WriteDatumFloat(bAggrFluxnet(i), datum, '-9999.')
+!            call AddDatum(dataline, datum, separator)
+!        end do
+!        write(ufnet_b, '(a)') dataline(1:len_trim(dataline) - 1)
+!    end if
+!
     !>==========================================================================
     !>==========================================================================
     !> METADATA file

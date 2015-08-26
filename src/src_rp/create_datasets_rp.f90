@@ -189,7 +189,7 @@ subroutine CreateDatasetsRP(TimeSeries, nrow, StartIndx, EndIndx)
     !> FLUXNET (biomet) file - NEVER filled. Only renamed.
     if (EddyProProj%out_fluxnet_biomet) then
         write(*,'(a)', advance = 'no') &
-            '  Creating GHG-Europe (biomet) dataset..'
+            '  Closing GHG-Europe (biomet) dataset..'
         tmp_indx = index(FLUXNET_BIOMET_Path, TmpExt)
         OutPath = FLUXNET_BIOMET_Path(1: tmp_indx - 1)
         move_status = system(comm_move // '"' &

@@ -56,7 +56,7 @@ subroutine CreateDatasetsCommon(TimeSeries, nrow, StartIndx, EndIndx)
 
     !> FLUXNET (fluxes) file - NEVER filled. Only renamed.
     if (EddyProProj%out_fluxnet_eddy) then
-        write(*,'(a)', advance = 'no') '  Creating GHG-Europe (fluxes) dataset..'
+        write(*,'(a)', advance = 'no') '  Closing GHG-Europe (fluxes) dataset..'
         tmp_indx = index(FLUXNET_EDDY_Path, TmpExt)
         OutPath = FLUXNET_EDDY_Path(1: tmp_indx - 1)
         move_status = system(comm_move // '"' &
