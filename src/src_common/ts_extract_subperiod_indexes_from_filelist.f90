@@ -69,7 +69,7 @@ subroutine tsExtractSubperiodIndexesFromFilelist(FileList, nrow, &
         EndIndex = nrow
     else
         do i = StartIndex, nrow
-            if (FileList(i)%timestamp > EndTimestamp) then
+            if (FileList(i)%timestamp >= EndTimestamp) then
                 EndIndex = i - 1
                 exit
             end if
