@@ -35,18 +35,6 @@ subroutine FitTFModels(nbins, printout)
     use m_levenberg_marquardt
     implicit none
 
-    !> interface to function fcn, defining the IIR and its jacobian
-    interface
-        subroutine fcn(m, npar, x, fvec, fjac, iflag)
-            implicit none
-            integer, parameter :: dbl   = kind(0.0d0)
-            integer, intent(in)            :: m, npar
-            real(kind = dbl), intent(in)    :: x(:)
-            real(kind = dbl), intent(inout) :: fvec(:)
-            real(kind = dbl), intent(out)   :: fjac(:,:)
-            integer, intent(inout)         :: iflag
-        end subroutine fcn
-    end interface
 
     !> In/out variables
     integer, intent(in) :: nbins
@@ -65,6 +53,7 @@ subroutine FitTFModels(nbins, printout)
     real(kind = dbl) :: IIRPar(npar_IIR),SigmaPar(npar_sigma)
     real(kind = dbl) :: tol = 1d-04
     type(LongSpectraType), allocatable :: lSpec(:, :)
+    include '..\src_common\interfaces.inc'
 
 
     write(*, '(a)', advance = 'no') &

@@ -32,7 +32,8 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine AnalyticLowPassTransferFunction(nf, N, var, LocInstr, loc_var_present, wind_speed, t_air, BPTF)
+subroutine AnalyticLowPassTransferFunction(nf, N, var, LocInstr, loc_var_present, &
+    wind_speed, t_air, BPTF)
     use m_common_global_var
     implicit none
     !> in/out variables
@@ -45,6 +46,7 @@ subroutine AnalyticLowPassTransferFunction(nf, N, var, LocInstr, loc_var_present
     real(kind = dbl), intent(in) :: t_air
     type(BPTFType), intent(out) :: BPTF(N)
     !> local variables
+!    integer :: Nba
     real(kind = dbl) :: fp_irga(N)
     real(kind = dbl) :: fp_sonic(N)
     real(kind = dbl) :: fs_ver(N)
@@ -55,24 +57,41 @@ subroutine AnalyticLowPassTransferFunction(nf, N, var, LocInstr, loc_var_present
     real(kind = dbl) :: sonic_freq
     real(kind = dbl) :: irga_freq
     real(kind = dbl) :: air_viscosity
+!    real(kind = dbl) :: Tba
+!    real(kind = dbl), parameter :: sonic_sampling_frequency = 100d0
+!    include 'interfaces.inc'
 
 
     if (loc_var_present(var)) then
         select case(var)
             case (u, v, w, ts)
                 sonic_freq = 1d0 / LocInstr(sonic)%tau
-                fp_sonic(1:N) = nf(1:N) * dabs(LocInstr(sonic)%vpath_length / wind_speed)
+                fp_sonic(1:N) = &
+                    nf(1:N) * dabs(LocInstr(sonic)%vpath_length / wind_speed)
                 !> sonic dynamic frequency response
-                BPTF(1:N)%LP(var)%dsonic = 1.d0 / dsqrt(1.d0 + (2.d0 * p * nf(1:N) / sonic_freq)**2 )
+                BPTF(1:N)%LP(var)%dsonic = &
+                    1.d0 / dsqrt(1.d0 + (2.d0 * p * nf(1:N) / sonic_freq)**2 )
                 !> sonic path-averaging
-                BPTF(1:N)%LP(var)%wsonic = (2.d0 / (p * fp_sonic(1:N))) * (1.d0 + dexp(-2.d0 * p * fp_sonic(1:N)) / 2.d0 &
-                                        - 3.d0 * (1.d0 - dexp(-2.d0 * p * fp_sonic(1:N))) / (4.d0 * p * fp_sonic(1:N)))
+                BPTF(1:N)%LP(var)%wsonic = &
+                    (2.d0 / (p * fp_sonic(1:N))) * (1.d0 + dexp(-2.d0 * p * fp_sonic(1:N)) / 2.d0 &
+                    - 3.d0 * (1.d0 - dexp(-2.d0 * p * fp_sonic(1:N))) / (4.d0 * p * fp_sonic(1:N)))
 
                 if (LocInstr(var)%category == 'fast_t_sensor') then
-                    !> For a fast temperature sensor (typically a thermocouple) spectral losses can be safely neglected
+                    !> For a fast temperature sensor (typically a thermocouple)
+                    !> spectral losses can be safely neglected
                     BPTF(1:N)%LP(var)%dsonic = 1d0
                     BPTF(1:N)%LP(var)%wsonic = 1d0
                 end if
+
+!                !> TF related to analog signals filtering in the LI-7550
+!                !> Block averaging
+!                Nba = nint(20 / ac_frequency)
+!                Tba = dfloat(Nba) / sonic_sampling_frequency
+!                BPTF(1:N)%LP(var)%ba_sonic = dsqrt(dabs(sinc(nf(1:N)*Tba, N)))
+!                !> ZOH
+!                BPTF(1:N)%LP(var)%zoh_sonic = &
+!                    dsqrt(dabs(sinc(nf(1:N)/sonic_sampling_frequency/2d0, N)))
+
 
             case (co2, h2o, ch4, gas4)
                 irga_freq = 1d0 / LocInstr(var)%tau
@@ -111,7 +130,8 @@ subroutine AnalyticLowPassTransferFunction(nf, N, var, LocInstr, loc_var_present
                 BPTF(1:N)%LP(var)%wirga = &
                     dsqrt((3d0 + dexp(-2d0 * p * fp_irga(1:N)) - 4d0 / (2d0 * p * fp_irga(1:N)) * &
                     (1d0 - dexp(-2d0 * p * fp_irga(1:N)))) / (2d0 * p * fp_irga(1:N)))
-                !> In case something went wrong with the sqrt above, set NaN to error. Problem seen in support case
+                !> In case something went wrong with the sqrt above,
+                !> set NaN to error. Problem seen in support case
                 !> with exceedingly low (implausible) instrument path length.
                 where (isnan(BPTF(1:N)%LP(var)%wirga))
                     BPTF(1:N)%LP(var)%wirga = error
@@ -202,3 +222,41 @@ subroutine AnalyticHighPassTransferFunction(nf, N, var, ac_frequency, avrg_lengt
         end select
     end if
 end subroutine AnalyticHighPassTransferFunction
+
+!***************************************************************************
+! \brief       Calculates low-pass transfer functions for block-averaging
+!              and DAC zero-order hold filtering in the LI-7550 data logger
+!              occurring prior to software version 7.7.0
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+subroutine LI7550_AnalogSignalsTransferFunctions(nf, N, var, ac_frequency, BPTF)
+    use m_common_global_var
+    implicit none
+    !> in/out variables
+    integer, intent(in) :: N
+    integer, intent(in) :: var
+    real(kind = dbl), intent(in) :: nf(N)
+    real(kind = dbl), intent(in) :: ac_frequency
+    type(BPTFType), intent(out) :: BPTF(N)
+    !> local variables
+    integer :: Nba
+    real(kind = dbl) :: Tba
+    real(kind = dbl), parameter :: li7550_sonic_sampling_frequency = 20d0
+    include 'interfaces.inc'
+
+
+    !> TF related to analog signals filtering in the LI-7550
+    !> Block averaging
+    Nba = nint(20 / ac_frequency)
+    Tba = dfloat(Nba) / li7550_sonic_sampling_frequency
+    BPTF(1:N)%LP(var)%ba_sonic = dsqrt(dabs(sinc(nf(1:N)*Tba, N)))
+    !> ZOH
+    BPTF(1:N)%LP(var)%zoh_sonic = &
+        dsqrt(dabs(sinc(nf(1:N)/EddyProProj%sonic_output_rate/2d0, N)))
+end subroutine LI7550_AnalogSignalsTransferFunctions

@@ -57,7 +57,7 @@ subroutine InitOutFiles_rp()
     integer :: today(3), now(3)
     character(8) :: dum_string
     logical :: proceed
-    logical, external :: NewerSwVer
+    include '..\src_common\interfaces.inc'
 
 
     !> Convenient strings
@@ -420,7 +420,7 @@ subroutine InitOutFiles_rp()
 
             !> AGCs and RSSIs for LI-7200 and LI-7500
             if (Diag7200%present) then
-                if(NewerSwVer(trim(E2Col(co2)%instr%sw_ver), '6.0.0')) then
+                if(CompareSwVer(E2Col(co2)%instr%sw_ver, SwVerFromString('6.0.0'))) then
                     call AddDatum(header1,'RSSI_LI-7200', separator)
                     call AddDatum(header2,'mean_value_RSSI_LI-7200', separator)
                     call AddDatum(header3,'[#]', separator)
@@ -431,7 +431,7 @@ subroutine InitOutFiles_rp()
                 end if
             end if
             if (Diag7500%present) then
-                if(NewerSwVer(trim(E2Col(co2)%instr%sw_ver), '6.0.0')) then
+                if(CompareSwVer(E2Col(co2)%instr%sw_ver, SwVerFromString('6.0.0'))) then
                     call AddDatum(header1,'RSSI_LI-7500', separator)
                     call AddDatum(header2,'mean_value_RSSI_LI-7500', separator)
                     call AddDatum(header3,'[#]', separator)
@@ -490,7 +490,7 @@ subroutine InitOutFiles_rp()
                 &statistical_flags,,,,,,,,,,,,spikes,,,,,,,,&
                 &diagnostic_flags_LI-7200,,,,,,,,,&
                 &diagnostic_flags_LI-7500,,,,diagnostic_flags_LI-7700,,,,,,,,,,,,,,,,'
-                if(NewerSwVer(trim(E2Col(co2)%instr%sw_ver), '6.0.0')) then
+                if(CompareSwVer(E2Col(co2)%instr%sw_ver, SwVerFromString('6.0.0'))) then
                     header1 = trim(header1) // 'RSSI_LI-7200,RSSI_LI-7500,variances,,,,,,,,covariances,,,,,'
                 else
                     header1 = trim(header1) // 'AGC_LI-7200,AGC_LI-7500,variances,,,,,,,,covariances,,,,,'
@@ -629,7 +629,9 @@ subroutine InitOutFiles_rp()
             &yaw,pitch,roll,&
             &st_w_u,st_w_ts,st_w_co2,st_w_h2o,st_w_ch4,st_w_' // e2sg(gas4)(1:len_trim(e2sg(gas4))-1) // ',&
             &dt_u,dt_w,dt_ts,&
-            &detrending_method,dentrending_time_constant,latitude,longitude,altitude,file_length,&
+            &detrending_method,dentrending_time_constant,&
+            &logger_swver_major,logger_swver_minor,logger_swver_revision,&
+            &latitude,longitude,altitude,file_length,&
             &averaging_interval,acquisition_frequency,&
             &canopy_height,displacement_height,roughness_length,&
             &master_sonic_manufacturer,master_sonic_model,master_sonic_height,&

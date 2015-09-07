@@ -113,7 +113,9 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
         lEx%yaw, lEx%pitch, lEx%roll, &
         lEx%st_w_u, lEx%st_w_ts, lEx%st_w_co2, lEx%st_w_h2o, lEx%st_w_ch4, lEx%st_w_gas4, &
         lEx%dt_u, lEx%dt_w, lEx%dt_ts, &
-        lEx%det_meth, lEx%det_timec, lEx%lat, lEx%lon, lEx%alt, lEx%file_length, &
+        lEx%det_meth, lEx%det_timec, &
+        lEx%logger_swver%major,lEx%logger_swver%minor,lEx%logger_swver%revision, &
+        lEx%lat, lEx%lon, lEx%alt, lEx%file_length, &
         lEx%avrg_length, lEx%ac_freq, &
         lEx%canopy_height, lEx%disp_height, lEx%rough_length, &
         lEx%instr(sonic)%firm, lEx%instr(sonic)%model, lEx%instr(sonic)%height, &

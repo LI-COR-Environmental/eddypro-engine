@@ -66,3 +66,31 @@ subroutine PolyVal(coeff, deg, x, N, polval)
         end if
     end do
 end subroutine PolyVal
+
+!***************************************************************************
+!
+! \brief       Calculate sinc(x) = sin(pi*x)/(pi*x).
+!              Handle singularity at x = 0
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+function sinc(x, N)
+    use m_common_global_var
+    implicit none
+    !> In/out variables
+    integer, intent(in) :: N
+    real (kind = dbl), intent(in) :: x(N)
+    real (kind = dbl) :: sinc(N)
+
+
+    where(x(:) /= 0d0)
+        sinc(:) = sin(p*x(:))/ (p*x(:))
+    elsewhere
+        sinc(:) = error
+    end where
+end function

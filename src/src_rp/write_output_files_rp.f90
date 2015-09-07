@@ -50,7 +50,7 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, &
     character(DatumLen) :: datum
     character(64) :: tmp_init_string
     character(14) :: iso_basic
-    logical, external :: NewerSwVer
+    include '..\src_common\interfaces.inc'
 
 
     !> write Essentials output file (csv) for communication
@@ -343,6 +343,12 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, &
         call AddDatum(dataline, datum, separator)
 
         !> Metadata
+        write(datum, *) Metadata%logger_swver%major
+        call WriteDatumInt(dataline, datum, separator)
+        write(datum, *) Metadata%logger_swver%minor
+        call WriteDatumInt(dataline, datum, separator)
+        write(datum, *) Metadata%logger_swver%revision
+        call WriteDatumInt(dataline, datum, separator)
         write(datum, *) Metadata%lat
         call AddDatum(dataline, datum, separator)
         write(datum, *) Metadata%lon
@@ -523,14 +529,14 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, &
 
         !> AGCs and RSSI
         !> LI-7200
-        if(NewerSwVer(trim(E2Col(co2)%instr%sw_ver), '6.0.0')) then
+        if(CompareSwVer(E2Col(co2)%instr%sw_ver, SwVerFromString('6.0.0'))) then
             write(datum, *)   nint(Essentials%AGC72)
         else
             write(datum, *) - nint(Essentials%AGC72)
         end if
         call AddDatum(dataline, datum, separator)
         !> LI-7500
-        if(NewerSwVer(trim(E2Col(co2)%instr%sw_ver), '6.0.0')) then
+        if(CompareSwVer(E2Col(co2)%instr%sw_ver, SwVerFromString('6.0.0'))) then
             write(datum, *)   nint(Essentials%AGC75)
         else
             write(datum, *) - nint(Essentials%AGC75)

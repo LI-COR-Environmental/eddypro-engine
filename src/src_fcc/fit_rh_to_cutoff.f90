@@ -35,19 +35,6 @@ subroutine FitRh2Fco()
     use m_levenberg_marquardt
     implicit none
 
-    !> Interface to function fcn, defining the model and its jacobian
-    interface
-        subroutine fcn(m, npar, x, fvec, fjac, iflag)
-            implicit none
-            integer, parameter :: dbl   = kind(0.0d0)
-            integer, intent(in)            :: m, npar
-            real(kind = dbl), intent(in)    :: x(:)
-            real(kind = dbl), intent(inout) :: fvec(:)
-            real(kind = dbl), intent(out)   :: fjac(:,:)
-            integer, intent(inout)         :: iflag
-        end subroutine fcn
-    end interface
-
     !> Local variables
     integer :: RH
     integer :: m
@@ -61,6 +48,7 @@ subroutine FitRh2Fco()
     real(kind = dbl) :: EXPPar(npar_EXP)
     real(kind = dbl) :: tol = 1d-04
     real(kind = dbl) :: mean_fc
+    include '..\src_common\interfaces.inc'
 
 
     !> Allocate arrays for fits
@@ -78,7 +66,8 @@ subroutine FitRh2Fco()
         !> fit exponential model analytically, such that the exponential function
         !> provides a constant value, equal to the mean value of f_cutoff among all
         !> RH classes
-        write(*, '(a)', advance = 'no') ' Open-path H2O analyser: analytic fitting of cut-off frequencies vs. RH.. '
+        write(*, '(a)', advance = 'no') ' Open-path H2O analyser: analytic &
+            &fitting of cut-off frequencies vs. RH.. '
         mean_fc = 0d0
         cnt2 = 0
         do RH = RH10, RH90
@@ -93,7 +82,8 @@ subroutine FitRh2Fco()
         RegPar(dum, dum)%e3 = dlog(mean_fc)
     else
         !> Fit exponential model by least squares minimization
-        write(*, '(a)', advance = 'no') ' Fitting in-situ assessment of cut-off frequencies vs. RH.. '
+        write(*, '(a)', advance = 'no') ' Fitting in-situ assessment of &
+            &cut-off frequencies vs. RH.. '
 
         !> Initialization of function parameters (see Ibrom et al. 2007, AFM)
         !> EXP: Par(1) = A, Par(2)= B, Par(3)=C

@@ -14,7 +14,6 @@
 				<Option compiler="gfortran" />
 				<Compiler>
 					<Add option="-O3" />
-					<Add directory="../mod" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -59,6 +58,9 @@
 			<Option weight="3" />
 		</Unit>
 		<Unit filename="../src/src_common/bpcf_fratini_12.f90">
+			<Option weight="3" />
+		</Unit>
+		<Unit filename="../src/src_common/bpcf_li7550_analog_filters.f90">
 			<Option weight="3" />
 		</Unit>
 		<Unit filename="../src/src_common/bpcf_massman_00.f90">

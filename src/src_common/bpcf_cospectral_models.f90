@@ -77,7 +77,7 @@ subroutine CospectraMoncrieff97(nf, kf, Cospectrum, zL, N)
             end if
         end do
     end if
-    !> As for now, set cospectral model for temperature, h2o, ch4 and gas4 equal to co2
+    !> Set cospectral model for temperature, h2o, ch4 and gas4 equal to co2
     Cospectrum(:)%of(w_ts)  = Cospectrum(:)%of(w_co2)
     Cospectrum(:)%of(w_h2o) = Cospectrum(:)%of(w_co2)
     Cospectrum(:)%of(w_ch4) = Cospectrum(:)%of(w_co2)

@@ -45,7 +45,7 @@ subroutine SetTransferFunctionsToValue(BPTF, nfreq, val)
     use m_common_global_var
     implicit none
     !> in/out variables
-    integer, intent(inout) :: nfreq
+    integer, intent(in) :: nfreq
     type(BPTFType), intent(out) :: BPTF(nfreq)
     real(kind = dbl), intent(in) :: val
     !> local variables
@@ -54,7 +54,8 @@ subroutine SetTransferFunctionsToValue(BPTF, nfreq, val)
     do var = u, gas4
         BPTF(1:nfreq)%HP(var)  = val
         BPTF(1:nfreq)%EXP(var) = val
-        BPTF(1:nfreq)%LP(var)  = LPTFType(val, val, val, val, val, val, val, val)
+        BPTF(1:nfreq)%LP(var)  = LPTFType(val, val, val, val, val, val, &
+            val, val, val, val)
     end do
 end subroutine SetTransferFunctionsToValue
 
@@ -78,15 +79,17 @@ subroutine BandPassTransferFunction(BPTF, var1, var2, varout, nfreq)
     integer, intent(in) :: nfreq
     type(BPTFType), intent(inout) :: BPTF(nfreq)
 
-    BPTF%BP(varout) = BPTF%LP(var1)%dirga  * BPTF%LP(var2)%dirga  &
-                    * BPTF%LP(var1)%dsonic * BPTF%LP(var2)%dsonic &
-                    * BPTF%LP(var1)%wirga  * BPTF%LP(var2)%wirga  &
-                    * BPTF%LP(var1)%wsonic * BPTF%LP(var2)%wsonic &
-                    * BPTF%LP(var1)%sver   * BPTF%LP(var2)%sver   &
-                    * BPTF%LP(var1)%shor   * BPTF%LP(var2)%shor   &
-                    * BPTF%LP(var1)%t      * BPTF%LP(var2)%t      &
-                    * BPTF%HP(var1)        * BPTF%HP(var2) &
-                    * BPTF%EXP(var1)       * BPTF%EXP(var2)
+    BPTF%BP(varout) = BPTF%LP(var1)%dirga     * BPTF%LP(var2)%dirga  &
+                    * BPTF%LP(var1)%dsonic    * BPTF%LP(var2)%dsonic &
+                    * BPTF%LP(var1)%wirga     * BPTF%LP(var2)%wirga  &
+                    * BPTF%LP(var1)%wsonic    * BPTF%LP(var2)%wsonic &
+                    * BPTF%LP(var1)%sver      * BPTF%LP(var2)%sver   &
+                    * BPTF%LP(var1)%shor      * BPTF%LP(var2)%shor   &
+                    * BPTF%LP(var1)%t         * BPTF%LP(var2)%t      &
+                    * BPTF%LP(var1)%ba_sonic  * BPTF%LP(var2)%ba_sonic &
+                    * BPTF%LP(var1)%zoh_sonic * BPTF%LP(var2)%zoh_sonic &
+                    * BPTF%HP(var1)           * BPTF%HP(var2) &
+                    * BPTF%EXP(var1)          * BPTF%EXP(var2)
 end subroutine BandPassTransferFunction
 
 !***************************************************************************
@@ -129,7 +132,7 @@ subroutine SpectralCorrectionFactors(Cosp, var, nf, nfreq, BPTF)
         return
     end if
 
-    !> Artificial frequency range, large enough to accomodate all cases
+    !> Artificial frequency range, large enough to accommodate all cases
     nf_min = 1d0/5000d0
     nf_max = 100d0
 

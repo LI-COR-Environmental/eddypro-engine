@@ -36,19 +36,6 @@ subroutine FitCospectralModel(nfit, dim1, dim2, FitStable, FitUnstable, fnrow)
     use m_levenberg_marquardt
     implicit none
 
-    !> interface to function fcn
-    interface
-        subroutine fcn(m, npar, x, fvec, fjac, iflag)
-            implicit none
-            integer, parameter :: dbl   = kind(0.0d0)
-            integer, intent(in)            :: m, npar
-            real(kind = dbl), intent(in)    :: x(:)
-            real(kind = dbl), intent(inout) :: fvec(:)
-            real(kind = dbl), intent(out)   :: fjac(:,:)
-            integer, intent(inout)         :: iflag
-        end subroutine fcn
-    end interface
-
     !> in/out variables
     integer, intent(in) :: dim1
     integer, intent(in) :: dim2
@@ -71,6 +58,7 @@ subroutine FitCospectralModel(nfit, dim1, dim2, FitStable, FitUnstable, fnrow)
     real(kind = dbl) :: tol = 1d-06
     real(kind = dbl), allocatable  :: fvec(:), fjac(:,:)
     character(32) :: cvar
+    include '..\src_common\interfaces.inc'
 
 
     if (.not. allocated(xFit)) allocate (xFit(fnrow))

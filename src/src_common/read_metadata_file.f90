@@ -80,7 +80,14 @@ subroutine WriteEddyProMetadataVariables(LocCol, printout)
     integer :: NumSkipCol
     integer :: i = 0
     integer :: j = 0
+    include 'interfaces.inc'
 
+
+    if (len_trim(ACTags(1)%value) > 0) then
+        Metadata%logger_swver = SwVerFromString(trim(ACTags(1)%value))
+    else
+        Metadata%logger_swver = errSwVer
+    end if
 
     Metadata%sitename = trim(adjustl(ACTags(9)%value))
     Metadata%canopy_height = 0d0
@@ -197,8 +204,14 @@ subroutine WriteEddyProMetadataVariables(LocCol, printout)
             NumInstruments = NumInstruments + 1
             Instr(i)%firm = ACTags(init_ac_instr + i*leap_ac_instr)%value &
                 (1:len_trim(ACTags(init_ac_instr + i*leap_ac_instr)%value))
-            Instr(i)%sw_ver = ACTags(init_ac_instr + i*leap_ac_instr + 1)%value &
-                (1:len_trim(ACTags(init_ac_instr + i*leap_ac_instr + 1)%value))
+
+            if (len_trim(ACTags(init_ac_instr + i*leap_ac_instr + 1)%value) > 0) then
+                Instr(i)%sw_ver = &
+                    SwVerFromString(trim(ACTags(init_ac_instr + i*leap_ac_instr + 1)%value))
+            else
+                Instr(i)%sw_ver = errSwVer
+            end if
+
             Instr(i)%model = ACTags(init_ac_instr + i*leap_ac_instr + 2)%value &
                 (1:len_trim(ACTags(init_ac_instr + i*leap_ac_instr + 2)%value))
             Instr(i)%height = dble(ANTags(init_an_instr + i*leap_an_instr)%value)
@@ -242,9 +255,6 @@ subroutine WriteEddyProMetadataVariables(LocCol, printout)
                         Instr(i)%firm = 'other_sonic'
                 end select
             end if
-
-            !> If software version is empty, set it to the oldest possible
-            if (index(Instr(i)%sw_ver, '.') == 0) Instr(i)%sw_ver = '0.0.1'
 
             !> If anemoeter model is "generic", set firm to "other" in any case
             if (index(Instr(i)%model, 'generic_sonic') /= 0) Instr(i)%firm = 'other_sonic'

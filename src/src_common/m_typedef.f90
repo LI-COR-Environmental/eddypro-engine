@@ -180,6 +180,8 @@ module m_typedef
     type :: LPTFType
         real(kind = dbl) :: dirga
         real(kind = dbl) :: dsonic
+        real(kind = dbl) :: ba_sonic
+        real(kind = dbl) :: zoh_sonic
         real(kind = dbl) :: m
         real(kind = dbl) :: wirga
         real(kind = dbl) :: wsonic
@@ -294,10 +296,15 @@ module m_typedef
         real (kind = dbl) :: offset(GHGNumVar)
     end type tsDriftsType
 
+    type SwVerType
+        integer :: major
+        integer :: minor
+        integer :: revision
+    end type SwVerType
+
     type :: InstrumentType
         character(32) :: firm
         character(32) :: model
-        character(32) :: sw_ver
         character(32) :: category
         real(kind = dbl) :: height
         real(kind = dbl) :: vpath_length
@@ -319,6 +326,7 @@ module m_typedef
         character(32) :: measure_type
         logical :: head_corr
         logical :: master_sonic
+        type(SwVerType) :: sw_ver
     end type InstrumentType
 
     type :: RawFlagType
@@ -438,6 +446,7 @@ module m_typedef
     end type DSType
 
     type :: MetadataType
+        type(SwVerType) :: logger_swver
         integer :: ord(32)
         character(10) :: date
         character(5) :: time
@@ -468,6 +477,7 @@ module m_typedef
     end type DynMDType
 
     type :: EddyProProjType
+        integer :: sonic_output_rate
         integer :: col(E2NumVar + MaxNumDiag)
         real(kind=dbl) :: new_gas_diff
         character(10) :: start_date
@@ -510,6 +520,8 @@ module m_typedef
         logical :: fcc_follows
         logical :: fix_out_format
         logical :: hf_meth_in_situ
+        logical :: hf_correct_ghg_ba
+        logical :: hf_correct_ghg_zoh
     end type EddyProProjType
 
     type :: EddyProLogType
@@ -1206,6 +1218,7 @@ module m_typedef
         type(DegTType) :: degT
         type(InstrumentType) :: instr(ExNumInstruments)
         type(FluxType) :: Flux0
+        Type(SwVerType) :: logger_swver
     end type ExType
 end module m_typedef
 
