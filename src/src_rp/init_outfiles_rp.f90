@@ -57,7 +57,7 @@ subroutine InitOutFiles_rp()
     integer :: today(3), now(3)
     character(8) :: dum_string
     logical :: proceed
-    include '..\src_common\interfaces.inc'
+    include '../src_common/interfaces.inc'
 
 
     !> Convenient strings

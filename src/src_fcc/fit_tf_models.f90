@@ -53,7 +53,7 @@ subroutine FitTFModels(nbins, printout)
     real(kind = dbl) :: IIRPar(npar_IIR),SigmaPar(npar_sigma)
     real(kind = dbl) :: tol = 1d-04
     type(LongSpectraType), allocatable :: lSpec(:, :)
-    include '..\src_common\interfaces.inc'
+    include '../src_common/interfaces.inc'
 
 
     write(*, '(a)', advance = 'no') &

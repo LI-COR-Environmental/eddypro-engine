@@ -55,7 +55,7 @@ subroutine CorrectionFactorModel(ExFilename, NumExRecords)
     real(kind = dbl), allocatable  :: fvec(:), fjac(:,:)
     real(kind = dbl) :: f_co(Nt)
     data f_co(1:Nt) /1.626d0, 0.614d0, 0.277d0, 0.133d0, 6.5d-2, 3.2d-2, 1.6d-2, 8d-3, 4d-3/
-    include '..\src_common\interfaces.inc'
+    include '../src_common/interfaces.inc'
 
 
     write(*, '(a)') ' Fitting low-pass correction factor model as from Ibrom et al. (2007)..'

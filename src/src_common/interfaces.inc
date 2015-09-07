@@ -1,4 +1,4 @@
-include '..\src_common\interfaces_1.inc'
+include '../src_common/interfaces_1.inc'
 
 interface
     subroutine BandPassSpectralCorrections(measuring_height, displ_height,&

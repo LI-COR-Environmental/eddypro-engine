@@ -90,7 +90,7 @@ Program EddyproFCC
     integer, external :: NumberOfFilesInSubperiod
     real(kind = dbl), external :: func
 
-    include '..\src_common\interfaces.inc'
+    include '../src_common/interfaces.inc'
 
     !*******************************************************************************
     !*******************************************************************************

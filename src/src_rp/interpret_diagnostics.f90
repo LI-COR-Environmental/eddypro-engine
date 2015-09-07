@@ -41,7 +41,7 @@ subroutine InterpretLicorDiagnostics(DiagSet, nrow, ncol)
     integer :: n72
     integer :: n75
     integer :: n77
-    include '..\src_common\interfaces.inc'
+    include '../src_common/interfaces.inc'
 
 
     n72 = 0

@@ -165,7 +165,7 @@ program EddyproRP
     real(kind=dbl), external :: LaggedCovarianceNoError
     real (kind = dbl), external :: Poly6
     integer, external :: CreateDir
-    include '..\src_common\interfaces.inc'
+    include '../src_common/interfaces.inc'
 
 
     !***************************************************************************

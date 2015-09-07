@@ -50,7 +50,7 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, &
     character(DatumLen) :: datum
     character(64) :: tmp_init_string
     character(14) :: iso_basic
-    include '..\src_common\interfaces.inc'
+    include '../src_common/interfaces.inc'
 
 
     !> write Essentials output file (csv) for communication

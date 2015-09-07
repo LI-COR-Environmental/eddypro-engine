@@ -48,7 +48,7 @@ subroutine FitRh2Fco()
     real(kind = dbl) :: EXPPar(npar_EXP)
     real(kind = dbl) :: tol = 1d-04
     real(kind = dbl) :: mean_fc
-    include '..\src_common\interfaces.inc'
+    include '../src_common/interfaces.inc'
 
 
     !> Allocate arrays for fits

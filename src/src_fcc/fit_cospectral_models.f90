@@ -58,7 +58,7 @@ subroutine FitCospectralModel(nfit, dim1, dim2, FitStable, FitUnstable, fnrow)
     real(kind = dbl) :: tol = 1d-06
     real(kind = dbl), allocatable  :: fvec(:), fjac(:,:)
     character(32) :: cvar
-    include '..\src_common\interfaces.inc'
+    include '../src_common/interfaces.inc'
 
 
     if (.not. allocated(xFit)) allocate (xFit(fnrow))

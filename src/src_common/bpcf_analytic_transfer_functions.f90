@@ -57,9 +57,6 @@ subroutine AnalyticLowPassTransferFunction(nf, N, var, LocInstr, loc_var_present
     real(kind = dbl) :: sonic_freq
     real(kind = dbl) :: irga_freq
     real(kind = dbl) :: air_viscosity
-!    real(kind = dbl) :: Tba
-!    real(kind = dbl), parameter :: sonic_sampling_frequency = 100d0
-!    include 'interfaces.inc'
 
 
     if (loc_var_present(var)) then
@@ -82,16 +79,6 @@ subroutine AnalyticLowPassTransferFunction(nf, N, var, LocInstr, loc_var_present
                     BPTF(1:N)%LP(var)%dsonic = 1d0
                     BPTF(1:N)%LP(var)%wsonic = 1d0
                 end if
-
-!                !> TF related to analog signals filtering in the LI-7550
-!                !> Block averaging
-!                Nba = nint(20 / ac_frequency)
-!                Tba = dfloat(Nba) / sonic_sampling_frequency
-!                BPTF(1:N)%LP(var)%ba_sonic = dsqrt(dabs(sinc(nf(1:N)*Tba, N)))
-!                !> ZOH
-!                BPTF(1:N)%LP(var)%zoh_sonic = &
-!                    dsqrt(dabs(sinc(nf(1:N)/sonic_sampling_frequency/2d0, N)))
-
 
             case (co2, h2o, ch4, gas4)
                 irga_freq = 1d0 / LocInstr(var)%tau
