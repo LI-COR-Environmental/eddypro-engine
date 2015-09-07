@@ -15,6 +15,7 @@ m_methane_tables.f90 \
 bpcf_moncrieff_97.f90 \
 m_numeric_kinds.f90 \
 bpcf_only_lowfrequency_correction.f90 \
+bpcf_li7550_analog_filters.f90 \
 m_typedef.f90 \
 bpcf_read_full_cos_wt.f90 \
 make_dataset.f90 \
@@ -100,6 +101,7 @@ m_methane_tables.o \
 bpcf_moncrieff_97.o \
 m_numeric_kinds.o \
 bpcf_only_lowfrequency_correction.o \
+bpcf_li7550_analog_filters.o \
 m_typedef.o \
 bpcf_read_full_cos_wt.o \
 make_dataset.o \
@@ -242,6 +244,9 @@ correction_factor_model.o: \
     m_levenberg_marquardt.o
 bpcf_only_lowfrequency_correction.o: \
     bpcf_only_lowfrequency_correction.f90 \
+    m_common_global_var.o
+bpcf_li7550_analog_filters.o: \
+    bpcf_li7550_analog_filters.f90 \
     m_common_global_var.o
 m_typedef.o: \
     m_typedef.f90 \

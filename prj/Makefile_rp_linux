@@ -134,6 +134,7 @@ write_out_stats.f90 \
 matrix_inversion.f90 \
 define_all_var_set.f90 \
 bpcf_only_lowfrequency_correction.f90 \
+bpcf_li7550_analog_filters.f90 \
 median.f90 \
 define_relative_separations.f90 \
 change_24_into_00.f90 \
@@ -325,6 +326,7 @@ write_out_stats.o \
 matrix_inversion.o \
 define_all_var_set.o \
 bpcf_only_lowfrequency_correction.o \
+bpcf_li7550_analog_filters.o \
 median.o \
 define_relative_separations.o \
 change_24_into_00.o \
@@ -654,6 +656,9 @@ test_amp_res_drop_out.o: \
     m_rp_global_var.o
 bpcf_only_lowfrequency_correction.o: \
     bpcf_only_lowfrequency_correction.f90 \
+    m_common_global_var.o
+bpcf_li7550_analog_filters.o: \
+    bpcf_li7550_analog_filters.f90 \
     m_common_global_var.o
 median.o: \
     median.f90 \
