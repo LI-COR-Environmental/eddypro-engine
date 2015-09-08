@@ -344,11 +344,12 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, &
 
         !> Metadata
         write(datum, *) Metadata%logger_swver%major
-        call WriteDatumInt(dataline, datum, separator)
+        call AddDatum(dataline, datum, separator)
         write(datum, *) Metadata%logger_swver%minor
-        call WriteDatumInt(dataline, datum, separator)
+        call AddDatum(dataline, datum, separator)
         write(datum, *) Metadata%logger_swver%revision
-        call WriteDatumInt(dataline, datum, separator)
+        call AddDatum(dataline, datum, separator)
+
         write(datum, *) Metadata%lat
         call AddDatum(dataline, datum, separator)
         write(datum, *) Metadata%lon
