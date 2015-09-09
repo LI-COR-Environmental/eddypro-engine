@@ -65,24 +65,34 @@ subroutine BPCF_LI7550AnalogFilters(measuring_height, displ_height, loc_var_pres
         nf(i) = dexp(dlog(nf(1)) + (dlog(10d0)-dlog(nf(1)))/dfloat(nfreq) * dfloat(i))
     end do
 
-    !> normalized frequency vector, kf
+    !> Normalized frequency vector, kf
     kf(:) = nf(:) * dabs((measuring_height - displ_height) / wind_speed)
 
     !> Initialize all transfer functions to 1
     call SetTransferFunctionsToValue(BPTF, nfreq, 1d0)
 
-    !> analytical co-spectra after Moncrieff et al. (1997, JH)
+    !> Analytic co-spectra after Moncrieff et al. (1997, JH)
     call CospectraMoncrieff97(nf, kf, Cospectrum, zL, nfreq)
 
     !> Analytic low-pass transfer function
-    call LI7550_AnalogSignalsTransferFunctions(nf, size(nf), u, ac_frequency, BPTF)
-    call LI7550_AnalogSignalsTransferFunctions(nf, size(nf), w, ac_frequency, BPTF)
-    call LI7550_AnalogSignalsTransferFunctions(nf, size(nf), ts, ac_frequency, BPTF)
+    call LI7550_AnalogSignalsTransferFunctions(nf, size(nf), u, ac_frequency, &
+        loc_var_present, BPTF)
+    call LI7550_AnalogSignalsTransferFunctions(nf, size(nf), w, ac_frequency, &
+        loc_var_present, BPTF)
+    call LI7550_AnalogSignalsTransferFunctions(nf, size(nf), ts, ac_frequency, &
+        loc_var_present, BPTF)
+    if (loc_var_present(co2)) &
+        call LI7550_AnalogSignalsTransferFunctions(nf, size(nf), co2, ac_frequency, &
+            loc_var_present, BPTF)
+    if (loc_var_present(h2o)) &
+        call LI7550_AnalogSignalsTransferFunctions(nf, size(nf), h2o, ac_frequency, &
+            loc_var_present, BPTF)
 
     !> reset to 1 BA and ZOH low-pass transfer functions if the case
     if (.not. EddyProProj%hf_correct_ghg_ba) then
         do i = 1, nfreq
             BPTF(i)%LP%ba_sonic = 1d0
+            BPTF(i)%LP%ba_irga = 1d0
         end do
     end if
     if (.not. EddyProProj%hf_correct_ghg_zoh) then
@@ -96,10 +106,14 @@ subroutine BPCF_LI7550AnalogFilters(measuring_height, displ_height, loc_var_pres
     !> calculate correction factors
     call BandPassTransferFunction(BPTF, w,  u,  w_u, nfreq)
     call BandPassTransferFunction(BPTF, w, ts, w_ts, nfreq)
-    if (loc_var_present(co2))  call BandPassTransferFunction(BPTF, w, co2,  w_co2,  nfreq)
-    if (loc_var_present(h2o))  call BandPassTransferFunction(BPTF, w, h2o,  w_h2o,  nfreq)
-    if (loc_var_present(ch4))  call BandPassTransferFunction(BPTF, w, ch4,  w_ch4,  nfreq)
-    if (loc_var_present(gas4)) call BandPassTransferFunction(BPTF, w, gas4, w_gas4, nfreq)
+    if (loc_var_present(co2)) &
+        call BandPassTransferFunction(BPTF, w, co2,  w_co2,  nfreq)
+    if (loc_var_present(h2o))  &
+        call BandPassTransferFunction(BPTF, w, h2o,  w_h2o,  nfreq)
+    if (loc_var_present(ch4))  &
+        call BandPassTransferFunction(BPTF, w, ch4,  w_ch4,  nfreq)
+    if (loc_var_present(gas4)) &
+        call BandPassTransferFunction(BPTF, w, gas4, w_gas4, nfreq)
 
     !> calculate correction factors
     call SpectralCorrectionFactors(Cospectrum%of(w_u),  u,  nf, nfreq, BPTF)

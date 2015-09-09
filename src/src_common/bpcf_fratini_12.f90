@@ -135,15 +135,16 @@ subroutine BPCF_Fratini12(loc_var_present, LocInstr, wind_speed, t_air, ac_frequ
             !> Add analytic components to the experimental transfer function, for \n
             !> sonic data filtering in the LI-7550 (BA and ZOH)
             call LI7550_AnalogSignalsTransferFunctions(nf, size(nf), u, &
-                ac_frequency, hBPTF)
+                ac_frequency, loc_var_present, hBPTF)
             call LI7550_AnalogSignalsTransferFunctions(nf, size(nf), w, &
-                ac_frequency, hBPTF)
+                ac_frequency, loc_var_present, hBPTF)
             call LI7550_AnalogSignalsTransferFunctions(nf, size(nf), ts, &
-                ac_frequency, hBPTF)
+                ac_frequency, loc_var_present, hBPTF)
             !> reset to 1 BA and ZOH low-pass transfer functions if the case
             if (.not. EddyProProj%hf_correct_ghg_ba) then
                 do i = 1, nfreq
                     hBPTF(i)%LP%ba_sonic = 1d0
+                    hBPTF(i)%LP%ba_irga = 1d0  !< Redundant, but does not harm
                 end do
             end if
             if (.not. EddyProProj%hf_correct_ghg_zoh) then

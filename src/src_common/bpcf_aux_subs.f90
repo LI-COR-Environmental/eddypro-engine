@@ -55,7 +55,7 @@ subroutine SetTransferFunctionsToValue(BPTF, nfreq, val)
         BPTF(1:nfreq)%HP(var)  = val
         BPTF(1:nfreq)%EXP(var) = val
         BPTF(1:nfreq)%LP(var)  = LPTFType(val, val, val, val, val, val, &
-            val, val, val, val)
+            val, val, val, val, val)
     end do
 end subroutine SetTransferFunctionsToValue
 
@@ -87,6 +87,7 @@ subroutine BandPassTransferFunction(BPTF, var1, var2, varout, nfreq)
                     * BPTF%LP(var1)%shor      * BPTF%LP(var2)%shor   &
                     * BPTF%LP(var1)%t         * BPTF%LP(var2)%t      &
                     * BPTF%LP(var1)%ba_sonic  * BPTF%LP(var2)%ba_sonic &
+                    * BPTF%LP(var1)%ba_irga   * BPTF%LP(var2)%ba_irga  &
                     * BPTF%LP(var1)%zoh_sonic * BPTF%LP(var2)%zoh_sonic &
                     * BPTF%HP(var1)           * BPTF%HP(var2) &
                     * BPTF%EXP(var1)          * BPTF%EXP(var2)

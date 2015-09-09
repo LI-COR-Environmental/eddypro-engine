@@ -222,7 +222,8 @@ end subroutine AnalyticHighPassTransferFunction
 ! \test
 ! \todo
 !***************************************************************************
-subroutine LI7550_AnalogSignalsTransferFunctions(nf, N, var, ac_frequency, BPTF)
+subroutine LI7550_AnalogSignalsTransferFunctions(nf, N, var, ac_frequency, &
+        loc_var_present, BPTF)
     use m_common_global_var
     implicit none
     !> in/out variables
@@ -230,6 +231,7 @@ subroutine LI7550_AnalogSignalsTransferFunctions(nf, N, var, ac_frequency, BPTF)
     integer, intent(in) :: var
     real(kind = dbl), intent(in) :: nf(N)
     real(kind = dbl), intent(in) :: ac_frequency
+    logical, intent(in) :: loc_var_present(GHGNumVar)
     type(BPTFType), intent(out) :: BPTF(N)
     !> local variables
     integer :: Nba
@@ -239,11 +241,19 @@ subroutine LI7550_AnalogSignalsTransferFunctions(nf, N, var, ac_frequency, BPTF)
 
 
     !> TF related to analog signals filtering in the LI-7550
-    !> Block averaging
     Nba = nint(20 / ac_frequency)
     Tba = dfloat(Nba) / li7550_sonic_sampling_frequency
-    BPTF(1:N)%LP(var)%ba_sonic = dsqrt(dabs(sinc(nf(1:N)*Tba, N)))
-    !> ZOH
-    BPTF(1:N)%LP(var)%zoh_sonic = &
-        dsqrt(dabs(sinc(nf(1:N)/EddyProProj%sonic_output_rate/2d0, N)))
+
+    if (loc_var_present(var)) then
+        select case(var)
+            case(u, v, w, ts)
+                !> Block averaging
+                BPTF(1:N)%LP(var)%ba_sonic = dsqrt(dabs(sinc(nf(1:N)*Tba, N)))
+                !> ZOH
+                BPTF(1:N)%LP(var)%zoh_sonic = &
+                    dsqrt(dabs(sinc(nf(1:N)/EddyProProj%sonic_output_rate/2d0, N)))
+            case(co2, h2o)
+                BPTF(1:N)%LP(var)%ba_irga = dsqrt(dabs(sinc(nf(1:N)*Tba, N)))
+        end select
+    end if
 end subroutine LI7550_AnalogSignalsTransferFunctions

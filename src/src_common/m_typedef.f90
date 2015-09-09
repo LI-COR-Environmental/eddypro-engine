@@ -181,6 +181,7 @@ module m_typedef
         real(kind = dbl) :: dirga
         real(kind = dbl) :: dsonic
         real(kind = dbl) :: ba_sonic
+        real(kind = dbl) :: ba_irga
         real(kind = dbl) :: zoh_sonic
         real(kind = dbl) :: m
         real(kind = dbl) :: wirga

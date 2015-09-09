@@ -182,6 +182,11 @@ subroutine BandPassSpectralCorrections(measuring_height, displ_height,&
         EddyProProj%hf_correct_ghg_zoh = .false.
     end if
 
+    !> If acquisition frequency is above 10 Hz, block averaging correction is
+    !> not to be applied.
+    if (ac_frequency > 10d0) &
+        EddyProProj%hf_correct_ghg_ba = .false.
+
     !> Apply BA/ZOH correction as necessary
     if (EddyProProj%hf_correct_ghg_ba .or. EddyProProj%hf_correct_ghg_zoh) then
         if (EddyProProj%sonic_output_rate <= 0) &
@@ -189,9 +194,11 @@ subroutine BandPassSpectralCorrections(measuring_height, displ_height,&
                 DefaultSonicOutputRate(LocInstr(u)%model(1:len_trim(LocInstr(u)%model)-2))
         tmpBPCF = BPCF
         BPCF%of(w_u: w_gas4) = 1d0
+
         call BPCF_LI7550AnalogFilters(measuring_height, displ_height, &
             loc_var_present, wind_speed, zL, ac_frequency, &
             printout)
+
         BPCF%of(:) = BPCF%of(:) * tmpBPCF%of(:)
     end if
 end subroutine BandPassSpectralCorrections
