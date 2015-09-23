@@ -148,7 +148,7 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
     !> Now read user variables if they exist
     if (NumUserVar > 0) then
         !> Reduce dataline to the user variables
-        do ii = 1, 269
+        do ii = 1, 272
             dataline = dataline(index(dataline, ',') + 1: len_trim(dataline))
         end do
         !> Read user variables
