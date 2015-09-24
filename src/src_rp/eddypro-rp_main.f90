@@ -1327,7 +1327,7 @@ program EddyproRP
                 nCalibEvents - latestCleaning, &
                 datetype(0, 0, 0, 3, 0), 'strictly before', dirty)
 
-            !> Cycle ifs file is not relevant to anything
+            !> Cycle if file is not relevant to anything
             if (pcount /= rpStartTimestampIndx &
                 .and. clean <= 0 .and. dirty <= 0) then
                 LatestRawFileIndx = LatestRawFileIndx + 1
@@ -1605,7 +1605,7 @@ program EddyproRP
             !> If drift correction is to be performed with signal strength
             !> proxy, calculate mean refCounts for current period
             if (DriftCorr%method == 'signal_strength') &
-                call ReferenceCounts(Raw, size(Raw, 1), size(Raw, 2))
+                call ReferenceCounts(dble(Raw), size(Raw, 1), size(Raw, 2))
         end if
 
         !***********************************************************************
