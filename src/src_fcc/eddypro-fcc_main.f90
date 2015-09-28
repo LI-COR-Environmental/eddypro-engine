@@ -397,6 +397,10 @@ Program EddyproFCC
             !> If necessary, calculate spectral correction factor models
             !> as from Ibrom et al. (2007)
             call CorrectionFactorModel(AuxFile%ex, NumExRecords)
+        else
+            !> If an in-situ method was chosen, and spectral
+            !> assessment file is available, read file
+            if (FCCsetup%SA%in_situ) call ReadSpectralAssessmentFile()
         end if
 
         !> Write number of imported spectra and cospectra on stdout
