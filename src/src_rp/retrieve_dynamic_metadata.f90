@@ -455,7 +455,8 @@ subroutine FixDynamicMetadata()
     do j = 1, E2NumVar
         !> Adjust instrument firms
         select case (DynamicMetadata%instr(j)%model(1:len_trim(DynamicMetadata%instr(j)%model) - 2))
-            case ('li6262','li7000','li7200','li7500','li7500a','li7700')
+            case ('li6262','li7000','li7200','li7200rs','li7500','li7500a',&
+                'li7500rs','li7700')
                 DynamicMetadata%instr(j)%firm = 'licor'
             case ('generic_open_path', 'generic_closed_path', &
                     'open_path_krypton', 'open_path_lyman', &
@@ -505,7 +506,7 @@ subroutine FixDynamicMetadata()
 
         if (DynamicMetadata%instr(j)%category == 'irga') then
             select case (DynamicMetadata%instr(j)%model(1:len_trim(DynamicMetadata%instr(j)%model) - 2))
-                case ('li7700', 'li7500', 'li7500a', 'generic_open_path', &
+                case ('li7700', 'li7500', 'li7500a', 'li7500rs', 'generic_open_path', &
                     'open_path_krypton', 'open_path_lyman')
                     DynamicMetadata%instr(j)%path_type = 'open'
                 case ('none')

@@ -201,7 +201,7 @@ subroutine CompleteEssentials(lEx)
     !> Determine whether gas analysers are open or closed path
     do gas = ico2, igas4
         select case (lEx%instr(gas)%model(1:len_trim(lEx%instr(gas)%model) - 2))
-            case ('li7700', 'li7500', 'li7500a', 'generic_open_path', &
+            case ('li7700', 'li7500', 'li7500a', 'li7500rs', 'generic_open_path', &
                 'open_path_krypton', 'open_path_lyman')
                 lEx%instr(gas)%path_type = 'open'
             case default
