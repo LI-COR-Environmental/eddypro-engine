@@ -307,19 +307,20 @@ program EddyproRP
         deallocate(Raw)
     end if
 
-    !> If running with EXP settings, now that master sonic is known
-    !> also in embedded mode it's time to set the aoa correction
-    if (EddyProProj%run_mode == 'express') then
-        select case(&
-            EddyProProj%master_sonic(1:len_trim(EddyProProj%master_sonic) - 2))
-            case ('r3_50','r3_100', 'r2')
-                RPsetup%calib_aoa = 'nakai_06'
-            case ('wm','wmpro')
-                RPsetup%calib_aoa = 'nakai_12'
-            case default
-                RPsetup%calib_aoa = 'none'
-        end select
-    end if
+    call DetectMasterSonic(Col, NumCol)
+
+    !> Now that master sonic is known (also in embedded mode) it's time
+    !> to set the aoa correction
+
+    !> If AoA selection was set to 'automatic', it's time to retrieve it
+    if (RPsetup%calib_aoa == 'automatic') &
+        call InferAoaMethod(MasterSonic%model(1:len_trim(MasterSonic%model) - 2), &
+            errSwVer)
+    !> If running with EXP settings, override any previous setting and go
+    !> automatic
+    if (EddyProProj%run_mode == 'express') &
+        call InferAoaMethod(MasterSonic%model(1:len_trim(MasterSonic%model) - 2), &
+            errSwVer)
 
     !> Now that metadata are read, can set avrg_len in case user didn't
     if (RPsetup%avrg_len <= 0) RPsetup%avrg_len = nint(Metadata%file_length)

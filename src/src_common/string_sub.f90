@@ -566,7 +566,6 @@ function SwVerFromString(string)
     call char2int(trim(chunk), SwVerFromString%revision, len_trim(chunk))
 end function
 
-
 !***************************************************************************
 !
 ! \brief       Compare software versions and returns .true. if v1 is
@@ -610,6 +609,36 @@ logical function CompareSwVer(v1, v2)
         CompareSwVer = .false.
     end if
 end function CompareSwVer
+
+!***************************************************************************
+!
+! \brief       Compare software versions and returns .true. if v1 is
+!              strictly newer than v2
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+logical function EqualSwVer(v1, v2)
+    use m_common_global_var
+    implicit none
+    !> In/out variables
+    type(SwVerType), intent(in) :: v1
+    type(SwVerType), intent(in) :: v2
+
+
+    !>Compare Major
+    if (v1%major == v2%major .and. &
+        v1%minor == v2%minor .and. &
+        v1%revision == v2%revision) then
+        EqualSwVer = .true.
+    else
+        EqualSwVer = .false.
+    end if
+end function EqualSwVer
 
 !***************************************************************************
 !

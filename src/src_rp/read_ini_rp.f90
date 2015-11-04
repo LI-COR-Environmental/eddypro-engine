@@ -208,14 +208,18 @@ subroutine WriteVariablesRP()
     ns%hf_lim = SNTags(45)%value
 
     !> select angle-of-attack calibration option
-    select case (SCTags(12)%value(1:1))
-        case ('0')
-        RPsetup%calib_aoa = 'none'
-        case ('1')
-        RPsetup%calib_aoa = 'nakai_12'
-        case ('2')
-        RPsetup%calib_aoa = 'nakai_06'
-    end select
+    if (nint(SNTags(290)%value) < 0) then
+        RPsetup%calib_aoa = 'automatic'
+    else
+        select case (nint(SNTags(290)%value))
+            case (1)
+                RPsetup%calib_aoa = 'nakai_12'
+            case (2)
+                RPsetup%calib_aoa = 'nakai_06'
+            case default
+                RPsetup%calib_aoa = 'none'
+        end select
+    end if
 
     !> Cross-wind correction
     RPsetup%calib_cw = SCTags(13)%value(1:1) == '1'

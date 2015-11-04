@@ -114,6 +114,7 @@ module m_rp_global_var
     type(CalibType), allocatable :: Calib(:)
     type(CalibType), allocatable :: tmpCalib(:)
     type(tsDriftsType), allocatable :: tsDrifts(:)
+    type(InstrumentType) :: MasterSonic
 
     !> Flux related variables
     type (RHOType)  :: RHO
@@ -436,7 +437,8 @@ module m_rp_global_var
          SNTags(281)%Label  / 'ru_meth'            / &
          SNTags(282)%Label  / 'ru_its_meth'        / &
          SNTags(283)%Label  / 'ru_its_sec_factor'  / &
-         SNTags(284)%Label  / 'ru_tlag_max'        /
+         SNTags(284)%Label  / 'ru_tlag_max'        / &
+         SNTags(290)%Label  / 'flow_distortion'    /
 
     data SNTags(300)%Label  / 'drift_method'           / &
          SNTags(301)%Label  / 'drift_dir_co2_0'        / &
@@ -509,7 +511,7 @@ module m_rp_global_var
          SCTags(9)%Label /  'test_tl'      / &
          SCTags(10)%Label / 'test_aa'      / &
          SCTags(11)%Label / 'test_ns'      / &
-         SCTags(12)%Label / 'flow_distortion'  / &
+!         SCTags(12)%Label / 'flow_distortion'  / &
          SCTags(13)%Label / 'cross_wind'       / &
          SCTags(14)%Label / 'detrend_meth'     / &
          SCTags(15)%Label / 'rot_meth'         / &
@@ -549,22 +551,22 @@ module m_rp_global_var
          SCTags(49)%Label / 'pf_start_date' / &
          SCTags(50)%Label / 'pf_end_date' / &
          SCTags(51)%Label / 'out_bin_og'  / &
-         SCTags(52)%Label / 'out_ghg_eu'  / &      !< no longer used
+!         SCTags(52)%Label / 'out_ghg_eu'  / &      !< no longer used
          SCTags(53)%Label / 'out_amflux'  / &
-         SCTags(54)%Label / 'out_rich'    / &      !< no longer used
-         SCTags(55)%Label / 'to_mixratio' / &      !< no longer used
+!         SCTags(54)%Label / 'out_rich'    / &      !< no longer used
+!         SCTags(55)%Label / 'to_mixratio' / &      !< no longer used
          SCTags(56)%Label / 'pf_mode'     / &
          SCTags(57)%Label / 'pf_file'     / &
          SCTags(58)%Label / 'biom_use_native_header' / &
-         SCTags(59)%Label / 'biom_var_string'  / &   !< no longer used
-         SCTags(60)%Label / 'biom_unit_string' / &   !< no longer used
+!         SCTags(59)%Label / 'biom_var_string'  / &   !< no longer used
+!         SCTags(60)%Label / 'biom_unit_string' / &   !< no longer used
          SCTags(61)%Label / 'biom_separator'   / &
          SCTags(62)%Label / 'biom_tstamp_ref'  / &
          SCTags(63)%Label / 'filter_sr'        / &
          SCTags(64)%Label / 'filter_al'        / &
          SCTags(65)%Label / 'bu_corr'          / &
          SCTags(66)%Label / 'bu_multi'         / &
-         SCTags(67)%Label / 'qc_meth'          / &   !< no longer used
+!         SCTags(67)%Label / 'qc_meth'          / &   !< no longer used
          SCTags(68)%Label / 'out_raw_1'        / &
          SCTags(69)%Label / 'out_raw_2'        / &
          SCTags(70)%Label / 'out_raw_3'        / &
@@ -583,7 +585,7 @@ module m_rp_global_var
          SCTags(83)%Label / 'out_raw_t_air'    / &
          SCTags(84)%Label / 'out_raw_p_air'    / &
          SCTags(85)%Label / 'out_qc_details'   / &
-         SCTags(86)%Label / 'out_biomet'       / &  !< no longer used
+!         SCTags(86)%Label / 'out_biomet'       / &  !< no longer used
          SCTags(87)%Label / 'power_of_two'     / &
          SCTags(88)%Label / 'pf_fix'           / &
          SCTags(89)%Label / 'use_geo_north'    / &

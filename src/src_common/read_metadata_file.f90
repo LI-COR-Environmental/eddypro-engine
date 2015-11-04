@@ -211,7 +211,6 @@ subroutine WriteEddyProMetadataVariables(LocCol, printout)
             else
                 Instr(i)%sw_ver = errSwVer
             end if
-
             Instr(i)%model = ACTags(init_ac_instr + i*leap_ac_instr + 2)%value &
                 (1:len_trim(ACTags(init_ac_instr + i*leap_ac_instr + 2)%value))
             Instr(i)%height = dble(ANTags(init_an_instr + i*leap_an_instr)%value)
