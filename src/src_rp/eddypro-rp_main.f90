@@ -173,12 +173,12 @@ program EddyproRP
     !****** INITIALIZATION PART COMMON TO ALL SW COMPONENTS ********************
     !***************************************************************************
     !***************************************************************************
-
     write(*, '(a)') ''
     write(*, '(a)') ' *******************'
     write(*, '(a)') '  Executing EddyPro '
     write(*, '(a)') ' *******************'
     write(*, '(a)') ''
+
 
     app = rp_app
 
@@ -311,16 +311,14 @@ program EddyproRP
 
     !> Now that master sonic is known (also in embedded mode) it's time
     !> to set the aoa correction
-
     !> If AoA selection was set to 'automatic', it's time to retrieve it
     if (RPsetup%calib_aoa == 'automatic') &
-        call InferAoaMethod(MasterSonic%model(1:len_trim(MasterSonic%model) - 2), &
-            errSwVer)
+        call InferAoaMethod(MasterSonic)
+
     !> If running with EXP settings, override any previous setting and go
     !> automatic
     if (EddyProProj%run_mode == 'express') &
-        call InferAoaMethod(MasterSonic%model(1:len_trim(MasterSonic%model) - 2), &
-            errSwVer)
+        call InferAoaMethod(MasterSonic)
 
     !> Now that metadata are read, can set avrg_len in case user didn't
     if (RPsetup%avrg_len <= 0) RPsetup%avrg_len = nint(Metadata%file_length)

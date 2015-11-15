@@ -307,6 +307,7 @@ module m_typedef
         character(32) :: firm
         character(32) :: model
         character(32) :: category
+        character(32) :: sw_ver_string
         real(kind = dbl) :: height
         real(kind = dbl) :: vpath_length
         real(kind = dbl) :: hpath_length

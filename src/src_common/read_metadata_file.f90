@@ -205,12 +205,6 @@ subroutine WriteEddyProMetadataVariables(LocCol, printout)
             Instr(i)%firm = ACTags(init_ac_instr + i*leap_ac_instr)%value &
                 (1:len_trim(ACTags(init_ac_instr + i*leap_ac_instr)%value))
 
-            if (len_trim(ACTags(init_ac_instr + i*leap_ac_instr + 1)%value) > 0) then
-                Instr(i)%sw_ver = &
-                    SwVerFromString(trim(ACTags(init_ac_instr + i*leap_ac_instr + 1)%value))
-            else
-                Instr(i)%sw_ver = errSwVer
-            end if
             Instr(i)%model = ACTags(init_ac_instr + i*leap_ac_instr + 2)%value &
                 (1:len_trim(ACTags(init_ac_instr + i*leap_ac_instr + 2)%value))
             Instr(i)%height = dble(ANTags(init_an_instr + i*leap_an_instr)%value)
@@ -266,6 +260,19 @@ subroutine WriteEddyProMetadataVariables(LocCol, printout)
                 case('gill', 'metek', 'young', 'csi', 'other_sonic')
                     Instr(i)%category = 'sonic'
             end select
+            !> Instrument software version
+            Instr(i)%sw_ver_string = 'none'
+            if (len_trim(ACTags(init_ac_instr + i*leap_ac_instr + 1)%value) > 0) &
+                Instr(i)%sw_ver_string = &
+                    trim(ACTags(init_ac_instr + i*leap_ac_instr + 1)%value)
+
+            if (Instr(i)%category == 'irga' &
+                .and. Instr(i)%sw_ver_string /= 'none') then
+                Instr(i)%sw_ver = SwVerFromString(Instr(i)%sw_ver_string)
+            else
+                Instr(i)%sw_ver = errSwVer
+            end if
+
             !> Retrieve absolute sensor separations (from reference sonic)
             Instr(i)%nsep = dble(ANTags(init_an_instr &
                 + i*leap_an_instr + 2)%value) * 1d-2 !< in meters

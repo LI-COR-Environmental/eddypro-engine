@@ -30,29 +30,31 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine InferAoaMethod(SonicModel, SwVer)
+subroutine InferAoaMethod(mSonic)
     use m_rp_global_var
     implicit none
     !> in/out variables
-    character(*), intent(in) :: SonicModel
-    type(SwVerType), intent(in) :: SwVer
+    type(InstrumentType), intent(inout) :: mSonic
     include '../src_common/interfaces_1.inc'
+    character(len(mSonic%sw_ver_string)), external :: replace
+    type(SwVerType) :: SwVer
 
-
-    if (EqualSwVer(SwVer, errSwVer)) then
-        !> AoA selection based only on sonic model
-        select case(SonicModel)
-            case ('r3_50','r3_100', 'r2')
-                RPsetup%calib_aoa = 'nakai_06'
-            case ('wm','wmpro')
+    !> AoA selection based only on sonic model
+    select case(mSonic%model)
+        case ('r3_50','r3_100', 'r2')
+            RPsetup%calib_aoa = 'nakai_06'
+        case ('wm','wmpro')
+            !>Replace dash with dot if the case
+            mSonic%sw_ver_string = replace(mSonic%sw_ver_string, &
+                '-', '.', len(mSonic%sw_ver_string))
+            !>Build SwVer object from string
+            SwVer = SwVerFromString(mSonic%sw_ver_string)
+            if (SwVer%minor < 700) then
                 RPsetup%calib_aoa = 'nakai_12'
-            case default
+            else
                 RPsetup%calib_aoa = 'none'
-        end select
-
-    else
-        !> Insert here handling of AoA selection based
-        !> on sonic's firmware version
-
-    end if
+            end if
+         case default
+            RPsetup%calib_aoa = 'none'
+    end select
 end subroutine InferAoaMethod

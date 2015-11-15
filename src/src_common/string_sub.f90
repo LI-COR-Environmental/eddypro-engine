@@ -805,14 +805,19 @@ integer function SplitCount(string, delimiter, exclude, caseSensitive) result(cn
     cnt = 0
     do
         del = index(lstring, delimiter)
-        if (del > 0 .and. (len(trim(lstring)) >= del)) then
+        if (del == 1) then
+            lstring = lstring(2: len_trim(lstring))
+            cycle
+        end if
+        if (del > 1 .and. (len_trim(lstring) >= del)) then
             item = lstring(1:del)
             cnt = cnt + 1
             if (len(lexclude) > 0 .and. &
                 index(item, lexclude) /= 0) cnt = cnt - 1
-            lstring = lstring(del+1: len(lstring))
+            lstring = lstring(del+1: len_trim(lstring))
         else
-            if ((len(trim(lstring)) > del+1)) then
+            if (len_trim(lstring) > 0) then
+                item = trim(lstring)
                 cnt = cnt + 1
                 if (len(lexclude) > 0 .and. &
                     index(item, lexclude) /= 0) cnt = cnt - 1
@@ -820,7 +825,6 @@ integer function SplitCount(string, delimiter, exclude, caseSensitive) result(cn
             exit
         end if
     end do
-
 end function SplitCount
 
 !***************************************************************************
