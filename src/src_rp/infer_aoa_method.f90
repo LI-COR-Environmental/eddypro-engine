@@ -49,7 +49,7 @@ subroutine InferAoaMethod(mSonic)
                 '-', '.', len(mSonic%sw_ver_string))
             !>Build SwVer object from string
             SwVer = SwVerFromString(mSonic%sw_ver_string)
-            if (SwVer%minor < 700) then
+            if (SwVer%major == 2329 .and. SwVer%minor < 700) then
                 RPsetup%calib_aoa = 'nakai_12'
             else
                 RPsetup%calib_aoa = 'none'

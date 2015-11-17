@@ -179,7 +179,6 @@ program EddyproRP
     write(*, '(a)') ' *******************'
     write(*, '(a)') ''
 
-
     app = rp_app
 
     !> Initialize environment
