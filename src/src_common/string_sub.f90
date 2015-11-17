@@ -553,16 +553,37 @@ function SwVerFromString(string)
     type(SwVerType) :: SwVerFromString
     !> Local variables
     character(4) :: chunk
+    logical, external :: is_not_numeric
+    integer, external :: CountCharInString
 
+
+    if (CountCharInString(string, '.') /= 2) then
+        SwVerFromString = errSwVer
+        return
+    end if
 
     !> Major version
     chunk = string(1:index(string, '.')-1)
+    if (is_not_numeric(chunk)) then
+        SwVerFromString = errSwVer
+        return
+    end if
     call char2int(trim(chunk), SwVerFromString%major, len_trim(chunk))
+
     !> Minor version
     chunk = string(index(string, '.')+1: index(string, '.', .true.)-1)
+    if (is_not_numeric(chunk)) then
+        SwVerFromString = errSwVer
+        return
+    end if
     call char2int(trim(chunk), SwVerFromString%minor, len_trim(chunk))
+
     !> Revision
     chunk = string(index(string, '.', .true.)+1:len(string))
+    if (is_not_numeric(chunk)) then
+        SwVerFromString = errSwVer
+        return
+    end if
     call char2int(trim(chunk), SwVerFromString%revision, len_trim(chunk))
 end function
 
