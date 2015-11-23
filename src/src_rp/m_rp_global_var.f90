@@ -498,7 +498,8 @@ module m_rp_global_var
          SNTags(355)%Label  / 'drift_inv_gas4_5'        / &
          SNTags(356)%Label  / 'drift_inv_gas4_6'        / &
          SNTags(370)%Label  / 'drift_tempsens_b'        / &
-         SNTags(371)%Label  / 'drift_tempsens_c'        /
+         SNTags(371)%Label  / 'drift_tempsens_c'        / &
+         SNTags(372)%Label  / 'tcell_filter_tconst'     /
 
     data SCTags(1)%Label  / 'data_path'    / &
          SCTags(2)%Label  / 'out_path'     / &

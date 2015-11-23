@@ -1699,6 +1699,13 @@ program EddyproRP
             !> (1) native cell temperature, (2) weighted average of ti1 and ti2,
             !> (3) either ti1 or ti2 depending on availability
             call GenerateTcell(E2Set, size(E2Set, 1), size(E2Set, 2))
+
+            !> Filter Tcell to simulate slower response temperature measurement
+            !> for conversion to mixing ratio
+            if (RPsetup%tcell_filter_tconst /= 0) &
+            call CRA(E2Set, size(E2Set, 1), size(E2Set, 2), Metadata%ac_freq, &
+                RPsetup%tcell_filter_tconst, tc)
+
         end if
 
         !> Now that variables have been properly assigned, can initialize

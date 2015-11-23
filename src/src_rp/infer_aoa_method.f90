@@ -40,7 +40,7 @@ subroutine InferAoaMethod(mSonic)
     type(SwVerType) :: SwVer
 
     !> AoA selection based only on sonic model
-    select case(mSonic%model)
+    select case(mSonic%model(1:len_trim(mSonic%model) - 2))
         case ('r3_50','r3_100', 'r2')
             RPsetup%calib_aoa = 'nakai_06'
         case ('wm','wmpro')

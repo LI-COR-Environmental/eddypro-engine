@@ -834,6 +834,7 @@ module m_typedef
     end type RUsetupType
 
     type :: RPsetupType
+        integer :: tcell_filter_tconst
         integer :: Tconst
         integer :: nspec
         integer :: avrg_len

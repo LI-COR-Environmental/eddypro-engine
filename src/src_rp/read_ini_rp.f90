@@ -443,6 +443,8 @@ subroutine WriteVariablesRP()
     !> number of frequency bins
     Meth%spec%nbins = nint(SNTags(48)%value)
 
+    RPsetup%tcell_filter_tconst = nint(SNTags(372)%value)
+
     !> max acceptable lack of data lines in a raw file
     RPsetup%max_lack = SNTags(49)%value
 
