@@ -307,6 +307,7 @@ module m_typedef
         character(32) :: firm
         character(32) :: model
         character(32) :: category
+        character(32) :: sw_ver_string
         real(kind = dbl) :: height
         real(kind = dbl) :: vpath_length
         real(kind = dbl) :: hpath_length
@@ -833,6 +834,7 @@ module m_typedef
     end type RUsetupType
 
     type :: RPsetupType
+        integer :: tcell_filter_tconst
         integer :: Tconst
         integer :: nspec
         integer :: avrg_len
