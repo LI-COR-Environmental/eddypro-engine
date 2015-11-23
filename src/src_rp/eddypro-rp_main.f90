@@ -1702,10 +1702,9 @@ program EddyproRP
 
             !> Filter Tcell to simulate slower response temperature measurement
             !> for conversion to mixing ratio
-            if (RPsetup%tcell_filter_tconst /= 0) &
-            call CRA(E2Set, size(E2Set, 1), size(E2Set, 2), Metadata%ac_freq, &
-                RPsetup%tcell_filter_tconst, tc)
-
+            !if (RPsetup%tcell_filter_tconst /= 0) &
+            !call CRA(E2Set, size(E2Set, 1), size(E2Set, 2), Metadata%ac_freq, &
+            !    RPsetup%tcell_filter_tconst, tc)
         end if
 
         !> Now that variables have been properly assigned, can initialize
