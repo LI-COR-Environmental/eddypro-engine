@@ -30,6 +30,9 @@
 		<ExtraCommands>
 			<Add before="current_date_and_version_as_parameters.bat" />
 		</ExtraCommands>
+		<Unit filename="../src/src_common/CRA.f90">
+			<Option weight="3" />
+		</Unit>
 		<Unit filename="../src/src_common/basic_stats.f90">
 			<Option weight="3" />
 		</Unit>

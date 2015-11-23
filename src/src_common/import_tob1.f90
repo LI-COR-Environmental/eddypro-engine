@@ -217,7 +217,7 @@ subroutine ImportTOB1(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nrow, nco
     end select
 
     !> Check if most data were imported correctly
-!    repeat = .false.
+    repeat = .false.
 !    if (N /= 0) then
 !        if (.not. allocated(mask)) allocate(mask(N))
 !        do j = 1, NumCol
