@@ -36,7 +36,6 @@ subroutine InferAoaMethod(mSonic)
     !> in/out variables
     type(InstrumentType), intent(inout) :: mSonic
     include '../src_common/interfaces_1.inc'
-    character(len(mSonic%sw_ver_string)), external :: replace
     type(SwVerType) :: SwVer
 
     !> AoA selection based only on sonic model
@@ -44,9 +43,6 @@ subroutine InferAoaMethod(mSonic)
         case ('r3_50','r3_100', 'r2')
             RPsetup%calib_aoa = 'nakai_06'
         case ('wm','wmpro')
-            !>Replace dash with dot if the case
-            mSonic%sw_ver_string = replace(mSonic%sw_ver_string, &
-                '-', '.', len(mSonic%sw_ver_string))
             !>Build SwVer object from string
             SwVer = SwVerFromString(mSonic%sw_ver_string)
             if (SwVer%major == 2329 .and. SwVer%minor < 700) then

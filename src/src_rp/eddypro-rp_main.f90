@@ -173,7 +173,6 @@ program EddyproRP
     !****** INITIALIZATION PART COMMON TO ALL SW COMPONENTS ********************
     !***************************************************************************
     !***************************************************************************
-
     write(*, '(a)') ''
     write(*, '(a)') ' *******************'
     write(*, '(a)') '  Executing EddyPro '
@@ -2122,13 +2121,12 @@ program EddyproRP
 !            elseif (E2Col(h2o)%instr%sw_ver /= errSwVer) then
 !                Metadata%logger_swver = E2Col(h2o)%instr%sw_ver
 !            end if
-
             if (.not. EddyProProj%fcc_follows) then
                 !> Low-pass and high-pass spectral correction factors
                 call BandPassSpectralCorrections(E2Col(u)%Instr%height, &
                     Metadata%d, E2Col(u:gas4)%present, Ambient%WS, Ambient%Ta, &
                     Ambient%zL, Metadata%ac_freq, RPsetup%avrg_len, &
-                    E2Col(co2)%instr%sw_ver, Meth%det, &
+                    Metadata%logger_swver, Meth%det, &
                     RPsetup%Tconst, .true., E2Col(u:GHGNumVar)%instr, 1)
 
                 !> Calculate fluxes at Level 1

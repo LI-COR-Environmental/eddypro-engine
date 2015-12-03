@@ -81,6 +81,7 @@ subroutine WriteEddyProMetadataVariables(LocCol, printout)
     integer :: i = 0
     integer :: j = 0
     include 'interfaces.inc'
+    character(32), external :: replace
 
 
     if (len_trim(ACTags(1)%value) > 0) then
@@ -261,17 +262,18 @@ subroutine WriteEddyProMetadataVariables(LocCol, printout)
                     Instr(i)%category = 'sonic'
             end select
             !> Instrument software version
-            Instr(i)%sw_ver_string = 'none'
             if (len_trim(ACTags(init_ac_instr + i*leap_ac_instr + 1)%value) > 0) &
                 Instr(i)%sw_ver_string = &
                     trim(ACTags(init_ac_instr + i*leap_ac_instr + 1)%value)
 
-            if (Instr(i)%category == 'irga' &
-                .and. Instr(i)%sw_ver_string /= 'none') then
-                Instr(i)%sw_ver = SwVerFromString(Instr(i)%sw_ver_string)
-            else
-                Instr(i)%sw_ver = errSwVer
-            end if
+            !>Replace dash or underscore with dot if the case
+            Instr(i)%sw_ver_string = replace(Instr(i)%sw_ver_string, '-', '.', &
+                len(Instr(i)%sw_ver_string))
+            Instr(i)%sw_ver_string = replace(Instr(i)%sw_ver_string, '_', '.', &
+                len(Instr(i)%sw_ver_string))
+
+            !> Create SwVer object from sw version string
+            Instr(i)%sw_ver = SwVerFromString(Instr(i)%sw_ver_string)
 
             !> Retrieve absolute sensor separations (from reference sonic)
             Instr(i)%nsep = dble(ANTags(init_an_instr &

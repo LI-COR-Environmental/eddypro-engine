@@ -557,6 +557,12 @@ function SwVerFromString(string)
     integer, external :: CountCharInString
 
 
+    !> If string is empty, return error software version
+    if (len_trim(string) == 0) then
+        SwVerFromString = errSwVer
+        return
+    end if
+
     if (CountCharInString(string, '.') /= 2) then
         SwVerFromString = errSwVer
         return
