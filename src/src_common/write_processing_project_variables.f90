@@ -197,6 +197,14 @@ subroutine WriteProcessingProjectVariables()
         end if
     end if
 
+    !> If selected embedded biomet without GHG files (only possible via non-GUI
+    !> file edit), set biomet to none.
+    if (EddyProProj%biomet_data == 'embedded' &
+        .and. EddyProProj%ftype /= 'licor_ghg') then
+        call ExceptionHandler(93)
+        EddyProProj%biomet_data = 'none'
+    end if
+
     !> select whether to binned/full spectra files are available
     !> for current dataset
     EddyProProj%binned_spec_avail = EPPrjCTags(44)%value(1:1) == '1'

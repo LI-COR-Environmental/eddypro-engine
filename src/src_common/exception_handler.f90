@@ -339,5 +339,8 @@ subroutine ExceptionHandler(error_code)
         case(92)
             write(*,*) ' Error(92)> Occurred while writing passive gases ensemble spectra on output file.'
             write(*,*) ' Error(92)> File not created.'
+        case(93)
+            write(*,*) ' Error(93)> Embedded biomet selected, but not processing GHG files. This is not possible.'
+            write(*,*) ' Error(93)> EddyPro will proceed without using biomet data.'
     end select
 end subroutine ExceptionHandler
