@@ -162,6 +162,7 @@ subroutine ImportTOB1(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nrow, nco
                 !> If data line is good, copy into TmpfRaw
                 N = N + 1
                 TmpfRaw(N, :) = Dataline(:)
+
                 !> If only weird values were read, exit loop
                 if(maxval(abs(TmpfRaw(N, 1:NumCol))) < 1e-15) exit record_loop
             end do record_loop
@@ -217,20 +218,21 @@ subroutine ImportTOB1(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nrow, nco
 
     !> Check if most data were imported correctly
     repeat = .false.
-    if (N /= 0) then
-        if (.not. allocated(mask)) allocate(mask(N))
-        do j = 1, NumCol
-            if (LocCol(j)%var /= 'ignore' .and. LocCol(j)%var /= 'not_numeric') then
-                mask(1:N) = abs(TmpfRaw(1:N, j)) < 1d6
-                if (count(mask) < N * 7d-1) then
-                    repeat = .true.
-                    if (allocated(mask)) deallocate(mask)
-                    exit
-                end if
-            end if
-        end do
-        if (allocated(mask)) deallocate(mask)
-    end if
+!    if (N /= 0) then
+!        if (.not. allocated(mask)) allocate(mask(N))
+!        do j = 1, NumCol
+!            if (LocCol(j)%var /= 'ignore' .and. LocCol(j)%var /= 'not_numeric') then
+!                mask(1:N) = abs(TmpfRaw(1:N, j)) < 1d6
+!                if (count(mask) < N * 7d-1) then
+!                    repeat = .true.
+!                    if (allocated(mask)) deallocate(mask)
+!                    exit
+!                end if
+!            end if
+!        end do
+!        if (allocated(mask)) deallocate(mask)
+!    end if
+
 
     !> If a column was found with weird values, reads the file again with another chunk size
     if(repeat) then

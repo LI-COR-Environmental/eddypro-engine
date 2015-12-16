@@ -38,6 +38,8 @@ write_out_ameriflux_rp.f90 \
 spectral_analysis.f90 \
 init_biomet_out.f90 \
 aoa_cal_nakai_2012.f90 \
+infer_aoa_method.f90 \
+detect_master_sonic.f90 \
 write_out_planar_fit.f90 \
 statistical_screening.f90 \
 assess_daytime.f90 \
@@ -134,6 +136,7 @@ write_out_stats.f90 \
 matrix_inversion.f90 \
 define_all_var_set.f90 \
 bpcf_only_lowfrequency_correction.f90 \
+bpcf_li7550_analog_filters.f90 \
 median.f90 \
 define_relative_separations.f90 \
 change_24_into_00.f90 \
@@ -229,6 +232,8 @@ write_out_ameriflux_rp.o \
 spectral_analysis.o \
 init_biomet_out.o \
 aoa_cal_nakai_2012.o \
+infer_aoa_method.o \
+detect_master_sonic.o \
 write_out_planar_fit.o \
 statistical_screening.o \
 assess_daytime.o \
@@ -325,6 +330,7 @@ write_out_stats.o \
 matrix_inversion.o \
 define_all_var_set.o \
 bpcf_only_lowfrequency_correction.o \
+bpcf_li7550_analog_filters.o \
 median.o \
 define_relative_separations.o \
 change_24_into_00.o \
@@ -607,6 +613,12 @@ m_methane_tables.o: \
 aoa_cal_nakai_2012.o: \
     aoa_cal_nakai_2012.f90 \
     m_rp_global_var.o
+infer_aoa_method.o: \
+    infer_aoa_method.f90 \
+    m_rp_global_var.o
+detect_master_sonic.o: \
+    detect_master_sonic.f90 \
+    m_rp_global_var.o
 cross_wind_corr.o: \
     cross_wind_corr.f90 \
     m_common_global_var.o
@@ -654,6 +666,9 @@ test_amp_res_drop_out.o: \
     m_rp_global_var.o
 bpcf_only_lowfrequency_correction.o: \
     bpcf_only_lowfrequency_correction.f90 \
+    m_common_global_var.o
+bpcf_li7550_analog_filters.o: \
+    bpcf_li7550_analog_filters.f90 \
     m_common_global_var.o
 median.o: \
     median.f90 \
@@ -982,7 +997,6 @@ planar_fit_aux_params.o: \
     m_common_global_var.o
 configure_for_express.o: \
     configure_for_express.f90 \
->>>>>>> devel:prj/Makefile_rp_mac
     m_rp_global_var.o
 exception_handler.o: \
     exception_handler.f90

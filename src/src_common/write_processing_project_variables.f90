@@ -267,6 +267,19 @@ subroutine WriteProcessingProjectVariables()
             EddyProProj%hf_meth_in_situ = .false.
     end select
 
+    !> select whether to correct for LI-7550-related attenuations
+    !> Relevant only for GHG files and logger software version < 7.7.0
+    !>  Block-averaging
+    EddyProProj%hf_correct_ghg_ba = EPPrjCTags(46)%value(1:1) == '1'
+    !>  ZOH
+    EddyProProj%hf_correct_ghg_zoh = EPPrjCTags(47)%value(1:1) == '1'
+
+    if (EddyProProj%ftype /= 'licor_ghg') then
+        EddyProProj%hf_correct_ghg_ba = .false.
+        EddyProProj%hf_correct_ghg_zoh = .false.
+    end if
+    EddyProProj%sonic_output_rate = nint(EPPrjNTags(19)%value)
+
     !> select whether to fill gaps with error codes
     EddyProProj%make_dataset = EPPrjCTags(24)%value(1:1) == '1'
 

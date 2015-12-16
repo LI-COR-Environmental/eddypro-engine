@@ -44,6 +44,10 @@ subroutine BiometRetrieveEmbeddedData(proceed, printout)
     !> valid biomet record)
     if (printout) write(*,'(a)') '  Retrieving biomet data..'
 
+    !> Initialize biomet data to error
+    if (allocated(bAggr)) bAggr = error
+    if (allocated(bAggrFluxnet)) bAggrFluxnet = error
+
     if (proceed) then
         if (printout) write(LogInteger, '(i3)') nbRecs
         if (printout) write(*, '(a)') '   ' // trim(adjustl(LogInteger)) &

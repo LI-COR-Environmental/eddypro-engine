@@ -200,7 +200,7 @@ module m_index_parameters
     integer, parameter ::     ufnet_b = 128
     integer, parameter ::     uaflx  = 129
     integer, parameter ::     uex    = 130
-    integer, parameter ::     uslow  = 131
+    integer, parameter ::     ubiomet  = 131
 
     integer, parameter :: uout  = 142
     integer, parameter :: upf   = 143

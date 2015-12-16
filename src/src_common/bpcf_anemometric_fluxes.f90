@@ -31,8 +31,9 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine BPCF_AnemometricFluxes(measuring_height, displ_height, loc_var_present, LocInstr, wind_speed, t_air, zL, &
-    ac_frequency, avrg_length, detrending_time_constant, detrending_method, printout)
+subroutine BPCF_AnemometricFluxes(measuring_height, displ_height, loc_var_present, &
+        LocInstr, wind_speed, t_air, zL, ac_frequency, avrg_length, &
+        detrending_time_constant, detrending_method, printout)
     use m_common_global_var
     implicit none
     !> in/out variables
@@ -73,13 +74,14 @@ subroutine BPCF_AnemometricFluxes(measuring_height, displ_height, loc_var_presen
 
     if (EddyProProj%lf_meth == 'analytic') then
         !> Add analytic high-pass transfer functions
-        if (printout) write(*,'(a)') '   High-pass correction for anemometric fluxes. Method: Moncrieff et al. (2004)..'
-        call AnalyticHighPassTransferFunction(nf, size(nf), u, ac_frequency, avrg_length, &
-            detrending_method, detrending_time_constant, BPTF)
-        call AnalyticHighPassTransferFunction(nf, size(nf), w, ac_frequency, avrg_length, &
-            detrending_method, detrending_time_constant, BPTF)
-        call AnalyticHighPassTransferFunction(nf, size(nf), ts, ac_frequency, avrg_length, &
-            detrending_method, detrending_time_constant, BPTF)
+        if (printout) write(*,'(a)') '   High-pass correction for anemometric &
+            &fluxes. Method: Moncrieff et al. (2004)..'
+        call AnalyticHighPassTransferFunction(nf, size(nf), u, ac_frequency, &
+            avrg_length, detrending_method, detrending_time_constant, BPTF)
+        call AnalyticHighPassTransferFunction(nf, size(nf), w, ac_frequency, &
+            avrg_length, detrending_method, detrending_time_constant, BPTF)
+        call AnalyticHighPassTransferFunction(nf, size(nf), ts, ac_frequency, &
+            avrg_length, detrending_method, detrending_time_constant, BPTF)
         if (printout) write(*,'(a)') '   Done.'
     end if
 
@@ -88,10 +90,14 @@ subroutine BPCF_AnemometricFluxes(measuring_height, displ_height, loc_var_presen
 
     if (EddyProProj%hf_meth /= 'none') then
         !> Analytical low-pass transfer function
-        if (printout) write(*,'(a)') '   Low-pass correction for anemometric fluxes. Method: Moncrieff et al. (1997)'
-        call AnalyticLowPassTransferFunction(nf, size(nf),  u, LocInstr, loc_var_present, wind_speed, t_air, BPTF)
-        call AnalyticLowPassTransferFunction(nf, size(nf),  w, LocInstr, loc_var_present, wind_speed, t_air, BPTF)
-        call AnalyticLowPassTransferFunction(nf, size(nf), ts, LocInstr, loc_var_present, wind_speed, t_air, BPTF)
+        if (printout) write(*,'(a)') '   Low-pass correction for anemometric &
+            &fluxes. Method: Moncrieff et al. (1997)..'
+        call AnalyticLowPassTransferFunction(nf, size(nf),  u, LocInstr, &
+            loc_var_present, wind_speed, t_air, BPTF)
+        call AnalyticLowPassTransferFunction(nf, size(nf),  w, LocInstr, &
+            loc_var_present, wind_speed, t_air, BPTF)
+        call AnalyticLowPassTransferFunction(nf, size(nf), ts, LocInstr, &
+            loc_var_present, wind_speed, t_air, BPTF)
         if (printout) write(*,'(a)') '   Done.'
     end if
 
@@ -104,10 +110,4 @@ subroutine BPCF_AnemometricFluxes(measuring_height, displ_height, loc_var_presen
     call SpectralCorrectionFactors(Cospectrum%of(w_ts), ts, nf, nfreq, BPTF)
 end subroutine BPCF_AnemometricFluxes
 
-!    !> Natural frequency array in an artificial freq range
-!    !> f_min = 1 / 2h --> f_max = 20 Hz
-!NEEDS:    integer, parameter :: nfreq = 72000
-!    do i = 1, nfreq
-!        nf(i) = dble(i) / dble(nseconds)
-!    end do
 

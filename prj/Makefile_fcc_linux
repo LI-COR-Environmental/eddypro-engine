@@ -15,6 +15,7 @@ m_methane_tables.f90 \
 bpcf_moncrieff_97.f90 \
 m_numeric_kinds.f90 \
 bpcf_only_lowfrequency_correction.f90 \
+bpcf_li7550_analog_filters.f90 \
 m_typedef.f90 \
 bpcf_read_full_cos_wt.f90 \
 make_dataset.f90 \
@@ -60,6 +61,7 @@ bpcf_aux_subs.f90 \
 bpcf_bandpass_spectral_corrections.f90 \
 bpcf_cospectral_models.f90 \
 write_processing_project_variables.f90 \
+maths_subs.f90 \
 bpcf_fratini_12.f90 
 
 SRCS_f90d2 = \
@@ -100,6 +102,7 @@ m_methane_tables.o \
 bpcf_moncrieff_97.o \
 m_numeric_kinds.o \
 bpcf_only_lowfrequency_correction.o \
+bpcf_li7550_analog_filters.o \
 m_typedef.o \
 bpcf_read_full_cos_wt.o \
 make_dataset.o \
@@ -145,6 +148,7 @@ bpcf_aux_subs.o \
 bpcf_bandpass_spectral_corrections.o \
 bpcf_cospectral_models.o \
 write_processing_project_variables.o \
+maths_subs.o \
 bpcf_fratini_12.o 
 
 OBJS_f90d2 = \
@@ -242,6 +246,9 @@ correction_factor_model.o: \
     m_levenberg_marquardt.o
 bpcf_only_lowfrequency_correction.o: \
     bpcf_only_lowfrequency_correction.f90 \
+    m_common_global_var.o
+bpcf_li7550_analog_filters.o: \
+    bpcf_li7550_analog_filters.f90 \
     m_common_global_var.o
 m_typedef.o: \
     m_typedef.f90 \
@@ -364,6 +371,9 @@ normalize_mean_spectra_cospectra.o: \
     m_fx_global_var_mod.o
 footprint_handle.o: \
     footprint_handle.f90 \
+    m_common_global_var.o
+maths_subs.o: \
+    maths_subs.f90 \
     m_common_global_var.o
 timestamp.o: \
     timestamp.f90 \

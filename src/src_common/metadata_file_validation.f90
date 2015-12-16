@@ -73,8 +73,8 @@ subroutine MetadataFileValidation(LocCol, passed, faulty_col)
                 .and. LocCol(i)%instr%category == 'fast_t_sensor') then
                 select case &
                     (LocCol(i)%instr%model(1:len_trim(LocCol(i)%instr%model)-2))
-                    case ('li7500', 'li7500a', 'li7200', 'li7700', &
-                        'li6262', 'li7000')
+                    case ('li7500', 'li7500a', 'li7500rs', 'li7200', 'li7200rs', &
+                        'li7700', 'li6262', 'li7000')
                         passed(1) = .false.
                         passed(25) = .false.
                         faulty_col = i
@@ -231,7 +231,8 @@ subroutine InstrumentValidation(LocInstr, LocCol, passed)
             end select
             !> check model
             select case (LocInstr%model(1:len_trim(LocInstr%model)-2))
-                case ('li7500', 'li7500a', 'li7200', 'li7700', 'li6262', 'li7000')
+                case ('li7500', 'li7500a', 'li7500rs', 'li7200', 'li7200rs', &
+                    'li7700', 'li6262', 'li7000')
                     continue
                 case ('generic_open_path', 'generic_closed_path')
                     if (LocInstr%hpath_length * LocInstr%vpath_length * LocInstr%tau == 0) then
@@ -269,7 +270,7 @@ subroutine InstrumentValidation(LocInstr, LocCol, passed)
             end select
             !> check model
             select case (LocInstr%model(1:len_trim(LocInstr%model)-2))
-                case ('li7200', 'li6262', 'li7000', 'generic_closed_path')
+                case ('li7200', 'li7200rs', 'li6262', 'li7000', 'generic_closed_path')
                     continue
                 case default
                     passed(1) = .false.

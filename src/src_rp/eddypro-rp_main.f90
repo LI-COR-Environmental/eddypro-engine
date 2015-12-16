@@ -165,33 +165,7 @@ program EddyproRP
     real(kind=dbl), external :: LaggedCovarianceNoError
     real (kind = dbl), external :: Poly6
     integer, external :: CreateDir
-
-interface
-    subroutine BandPassSpectralCorrections(measuring_height, displ_height, loc_var_present, wind_speed, t_air, zL, &
-        ac_frequency, avrg_length, detrending_method, detrending_time_constant, printout, LocInstr, &
-        nfull, LocFileList, nrow_full, lEx, LocSetup)
-        use m_common_global_var
-        implicit none
-        real(kind = dbl), intent(in) :: measuring_height
-        real(kind = dbl), intent(in) :: displ_height
-        logical, intent(in) :: loc_var_present(GHGNumVar)
-        type(InstrumentType), intent(in) :: LocInstr(GHGNumVar)
-        real(kind = dbl), intent(in) :: wind_speed
-        real(kind = dbl), intent(in) :: t_air
-        real(kind = dbl), intent(in) :: zL
-        real(kind = dbl), intent(in) :: ac_frequency
-        integer, intent(in) :: avrg_length
-        character(2), intent(in) :: detrending_method
-        integer, intent(in) :: detrending_time_constant
-        logical, intent(in) :: printout
-        integer, intent(in) :: nfull
-        !> Optional variables
-        integer, optional, intent(in) :: nrow_full
-        type(FileListType), optional, intent(in) :: LocFileList(nfull)
-        type(ExType), optional, intent(in) :: lEx
-        type(FCCsetupType), optional, intent(in) :: LocSetup
-    end subroutine BandPassSpectralCorrections
-end interface
+    include '../src_common/interfaces.inc'
 
 
     !***************************************************************************
@@ -199,7 +173,6 @@ end interface
     !****** INITIALIZATION PART COMMON TO ALL SW COMPONENTS ********************
     !***************************************************************************
     !***************************************************************************
-
     write(*, '(a)') ''
     write(*, '(a)') ' *******************'
     write(*, '(a)') '  Executing EddyPro '
@@ -333,19 +306,18 @@ end interface
         deallocate(Raw)
     end if
 
-    !> If running with EXP settings, now that master sonic is known
-    !> also in embedded mode it's time to set the aoa correction
-    if (EddyProProj%run_mode == 'express') then
-        select case(&
-            EddyProProj%master_sonic(1:len_trim(EddyProProj%master_sonic) - 2))
-            case ('r3_50','r3_100', 'r2')
-                RPsetup%calib_aoa = 'nakai_06'
-            case ('wm','wmpro')
-                RPsetup%calib_aoa = 'nakai_12'
-            case default
-                RPsetup%calib_aoa = 'none'
-        end select
-    end if
+    call DetectMasterSonic(Col, NumCol)
+
+    !> Now that master sonic is known (also in embedded mode) it's time
+    !> to set the aoa correction
+    !> If AoA selection was set to 'automatic', it's time to retrieve it
+    if (RPsetup%calib_aoa == 'automatic') &
+        call InferAoaMethod(MasterSonic)
+
+    !> If running with EXP settings, override any previous setting and go
+    !> automatic
+    if (EddyProProj%run_mode == 'express') &
+        call InferAoaMethod(MasterSonic)
 
     !> Now that metadata are read, can set avrg_len in case user didn't
     if (RPsetup%avrg_len <= 0) RPsetup%avrg_len = nint(Metadata%file_length)
@@ -1353,7 +1325,7 @@ end interface
                 nCalibEvents - latestCleaning, &
                 datetype(0, 0, 0, 3, 0), 'strictly before', dirty)
 
-            !> Cycle ifs file is not relevant to anything
+            !> Cycle if file is not relevant to anything
             if (pcount /= rpStartTimestampIndx &
                 .and. clean <= 0 .and. dirty <= 0) then
                 LatestRawFileIndx = LatestRawFileIndx + 1
@@ -1444,7 +1416,7 @@ end interface
 
     !***************************************************************************
     !***************************************************************************
-    !***************************** ACTUAL RAW DATA PROCESSING ******************
+    !***************************** RAW DATA PROCESSING *************************
     !***************************************************************************
     !***************************************************************************
 
@@ -1529,9 +1501,6 @@ end interface
 
         call WriteDatumFloat(float_doy, char_doy, EddyProProj%err_label)
         call ShrinkString(char_doy)
-!        suffixOutString =  trim(adjustl(RawFileList(NextRawFileIndx)%name)) &
-!                   // ',' // trim(Stats%date) // ',' // trim(Stats%time) &
-!                   // ',' // char_doy(1: index(char_doy, '.')+ 3)
         suffixOutString =  trim(Stats%date) // ',' // trim(Stats%time) &
                    // ',' // char_doy(1: index(char_doy, '.')+ 3)
 
@@ -1634,7 +1603,7 @@ end interface
             !> If drift correction is to be performed with signal strength
             !> proxy, calculate mean refCounts for current period
             if (DriftCorr%method == 'signal_strength') &
-                call ReferenceCounts(Raw, size(Raw, 1), size(Raw, 2))
+                call ReferenceCounts(dble(Raw), size(Raw, 1), size(Raw, 2))
         end if
 
         !***********************************************************************
@@ -1729,6 +1698,12 @@ end interface
             !> (1) native cell temperature, (2) weighted average of ti1 and ti2,
             !> (3) either ti1 or ti2 depending on availability
             call GenerateTcell(E2Set, size(E2Set, 1), size(E2Set, 2))
+
+            !> Filter Tcell to simulate slower response temperature measurement
+            !> for conversion to mixing ratio
+            !if (RPsetup%tcell_filter_tconst /= 0) &
+            !call CRA(E2Set, size(E2Set, 1), size(E2Set, 2), Metadata%ac_freq, &
+            !    RPsetup%tcell_filter_tconst, tc)
         end if
 
         !> Now that variables have been properly assigned, can initialize
@@ -2137,11 +2112,21 @@ end interface
             !> Calculate fluxes at Level 0
             call Fluxes0_rp(.true.)
 
+            !> As of now, still use CO2 analyzer software version as a proxy for
+            !> Logger software version. However, the machinery is in place
+            !> for using logger version from [Station], simply remove the
+            !> following line.
+!            if (E2Col(co2)%instr%sw_ver /= errSwVer) then
+                Metadata%logger_swver = E2Col(co2)%instr%sw_ver
+!            elseif (E2Col(h2o)%instr%sw_ver /= errSwVer) then
+!                Metadata%logger_swver = E2Col(h2o)%instr%sw_ver
+!            end if
             if (.not. EddyProProj%fcc_follows) then
                 !> Low-pass and high-pass spectral correction factors
                 call BandPassSpectralCorrections(E2Col(u)%Instr%height, &
                     Metadata%d, E2Col(u:gas4)%present, Ambient%WS, Ambient%Ta, &
-                    Ambient%zL, Metadata%ac_freq, RPsetup%avrg_len, Meth%det, &
+                    Ambient%zL, Metadata%ac_freq, RPsetup%avrg_len, &
+                    Metadata%logger_swver, Meth%det, &
                     RPsetup%Tconst, .true., E2Col(u:GHGNumVar)%instr, 1)
 
                 !> Calculate fluxes at Level 1
@@ -2235,7 +2220,7 @@ end interface
     close(ufnet_b)
     close(uaflx)
     close(uex)
-    close(uslow)
+    close(ubiomet)
     close(uqc)
 
     !> If no averaging period was performed, return message and cancel tmp files

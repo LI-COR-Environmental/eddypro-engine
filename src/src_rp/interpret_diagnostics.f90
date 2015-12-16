@@ -41,7 +41,7 @@ subroutine InterpretLicorDiagnostics(DiagSet, nrow, ncol)
     integer :: n72
     integer :: n75
     integer :: n77
-    logical, external :: NewerSwVer
+    include '../src_common/interfaces.inc'
 
 
     n72 = 0
@@ -111,7 +111,7 @@ subroutine InterpretLicorDiagnostics(DiagSet, nrow, ncol)
     end do
 
     !> AGC or RSSI (depending on sw version) stored anyway in variable "AGC".
-    if (.not. NewerSwVer(trim(E2Col(co2)%instr%sw_ver), '5.0.3')) then
+    if (.not. CompareSwVer(E2Col(co2)%instr%sw_ver, SwVerFromString('5.3.0'))) then
         do i = 1, nrow
             !> LI-7200
             if (DiagSet(i, diag72) /= error) Diag7200%AGC = Diag7200%AGC + &

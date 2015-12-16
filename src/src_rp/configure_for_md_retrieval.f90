@@ -35,18 +35,18 @@ subroutine ConfigureForMdRetrieval()
 
 
     !> raw data processing methods
-    Meth%tlag   = 'none'
-    Meth%det    = 'ba'
-    Meth%rot    = 'none'
+    Meth%tlag = 'none'
+    Meth%det = 'ba'
+    Meth%rot = 'none'
     Meth%qcflag = 'none'
-    Meth%foot   = 'none'
-    RUsetup%meth    = 'none'
+    Meth%foot = 'none'
+    RUsetup%meth = 'none'
     RPsetup%bu_corr = 'none'
-    RPsetup%calib_aoa       = 'none'
-    RPsetup%bu_multi        = .false.
-    RPsetup%calib_cw        = .false.
+    RPsetup%calib_aoa = 'none'
+    RPsetup%bu_multi = .false.
+    RPsetup%calib_cw = .false.
     RPsetup%filter_by_raw_flags = .false.
-    EddyProProj%use_extmd_file  = .false.
+    EddyProProj%use_extmd_file = .false.
     EddyProProj%biomet_data = 'none'
     EddyProProj%wpl = .false.
     EddyProProj%hf_meth = 'none'

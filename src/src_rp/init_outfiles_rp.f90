@@ -57,7 +57,7 @@ subroutine InitOutFiles_rp()
     integer :: today(3), now(3)
     character(8) :: dum_string
     logical :: proceed
-    logical, external :: NewerSwVer
+    include '../src_common/interfaces.inc'
 
 
     !> Convenient strings
@@ -420,7 +420,7 @@ subroutine InitOutFiles_rp()
 
             !> AGCs and RSSIs for LI-7200 and LI-7500
             if (Diag7200%present) then
-                if(NewerSwVer(trim(E2Col(co2)%instr%sw_ver), '6.0.0')) then
+                if(CompareSwVer(E2Col(co2)%instr%sw_ver, SwVerFromString('6.0.0'))) then
                     call AddDatum(header1,'RSSI_LI-7200', separator)
                     call AddDatum(header2,'mean_value_RSSI_LI-7200', separator)
                     call AddDatum(header3,'[#]', separator)
@@ -431,7 +431,7 @@ subroutine InitOutFiles_rp()
                 end if
             end if
             if (Diag7500%present) then
-                if(NewerSwVer(trim(E2Col(co2)%instr%sw_ver), '6.0.0')) then
+                if(CompareSwVer(E2Col(co2)%instr%sw_ver, SwVerFromString('6.0.0'))) then
                     call AddDatum(header1,'RSSI_LI-7500', separator)
                     call AddDatum(header2,'mean_value_RSSI_LI-7500', separator)
                     call AddDatum(header3,'[#]', separator)
@@ -490,7 +490,7 @@ subroutine InitOutFiles_rp()
                 &statistical_flags,,,,,,,,,,,,spikes,,,,,,,,&
                 &diagnostic_flags_LI-7200,,,,,,,,,&
                 &diagnostic_flags_LI-7500,,,,diagnostic_flags_LI-7700,,,,,,,,,,,,,,,,'
-                if(NewerSwVer(trim(E2Col(co2)%instr%sw_ver), '6.0.0')) then
+                if(CompareSwVer(E2Col(co2)%instr%sw_ver, SwVerFromString('6.0.0'))) then
                     header1 = trim(header1) // 'RSSI_LI-7200,RSSI_LI-7500,variances,,,,,,,,covariances,,,,,'
                 else
                     header1 = trim(header1) // 'AGC_LI-7200,AGC_LI-7500,variances,,,,,,,,covariances,,,,,'
@@ -629,7 +629,9 @@ subroutine InitOutFiles_rp()
             &yaw,pitch,roll,&
             &st_w_u,st_w_ts,st_w_co2,st_w_h2o,st_w_ch4,st_w_' // e2sg(gas4)(1:len_trim(e2sg(gas4))-1) // ',&
             &dt_u,dt_w,dt_ts,&
-            &detrending_method,dentrending_time_constant,latitude,longitude,altitude,file_length,&
+            &detrending_method,dentrending_time_constant,&
+            &logger_swver_major,logger_swver_minor,logger_swver_revision,&
+            &latitude,longitude,altitude,file_length,&
             &averaging_interval,acquisition_frequency,&
             &canopy_height,displacement_height,roughness_length,&
             &master_sonic_manufacturer,master_sonic_model,master_sonic_height,&
@@ -769,48 +771,6 @@ subroutine InitOutFiles_rp()
         !> Write on output file
         write(ufnet_e, '(a)') head2_utf8(1:len_trim(head2_utf8) - 1)
         write(ufnet_e, '(a)') head3_utf8(1:len_trim(head3_utf8) - 1)
-    end if
-
-    !>==========================================================================
-    !>==========================================================================
-    !> FLUXNET BIOMET output
-
-    !> Even if it was selected for output, FLUXNET biomet is not created if there
-    !> are no biomet variables
-    if (nbVars <= 0) EddyProProj%out_fluxnet_biomet = .false.
-
-    if (EddyProProj%out_fluxnet_biomet) then
-        Test_Path = Dir%main_out(1:len_trim(Dir%main_out)) &
-                  // EddyProProj%id(1:len_trim(EddyProProj%id)) &
-                  // FLUXNET_BIOMET_FilePadding // Timestamp_FilePadding // CsvExt
-        dot = index(Test_Path, CsvExt, .true.) - 1
-        FLUXNET_BIOMET_Path = Test_Path(1:dot) // CsvTmpExt
-        open(ufnet_b, file = FLUXNET_BIOMET_Path, &
-            iostat = open_status, encoding = 'utf-8')
-
-        !> Initialize header strings to void
-        call Clearstr(header2)
-        call Clearstr(header3)
-        call Clearstr(head2_utf8)
-        call Clearstr(head3_utf8)
-
-        !> Initial common part
-        call AddDatum(header2,'TIMESTAMP', separator)
-        call AddDatum(header3,'[yyyymmddHHMMSS]', separator)
-
-        !>======================================================================
-        !> Biomet variables
-        do i = 1, nbVars
-            call AddDatum(header2,trim(bVars(i)%fluxnet_label), separator)
-            call AddDatum(header3,trim(bVars(i)%fluxnet_unit_out), separator)
-        end do
-
-        call latin1_to_utf8(header2, head2_utf8)
-        call latin1_to_utf8(header3, head3_utf8)
-
-        !> Write on output file
-        write(ufnet_b, '(a)') head2_utf8(1:len_trim(head2_utf8) - 1)
-        write(ufnet_b, '(a)') head3_utf8(1:len_trim(head3_utf8) - 1)
     end if
 
     !>==========================================================================

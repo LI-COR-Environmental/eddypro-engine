@@ -71,19 +71,22 @@ subroutine BPCF_Ibrom07(measuring_height, displ_height, loc_var_present, wind_sp
         !> Natural frequency array
         nf(1) = 1d0 / nseconds
         do i = 2, nfreq
-            nf(i) = dexp(dlog(nf(1)) + (dlog(10d0)-dlog(nf(1)))/dfloat(nfreq) * dfloat(i))
+            nf(i) = dexp(dlog(nf(1)) + &
+                (dlog(10d0)-dlog(nf(1)))/dfloat(nfreq) * dfloat(i))
         end do
 
         !> Initialize all transfer functions to 1
         call SetTransferFunctionsToValue(BPTF, nfreq, 1d0)
 
         !> Calculate analytic high-pass transfer functions
-        call AnalyticHighPassTransferFunction(nf, size(nf), w, ac_frequency, avrg_length, &
-            detrending_method, detrending_time_constant, BPTF)
+        call AnalyticHighPassTransferFunction(nf, size(nf), w, ac_frequency, &
+            avrg_length, detrending_method, detrending_time_constant, BPTF)
 
         do gas = co2, gas4
-            if (loc_var_present(gas)) call AnalyticHighPassTransferFunction(nf, size(nf), gas, ac_frequency, avrg_length, &
-                detrending_method, detrending_time_constant, BPTF)
+            if (loc_var_present(gas)) &
+                call AnalyticHighPassTransferFunction(nf, size(nf), gas, &
+                    ac_frequency, avrg_length, detrending_method, &
+                    detrending_time_constant, BPTF)
         end do
 
         !> normalized frequency vector, kf
@@ -93,10 +96,14 @@ subroutine BPCF_Ibrom07(measuring_height, displ_height, loc_var_present, wind_sp
         call CospectraMoncrieff97(nf, kf, Cospectrum, zL, nfreq)
 
         !> combined tf (only high-pass analytic)
-        if (loc_var_present(co2))  call BandPassTransferFunction(BPTF, w, co2,  w_co2,  nfreq)
-        if (loc_var_present(h2o))  call BandPassTransferFunction(BPTF, w, h2o,  w_h2o,  nfreq)
-        if (loc_var_present(ch4))  call BandPassTransferFunction(BPTF, w, ch4,  w_ch4,  nfreq)
-        if (loc_var_present(gas4)) call BandPassTransferFunction(BPTF, w, gas4, w_gas4, nfreq)
+        if (loc_var_present(co2))  &
+            call BandPassTransferFunction(BPTF, w, co2,  w_co2,  nfreq)
+        if (loc_var_present(h2o))  &
+            call BandPassTransferFunction(BPTF, w, h2o,  w_h2o,  nfreq)
+        if (loc_var_present(ch4))  &
+            call BandPassTransferFunction(BPTF, w, ch4,  w_ch4,  nfreq)
+        if (loc_var_present(gas4)) &
+            call BandPassTransferFunction(BPTF, w, gas4, w_gas4, nfreq)
 
         !> calculate correction factors
         if(loc_var_present(co2)) &

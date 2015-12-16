@@ -40,7 +40,6 @@ module m_common_global_var
     implicit none
     save
 
-
     !> arrays and files defaults
     integer, parameter :: MaxNLinesIni = 2000
     integer, parameter :: MaxNumAnem = 7
@@ -317,12 +316,14 @@ module m_common_global_var
     character(4) :: indent4 = '    '
     character(1) :: separator = ','
 
+    type(SwVerType), parameter :: &
+        errSwVer = SwVerType(ierror, ierror, ierror)
     type(DateType), parameter :: &
         tsNull= DateType(0, 0, 0, 0, 0)
     type(InstrumentType), parameter :: &
-        NullInstrument = InstrumentType('none', 'none', '0.0.1', 'none', error, error, error, error, &
+        NullInstrument = InstrumentType('none', 'none', 'none', 'none', error, error, error, error, &
         error, error, error, error, error, error, error, error, error, error, 'none', 'none', &
-        'none', 'none', .false., .false.)
+        'none', 'none', .false., .false., errSwVer)
     type(RawFlagType), parameter :: NullRawFlag = RawFlagType(0, error, .false.)
     type(ColType), parameter :: &
         NullCol = Coltype('none', 'none', 'none', 'none', '', '', '', &
@@ -355,11 +356,9 @@ module m_common_global_var
         nullbVar = BiometVarsType(nint(error), nint(error), nint(error), &
             error, error, 'none', 'none', 'none', 'none', 'none', 'none', 'none', &
             'none', 'none', 'none', 'none','none')
-
     type(FootType), parameter :: &
         errFootprint = FootType(error, error, error, error, error, &
             error, error, error)
-
     !> variables from metadata file
     type(RawFlagType)   :: RawFlag(MaxNumRawFlags)
     type(InstrumentType)   :: Instr(MaxNumInstruments)
@@ -396,8 +395,8 @@ module m_common_global_var
     real(kind = dbl) :: UnPar(2) = error
 
     !> tags of the [Project] group of processing.eddypro file
-    integer, parameter :: Npn = 18
-    integer, parameter :: Npc = 45
+    integer, parameter :: Npn = 20
+    integer, parameter :: Npc = 50
     logical :: EPPrjNTagFound(Npn)
     logical :: EPPrjCTagFound(Npc)
     type (Numerical) :: EPPrjNTags(Npn)
@@ -419,7 +418,8 @@ module m_common_global_var
          EPPrjNTags(15)%Label / 'col_diag_75'     / &
          EPPrjNTags(16)%Label / 'col_diag_77'     / &
          EPPrjNTags(17)%Label / 'gas_diff'        / &
-         EPPrjNTags(18)%Label / 'gas_mw'          /
+         EPPrjNTags(18)%Label / 'gas_mw'          / &
+         EPPrjNTags(19)%Label / 'sonic_output_rate' /
 
     data EPPrjCTags(1)%Label / 'sw_version'       / &
          EPPrjCTags(2)%Label / 'ini_version'      / &
@@ -465,7 +465,9 @@ module m_common_global_var
          EPPrjCTags(42)%Label / 'out_biomet'       / &
          EPPrjCTags(43)%Label / 'out_mean_spec'    / &
          EPPrjCTags(44)%Label / 'bin_sp_avail'     / &
-         EPPrjCTags(45)%Label / 'full_sp_avail'    /
+         EPPrjCTags(45)%Label / 'full_sp_avail'    / &
+         EPPrjCTags(46)%Label / 'hf_correct_ghg_ba'  / &
+         EPPrjCTags(47)%Label / 'hf_correct_ghg_zoh' /
 
     !> tags of the metadata file created by GHG software
     integer, parameter :: Nan = 884
@@ -1363,7 +1365,7 @@ module m_common_global_var
          ANTags(883)%Label / 'col_100_max_timelag' / &
          ANTags(884)%Label / 'col_100_flag_threshold' /
 
-    data ACTags(1)%Label   / 'software_version' / ACTags(2)%Label   / 'title' / &
+    data ACTags(1)%Label   / 'logger_sw_version' / ACTags(2)%Label   / 'title' / &
          ACTags(3)%Label   / 'creation_date' / ACTags(4)%Label   / 'start_date' / &
          ACTags(5)%Label   / 'end_date' / ACTags(6)%Label   / 'file_name' / &
          ACTags(7)%Label   / 'data_path' / ACTags(8)%Label   / 'project_notes' / &

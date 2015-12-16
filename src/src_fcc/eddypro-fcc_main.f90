@@ -90,6 +90,7 @@ Program EddyproFCC
     integer, external :: NumberOfFilesInSubperiod
     real(kind = dbl), external :: func
 
+    include '../src_common/interfaces.inc'
 
     !*******************************************************************************
     !*******************************************************************************
@@ -194,6 +195,10 @@ Program EddyproFCC
             FCCsetup%SA%start_time, saStartTimestamp)
         call DateTimeToDateType(FCCsetup%SA%end_date, &
             FCCsetup%SA%end_time, saEndTimestamp)
+
+        !> Spectra hold the filestamp of the end of the period, so increase
+        !> start timestamp by DateStep
+        saStartTimestamp = saStartTimestamp + DateStep
 
         !> Read names of binned (co)spectra files
         call NumberOfFilesInDir(Dir%binned, '.csv', .false., '', &
@@ -392,6 +397,10 @@ Program EddyproFCC
             !> If necessary, calculate spectral correction factor models
             !> as from Ibrom et al. (2007)
             call CorrectionFactorModel(AuxFile%ex, NumExRecords)
+        else
+            !> If an in-situ method was chosen, and spectral
+            !> assessment file is available, read file
+            if (FCCsetup%SA%in_situ) call ReadSpectralAssessmentFile()
         end if
 
         !> Write number of imported spectra and cospectra on stdout
@@ -475,8 +484,8 @@ Program EddyproFCC
         !> Bad pass spectral correction factors
         call BandPassSpectralCorrections(lEx%instr(sonic)%height, &
             lEx%disp_height, lEx%var_present, lEx%WS, lEx%Ta, lEx%zL, &
-            lEx%ac_freq, nint(lEx%avrg_length), lEx%det_meth, &
-            nint(lEx%det_timec), .false., AuxInstrument, &
+            lEx%ac_freq, nint(lEx%avrg_length), lEx%logger_swver, &
+            lEx%det_meth, nint(lEx%det_timec), .false., AuxInstrument, &
             size(FullFileList), FullFileList, nrow_full, lEx, FCCsetup)
 
 

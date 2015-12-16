@@ -535,9 +535,8 @@ subroutine StripConsecutiveChar(string, char)
 end subroutine StripConsecutiveChar
 
 !***************************************************************************
-! \file        src/string_sub.f90
-! \brief       Returns True is software version "ver_new" is
-!              strictly more recent than "ver_old"
+!
+! \brief       Retrieve software version from string
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -546,76 +545,127 @@ end subroutine StripConsecutiveChar
 ! \test
 ! \todo
 !***************************************************************************
-logical function NewerSwVer(sw_ver_new, sw_ver_old)
+function SwVerFromString(string)
+    use m_common_global_var
     implicit none
     !> in/out variables
-    character(*), intent(in) :: sw_ver_new
-    character(*), intent(in) :: sw_ver_old
-    !> local variables
-    integer :: new
-    integer :: old
-    integer :: dot
-    character(8) :: str
-    character(16) :: ver_new
-    character(16) :: ver_old
+    character(*), intent(in) :: string
+    type(SwVerType) :: SwVerFromString
+    !> Local variables
+    character(4) :: chunk
+    logical, external :: is_not_numeric
+    integer, external :: CountCharInString
 
 
-    ver_new = sw_ver_new
-    ver_old = sw_ver_old
-    !> Compare Major version
-    !> New
-    dot = index(ver_new, '.')
-    str = ver_new(1: dot - 1)
-    call char2int(str, new, len_trim(str))
-    !> Old
-    dot = index(ver_old, '.')
-    str = ver_old(1: dot - 1)
-    call char2int(str, old, len_trim(str))
-    !> comparison
-    if (new > old) then
-        NewerSwVer = .true.
-        return
-    elseif (new < old) then
-        NewerSwVer = .False.
+    !> If string is empty, return error software version
+    if (len_trim(string) == 0) then
+        SwVerFromString = errSwVer
         return
     end if
 
-    !> Compare Minor version
-    !> New
-    ver_new = ver_new(dot + 1: len_trim(ver_new))
-    dot = index(ver_new, '.')
-    str = ver_new(1: dot - 1)
-    call char2int(str, new, len_trim(str))
-    !> Old
-    ver_old = ver_old(dot + 1: len_trim(ver_old))
-    dot = index(ver_old, '.')
-    str = ver_old(1: dot - 1)
-    call char2int(str, old, len_trim(str))
-    !> comparison
-    if (new > old) then
-        NewerSwVer = .true.
-        return
-    elseif (new < old) then
-        NewerSwVer = .False.
+    if (CountCharInString(string, '.') /= 2) then
+        SwVerFromString = errSwVer
         return
     end if
 
-    !> Compare build version
-    !> New
-    ver_new = ver_new(dot + 1: len_trim(ver_new))
-    call char2int(ver_new, new, len_trim(str))
-    !> Old
-    ver_old = ver_old(dot + 1: len_trim(ver_old))
-    call char2int(ver_old, old, len_trim(str))
-    !> comparison
-    if (new > old) then
-        NewerSwVer = .true.
+    !> Major version
+    chunk = string(1:index(string, '.')-1)
+    if (is_not_numeric(chunk)) then
+        SwVerFromString = errSwVer
         return
+    end if
+    call char2int(trim(chunk), SwVerFromString%major, len_trim(chunk))
+
+    !> Minor version
+    chunk = string(index(string, '.')+1: index(string, '.', .true.)-1)
+    if (is_not_numeric(chunk)) then
+        SwVerFromString = errSwVer
+        return
+    end if
+    call char2int(trim(chunk), SwVerFromString%minor, len_trim(chunk))
+
+    !> Revision
+    chunk = string(index(string, '.', .true.)+1:len(string))
+    if (is_not_numeric(chunk)) then
+        SwVerFromString = errSwVer
+        return
+    end if
+    call char2int(trim(chunk), SwVerFromString%revision, len_trim(chunk))
+end function
+
+!***************************************************************************
+!
+! \brief       Compare software versions and returns .true. if v1 is
+!              strictly newer than v2
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+logical function CompareSwVer(v1, v2)
+    use m_common_global_var
+    implicit none
+    !> In/out variables
+    type(SwVerType), intent(in) :: v1
+    type(SwVerType), intent(in) :: v2
+
+
+    !>Compare Major
+    if (v1%major > v2%major) then
+        CompareSwVer = .true.
+        return
+    elseif (v1%major < v2%major) then
+        CompareSwVer = .false.
+        return
+    end if
+    !>If Major is equal, compare Minor
+    if (v1%minor > v2%minor) then
+        CompareSwVer = .true.
+        return
+    elseif (v1%minor < v2%minor) then
+        CompareSwVer = .false.
+        return
+    end if
+    !>If Major and Minor are equal, compare Revision
+    if (v1%revision > v2%revision) then
+        CompareSwVer = .true.
     else
-        NewerSwVer = .false.
-        return
+        CompareSwVer = .false.
     end if
-end function NewerSwVer
+end function CompareSwVer
+
+!***************************************************************************
+!
+! \brief       Compare software versions and returns .true. if v1 is
+!              strictly newer than v2
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+logical function EqualSwVer(v1, v2)
+    use m_common_global_var
+    implicit none
+    !> In/out variables
+    type(SwVerType), intent(in) :: v1
+    type(SwVerType), intent(in) :: v2
+
+
+    !>Compare Major
+    if (v1%major == v2%major .and. &
+        v1%minor == v2%minor .and. &
+        v1%revision == v2%revision) then
+        EqualSwVer = .true.
+    else
+        EqualSwVer = .false.
+    end if
+end function EqualSwVer
 
 !***************************************************************************
 !
@@ -728,9 +778,9 @@ end subroutine
 ! \test
 ! \todo
 !***************************************************************************
-function countsubstring(s1, s2) result(c)
+integer function countsubstring(s1, s2) result(c)
     character(*), intent(in) :: s1, s2
-    integer :: c, p, posn
+    integer :: p, posn
 
     c = 0
     if(len(s2) == 0) return
@@ -782,14 +832,19 @@ integer function SplitCount(string, delimiter, exclude, caseSensitive) result(cn
     cnt = 0
     do
         del = index(lstring, delimiter)
-        if (del > 0 .and. (len(trim(lstring)) >= del)) then
+        if (del == 1) then
+            lstring = lstring(2: len_trim(lstring))
+            cycle
+        end if
+        if (del > 1 .and. (len_trim(lstring) >= del)) then
             item = lstring(1:del)
             cnt = cnt + 1
             if (len(lexclude) > 0 .and. &
                 index(item, lexclude) /= 0) cnt = cnt - 1
-            lstring = lstring(del+1: len(lstring))
+            lstring = lstring(del+1: len_trim(lstring))
         else
-            if ((len(trim(lstring)) > del+1)) then
+            if (len_trim(lstring) > 0) then
+                item = trim(lstring)
                 cnt = cnt + 1
                 if (len(lexclude) > 0 .and. &
                     index(item, lexclude) /= 0) cnt = cnt - 1
@@ -797,7 +852,6 @@ integer function SplitCount(string, delimiter, exclude, caseSensitive) result(cn
             exit
         end if
     end do
-
 end function SplitCount
 
 !***************************************************************************

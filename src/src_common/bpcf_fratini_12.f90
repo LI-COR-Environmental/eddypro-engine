@@ -113,12 +113,15 @@ subroutine BPCF_Fratini12(loc_var_present, LocInstr, wind_speed, t_air, ac_frequ
         if (loc_var_present(ch4))  call BandPassTransferFunction(BPTF, w, ch4,  w_ch4,  nfreq)
         if (loc_var_present(gas4)) call BandPassTransferFunction(BPTF, w, gas4, w_gas4, nfreq)
 
-        !> Calculate TF to apply to cospectrum of H before using it as a model: it's applied as H_theor(k) = H_meas(k) / hBPTF%BP(k)
+        !> Calculate TF to apply to cospectrum of H before using it as a model:
+        !> it's applied as H_theor(k) = H_meas(k) / hBPTF%BP(k)
         if (LocSetup%SA%add_sonic_lptf) then
             !> Add analytic components to the experimental transfer function, for \n
             !> sonic path averaging and finite dynamic response
-            call AnalyticLowPassTransferFunction(nf, size(nf),  w, LocInstr, loc_var_present, wind_speed, t_air, hBPTF)
-            call AnalyticLowPassTransferFunction(nf, size(nf), ts, LocInstr, loc_var_present, wind_speed, t_air, hBPTF)
+            call AnalyticLowPassTransferFunction(nf, size(nf),  w, LocInstr, &
+                loc_var_present, wind_speed, t_air, hBPTF)
+            call AnalyticLowPassTransferFunction(nf, size(nf), ts, LocInstr, &
+                loc_var_present, wind_speed, t_air, hBPTF)
             !> reset to 1 analytic transfer functions that are substituted by in-situ ones
             do i = 1, nfreq
                 hBPTF(i)%LP%t      = 1d0
@@ -128,7 +131,29 @@ subroutine BPCF_Fratini12(loc_var_present, LocInstr, wind_speed, t_air, ac_frequ
                 hBPTF(i)%LP%m      = 1d0
                 hBPTF(i)%LP%dirga  = 1d0
             end do
+
+            !> Add analytic components to the experimental transfer function, for \n
+            !> sonic data filtering in the LI-7550 (BA and ZOH)
+            call LI7550_AnalogSignalsTransferFunctions(nf, size(nf), u, &
+                ac_frequency, loc_var_present, hBPTF)
+            call LI7550_AnalogSignalsTransferFunctions(nf, size(nf), w, &
+                ac_frequency, loc_var_present, hBPTF)
+            call LI7550_AnalogSignalsTransferFunctions(nf, size(nf), ts, &
+                ac_frequency, loc_var_present, hBPTF)
+            !> reset to 1 BA and ZOH low-pass transfer functions if the case
+            if (.not. EddyProProj%hf_correct_ghg_ba) then
+                do i = 1, nfreq
+                    hBPTF(i)%LP%ba_sonic = 1d0
+                    hBPTF(i)%LP%ba_irga = 1d0  !< Redundant, but does not harm
+                end do
+            end if
+            if (.not. EddyProProj%hf_correct_ghg_zoh) then
+                do i = 1, nfreq
+                    hBPTF(i)%LP%zoh_sonic = 1d0
+                end do
+            end if
         end if
+
         !> Add analytic high-pass transfer function, if requested
         if (EddyProProj%lf_meth == 'analytic') then
             call AnalyticHighPassTransferFunction(nf, size(nf), w, ac_frequency, avrg_length, &

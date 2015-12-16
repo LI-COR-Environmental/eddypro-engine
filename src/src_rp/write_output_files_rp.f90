@@ -50,7 +50,8 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, &
     character(DatumLen) :: datum
     character(64) :: tmp_init_string
     character(14) :: iso_basic
-    logical, external :: NewerSwVer
+    include '../src_common/interfaces.inc'
+
 
     !> write Essentials output file (csv) for communication
     !> with Fluxes
@@ -342,6 +343,13 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, &
         call AddDatum(dataline, datum, separator)
 
         !> Metadata
+        write(datum, *) Metadata%logger_swver%major
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Metadata%logger_swver%minor
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Metadata%logger_swver%revision
+        call AddDatum(dataline, datum, separator)
+
         write(datum, *) Metadata%lat
         call AddDatum(dataline, datum, separator)
         write(datum, *) Metadata%lon
@@ -522,14 +530,14 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, &
 
         !> AGCs and RSSI
         !> LI-7200
-        if(NewerSwVer(trim(E2Col(co2)%instr%sw_ver), '6.0.0')) then
+        if(CompareSwVer(E2Col(co2)%instr%sw_ver, SwVerFromString('6.0.0'))) then
             write(datum, *)   nint(Essentials%AGC72)
         else
             write(datum, *) - nint(Essentials%AGC72)
         end if
         call AddDatum(dataline, datum, separator)
         !> LI-7500
-        if(NewerSwVer(trim(E2Col(co2)%instr%sw_ver), '6.0.0')) then
+        if(CompareSwVer(E2Col(co2)%instr%sw_ver, SwVerFromString('6.0.0'))) then
             write(datum, *)   nint(Essentials%AGC75)
         else
             write(datum, *) - nint(Essentials%AGC75)
@@ -1238,32 +1246,32 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, &
         write(ufnet_e, '(a)') dataline(1:len_trim(dataline) - 1)
     end if
 
-    !>==========================================================================
-    !>==========================================================================
-    !> FLUXNET BIOMET output
-    if (EddyProProj%out_fluxnet_biomet) then
-        !> Edit init_string to fit FLUXNET format
-        !> Strip file name and DOY
-        tmp_init_string = &
-            init_string(index(init_string, ',') +1: &
-                        index(init_string, ',', .true.) - 1)
-
-        !> derive ISO basic format timestamp
-        iso_basic = tmp_init_string(1:4) // tmp_init_string(6:7) &
-            // tmp_init_string(9:10) // tmp_init_string(12:13)  &
-            // tmp_init_string(15:16) // '00'
-
-        call clearstr(dataline)
-        call AddDatum(dataline, trim(adjustl(iso_basic)), separator)
-
-        !> All aggregated biomet values in FLUXNET units
-        do i = 1, nbVars
-            call WriteDatumFloat(bAggrFluxnet(i), datum, '-9999.')
-            call AddDatum(dataline, datum, separator)
-        end do
-        write(ufnet_b, '(a)') dataline(1:len_trim(dataline) - 1)
-    end if
-
+!    !>==========================================================================
+!    !>==========================================================================
+!    !> FLUXNET BIOMET output
+!    if (EddyProProj%out_fluxnet_biomet) then
+!        !> Edit init_string to fit FLUXNET format
+!        !> Strip file name and DOY
+!        tmp_init_string = &
+!            init_string(index(init_string, ',') +1: &
+!                        index(init_string, ',', .true.) - 1)
+!
+!        !> derive ISO basic format timestamp
+!        iso_basic = tmp_init_string(1:4) // tmp_init_string(6:7) &
+!            // tmp_init_string(9:10) // tmp_init_string(12:13)  &
+!            // tmp_init_string(15:16) // '00'
+!
+!        call clearstr(dataline)
+!        call AddDatum(dataline, trim(adjustl(iso_basic)), separator)
+!
+!        !> All aggregated biomet values in FLUXNET units
+!        do i = 1, nbVars
+!            call WriteDatumFloat(bAggrFluxnet(i), datum, '-9999.')
+!            call AddDatum(dataline, datum, separator)
+!        end do
+!        write(ufnet_b, '(a)') dataline(1:len_trim(dataline) - 1)
+!    end if
+!
     !>==========================================================================
     !>==========================================================================
     !> METADATA file

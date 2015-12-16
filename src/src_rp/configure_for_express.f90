@@ -52,6 +52,7 @@ subroutine ConfigureForExpress
     RPsetup%filter_al = .true.
     RPsetup%calib_cw = .false.
     RPSetup%despike_vickers97 = .true.
+    RPsetup%calib_aoa = 'automatic'
 
     !> Raw statistical tests
     Test%sr = .true.
