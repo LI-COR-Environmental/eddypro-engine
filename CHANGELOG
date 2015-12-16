@@ -1,3 +1,23 @@
+6.1.0 (2015-12-14)
+
+    Engine
+    - Add: support for new LI-7500RS and LI-7200RS instruments.
+    - Refine: introduced a mechanism to allow user to ask EddyPro to select
+      the most appropriate AoA correction method, based on sonic anemometer
+      model and serial number. User can also force a selection, or de-select
+      the correction completely.
+    - Fix: FLUXNET biomet output file now contains biomet results also when
+      fast EC data are not available (similar to standard biomet output
+      file). Also fixed initialization, so that if biomet data is not
+      available, FLUXNET biomet output file reports -9999.
+    - Fix: detection of EndIndex in the list of binned spectra files when a
+      subperiod is selected, which coincides with the period covered by
+      available spectra files. The bug caused EddyPro not to create ensemble
+      averaged spectra/cospectra, nor to perform the spectral assessment.
+    - Fix: SplitCount function, that caused biomet files not to be properly
+      read (and engine to crash) when only one biomet variable is present in
+      the external biomet files, besides the timestamp(s).
+
 6.0.0 (2015-08-05)
 
     Engine

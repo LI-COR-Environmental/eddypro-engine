@@ -38,8 +38,8 @@ write_out_ameriflux_rp.f90 \
 spectral_analysis.f90 \
 init_biomet_out.f90 \
 aoa_cal_nakai_2012.f90 \
-infer_aoa_method.f90\
-detect_master_sonic.f90\
+infer_aoa_method.f90 \
+detect_master_sonic.f90 \
 write_out_planar_fit.f90 \
 statistical_screening.f90 \
 assess_daytime.f90 \
@@ -232,8 +232,8 @@ write_out_ameriflux_rp.o \
 spectral_analysis.o \
 init_biomet_out.o \
 aoa_cal_nakai_2012.o \
-infer_aoa_method.o\
-detect_master_sonic.o\
+infer_aoa_method.o \
+detect_master_sonic.o \
 write_out_planar_fit.o \
 statistical_screening.o \
 assess_daytime.o \

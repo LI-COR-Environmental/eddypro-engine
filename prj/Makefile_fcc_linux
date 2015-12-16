@@ -61,6 +61,7 @@ bpcf_aux_subs.f90 \
 bpcf_bandpass_spectral_corrections.f90 \
 bpcf_cospectral_models.f90 \
 write_processing_project_variables.f90 \
+maths_subs.f90 \
 bpcf_fratini_12.f90 
 
 SRCS_f90d2 = \
@@ -147,6 +148,7 @@ bpcf_aux_subs.o \
 bpcf_bandpass_spectral_corrections.o \
 bpcf_cospectral_models.o \
 write_processing_project_variables.o \
+maths_subs.o \
 bpcf_fratini_12.o 
 
 OBJS_f90d2 = \
@@ -369,6 +371,9 @@ normalize_mean_spectra_cospectra.o: \
     m_fx_global_var_mod.o
 footprint_handle.o: \
     footprint_handle.f90 \
+    m_common_global_var.o
+maths_subs.o: \
+    maths_subs.f90 \
     m_common_global_var.o
 timestamp.o: \
     timestamp.f90 \

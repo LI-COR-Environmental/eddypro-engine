@@ -62,8 +62,10 @@ To build EddyPro follow these instructions:
 
 To compile the Engine use [gfortran](https://gcc.gnu.org/wiki/GFortran) (The GNU Fortran compiler) and run:
 
-    $ make Makefile_rp
-    $ make Makefile_fcc
+    $ make -f Makefile_rp_xxx eddypro_rp
+    $ make -f Makefile_fcc_xxx eddypro_fcc
+
+replacing `xxx` with `win` (Windows), `mac` (Mac OS) or `linux` (Linux), depending on your OS.
 
 ### GUI
 
