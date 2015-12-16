@@ -173,7 +173,6 @@ program EddyproRP
     !****** INITIALIZATION PART COMMON TO ALL SW COMPONENTS ********************
     !***************************************************************************
     !***************************************************************************
-
     write(*, '(a)') ''
     write(*, '(a)') ' *******************'
     write(*, '(a)') '  Executing EddyPro '
@@ -307,19 +306,18 @@ program EddyproRP
         deallocate(Raw)
     end if
 
-    !> If running with EXP settings, now that master sonic is known
-    !> also in embedded mode it's time to set the aoa correction
-    if (EddyProProj%run_mode == 'express') then
-        select case(&
-            EddyProProj%master_sonic(1:len_trim(EddyProProj%master_sonic) - 2))
-            case ('r3_50','r3_100', 'r2')
-                RPsetup%calib_aoa = 'nakai_06'
-            case ('wm','wmpro')
-                RPsetup%calib_aoa = 'nakai_12'
-            case default
-                RPsetup%calib_aoa = 'none'
-        end select
-    end if
+    call DetectMasterSonic(Col, NumCol)
+
+    !> Now that master sonic is known (also in embedded mode) it's time
+    !> to set the aoa correction
+    !> If AoA selection was set to 'automatic', it's time to retrieve it
+    if (RPsetup%calib_aoa == 'automatic') &
+        call InferAoaMethod(MasterSonic)
+
+    !> If running with EXP settings, override any previous setting and go
+    !> automatic
+    if (EddyProProj%run_mode == 'express') &
+        call InferAoaMethod(MasterSonic)
 
     !> Now that metadata are read, can set avrg_len in case user didn't
     if (RPsetup%avrg_len <= 0) RPsetup%avrg_len = nint(Metadata%file_length)
@@ -1700,6 +1698,12 @@ program EddyproRP
             !> (1) native cell temperature, (2) weighted average of ti1 and ti2,
             !> (3) either ti1 or ti2 depending on availability
             call GenerateTcell(E2Set, size(E2Set, 1), size(E2Set, 2))
+
+            !> Filter Tcell to simulate slower response temperature measurement
+            !> for conversion to mixing ratio
+            !if (RPsetup%tcell_filter_tconst /= 0) &
+            !call CRA(E2Set, size(E2Set, 1), size(E2Set, 2), Metadata%ac_freq, &
+            !    RPsetup%tcell_filter_tconst, tc)
         end if
 
         !> Now that variables have been properly assigned, can initialize
@@ -2117,13 +2121,12 @@ program EddyproRP
 !            elseif (E2Col(h2o)%instr%sw_ver /= errSwVer) then
 !                Metadata%logger_swver = E2Col(h2o)%instr%sw_ver
 !            end if
-
             if (.not. EddyProProj%fcc_follows) then
                 !> Low-pass and high-pass spectral correction factors
                 call BandPassSpectralCorrections(E2Col(u)%Instr%height, &
                     Metadata%d, E2Col(u:gas4)%present, Ambient%WS, Ambient%Ta, &
                     Ambient%zL, Metadata%ac_freq, RPsetup%avrg_len, &
-                    E2Col(co2)%instr%sw_ver, Meth%det, &
+                    Metadata%logger_swver, Meth%det, &
                     RPsetup%Tconst, .true., E2Col(u:GHGNumVar)%instr, 1)
 
                 !> Calculate fluxes at Level 1

@@ -56,6 +56,17 @@ interface
 end interface
 
 interface
+    function EqualSwVer(v1, v2)
+        use m_common_global_var
+        implicit none
+        !> In/out variables
+        type(SwVerType), intent(in) :: v1
+        type(SwVerType), intent(in) :: v2
+        logical :: EqualSwVer
+    end function
+end interface
+
+interface
     function DefaultSonicOutputRate(model)
         use m_common_global_var
         implicit none

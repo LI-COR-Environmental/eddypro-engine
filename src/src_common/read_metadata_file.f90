@@ -81,6 +81,7 @@ subroutine WriteEddyProMetadataVariables(LocCol, printout)
     integer :: i = 0
     integer :: j = 0
     include 'interfaces.inc'
+    character(32), external :: replace
 
 
     if (len_trim(ACTags(1)%value) > 0) then
@@ -205,13 +206,6 @@ subroutine WriteEddyProMetadataVariables(LocCol, printout)
             Instr(i)%firm = ACTags(init_ac_instr + i*leap_ac_instr)%value &
                 (1:len_trim(ACTags(init_ac_instr + i*leap_ac_instr)%value))
 
-            if (len_trim(ACTags(init_ac_instr + i*leap_ac_instr + 1)%value) > 0) then
-                Instr(i)%sw_ver = &
-                    SwVerFromString(trim(ACTags(init_ac_instr + i*leap_ac_instr + 1)%value))
-            else
-                Instr(i)%sw_ver = errSwVer
-            end if
-
             Instr(i)%model = ACTags(init_ac_instr + i*leap_ac_instr + 2)%value &
                 (1:len_trim(ACTags(init_ac_instr + i*leap_ac_instr + 2)%value))
             Instr(i)%height = dble(ANTags(init_an_instr + i*leap_an_instr)%value)
@@ -267,6 +261,20 @@ subroutine WriteEddyProMetadataVariables(LocCol, printout)
                 case('gill', 'metek', 'young', 'csi', 'other_sonic')
                     Instr(i)%category = 'sonic'
             end select
+            !> Instrument software version
+            if (len_trim(ACTags(init_ac_instr + i*leap_ac_instr + 1)%value) > 0) &
+                Instr(i)%sw_ver_string = &
+                    trim(ACTags(init_ac_instr + i*leap_ac_instr + 1)%value)
+
+            !>Replace dash or underscore with dot if the case
+            Instr(i)%sw_ver_string = replace(Instr(i)%sw_ver_string, '-', '.', &
+                len(Instr(i)%sw_ver_string))
+            Instr(i)%sw_ver_string = replace(Instr(i)%sw_ver_string, '_', '.', &
+                len(Instr(i)%sw_ver_string))
+
+            !> Create SwVer object from sw version string
+            Instr(i)%sw_ver = SwVerFromString(Instr(i)%sw_ver_string)
+
             !> Retrieve absolute sensor separations (from reference sonic)
             Instr(i)%nsep = dble(ANTags(init_an_instr &
                 + i*leap_an_instr + 2)%value) * 1d-2 !< in meters

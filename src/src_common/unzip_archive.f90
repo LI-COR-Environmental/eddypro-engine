@@ -95,7 +95,7 @@ subroutine UnZipArchive(ZipFile, MetaExt, DataExt, MetaFile, DataFile, &
     BiometMetaFile = 'none'
     if (io_status == 0) then
         do i = 1, 2
-            read(udf, '(a128)', iostat = io_status) dataline
+            read(udf, '(a256)', iostat = io_status) dataline
             if(io_status == 0) then
                 if (index(dataline, '-biomet.metadata') /= 0) then
                     BiometMetaFile = dataline(1:len_trim(dataline))

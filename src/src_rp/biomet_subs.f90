@@ -57,8 +57,8 @@ subroutine RetrieveExtBiometVars(row1, row2, nitems)
     character(32) :: item1
     character(32) :: item2
     character(32), external :: biometBaseName
-
     logical, external :: BiometValidateVar
+
 
     !> Retrieve variables and units from corresponding strings
     bFileMetadata%tsPattern = ''

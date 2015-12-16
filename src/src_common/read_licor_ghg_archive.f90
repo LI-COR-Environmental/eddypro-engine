@@ -82,13 +82,16 @@ subroutine ReadLicorGhgArchive(ZipFile, FirstRecord, LastRecord, LocCol, &
     !> First, handle biomet data and metadata files
     if (BiometIsNeeded) then
         if (BiometFile == 'none' .or. BiometMetaFile == 'none') then
+            fnbRecs = 0
             call ExceptionHandler(5)
         else
             call ReadBiometMetaFile(BiometMetaFile, skip_biomet_file)
             if (.not. skip_biomet_file) &
                 call ReadBiometFile(BiometFile, skip_biomet_file)
-            if (skip_biomet_file) &
+            if (skip_biomet_file) then
+                fnbRecs = 0
                 call ExceptionHandler(44)
+            end if
         end if
     end if
 
