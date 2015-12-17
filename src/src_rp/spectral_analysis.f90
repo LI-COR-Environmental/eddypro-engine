@@ -767,7 +767,7 @@ subroutine WriteOutFullCoSpectra(String, nf, Spectrum, Cospectrum, &
         do var = 1, GHGNumVar
             if (RPsetup%out_full_sp(var) .and. DoSpectrum(var)) then
                 if (nf(i) /= error .and. Stats%cov(var, var) /= 0d0 .and. Stats%cov(var, var) /= error) then
-                    call WriteDatumFloat(nf(i) * Spectrum(i)%of(var) / Stats%cov(var, var), datum, '-9999.0')
+                    call WriteDatumFloat(nf(i) * Spectrum(i+1)%of(var) / Stats%cov(var, var), datum, '-9999.0')
                     call AddDatum(dataline, datum, separator)
                 else
                     call AddDatum(dataline, '-9999.0', separator)
@@ -778,7 +778,7 @@ subroutine WriteOutFullCoSpectra(String, nf, Spectrum, Cospectrum, &
         do var = 1, GHGNumVar
             if (RPsetup%out_full_cosp(var) .and. DoCospectrum(var)) then
                 if (nf(i) /= error .and. Stats%cov(w, var) /= 0d0 .and. Stats%cov(w, var) /= error) then
-                    call WriteDatumFloat(nf(i) * Cospectrum(i)%of(var) / Stats%cov(w, var), datum, '-9999.0')
+                    call WriteDatumFloat(nf(i) * Cospectrum(i+1)%of(var) / Stats%cov(w, var), datum, '-9999.0')
                     call AddDatum(dataline, datum, separator)
                 else
                     call AddDatum(dataline, '-9999.0', separator)
