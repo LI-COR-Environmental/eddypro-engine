@@ -71,53 +71,56 @@ subroutine ImportBinary(FirstRecord, LastRecord, LocCol, fRaw, nrow, ncol, N, Fi
     aux = 0_1
     head_nlines = 0
     LastByteHeader = 0
-    select case(Binary%ascii_head_eol)
-        !> Windows case (CR/LF carriage control)
-        case ('CR/LF')
-        do
-            paux = aux
-            nrec = nrec + 1
-            read(unat, rec = nrec, iostat = io_status) aux
-            if (io_status /= 0) exit
-            if (aux == 10_1 .and. paux == 13_1) then
-                head_nlines = head_nlines + 1
-                if (head_nlines == Binary%head_nlines) then
-                    LastByteHeader = nrec
-                    exit
-                end if
-            end if
-        end do
-        !> Unix case (LF carriage control)
-        case ('LF')
-        do
-            nrec = nrec + 1
-            read(unat, rec = nrec, iostat = io_status) aux
-            if (io_status /= 0) exit
-            if (aux == 10_1) then
-                head_nlines = head_nlines + 1
-                if (head_nlines == Binary%head_nlines) then
-                    LastByteHeader = nrec
-                    exit
-                end if
-            end if
-        end do
-        !> Mac case (CR carriage control)
-        case ('CR')
-        do
-            nrec = nrec + 1
-            read(unat, rec = nrec, iostat = io_status) aux
-            if (io_status /= 0) exit
-            if (aux == 13_1) then
-                head_nlines = head_nlines + 1
-                if (head_nlines == Binary%head_nlines) then
-                    LastByteHeader = nrec
-                    exit
-                end if
-            end if
-        end do
-    end select
 
-    !> Header has been identified and skipped, now read data
+    if (Binary%head_nlines > 0) then
+        select case(Binary%ascii_head_eol)
+            !> Windows case (CR/LF carriage control)
+            case ('CR/LF')
+            do
+                paux = aux
+                nrec = nrec + 1
+                read(unat, rec = nrec, iostat = io_status) aux
+                if (io_status /= 0) exit
+                if (aux == 10_1 .and. paux == 13_1) then
+                    head_nlines = head_nlines + 1
+                    if (head_nlines == Binary%head_nlines) then
+                        LastByteHeader = nrec
+                        exit
+                    end if
+                end if
+            end do
+            !> Unix case (LF carriage control)
+            case ('LF')
+            do
+                nrec = nrec + 1
+                read(unat, rec = nrec, iostat = io_status) aux
+                if (io_status /= 0) exit
+                if (aux == 10_1) then
+                    head_nlines = head_nlines + 1
+                    if (head_nlines == Binary%head_nlines) then
+                        LastByteHeader = nrec
+                        exit
+                    end if
+                end if
+            end do
+            !> Mac case (CR carriage control)
+            case ('CR')
+            do
+                nrec = nrec + 1
+                read(unat, rec = nrec, iostat = io_status) aux
+                if (io_status /= 0) exit
+                if (aux == 13_1) then
+                    head_nlines = head_nlines + 1
+                    if (head_nlines == Binary%head_nlines) then
+                        LastByteHeader = nrec
+                        exit
+                    end if
+                end if
+            end do
+        end select
+    end if
+
+    !> If present, header has been identified and skipped, now read data
     rec_num = LastByteHeader
     i = 0
     N = 0
