@@ -2,7 +2,8 @@ Next version (yyyy-mm-dd)
     Engine
     - Fix: output of full (co)spectra. The bug was such that there was a mis-alignment
       of one data point between frequencies and associated (co)spectra values.
-      This bug did not affect calculation and output of binned cospectra
+      The bug did not affect calculation and output of binned cospectra, nor usage
+      of full cospectra in spectral corrections.
     - Refine: handle inconsistent selection of embedded biomet data and non-GHG
       file type. This pair of inconsistent settings is not possible with the GUI, 
       only with manual editing of the .eddypro file.
