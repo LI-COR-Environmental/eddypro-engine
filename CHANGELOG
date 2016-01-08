@@ -1,5 +1,7 @@
 Next version (yyyy-mm-dd)
     Engine
+    - Fix: flags for absolute limits is now correctly calculated. Flags for
+      this test obtained so far are unreliable.
     - Fix: output of full (co)spectra. The bug was such that there was a 
       mis-alignment of one data point between frequencies and associated 
       (co)spectra values. The bug did not affect calculation and output of 
