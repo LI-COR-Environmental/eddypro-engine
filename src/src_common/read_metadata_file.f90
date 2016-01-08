@@ -174,14 +174,10 @@ subroutine WriteEddyProMetadataVariables(LocCol, printout)
     end if
 
     !> Further meta info
-    EddyProLog%save_native = .false.
-    if (ACTags(16)%value(1:1) == '1') EddyProLog%save_native = .true.
-    EddyProLog%timestamp   = .false.
-    if (ACTags(17)%value(1:1) == '1') EddyProLog%timestamp   = .true.
-    EddyProLog%enable_proc = .false.
-    if (ACTags(18)%value(1:1) == '1') EddyProLog%enable_proc = .true.
-    EddyProLog%tstamp_end  = .false.
-    if (ACTags(20)%value(1:1) == '1') EddyProLog%tstamp_end  = .true.
+    EddyProLog%save_native = ACTags(16)%value(1:1) == '1'
+    EddyProLog%timestamp = ACTags(17)%value(1:1) == '1'
+    EddyProLog%enable_proc = ACTags(18)%value(1:1) == '1'
+    EddyProLog%tstamp_end  = ACTags(20)%value(1:1) == '1'
     select case (ACTags(21)%value(1:1))
         case ('0')
         EddyProLog%native_format = 'tmp_ascii'

@@ -108,7 +108,12 @@ subroutine ImportCurrentPeriod(InitialTimestamp, FinalTimestamp, FileList, &
             !> Check file contiguity, if not contiguous, exit cycle
             call FilenameToTimestamp(FileList(CurrentFile)%name, &
                 EddyProProj%fname_template, EddyProLog%iso_format, FollowingTimestamp)
-            !> To account for file names
+
+            !> If timestamp refers to end of the period, need to set it back to
+            !> end of period in this context
+            if (EddyProLog%tstamp_end) &
+                CurrentTimestamp = CurrentTimestamp + DatafileDateStep
+
             if (FollowingTimestamp > CurrentTimestamp + DatafileDateStep) then
                 N = pN
                 NextFile = CurrentFile
