@@ -59,8 +59,8 @@ subroutine Tapering(Window, xx, N, M, sumw)
 
     !> Define tapering windows
     do k = 1, N
-        win_han(k) = (0.54d0 + 0.46d0 * dcos(2.d0 * p *(dble(k-1) - facm / 2.d0) * facp))
-        win_ham(k) = (0.5d0 - 0.5d0 * dcos(2d0 * p * dble(k-1) / (facm - 1d0)))
+        win_ham(k) = (0.54d0 + 0.46d0 * dcos(2.d0 * p *(dble(k-1) - facm / 2.d0) * facp))
+        win_han(k) = (0.5d0 - 0.5d0 * dcos(2d0 * p * dble(k-1) / (facm - 1d0)))
         win_bar(k) = (1d0 - dabs(((dble(k)-1d0) - facm/2d0) * facp*2d0))
         win_wel(k) = (1d0 - (((dble(k)-1d0) - facm/2d0) * facp*2d0)**2)
         win_sqr(k) = 1d0
