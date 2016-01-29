@@ -66,6 +66,7 @@ drift_correction.f90 \
 optimize_timelags.f90 \
 eddypro-rp_main.f90 \
 override_settings.f90 \
+override_master_sonic_related_settings.f90 \
 random_error_handle.f90 \
 read_ini_rp.f90 \
 filter_for_physical_thresholds.f90 \
@@ -82,7 +83,8 @@ fluxes23_rp.f90 \
 air_and_cell_parameters.f90 \
 write_out_biomet.f90 \
 stationarity_test.f90 \
-aoa_calibration_nakai.f90 \
+aoa_calibration.f90 \
+gill_wm_w_boost.f90 \
 write_out_user_stats.f90 \
 storage.f90 \
 binned_frequency_vector.f90 \
@@ -260,6 +262,7 @@ drift_correction.o \
 optimize_timelags.o \
 eddypro-rp_main.o \
 override_settings.o \
+override_master_sonic_related_settings.o \
 random_error_handle.o \
 read_ini_rp.o \
 filter_for_physical_thresholds.o \
@@ -276,7 +279,8 @@ fluxes23_rp.o \
 air_and_cell_parameters.o \
 write_out_biomet.o \
 stationarity_test.o \
-aoa_calibration_nakai.o \
+aoa_calibration.o \
+gill_wm_w_boost.o \
 write_out_user_stats.o \
 storage.o \
 binned_frequency_vector.o \
@@ -793,6 +797,9 @@ import_ascii_with_text.o: \
 override_settings.o: \
     override_settings.f90 \
     m_rp_global_var.o
+override_master_sonic_related_settings.o: \
+    override_master_sonic_related_settings.f90 \
+    m_rp_global_var.o
 rfftb.o: \
     rfftb.F
 replace_sonic_temperature.o: \
@@ -907,8 +914,11 @@ m_typedef.o: \
     m_typedef.f90 \
     m_libdate.o \
     m_numeric_kinds.o
-aoa_calibration_nakai.o: \
-    aoa_calibration_nakai.f90 \
+aoa_calibration.o: \
+    aoa_calibration.f90 \
+    m_rp_global_var.o
+gill_wm_w_boost.o: \
+    gill_wm_w_boost.f90 \
     m_rp_global_var.o
 date_subs.o: \
     date_subs.f90 \

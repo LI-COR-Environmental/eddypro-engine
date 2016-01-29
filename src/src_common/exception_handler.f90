@@ -342,5 +342,13 @@ subroutine ExceptionHandler(error_code)
         case(93)
             write(*,*) ' Error(93)> Embedded biomet selected, but not processing GHG files. This is not possible.'
             write(*,*) ' Error(93)> EddyPro will proceed without using biomet data.'
+        case(94)
+            write(*,*) ' Warning(94)> The selected or inferred angle-of-attack correction method is not applicable'
+            write(*,*) ' Warning(94)> to data collected with selected sonic anemometer.'
+            write(*,*) ' Warning(94)> Continuing without applying any angle-of-attack correction.'
+        case(95)
+            write(*,*) ' Warning(95)> The selected "w-boost" correction is not applicable'
+            write(*,*) ' Warning(95)> to data collected with selected sonic anemometer.'
+            write(*,*) ' Warning(95)> Continuing without applying "w-boost" correction.'
     end select
 end subroutine ExceptionHandler

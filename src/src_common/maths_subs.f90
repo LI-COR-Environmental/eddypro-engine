@@ -94,3 +94,36 @@ function sinc(x, N)
         sinc(:) = error
     end where
 end function
+
+!***************************************************************************
+!
+! \brief       Apply fixed gains/offsets to an array. Gains/offsets can be
+!              positive specified differently for positive and negative array
+!              values
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+function asymmetric_linear_transformation(x, N, pgain, poffset, ngain, noffset)
+    use m_numeric_kinds
+    implicit none
+    !> In/out variables
+    integer, intent(in) :: N
+    real (kind = dbl), intent(in) :: x(N)
+    real (kind = dbl), intent(in) :: pgain
+    real (kind = dbl), intent(in) :: poffset
+    real (kind = dbl), intent(in) :: ngain
+    real (kind = dbl), intent(in) :: noffset
+    real (kind = dbl) :: asymmetric_linear_transformation(N)
+
+    where (x(:) >= 0d0)
+        asymmetric_linear_transformation(:) = x(:) * pgain + poffset
+    elsewhere
+        asymmetric_linear_transformation(:) = x(:) * ngain + noffset
+    end where
+
+end function

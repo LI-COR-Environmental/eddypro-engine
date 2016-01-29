@@ -342,7 +342,7 @@
 		<Unit filename="../src/src_rp/aoa_cal_nakai_2012.f90">
 			<Option weight="4" />
 		</Unit>
-		<Unit filename="../src/src_rp/aoa_calibration_nakai.f90">
+		<Unit filename="../src/src_rp/aoa_calibration.f90">
 			<Option weight="4" />
 		</Unit>
 		<Unit filename="../src/src_rp/assess_daytime.f90">
@@ -458,6 +458,9 @@
 		<Unit filename="../src/src_rp/fluxes23_rp.f90">
 			<Option weight="4" />
 		</Unit>
+		<Unit filename="../src/src_rp/gill_wm_w_boost.f90">
+			<Option weight="4" />
+		</Unit>
 		<Unit filename="../src/src_rp/infer_aoa_method.f90">
 			<Option weight="4" />
 		</Unit>
@@ -495,6 +498,9 @@
 			<Option weight="4" />
 		</Unit>
 		<Unit filename="../src/src_rp/out_raw_data.f90">
+			<Option weight="4" />
+		</Unit>
+		<Unit filename="../src/src_rp/override_master_sonic_related_settings.f90">
 			<Option weight="4" />
 		</Unit>
 		<Unit filename="../src/src_rp/override_settings.f90">

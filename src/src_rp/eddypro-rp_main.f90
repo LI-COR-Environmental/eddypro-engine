@@ -306,18 +306,11 @@ program EddyproRP
         deallocate(Raw)
     end if
 
+    !> MasterSonic-related settings
     call DetectMasterSonic(Col, NumCol)
 
-    !> Now that master sonic is known (also in embedded mode) it's time
-    !> to set the aoa correction
-    !> If AoA selection was set to 'automatic', it's time to retrieve it
-    if (RPsetup%calib_aoa == 'automatic') &
-        call InferAoaMethod(MasterSonic)
-
-    !> If running with EXP settings, override any previous setting and go
-    !> automatic
-    if (EddyProProj%run_mode == 'express') &
-        call InferAoaMethod(MasterSonic)
+    !> Override/adjust settings related to the MasterSonic
+    call OverrideMasterSonicRelatedSettings()
 
     !> Now that metadata are read, can set avrg_len in case user didn't
     if (RPsetup%avrg_len <= 0) RPsetup%avrg_len = nint(Metadata%file_length)
@@ -588,7 +581,7 @@ program EddyproRP
                     toInit = .false.
                 end if
 
-                !> Clean up E2Set, eliminating values that are clearly un-physical
+                !> Clean up E2Set, eliminating values that are clearly unphysical
                 call CleanUpE2Set(E2Set, size(E2Set, 1), size(E2Set, 2))
 
                 !> Define as not present, variables for which
@@ -685,18 +678,12 @@ program EddyproRP
                     size(E2Set, 1), size(E2Set, 2), 3, .false.)
                 Stats3 = Stats
 
-                !> If requested - and if sonic is a Gill - perform
-                !> angle-of-attack calibration according to
-                !> Nakai et al. 2006/2012
-                if (RPsetup%calib_aoa /= 'none') then
-                    select case(E2Col(u)%Instr%model(1:len_trim(E2Col(u)%Instr%model) - 2))
-                        case ('r2','r3_50','r3_100','r3a_100','wm','wmpro')
-                            call AoaCalibrationNakai(E2Set, &
-                                size(E2Set, 1), size(E2Set, 2))
-                        case default
-                            continue
-                    end select
-                end if
+                !> Angle-of-attack calibration
+                call AoaCalibration(E2Set, size(E2Set, 1), size(E2Set, 2))
+
+                !> Gill WindMaster w-boost
+                if (RPsetup%calib_wboost) &
+                    call ApplyGillWmWBoost(E2Set, size(E2Set, 1), size(E2Set, 2))
 
                 !> Calculate basic stats
                 call BasicStats(E2Set, &
@@ -1058,18 +1045,12 @@ program EddyproRP
                 Stats2 = Stats
                 Stats3 = Stats
 
-                !> If requested - and if sonic is a Gill -
-                !> perform angle-of-attack calibration
-                !> according to Nakai et al. 2006/2012
-                if (RPsetup%calib_aoa /= 'none') then
-                    select case(E2Col(u)%Instr%model(1:len_trim(E2Col(u)%Instr%model) - 2))
-                        case ('r2','r3_50','r3_100','r3a_100','wm','wmpro')
-                            call AoaCalibrationNakai(E2Set, &
-                                size(E2Set, 1), size(E2Set, 2))
-                        case default
-                            continue
-                    end select
-                end if
+                !> Angle-of-attack calibration
+                call AoaCalibration(E2Set, size(E2Set, 1), size(E2Set, 2))
+
+                !> Gill WindMaster w-boost
+                if (RPsetup%calib_wboost) &
+                    call ApplyGillWmWBoost(E2Set, size(E2Set, 1), size(E2Set, 2))
 
                 !> Calculate basic stats
                 call BasicStats(E2Set, size(E2Set, 1), size(E2Set, 2), &
@@ -1847,17 +1828,12 @@ program EddyproRP
             end if
 
             !> ===== 4. ANGLE OF ATTACK CORRECTION =============================
-            !> If requested - and if sonic is a Gill - perform angle-of-attack
-            !> calibration according to Nakai et al. 2006/2012
-            if (RPsetup%calib_aoa /= 'none') then
-                select case(E2Col(u)%Instr%model(1:len_trim(E2Col(u)%Instr%model) - 2))
-                    case ('r2','r3_50','r3_100','r3a_100','wm','wmpro')
-                        call AoaCalibrationNakai(E2Set, &
-                            size(E2Set, 1), size(E2Set, 2))
-                    case default
-                        continue
-                end select
-            end if
+            !> Angle-of-attack calibration
+            call AoaCalibration(E2Set, size(E2Set, 1), size(E2Set, 2))
+
+            !> Gill WindMaster w-boost
+            if (RPsetup%calib_wboost) &
+                call ApplyGillWmWBoost(E2Set, size(E2Set, 1), size(E2Set, 2))
 
             !> Output raw dataset forth level
             if (RPsetup%out_raw(4)) call OutRawData(Stats%date, Stats%time, &

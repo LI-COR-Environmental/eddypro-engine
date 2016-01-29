@@ -567,7 +567,7 @@ module m_rp_global_var
          SCTags(64)%Label / 'filter_al'        / &
          SCTags(65)%Label / 'bu_corr'          / &
          SCTags(66)%Label / 'bu_multi'         / &
-!         SCTags(67)%Label / 'qc_meth'          / &   !< no longer used
+         SCTags(67)%Label / 'gill_wm_wboost'   / &
          SCTags(68)%Label / 'out_raw_1'        / &
          SCTags(69)%Label / 'out_raw_2'        / &
          SCTags(70)%Label / 'out_raw_3'        / &

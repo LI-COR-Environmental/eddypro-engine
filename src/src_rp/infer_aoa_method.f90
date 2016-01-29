@@ -30,26 +30,18 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine InferAoaMethod(mSonic)
+subroutine InferAoaMethod()
     use m_rp_global_var
     implicit none
     !> in/out variables
-    type(InstrumentType), intent(inout) :: mSonic
     include '../src_common/interfaces_1.inc'
-    type(SwVerType) :: SwVer
 
     !> AoA selection based only on sonic model
-    select case(mSonic%model(1:len_trim(mSonic%model) - 2))
+    select case(MasterSonic%model(1:len_trim(MasterSonic%model) - 2))
         case ('r3_50','r3_100', 'r2')
             RPsetup%calib_aoa = 'nakai_06'
         case ('wm','wmpro')
-            !>Build SwVer object from string
-            SwVer = SwVerFromString(mSonic%sw_ver_string)
-            if (SwVer%major == 2329 .and. SwVer%minor < 700) then
-                RPsetup%calib_aoa = 'nakai_12'
-            else
-                RPsetup%calib_aoa = 'none'
-            end if
+            RPsetup%calib_aoa = 'nakai_12'
          case default
             RPsetup%calib_aoa = 'none'
     end select

@@ -305,6 +305,7 @@ module m_typedef
 
     type :: InstrumentType
         character(32) :: firm
+        character(32) :: ep_label
         character(32) :: model
         character(32) :: category
         character(32) :: sw_ver_string
@@ -843,6 +844,7 @@ module m_typedef
         character(32) :: tap_win
         character(32) :: bu_corr
         character(32) :: calib_aoa
+        logical :: calib_wboost
         logical :: do_spectral_analysis
         logical :: use_geo_north
         logical :: power_of_two

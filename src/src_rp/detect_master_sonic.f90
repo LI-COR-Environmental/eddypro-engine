@@ -47,5 +47,4 @@ subroutine DetectMasterSonic(LocCol, ncol)
             return
         end if
     end do
-
 end subroutine DetectMasterSonic

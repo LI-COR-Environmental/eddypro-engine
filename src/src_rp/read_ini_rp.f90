@@ -213,13 +213,15 @@ subroutine WriteVariablesRP()
     else
         select case (nint(SNTags(290)%value))
             case (1)
-                RPsetup%calib_aoa = 'nakai_12'
+                RPSetup%calib_aoa = 'nakai_12'
             case (2)
-                RPsetup%calib_aoa = 'nakai_06'
+                RPSetup%calib_aoa = 'nakai_06'
             case default
-                RPsetup%calib_aoa = 'none'
+                RPSetup%calib_aoa = 'none'
         end select
     end if
+    !> Select whether to apply the w-boost correction to WM/WMPro sonics
+    RPsetup%calib_wboost = SCTags(67)%value(1:1) == '1'
 
     !> Cross-wind correction
     RPsetup%calib_cw = SCTags(13)%value(1:1) == '1'

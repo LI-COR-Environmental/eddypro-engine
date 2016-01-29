@@ -321,7 +321,8 @@ module m_common_global_var
     type(DateType), parameter :: &
         tsNull= DateType(0, 0, 0, 0, 0)
     type(InstrumentType), parameter :: &
-        NullInstrument = InstrumentType('none', 'none', 'none', 'none', error, error, error, error, &
+        NullInstrument = InstrumentType('none', 'none', 'none', 'none', 'none', &
+        error, error, error, error, &
         error, error, error, error, error, error, error, error, error, error, 'none', 'none', &
         'none', 'none', .false., .false., errSwVer)
     type(RawFlagType), parameter :: NullRawFlag = RawFlagType(0, error, .false.)
