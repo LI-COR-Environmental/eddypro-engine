@@ -64,7 +64,6 @@ subroutine ImportTOB1(Filepath, FirstRecord, LastRecord, LocCol, fRaw, nrow, nco
     character(128)  :: TmpFilepath
     real(kind = sgl) :: TmpfRaw(nrow, NumCol)
     real(kind = sgl) :: Dataline(NumCol)
-    logical, allocatable :: mask(:)
     logical :: repeat
     logical :: TmpFileExists
     logical :: DeleteFile

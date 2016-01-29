@@ -78,7 +78,7 @@ subroutine RetrieveSensorParams()
             E2Col(u:ts)%Instr%vpath_length = 0.175d0    !< to be adjusted
             E2Col(u:ts)%Instr%hpath_length = 0.175d0    !< to be adjusted
             E2Col(u:ts)%Instr%tau = 1d0 / 50d0
-        case('csat3')
+        case('csat3', 'csat3b')
             E2Col(u:ts)%Instr%vpath_length = 0.115d0
             E2Col(u:ts)%Instr%hpath_length = 0.058d0
             E2Col(u:ts)%Instr%tau = 1d0 / 60d0

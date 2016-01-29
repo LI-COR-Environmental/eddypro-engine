@@ -467,7 +467,7 @@ subroutine FixDynamicMetadata()
                 DynamicMetadata%instr(j)%firm = 'gill'
             case('usa1_standard', 'usa1_fast')
                 DynamicMetadata%instr(j)%firm = 'metek'
-            case('csat3')
+            case('csat3', 'csat3b')
                 DynamicMetadata%instr(j)%firm = 'csi'
             case('81000')
                 DynamicMetadata%instr(j)%firm = 'young'
