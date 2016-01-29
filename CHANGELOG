@@ -1,5 +1,17 @@
 Next version (yyyy-mm-dd)
     Engine
+    - Add: support of Gill WindMaster and WindMaster Pro "w-boost"
+      correction, necessary to fix firmware bug for firmware versions:
+      [2329.x.y with x<700].
+    - Refine: AoA correction policy. Now Nakai et al. 2006 is applied only to
+      R3 family and R2. Nakai and Shimoyama 2012 is applied to WindMaster and
+      WindMaster Pro. The combination of "w-boost" and AoA correction for
+      the WindMaster/Pro is handled automatically by EddyPro. Effectively,
+      the user as the options of (1) applying or not the w-boost correction
+      alone for WindMaster/Pro; (2) applying or not Nakai's AoA corrections.
+      However, EddyPro controls that both corrections are applicable to the
+      current anemometer and overrides user's settings (and output
+      corresponding warnings) if necessary.
     - Fix: flags for absolute limits is now correctly calculated. Flags for
       this test obtained so far are unreliable.
     - Fix: output of full (co)spectra. The bug was such that there was a 
