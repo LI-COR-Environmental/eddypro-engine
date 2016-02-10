@@ -1,4 +1,6 @@
 Next version (yyyy-mm-dd)
+    TODO: change 273.16 into 273.15!!!
+
     Engine
     - Add: support of Gill WindMaster and WindMaster Pro "w-boost"
       correction, necessary to fix firmware bug for firmware versions:
