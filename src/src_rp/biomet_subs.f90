@@ -722,11 +722,11 @@ subroutine BiometStandardUnits()
         select case(trim(bVars(i)%nature))
             case('TEMPERATURE')
                 select case(bVars(i)%unit_in)
-                    case('C','°C')
+                    case('C','ï¿½C')
                         where (bSet(:, i) /= error)
                             bSet(:, i) = bSet(:, i) + 273.16d0
                         end where
-                    case('F','°F')
+                    case('F','ï¿½F')
                         where (bSet(:, i) /= error)
                             bSet(:, i) = (bSet(:, i) - 32d0) * 5d0 / 9d0 &
                                 + 273.16d0
@@ -735,11 +735,11 @@ subroutine BiometStandardUnits()
                         where (bSet(:, i) /= error)
                             bSet(:, i) = bSet(:, i) * 1d-2
                         end where
-                    case('CC','C°C')
+                    case('CC','Cï¿½C')
                         where (bSet(:, i) /= error)
                             bSet(:, i) = bSet(:, i) * 1d-2 + 273.16d0
                         end where
-                    case('CF','C°F')
+                    case('CF','Cï¿½F')
                         where (bSet(:, i) /= error)
                             bSet(:, i) = (bSet(:, i) * 1d-2 - 32d0) * 5d0 / 9d0 &
                                 + 273.16d0

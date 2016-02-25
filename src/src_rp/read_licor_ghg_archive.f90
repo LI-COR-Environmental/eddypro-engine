@@ -33,7 +33,7 @@ subroutine ReadLicorGhgArchive(ZipFile, FirstRecord, LastRecord, LocCol, &
     LocBypassCol, MetaIsNeeded, BiometIsNeeded, DataIsNeeded, ValidateMetadata, &
     fRaw, nrow, ncol, skip_file, passed, faulty_col, N, FileEndReached, printout)
 
-    use m_common_global_var
+    use m_rp_global_var
     implicit none
     !> in/out variables
     integer, intent(in) :: FirstRecord

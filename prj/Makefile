@@ -1,6 +1,5 @@
 #
-# Makefile for EddyPro's RP engine for Win7 and above
-# Executable name: eddypro_rp.exe
+# Makefile for EddyPro's engine executables
 # Author: Gerardo Fratini, LI-COR Biosciences
 #
 
@@ -9,7 +8,8 @@ ifdef ComSpec
 	#Windows
 	RM = if exist FILE del /F /Q FILE
 	MV = if exist FILE move FILE DESTINATION
-	EXE = eddypro_rp.exe
+	RP_EXE = eddypro_rp.exe
+	FCC_EXE = eddypro_fcc.exe
 	OS_DIR = win
 	FC = mingw32-gfortran.exe
 	MAKE_DIR = if not exist DIR mkdir DIR
@@ -18,7 +18,8 @@ else
 	#Unix
 	RM = rm -f FILE
 	MV = mv FILE DESTINATION || true
-	EXE = eddypro_rp
+	RP_EXE = eddypro_rp
+	FCC_EXE = eddypro_rp
 	FC = gfortran
 	MAKE_DIR = @mkdir -p DIR
 	PATHSEP2 = /
@@ -32,9 +33,13 @@ endif
 PATHSEP=$(strip $(PATHSEP2))
 
 #Dirs as seen by Make
+##RP
 RP_SRC_DIR_f90d1 = ../src/src_rp/
-COMMON_SRC_DIR_f90d1 = ../src/src_common/
 RP_SRC_DIR_Fd2 = ../src/src_rp/fft4/
+##FCC
+FCC_SRC_DIR_f90d1 = ../src/src_fcc/
+##Common
+COMMON_SRC_DIR_f90d1 = ../src/src_common/
 OBJS_DIR = ../obj/$(OS_DIR)/
 EXE_DIR = ../bin/$(OS_DIR)/
 
@@ -42,6 +47,8 @@ EXE_DIR = ../bin/$(OS_DIR)/
 ##RP
 OS_RP_SRC_DIR_f90d1 = ..$(PATHSEP)src$(PATHSEP)src_rp$(PATHSEP)
 OS_RP_SRC_DIR_Fd2   = ..$(PATHSEP)src$(PATHSEP)src_rp$(PATHSEP)fft4$(PATHSEP)
+##FCC
+OS_FCC_SRC_DIR_f90d1 = ..$(PATHSEP)src$(PATHSEP)src_fcc$(PATHSEP)
 ##Common
 OS_COMMON_SRC_DIR_f90d1 = ..$(PATHSEP)src$(PATHSEP)src_common$(PATHSEP)
 OS_OBJS_DIR = ..$(PATHSEP)obj$(PATHSEP)$(OS_DIR)$(PATHSEP)
@@ -51,45 +58,67 @@ OS_EXE_DIR  = ..$(PATHSEP)bin$(PATHSEP)$(OS_DIR)$(PATHSEP)
 ##RP
 RP_SRCS_f90d1 = $(notdir $(wildcard $(RP_SRC_DIR_f90d1)*.f90))
 RP_SRCS_Fd2 = $(notdir $(wildcard $(RP_SRC_DIR_Fd2)*.F))
+##FCC
+FCC_SRCS_f90d1 = $(notdir $(wildcard $(FCC_SRC_DIR_f90d1)*.f90))
 ##Common
 COMMON_SRCS_f90d1 = $(notdir $(wildcard $(COMMON_SRC_DIR_f90d1)*.f90))
 
-#List of obkect file basenames (.o)
+#List of object file basenames (.o)
 ##RP
 RP_OBJS_f90d1=$(patsubst %.f90, %.o, $(RP_SRCS_f90d1))
 RP_OBJS_Fd2=$(patsubst %.F, %.o, $(RP_SRCS_Fd2))
+##FCC
+FCC_OBJS_f90d1=$(patsubst %.f90, %.o, $(FCC_SRCS_f90d1))
 ##Common
 COMMON_OBJS_f90d1=$(patsubst %.f90, %.o, $(COMMON_SRCS_f90d1))
 
 CFLAGS = -Wall -pedantic -fall-intrinsics -fbounds-check -Wextra -Wcharacter-truncation -Wunderflow -Wno-compare-reals -std=f2003 -O3 -I $(OBJS_DIR)
 
-VPATH = $(RP_SRC_DIR_f90d1):$(COMMON_SRC_DIR_f90d1):$(RP_SRC_DIR_Fd2):$(OBJS_DIR)
-RP_OBJS = $(addprefix $(OBJS_DIR), $(RP_OBJS_f90d1) $(COMMON_OBJS_f90d1) $(RP_OBJS_Fd2))
+VPATH = $(RP_SRC_DIR_f90d1):$(RP_SRC_DIR_Fd2):$(FCC_SRC_DIR_f90d1):$(COMMON_SRC_DIR_f90d1):$(OBJS_DIR)
+RP_OBJS = $(addprefix $(OBJS_DIR), $(RP_OBJS_f90d1) $(RP_OBJS_Fd2)$(COMMON_OBJS_f90d1))
+FCC_OBJS = $(addprefix $(OBJS_DIR), $(FCC_OBJS_f90d1) $(COMMON_OBJS_f90d1))
 
-all : $(EXE)
+#Targets
+all : $(RP_EXE) $(FCC_EXE)
 
-rp : $(RP_OBJS_f90d1) $(COMMON_OBJS_f90d1) $(RP_OBJS_Fd2)
+rp : $(RP_OBJS_f90d1) $(RP_OBJS_Fd2) $(COMMON_OBJS_f90d1)
 	@$(subst DIR,$(OS_EXE_DIR),$(MAKE_DIR))
-	$(FC) -o $(EXE_DIR)$(EXE) $(RP_OBJS)
+	$(FC) -o $(EXE_DIR)$(RP_EXE) $(RP_OBJS)
 	@$(subst DESTINATION, $(OS_OBJS_DIR), $(subst FILE, *.mod, $(MV)))
 
+fcc : $(FCC_OBJS_f90d1) $(COMMON_OBJS_f90d1)
+	@$(subst DIR,$(OS_EXE_DIR),$(MAKE_DIR))
+	$(FC) -o $(EXE_DIR)$(FCC_EXE) $(FCC_OBJS)
+	@$(subst DESTINATION, $(OS_OBJS_DIR), $(subst FILE, *.mod, $(MV)))
+
+#Compilation
+##RP
 $(RP_OBJS_f90d1):
 	@$(subst DIR,$(OS_OBJS_DIR),$(MAKE_DIR))
 	$(FC) $(CFLAGS) -c $(RP_SRC_DIR_f90d1)$(@:.o=.f90) -o $(OBJS_DIR)$@
-
+$(RP_OBJS_Fd2):
+	@$(subst DIR,$(OS_OBJS_DIR),$(MAKE_DIR))
+	$(FC) -c $(RP_SRC_DIR_Fd2)$(@:.o=.F) -o $(OBJS_DIR)$@
+##FCC
+$(FCC_OBJS_f90d1):
+	@$(subst DIR,$(OS_OBJS_DIR),$(MAKE_DIR))
+	$(FC) $(CFLAGS) -c $(FCC_SRC_DIR_f90d1)$(@:.o=.f90) -o $(OBJS_DIR)$@
+##Common
 $(COMMON_OBJS_f90d1):
 	@$(subst DIR,$(OS_OBJS_DIR),$(MAKE_DIR))
 	$(FC) $(CFLAGS) -c $(COMMON_SRC_DIR_f90d1)$(@:.o=.f90) -o $(OBJS_DIR)$@
 
-$(RP_OBJS_Fd2):
-	@$(subst DIR,$(OS_OBJS_DIR),$(MAKE_DIR))
-	$(FC) -c $(RP_SRC_DIR_Fd2)$(@:.o=.F) -o $(OBJS_DIR)$@
-
-clean:
+clean_rp:
 	@$(subst FILE, $(OS_OBJS_DIR)*, $(RM))
-	@$(subst FILE, $(OS_EXE_DIR)$(EXE), $(RM))
+	@$(subst FILE, $(OS_EXE_DIR)$(RP_EXE), $(RM))
 
-# File dependencies
+clean_fcc:
+	@$(subst FILE, $(OS_OBJS_DIR)*, $(RM))
+	@$(subst FILE, $(OS_EXE_DIR)$(FCC_EXE), $(RM))
+
+clean_all: $(clean_rp) $(clean_fcc)
+
+#File dependencies
 m_dates.o: \
 	m_dates.f90
 m_libdate.o: \
@@ -197,7 +226,7 @@ bpcf_cospectral_models.o: \
 	m_common_global_var.o
 read_licor_ghg_archive.o: \
 	read_licor_ghg_archive.f90 \
-	m_common_global_var.o
+	m_rp_global_var.o
 developed_turbulence_test.o: \
 	developed_turbulence_test.f90 \
 	m_rp_global_var.o
@@ -419,7 +448,7 @@ write_out_ameriflux_rp.o: \
 	m_rp_global_var.o
 fourier_transform.o: \
 	fourier_transform.f90 \
-	m_common_global_var.o
+	m_rp_global_var.o
 optimize_timelags.o: \
 	optimize_timelags.f90 \
 	m_rp_global_var.o
@@ -457,7 +486,7 @@ bpcf_bandpass_spectral_corrections.o: \
 	m_common_global_var.o
 read_biomet_file.o: \
 	read_biomet_file.f90 \
-	m_common_global_var.o
+	m_rp_global_var.o
 detect_master_sonic.o: \
 	detect_master_sonic.f90 \
 	m_rp_global_var.o
@@ -502,7 +531,7 @@ eddypro-rp_main.o: \
 	m_rp_global_var.o
 import_current_period.o: \
 	import_current_period.f90 \
-	m_common_global_var.o
+	m_rp_global_var.o
 add_to_timelag_opt_dataset.o: \
 	add_to_timelag_opt_dataset.f90 \
 	m_rp_global_var.o
@@ -664,3 +693,108 @@ string_sub.o: \
 	string_sub.f90 \
 	m_common_global_var.o \
 	m_numeric_kinds.o
+add_to_cospectra_fit_dataset.o: \
+	add_to_cospectra_fit_dataset.f90 \
+	m_fx_global_var_mod.o
+available_mean_spectra_cospectra.o: \
+	available_mean_spectra_cospectra.f90 \
+	m_fx_global_var_mod.o
+correction_factor_model.o: \
+	correction_factor_model.f90 \
+	m_fx_global_var_mod.o \
+	m_levenberg_marquardt.o
+cospectra_qaqc.o: \
+	cospectra_qaqc.f90 \
+	m_fx_global_var_mod.o
+bpcf_read_full_cos_wt.o: \
+	bpcf_read_full_cos_wt.f90 \
+	m_common_global_var.o
+cospectra_sorting_and_averaging.o: \
+	cospectra_sorting_and_averaging.f90 \
+	m_fx_global_var_mod.o
+eddypro-fcc_main.o: \
+	eddypro-fcc_main.f90 \
+	m_fx_global_var_mod.o
+ensemble_cospectra_by_stability.o: \
+	ensemble_cospectra_by_stability.f90 \
+	m_fx_global_var_mod.o
+fit_cospectral_models.o: \
+	fit_cospectral_models.f90 \
+	m_fx_global_var_mod.o \
+	m_levenberg_marquardt.o
+read_ex_record.o: \
+	read_ex_record.f90 \
+	m_common_global_var.o
+fit_rh_to_cutoff.o: \
+	fit_rh_to_cutoff.f90 \
+	m_fx_global_var_mod.o \
+	m_levenberg_marquardt.o
+fit_tf_models.o: \
+	fit_tf_models.f90 \
+	m_fx_global_var_mod.o \
+	m_levenberg_marquardt.o
+ridders_diff.o: \
+	ridders_diff.f90 \
+	m_common_global_var.o
+fluxes1.o: \
+	fluxes1.f90 \
+	m_fx_global_var_mod.o
+fluxes23.o: \
+	fluxes23.f90 \
+	m_fx_global_var_mod.o
+extract_column_from_essentials.o: \
+	extract_column_from_essentials.f90 \
+	m_common_global_var.o
+init_ex_vars.o: \
+	init_ex_vars.f90 \
+	m_fx_global_var_mod.o
+fcn.o: \
+	fcn.f90 \
+	m_common_global_var.o
+init_out_files.o: \
+	init_out_files.f90 \
+	m_fx_global_var_mod.o
+m_fx_global_var_mod.o: \
+	m_fx_global_var_mod.f90 \
+	m_common_global_var.o
+normalize_mean_spectra_cospectra.o: \
+	normalize_mean_spectra_cospectra.f90 \
+	m_fx_global_var_mod.o
+output_spectral_assessment_results.o: \
+	output_spectral_assessment_results.f90 \
+	m_fx_global_var_mod.o
+read_binned_file.o: \
+	read_binned_file.f90 \
+	m_fx_global_var_mod.o
+ts_extract_subperiod_indexes_from_filelist.o: \
+	ts_extract_subperiod_indexes_from_filelist.f90 \
+	m_common_global_var.o
+read_fx_ini.o: \
+	read_fx_ini.f90 \
+	m_fx_global_var_mod.o
+kaimal_models.o: \
+	kaimal_models.f90 \
+	m_common_global_var.o
+read_spectral_assessment_file.o: \
+	read_spectral_assessment_file.f90 \
+	m_fx_global_var_mod.o
+retrieve_ex_var_by_timestamp.o: \
+	retrieve_ex_var_by_timestamp.f90 \
+	m_fx_global_var_mod.o
+spectra_sorting_and_averaging.o: \
+	spectra_sorting_and_averaging.f90 \
+	m_fx_global_var_mod.o
+subtract_high_freq_noise.o: \
+	subtract_high_freq_noise.f90 \
+	m_fx_global_var_mod.o
+write_ameriflux_output.o: \
+	write_ameriflux_output.f90 \
+	m_fx_global_var_mod.o
+report_imported_spectra.o: \
+	report_imported_spectra.f90 \
+	m_fx_global_var_mod.o
+write_output_files_fcc.o: \
+	write_output_files_fcc.f90 \
+	m_fx_global_var_mod.o
+m_levenberg_marquardt.o: \
+	m_levenberg_marquardt.f90

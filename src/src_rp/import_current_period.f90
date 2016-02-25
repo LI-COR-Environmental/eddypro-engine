@@ -36,7 +36,7 @@ subroutine ImportCurrentPeriod(InitialTimestamp, FinalTimestamp, FileList, &
     BiometIsNeeded, logout, Raw, nrow, ncol, N, &
     bDataFound, skip_period, NextFile, LocCol)
 
-    use m_common_global_var
+    use m_rp_global_var
     implicit none
     !> in/out variables
     integer, intent(in) :: nrow, ncol

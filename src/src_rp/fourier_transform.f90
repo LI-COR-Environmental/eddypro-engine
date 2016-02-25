@@ -31,7 +31,7 @@
 ! \todo
 !***************************************************************************
 subroutine FourierTransform(xx, N, M)
-    use m_common_global_var
+    use m_rp_global_var
     implicit none
     !> in/out variables
     integer, intent(in) :: N
@@ -54,4 +54,3 @@ subroutine FourierTransform(xx, N, M)
     end do
     write(*,'(a)') ' Done.'
 end subroutine FourierTransform
-
