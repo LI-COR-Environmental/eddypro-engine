@@ -793,8 +793,8 @@ write_ameriflux_output.o: \
 report_imported_spectra.o: \
 	report_imported_spectra.f90 \
 	m_fx_global_var_mod.o
+m_levenberg_marquardt.o: \
+	m_levenberg_marquardt.f90
 write_output_files_fcc.o: \
 	write_output_files_fcc.f90 \
 	m_fx_global_var_mod.o
-m_levenberg_marquardt.o: \
-	m_levenberg_marquardt.f90
