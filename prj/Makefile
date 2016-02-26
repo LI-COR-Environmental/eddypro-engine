@@ -19,7 +19,7 @@ else
 	RM = rm -f FILE
 	MV = mv FILE DESTINATION || true
 	RP_EXE = eddypro_rp
-	FCC_EXE = eddypro_rp
+	FCC_EXE = eddypro_fcc
 	FC = gfortran
 	MAKE_DIR = @mkdir -p DIR
 	PATHSEP2 = /
@@ -79,7 +79,7 @@ RP_OBJS = $(addprefix $(OBJS_DIR), $(RP_OBJS_f90d1) $(RP_OBJS_Fd2)$(COMMON_OBJS_
 FCC_OBJS = $(addprefix $(OBJS_DIR), $(FCC_OBJS_f90d1) $(COMMON_OBJS_f90d1))
 
 #Targets
-all : $(RP_EXE) $(FCC_EXE)
+all : rp fcc
 
 rp : $(RP_OBJS_f90d1) $(RP_OBJS_Fd2) $(COMMON_OBJS_f90d1)
 	@$(subst DIR,$(OS_EXE_DIR),$(MAKE_DIR))
@@ -108,6 +108,8 @@ $(COMMON_OBJS_f90d1):
 	@$(subst DIR,$(OS_OBJS_DIR),$(MAKE_DIR))
 	$(FC) $(CFLAGS) -c $(COMMON_SRC_DIR_f90d1)$(@:.o=.f90) -o $(OBJS_DIR)$@
 
+clean_all: clean_rp clean_fcc
+
 clean_rp:
 	@$(subst FILE, $(OS_OBJS_DIR)*, $(RM))
 	@$(subst FILE, $(OS_EXE_DIR)$(RP_EXE), $(RM))
@@ -115,8 +117,6 @@ clean_rp:
 clean_fcc:
 	@$(subst FILE, $(OS_OBJS_DIR)*, $(RM))
 	@$(subst FILE, $(OS_EXE_DIR)$(FCC_EXE), $(RM))
-
-clean_all: $(clean_rp) $(clean_fcc)
 
 #File dependencies
 m_dates.o: \
