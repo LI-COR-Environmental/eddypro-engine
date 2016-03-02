@@ -1,7 +1,10 @@
 Next version (yyyy-mm-dd)
     TODO: change 273.16 into 273.15!!!
 
-    Engine
+    - Refine: now biomet variables that are provided without positional qualifiers
+      are by default given a "null qualifier" in the form of _0_0_n, with n progressing
+      from 1. This applies now also to external biomet files, which means that users no longer
+      need to assign 'fake' positional qualifiers to variables
     - Add: support of Gill WindMaster and WindMaster Pro "w-boost"
       correction, necessary to fix firmware bug for firmware versions:
       [2329.x.y with x<700].
@@ -16,16 +19,16 @@ Next version (yyyy-mm-dd)
       corresponding warnings) if necessary.
     - Fix: flags for absolute limits is now correctly calculated. Flags for
       this test obtained so far are unreliable.
-    - Fix: output of full (co)spectra. The bug was such that there was a 
-      mis-alignment of one data point between frequencies and associated 
-      (co)spectra values. The bug did not affect calculation and output of 
+    - Fix: output of full (co)spectra. The bug was such that there was a
+      mis-alignment of one data point between frequencies and associated
+      (co)spectra values. The bug did not affect calculation and output of
       binned cospectra, nor usage of full cospectra in spectral corrections.
     - Fix: now files with timestamp referring to end of the dataset are
       processed correctly. The bug did not allow processing them in rather
       unusual (but not impossible) situations, such as when files shorter
       than the flux averaging interval were processed.
     - Refine: handle inconsistent selection of embedded biomet data and non-GHG
-      file type. This pair of inconsistent settings is not possible with the GUI, 
+      file type. This pair of inconsistent settings is not possible with the GUI,
       only with manual editing of the .eddypro file.
     - Fix: definitions of Hamming and Hann windows were mistakenly inverted.
       Now they are correct. The difference between the two windows is anyway
@@ -181,7 +184,7 @@ Next version (yyyy-mm-dd)
     - Refinement: improve update notification message reminding the
       SmartFlux update too.
     - Refinement: review policies for start/end dates settings.
-    
+
 5.2.1 (2015-01-29)
 
     Engine
@@ -739,4 +742,3 @@ http://envsupport.licor.com/help/EddyPro5/index.htm#Whats_New.htm
 
 2.0.0 (2011-04-05)
     - First public release of EddyPro (Express version only).
-
