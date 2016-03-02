@@ -201,7 +201,7 @@ subroutine WriteBiometMetaVariables(skip_file)
     bFileMetadata%numTsCol = tsCnt
 
     !> Append suffix if variables have not
-    call BiometAppendLocationSuffix()
+    call BiometAppendReplicateSuffix()
 
     !> Fill variables information based on label and other available fields
     call BiometEnrichVarsDescription()

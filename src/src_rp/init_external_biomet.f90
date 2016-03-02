@@ -124,7 +124,6 @@ subroutine InitExternalBiomet(bFileList, N)
         !> If file was excluded above, cycle
         if (excluded_file(nfl)) cycle files_loop
 
-
         !> Open biomet file
         open(udf, file = bFileList(nfl)%path, status = 'old', &
             iostat = io_status)

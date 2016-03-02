@@ -548,7 +548,7 @@ subroutine InitOutFiles_rp()
                 &[mmol+1m-3],[' // char(181) // 'mol+1mol_a-1],[' // char(181) // 'mol+1mol_d-1],[s],[1=default],&
                 &[mmol+1m-3],[' // char(181) // 'mol+1mol_a-1],[' // char(181) // 'mol+1mol_d-1],[s],[1=default],&
                 &[K],[K],[Pa],[kg+1m-3],[J+1kg-1K-1],[m+3mol-1],[mm],[kg+1m-3],[Pa],[Pa],[kg+1kg-1],[%],[Pa],[K],&
-                &[m+1s-1],[m+1s-1],[m+1s-1],[m+1s-1],[m+1s-1],[m+1s-1],[m+1s-1],[m+1s-1],[deg_from_north],[°],[°],[°],&
+                &[m+1s-1],[m+1s-1],[m+1s-1],[m+1s-1],[m+1s-1],[m+1s-1],[m+1s-1],[m+1s-1],[deg_from_north],[ï¿½],[ï¿½],[ï¿½],&
                 &[m+1s-1],[m+2s-2],[m],[#],[#],[K],[0=KJ/1=KM/2=HS],[m],[m],[m],[m],[m],[m],[m],&
                 &[kg+1m-1s-2],[#],[W+1m-2],[#],[W+1m-2],[#],[' // char(181) // 'mol+1s-1m-2],[#],[mmol+1s-1m-2],[#],&
                 &[' // char(181) // 'mol+1s-1m-2],[#],[' // char(181) // 'mol+1s-1m-2],[#],&
@@ -754,15 +754,15 @@ subroutine InitOutFiles_rp()
         end if
 
         !> MET_WIND and FOOTPRINT
-        call AddDatum(header2,'WD_1_1_1,WS_1_1_1,WS_MAX_1_1_1,U_SIGMA_1_1_1,&
-            &V_SIGMA_1_1_1,W_SIGMA_1_1_1,USTAR_1_1_1,MO_LENGTH_1_1_1,ZL_1_1_1,&
-            &FETCH_MAX_1_1_1,FETCH_70_1_1_1,FETCH_80_1_1_1,FETCH_90_1_1_1', separator)
+        call AddDatum(header2,'WD_0_0_1,WS_0_0_1,WS_MAX_0_0_1,U_SIGMA_0_0_1,&
+            &V_SIGMA_0_0_1,W_SIGMA_0_0_1,USTAR_0_0_1,MO_LENGTH_0_0_1,ZL_0_0_1,&
+            &FETCH_MAX_0_0_1,FETCH_70_0_0_1,FETCH_80_0_0_1,FETCH_90_0_0_1', separator)
         call AddDatum(header3,'[Decimal degrees],[m s-1],[m s-1],[m s-1],&
             &[m s-1],[m s-1],[m s-1],[m],[#],[m],[m],[m],[m]', separator)
 
         !> MET_ATM
-        call AddDatum(header2,'PA_1_1_1,RH_1_1_1,TA_1_1_1,VPD_1_1_1,T_SONIC_1_1_1,&
-            &T_SONIC_SIGMA_1_1_1', separator)
+        call AddDatum(header2,'PA_0_0_1,RH_0_0_1,TA_0_0_1,VPD_0_0_1,T_SONIC_0_0_1,&
+            &T_SONIC_SIGMA_0_0_1', separator)
         call AddDatum(header3,'[kPa],[%],[deg C],[hPa],[deg C],[deg C]', separator)
 
         call latin1_to_utf8(header2, head2_utf8)
