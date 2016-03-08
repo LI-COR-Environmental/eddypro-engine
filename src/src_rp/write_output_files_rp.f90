@@ -1217,7 +1217,7 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, &
 
         !> Ambient temperature in degC
         if (Ambient%TA /= error) then
-            call WriteDatumFloat(Ambient%TA - 273.16d0, datum, '-9999.')
+            call WriteDatumFloat(Ambient%TA - 273.15d0, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
         else
             call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
@@ -1233,7 +1233,7 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, &
 
         !> Sonic temperature in degC
         if (Stats7%Mean(ts) /= error) then
-            call WriteDatumFloat(Stats7%Mean(ts) - 273.16d0, datum, '-9999.')
+            call WriteDatumFloat(Stats7%Mean(ts) - 273.15d0, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
         else
             call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)

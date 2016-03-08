@@ -646,7 +646,7 @@ subroutine WriteOutputFiles(lEx)
 
         !> Ambient temperature in degC
         if (lEx%Ta /= error) then
-            call WriteDatumFloat(lEx%Ta - 273.16d0, datum, '-9999.')
+            call WriteDatumFloat(lEx%Ta - 273.15d0, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
         else
             call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
@@ -662,7 +662,7 @@ subroutine WriteOutputFiles(lEx)
 
         !> Sonic temperature in degC
         if (lEx%Ts /= error) then
-            call WriteDatumFloat(lEx%Ts - 273.16d0, datum, '-9999.')
+            call WriteDatumFloat(lEx%Ts - 273.15d0, datum, '-9999.')
             call AddDatum(dataline, datum, separator)
         else
             call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)

@@ -730,12 +730,12 @@ subroutine BiometStandardUnits()
                 select case(bVars(i)%unit_in)
                     case('C','�C')
                         where (bSet(:, i) /= error)
-                            bSet(:, i) = bSet(:, i) + 273.16d0
+                            bSet(:, i) = bSet(:, i) + 273.15d0
                         end where
                     case('F','�F')
                         where (bSet(:, i) /= error)
                             bSet(:, i) = (bSet(:, i) - 32d0) * 5d0 / 9d0 &
-                                + 273.16d0
+                                + 273.15d0
                         end where
                     case('CK')
                         where (bSet(:, i) /= error)
@@ -743,12 +743,12 @@ subroutine BiometStandardUnits()
                         end where
                     case('CC','C�C')
                         where (bSet(:, i) /= error)
-                            bSet(:, i) = bSet(:, i) * 1d-2 + 273.16d0
+                            bSet(:, i) = bSet(:, i) * 1d-2 + 273.15d0
                         end where
                     case('CF','C�F')
                         where (bSet(:, i) /= error)
                             bSet(:, i) = (bSet(:, i) * 1d-2 - 32d0) * 5d0 / 9d0 &
-                                + 273.16d0
+                                + 273.15d0
                         end where
                     case default
                 end select

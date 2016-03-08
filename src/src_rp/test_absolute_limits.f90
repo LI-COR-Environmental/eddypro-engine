@@ -56,8 +56,8 @@ subroutine TestAbsoluteLimits(Set, N, printout)
     end if
     if (any(abs(Set(:, w)) > al%w_max)) hflags(w) = 1
     !> Flag sonic temperature
-    if (any(Set(:, ts) < al%t_min + 273.16d0) .or. &
-         any(Set(:, ts) > al%t_max + 273.16d0)) hflags(ts) = 1
+    if (any(Set(:, ts) < al%t_min + 273.15d0) .or. &
+         any(Set(:, ts) > al%t_max + 273.15d0)) hflags(ts) = 1
 
     !> Flag co2, expressed as [mmol m-3] if molar_density, [umol mol-1] otherwise
     if (E2Col(co2)%present) then
@@ -118,8 +118,8 @@ subroutine TestAbsoluteLimits(Set, N, printout)
         where (abs(Set(:, w)) > al%w_max)
             Set(:, w) = error
         end where
-        where ( Set(:, ts) < al%t_min + 273.16d0 .or. &
-            Set(:, ts) > al%t_max + 273.16d0)
+        where ( Set(:, ts) < al%t_min + 273.15d0 .or. &
+            Set(:, ts) > al%t_max + 273.15d0)
             Set(:, ts) = error
         end where
     end if

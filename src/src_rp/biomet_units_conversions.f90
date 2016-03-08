@@ -44,27 +44,27 @@ subroutine BiometStandardEddyProUnits()
         select case(trim(bVars(i)%nature))
             case('TEMPERATURE')
                 select case(bVars(i)%unit_in)
-                    case('C','°C')
+                    case('C','ï¿½C')
                         where (bSet(:, i) /= error)
-                            bSet(:, i) = bSet(:, i) + 273.16d0
+                            bSet(:, i) = bSet(:, i) + 273.15d0
                         end where
-                    case('F','°F')
+                    case('F','ï¿½F')
                         where (bSet(:, i) /= error)
                             bSet(:, i) = (bSet(:, i) - 32d0) * 5d0 / 9d0 &
-                                + 273.16d0
+                                + 273.15d0
                         end where
                     case('CK')
                         where (bSet(:, i) /= error)
                             bSet(:, i) = bSet(:, i) * 1d-2
                         end where
-                    case('CC','C°C')
+                    case('CC','Cï¿½C')
                         where (bSet(:, i) /= error)
-                            bSet(:, i) = bSet(:, i) * 1d-2 + 273.16d0
+                            bSet(:, i) = bSet(:, i) * 1d-2 + 273.15d0
                         end where
-                    case('CF','C°F')
+                    case('CF','Cï¿½F')
                         where (bSet(:, i) /= error)
                             bSet(:, i) = (bSet(:, i) * 1d-2 - 32d0) * 5d0 / 9d0 &
-                                + 273.16d0
+                                + 273.15d0
                         end where
                     case default
                 end select
@@ -251,7 +251,7 @@ subroutine BiometStandardFluxnetUnits()
     do i = 1, nbVars
         !> All temperatures converted to [degC]
         if (trim(bVars(i)%nature) == 'TEMPERATURE' .and. bAggr(i) /= error) &
-            bAggrFluxnet(i) = bAggr(i) - 273.16d0
+            bAggrFluxnet(i) = bAggr(i) - 273.15d0
         !> Air pressure is converted to [kPa]
         if (bVars(i)%fluxnet_base_name == 'PA' .and. bAggr(i) /= error) &
             bAggrFluxnet(i) = bAggr(i) * 1d-3

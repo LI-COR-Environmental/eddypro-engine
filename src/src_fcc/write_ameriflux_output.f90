@@ -63,7 +63,7 @@ subroutine WriteAmeriFluxOutput(lEx)
     if(lEx%time(1:1) /= '0') call AddDatum(dataline, lEx%time(1:2) // lEx%time(4:5), separator)
     write(datum, *) lEx%ustar
     call AddDatum(dataline, datum, separator)
-    write(datum, *) lEx%Ta - 273.16d0
+    write(datum, *) lEx%Ta - 273.15d0
     call AddDatum(dataline, datum, separator)
     write(datum, *) lEx%WD
     call AddDatum(dataline, datum, separator)
