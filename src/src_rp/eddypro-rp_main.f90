@@ -1208,6 +1208,8 @@ program EddyproRP
             write(*,'(a)') ' Planar Fit session terminated.'
             write(*,'(a)')
         end if
+    else
+        if (.not. allocated(GoPlanarFit)) allocate(GoPlanarFit(PFSetup%num_sec))
     end if
 
     !***************************************************************************

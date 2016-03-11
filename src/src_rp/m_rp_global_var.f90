@@ -541,7 +541,7 @@ module m_rp_global_var
          SCTags(38)%Label / 'out_full_cosp_w_co2' / &
          SCTags(39)%Label / 'out_full_cosp_w_h2o' / &
          SCTags(40)%Label / 'out_full_cosp_w_ch4' / &
-         SCTags(41)%Label / 'out_full_cosp_w_n2o' / &
+         SCTags(41)%Label / 'out_full_cosp_w_gas4' / &
          SCTags(42)%Label / 'out_st_1' / &
          SCTags(43)%Label / 'out_st_2' / &
          SCTags(44)%Label / 'out_st_3' / &

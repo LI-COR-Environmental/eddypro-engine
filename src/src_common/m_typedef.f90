@@ -106,7 +106,6 @@ module m_typedef
     integer, parameter :: w_co2 = 5
     integer, parameter :: w_h2o = 6
     integer, parameter :: w_ch4 = 7
-    integer, parameter :: w_n2o = 8
     integer, parameter :: w_gas4 = 8
 
     !> Other labels
@@ -1226,4 +1225,3 @@ module m_typedef
         Type(SwVerType) :: logger_swver
     end type ExType
 end module m_typedef
-

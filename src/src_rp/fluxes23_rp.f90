@@ -848,7 +848,7 @@ subroutine Fluxes23_rp()
     !> gas4
     if (E2Col(gas4)%Instr%path_type == 'closed' .and. Flux2%gas4 /= error) then
         !> Level 3, spectral correction
-        Flux3%gas4 = Flux2%gas4 * BPCF%of(w_n2o)
+        Flux3%gas4 = Flux2%gas4 * BPCF%of(w_gas4)
     else
         !> Level 3, spectral correction was already applied
         Flux3%gas4 = Flux2%gas4

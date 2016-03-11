@@ -917,7 +917,7 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, &
         if(OutVarPresent(gas4)) then
             call WriteDatumFloat(Flux0%gas4, datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
-            call WriteDatumFloat(BPCF%of(w_n2o), datum, EddyProProj%err_label)
+            call WriteDatumFloat(BPCF%of(w_gas4), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         elseif(EddyProProj%fix_out_format) then
             call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)

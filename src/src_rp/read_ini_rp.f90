@@ -254,7 +254,7 @@ subroutine WriteVariablesRP()
     RPsetup%out_full_cosp(w_co2) = SCTags(38)%value(1:1) == '1'
     RPsetup%out_full_cosp(w_h2o) = SCTags(39)%value(1:1) == '1'
     RPsetup%out_full_cosp(w_ch4) = SCTags(40)%value(1:1) == '1'
-    RPsetup%out_full_cosp(w_n2o) = SCTags(41)%value(1:1) == '1'
+    RPsetup%out_full_cosp(w_gas4) = SCTags(41)%value(1:1) == '1'
 
     RPsetup%out_st(1) = SCTags(42)%value(1:1) == '1'
     RPsetup%out_st(2) = SCTags(43)%value(1:1) == '1'
