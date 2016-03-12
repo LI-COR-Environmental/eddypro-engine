@@ -65,6 +65,7 @@ subroutine ReadLicorGhgArchive(ZipFile, FirstRecord, LastRecord, LocCol, &
 
     skip_file = .false.
     passed = .true.
+
     !> Unzip archive
     call UnZipArchive(ZipFile, 'metadata','data', MetaFile, DataFile, &
         BiometFile, BiometMetaFile, skip_file)
