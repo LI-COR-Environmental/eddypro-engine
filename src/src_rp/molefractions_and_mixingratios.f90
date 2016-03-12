@@ -36,7 +36,7 @@ subroutine MoleFractionsAndMixingRatios()
     implicit none
     !> local variables
     integer :: gas
-    real(kind=dbl) :: LocVa(GHGNumVar)
+    real(kind = dbl) :: LocVa(GHGNumVar)
 
 
     !> Initialization

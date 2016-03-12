@@ -39,7 +39,7 @@ subroutine WriteOutAmeriFlux_rp(date, time)
     character(LongOutstringLen) :: dataline
     character(DatumLen) :: datum
     integer :: int_doy
-    real(kind=dbl) :: float_doy
+    real(kind = dbl) :: float_doy
 
 
     call DateTimeToDOY(date, time, int_doy, float_doy)

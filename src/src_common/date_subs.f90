@@ -347,7 +347,7 @@ logical function IsDaytime(rad, date, time)
     use m_common_global_Var
     implicit none
     !> in/out variables
-    real(kind=dbl), intent(in) :: rad(17568)
+    real(kind = dbl), intent(in) :: rad(17568)
     character(*), intent(in) :: date
     character(*), intent(in) :: time
     !> local variables
@@ -449,7 +449,7 @@ subroutine DateTimeToDOY(date, time, int_doy, float_doy)
     character(*), intent(in) :: date
     character(*), intent(in) :: time
     integer, intent(out) :: int_doy
-    real(kind=dbl), intent(out) :: float_doy
+    real(kind = dbl), intent(out) :: float_doy
     !> local variables
     type(datetype) :: now
 

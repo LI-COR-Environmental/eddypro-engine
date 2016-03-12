@@ -39,7 +39,7 @@ subroutine WriteAmeriFluxOutput(lEx)
     character(DatumLen) :: datum
     type(datetype) :: now
     integer :: doy_now
-    real(kind=dbl) :: dtime
+    real(kind = dbl) :: dtime
 
     call DateTimeToDateType(lEx%date, lEx%time, now)
     doy_now = doy(now)

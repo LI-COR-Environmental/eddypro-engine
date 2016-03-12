@@ -84,8 +84,8 @@ function sinc(x, N)
     implicit none
     !> In/out variables
     integer, intent(in) :: N
-    real (kind = dbl), intent(in) :: x(N)
-    real (kind = dbl) :: sinc(N)
+    real(kind = dbl) , intent(in) :: x(N)
+    real(kind = dbl)  :: sinc(N)
 
 
     where(x(:) /= 0d0)
@@ -113,12 +113,12 @@ function asymmetric_linear_transformation(x, N, pgain, poffset, ngain, noffset)
     implicit none
     !> In/out variables
     integer, intent(in) :: N
-    real (kind = dbl), intent(in) :: x(N)
-    real (kind = dbl), intent(in) :: pgain
-    real (kind = dbl), intent(in) :: poffset
-    real (kind = dbl), intent(in) :: ngain
-    real (kind = dbl), intent(in) :: noffset
-    real (kind = dbl) :: asymmetric_linear_transformation(N)
+    real(kind = dbl) , intent(in) :: x(N)
+    real(kind = dbl) , intent(in) :: pgain
+    real(kind = dbl) , intent(in) :: poffset
+    real(kind = dbl) , intent(in) :: ngain
+    real(kind = dbl) , intent(in) :: noffset
+    real(kind = dbl)  :: asymmetric_linear_transformation(N)
 
     where (x(:) >= 0d0)
         asymmetric_linear_transformation(:) = x(:) * pgain + poffset

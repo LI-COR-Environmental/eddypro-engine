@@ -60,8 +60,8 @@ interface
         implicit none
         !> In/out variables
         integer, intent(in) :: N
-        real (kind = dbl), intent(in) :: x(N)
-        real (kind = dbl) :: sinc(N)
+        real(kind = dbl) , intent(in) :: x(N)
+        real(kind = dbl)  :: sinc(N)
     end function
 end interface
 
@@ -71,11 +71,11 @@ interface
         implicit none
         !> In/out variables
         integer, intent(in) :: N
-        real (kind = dbl), intent(inout) :: x(N)
-        real (kind = dbl), intent(in) :: pgain
-        real (kind = dbl), intent(in) :: poffset
-        real (kind = dbl), intent(in) :: ngain
-        real (kind = dbl), intent(in) :: noffset
-        real (kind = dbl) :: asymmetric_linear_transformation(N)
+        real(kind = dbl) , intent(inout) :: x(N)
+        real(kind = dbl) , intent(in) :: pgain
+        real(kind = dbl) , intent(in) :: poffset
+        real(kind = dbl) , intent(in) :: ngain
+        real(kind = dbl) , intent(in) :: noffset
+        real(kind = dbl)  :: asymmetric_linear_transformation(N)
     end function
 end interface

@@ -956,7 +956,7 @@ logical function is_numeric(s)
     !> In/out variables
     character(*),intent(in) :: s
     !> Local variables
-    real(kind=dbl) :: x
+    real(kind = dbl) :: x
     integer :: e
 
     read(s, *, iostat=e) x

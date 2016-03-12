@@ -169,7 +169,7 @@ subroutine RU_Mann_Lenschow_04(N)
     integer, intent(in) :: N
     !> local variables
     integer :: var
-    real(kind=dbl) :: corr_coeff(E2NumVar)
+    real(kind = dbl) :: corr_coeff(E2NumVar)
 
     do var = u, gas4
         if (var == w) cycle
@@ -240,8 +240,8 @@ subroutine RandomShuffle(arr, arrout, N)
     implicit none
     !> In/out variables
     integer, intent(in) :: N
-    real(kind=dbl), intent(in) :: arr(N)
-    real(kind=dbl), intent(out) :: arrout(N)
+    real(kind = dbl), intent(in) :: arr(N)
+    real(kind = dbl), intent(out) :: arrout(N)
     !> Local variables
     integer :: work
     integer :: ix(N)
@@ -282,7 +282,7 @@ integer function RandomBetween(min, max)
     implicit none
     integer, intent(in) :: min
     integer, intent(in) :: max
-    real(kind=dbl) :: x
+    real(kind = dbl) :: x
 
     call random_number(x)
     RandomBetween =int((max - min) * x + min)

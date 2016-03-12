@@ -226,8 +226,8 @@ subroutine CovMax(TlagMeth, lagctr, lagmin, lagmax, Col1, Col2, nrow, &
     real(kind = dbl), allocatable :: ShLocSet(:, :)
     real(kind = dbl) :: Cov
     real(kind = dbl) :: MaxCov
-    real(kind=dbl) ::sum1
-    real(kind=dbl) ::sum2
+    real(kind = dbl) ::sum1
+    real(kind = dbl) ::sum2
 
     def_used = .false.
     Cov = 0.d0
@@ -305,14 +305,14 @@ subroutine CovarianceW(col1, col2, nrow, lag, cov)
     !> in/out variables
     integer, intent(in) :: nrow
     integer, intent(in) :: lag
-    real(kind=dbl), intent(in) :: col1(nrow)
-    real(kind=dbl), intent(in) :: col2(nrow)
-    real(kind=dbl), intent(out) :: cov
+    real(kind = dbl), intent(in) :: col1(nrow)
+    real(kind = dbl), intent(in) :: col2(nrow)
+    real(kind = dbl), intent(out) :: cov
     !> local variables
     integer :: i
     integer :: N2
-    real(kind=dbl) ::sum1
-    real(kind=dbl) ::sum2
+    real(kind = dbl) ::sum1
+    real(kind = dbl) ::sum2
 
     sum1 = 0d0
     sum2 = 0d0

@@ -175,10 +175,10 @@ subroutine RetrieveLPTFpars(lEx, tf_shape, LocSetup)
     !> local variables
     integer :: RH
     integer :: month
-    real (kind = dbl) :: A
-    real (kind = dbl) :: B
-    real (kind = dbl) :: C
-    real (kind = dbl) :: lRH
+    real(kind = dbl)  :: A
+    real(kind = dbl)  :: B
+    real(kind = dbl)  :: C
+    real(kind = dbl)  :: lRH
 
     f_c(co2:gas4) = error
     f_2(co2:gas4) = error
@@ -222,7 +222,7 @@ end subroutine RetrieveLPTFpars
 
 !***************************************************************************
 ! \brief       Calculates spectral correction factors based on the procedure \n
-!              described in Horst, 1997, Boundary-Layer Meteorology 82: 219–233, 1997. \n
+!              described in Horst, 1997, Boundary-Layer Meteorology 82: 219ï¿½233, 1997. \n
 !              Based on  analytical cospectra and \n
 !              analytical transfer functions, parameterized in-situ.
 ! \author      Gerardo Fratini

@@ -162,8 +162,8 @@ program EddyproRP
 
     integer, external :: NumOfPeriods
     integer, external :: NumberOfFilesInSubperiod
-    real(kind=dbl), external :: LaggedCovarianceNoError
-    real (kind = dbl), external :: Poly6
+    real(kind = dbl), external :: LaggedCovarianceNoError
+    real(kind = dbl) , external :: Poly6
     integer, external :: CreateDir
     include '../src_common/interfaces.inc'
 

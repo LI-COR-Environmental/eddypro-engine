@@ -203,7 +203,7 @@ subroutine AllCospectra(Set, sumw, Spectrum, Cospectrum, DoSpectrum, DoCospectru
     !> in/out variables
     integer, intent(in) :: N
     integer, intent(in) :: M
-    real(kind=dbl), intent(in) :: sumw
+    real(kind = dbl), intent(in) :: sumw
     real(kind = dbl), intent(in) :: Set(N, M)
     logical, intent(in) :: DoSpectrum(GHGNumVar)
     logical, intent(in) :: DoCospectrum(GHGNumVar)
@@ -263,7 +263,7 @@ subroutine AllOgives(Spectrum, Cospectrum, DoSpectrum, DoCospectrum, Ogive, CoOg
     !> local variables
     integer :: i
     integer :: j
-    real (kind = dbl) :: df
+    real(kind = dbl)  :: df
 
     write(*, '(a)', advance = 'no') '   Ogives..'
 

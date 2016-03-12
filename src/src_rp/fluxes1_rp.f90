@@ -33,7 +33,7 @@
 subroutine Fluxes1_rp()
     use m_rp_global_var
     implicit none
-    real (kind = dbl) :: Cox
+    real(kind = dbl)  :: Cox
 
     write(*,'(a)', advance = 'no') '  Calculating fluxes Level 1..'
 

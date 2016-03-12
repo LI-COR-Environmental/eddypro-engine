@@ -542,7 +542,7 @@ subroutine BiometParseRow(row, tstamp, vals, ncol, skip_row)
     implicit none
     !> In/out variables
     integer, intent(in) :: ncol
-    real(kind=dbl), intent(out) :: vals(ncol)
+    real(kind = dbl), intent(out) :: vals(ncol)
     type(DateType), intent(out) :: tstamp
     logical, intent(out) :: skip_row
     character(*), intent(inout) :: row

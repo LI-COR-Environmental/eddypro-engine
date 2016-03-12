@@ -48,7 +48,7 @@ subroutine BiometRetrieveExternalData(bFileList, bnFiles, bLastFile, &
     integer :: nfl
     integer :: cnt
     integer :: io_status
-    real(kind=dbl) :: cSet(size(bSet, 2))
+    real(kind = dbl) :: cSet(size(bSet, 2))
     character(1) :: sepa
     character(LongInstringLen) :: dataline
     logical :: skip_row

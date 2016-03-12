@@ -318,16 +318,16 @@ double precision function LaggedCovarianceNoError(col1, col2, nrow, rlag, err_fl
     !> In/out variables
     integer, intent(in) :: nrow
     integer, intent(in) :: rlag
-    real(kind=dbl), intent(in) :: col1(nrow)
-    real(kind=dbl), intent(in) :: col2(nrow)
-    real(kind=dbl), intent(in) :: err_float
+    real(kind = dbl), intent(in) :: col1(nrow)
+    real(kind = dbl), intent(in) :: col2(nrow)
+    real(kind = dbl), intent(in) :: err_float
     !> Local variables
     integer :: lag
     integer :: i
     integer :: n
-    real(kind=dbl) :: cov
-    real(kind=dbl) :: sumi
-    real(kind=dbl) :: sumj
+    real(kind = dbl) :: cov
+    real(kind = dbl) :: sumi
+    real(kind = dbl) :: sumj
 
 
     sumi = 0d0
