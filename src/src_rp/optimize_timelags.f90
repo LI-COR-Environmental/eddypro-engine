@@ -157,7 +157,7 @@ subroutine OptimizeTimelags(toSet, nrow, actn, M, h2o_n, MM, cls_size)
                 !> Adjust time lags for classes not filled
                 !> Detects first good class
                 first = 1
-                do cls = 2, MM
+                do cls = 1, MM
                     if (h2o_n(cls) > min_numerosity) then
                         first = cls
                         exit
@@ -165,7 +165,7 @@ subroutine OptimizeTimelags(toSet, nrow, actn, M, h2o_n, MM, cls_size)
                 end do
                 !> Detects last good class
                 last = MM
-                do cls = MM - 1, 1, -1
+                do cls = MM, 1, -1
                     if (h2o_n(cls) > min_numerosity) then
                         last = cls
                         exit
