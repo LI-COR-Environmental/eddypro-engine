@@ -21,7 +21,7 @@
 !
 !***************************************************************************
 !
-! \brief       Read time lag optimization file and import relevant parameters
+! \brief       Read time-lag optimization file and import relevant parameters
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -42,7 +42,7 @@ subroutine ReadTimelagOptFile(ncls)
 
 
     !> Open planar fit file and read rotation matrices
-    write(*,'(a)') ' Reading time lag optimization file: ' // AuxFile%to(1:len_trim(AuxFile%to))
+    write(*,'(a)') ' Reading time-lag optimization file: ' // AuxFile%to(1:len_trim(AuxFile%to))
     open(udf, file = AuxFile%to, status = 'old', iostat = open_status)
 
     if (open_status == 0) then
@@ -123,7 +123,7 @@ subroutine ReadTimelagOptFile(ncls)
         end do
     else
        !> If the specified file is not found or is empty, switches to covariance maximization without default
-        Meth%rot = 'maxcov'
+        Meth%tlag = 'maxcov'
         call ExceptionHandler(39)
     end if
     write(*,'(a)')   ' Done.'

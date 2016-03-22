@@ -891,7 +891,7 @@ subroutine Fluxes23_rp()
     Flux2%tau = Flux1%tau
     Flux3%tau = Flux1%tau
 
-    !> If fluxes are error, set also time lags to error, just for clarity
+    !> If fluxes are error, set also time-lags to error, just for clarity
     if (Flux2%co2  == error) Essentials%timelag(co2)  = error
     if (Flux2%h2o  == error) Essentials%timelag(h2o)  = error
     if (Flux2%ch4  == error) Essentials%timelag(ch4)  = error

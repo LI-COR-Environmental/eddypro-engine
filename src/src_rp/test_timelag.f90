@@ -21,7 +21,7 @@
 !
 !***************************************************************************
 !
-! \brief       Check for scalar time lags out of suggested ranges    \n
+! \brief       Check for scalar time-lags out of suggested ranges    \n
 !              hard-flags and soft-flags file accordingly.
 ! \author      Gerardo Fratini
 ! \note
@@ -69,7 +69,7 @@ subroutine TestTimeLag(Set, N)
     def_rl(ch4)  = nint(tl%def_ch4 * Metadata%ac_freq)
     def_rl(gas4) = nint(tl%def_n2o * Metadata%ac_freq)
 
-    !> Actual time lags (tlag), maximum of the cov. (Rmax) \n
+    !> Actual time-lags (tlag), maximum of the cov. (Rmax) \n
     !>  and cov. for default timelag (R0)
     !> Flags if the difference is too high
     do i = co2, GHGNumVar
@@ -95,7 +95,7 @@ end subroutine TestTimeLag
 
 !***************************************************************************
 !
-! \brief       Performs covariance analysis for determinig the "optimal" time lag
+! \brief       Performs covariance analysis for determinig the "optimal" time-lag
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -122,7 +122,7 @@ subroutine CovMaxRS(lagctr, lagmin, lagmax, Col1, Col2, MaxCov, DefCov, TLag, RL
     integer :: i = 0
     integer :: j = 0
     integer :: ii = 0
-    integer :: N2 !< Number of rows of the raw dataset after time lag compensation
+    integer :: N2 !< Number of rows of the raw dataset after time-lag compensation
     real(kind = dbl), allocatable :: ShLocSet(:, :)
     real(kind = dbl) :: Mean(2)
     real(kind = dbl) :: Cov
@@ -154,7 +154,7 @@ subroutine CovMaxRS(lagctr, lagmin, lagmax, Col1, Col2, MaxCov, DefCov, TLag, RL
         end do
         Cov = Cov / dble(N2 - 1)
         if (i == lagctr) DefCov = Cov
-        !> max cov and actual time lag
+        !> max cov and actual time-lag
         if (abs(Cov) > abs(MaxCov)) then
             MaxCov = Cov
             TLag = dble(i) / Metadata%ac_freq

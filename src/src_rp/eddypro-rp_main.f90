@@ -430,7 +430,7 @@ program EddyproRP
     !***************************************************************************
     !***************************************************************************
 
-    if (Meth%tlag(1:len_trim(Meth%tlag)) == 'tlag_opt') then
+    if (trim(adjustl(Meth%tlag)) == 'tlag_opt') then
         if (.not. RPsetup%to_onthefly) then
             call ReadTimelagOptFile(TOSetup%h2o_nclass)
             if (TOSetup%h2o_nclass > 1) &
@@ -439,12 +439,12 @@ program EddyproRP
             write(*,'(a)') ' Performing time-lag optimization:'
 
             if (TOSetup%subperiod) then
-                !> Timestamps of start and end of time lag optimization period
+                !> Timestamps of start and end of time-lag optimization period
                 call DateTimeToDateType(TOSetup%start_date, TOSetup%start_time, auxStartTimestamp)
                 call DateTimeToDateType(TOSetup%end_date, TOSetup%end_time, auxEndTimestamp)
 
                 !> In RawTimeSeries, detect indices of first and last files
-                !> relevant to time lag optimization
+                !> relevant to time-lag optimization
                 call tsExtractSubperiodIndexes(RawTimeSeries, &
                     size(RawTimeSeries), auxStartTimestamp, auxEndTimestamp, &
                     toStartTimestampIndx, toEndTimestampIndx)
@@ -593,12 +593,14 @@ program EddyproRP
                 if (skip_period) then
                     if(allocated(E2Set)) deallocate(E2Set)
                     if(allocated(E2Primes)) deallocate(E2Primes)
+                    if(allocated(DiagSet)) deallocate(DiagSet)
                     cycle to_periods_loop
                 end if
 
                 if (.not. any(E2Col(co2:gas4)%present)) then
                     if(allocated(E2Set)) deallocate(E2Set)
                     if(allocated(E2Primes)) deallocate(E2Primes)
+                    if(allocated(DiagSet)) deallocate(DiagSet)
                     cycle to_periods_loop
                 end if
 
@@ -709,7 +711,7 @@ program EddyproRP
                 !> retrieving sensor parameters
                 call RetrieveSensorParams()
 
-                !> Adjust min/max time lags associated to columns, to fit
+                !> Adjust min/max time-lags associated to columns, to fit
                 !> user settings in the Time lag optimizer dialog
                 call AdjustTimelagOptSettings()
 
@@ -782,7 +784,7 @@ program EddyproRP
             !**** NOW STARTS TIME LAG OPT CALCULATIONS *************************
             !*******************************************************************
 
-            !> Adjust time lag opt dataset to eliminate errors,
+            !> Adjust time-lag opt dataset to eliminate errors,
             !> so that it's easier to treat them later
             allocate (toSet(ton))
             call FixTimelagOptDataset(TimelagOpt, size(TimelagOpt), &
@@ -792,11 +794,11 @@ program EddyproRP
             allocate(toH2On(TOSetup%h2o_nclass))
 
 !> Improve readability of this subroutine call
-            !> Optimize time lags
+            !> Optimize time-lags
             call OptimizeTimelags(toSet, size(toSet), tlagn, E2NumVar, toH2On, &
                 TOSetup%h2o_nclass, TOSetup%h2o_class_size)
 
-            !> Write time lag optimization results on output file
+            !> Write time-lag optimization results on output file
             if (.not. (Meth%tlag == 'maxcov')) &
                 call WriteOutTimelagOptimization(tlagn, E2NumVar, &
                     toH2On, TOSetup%h2o_nclass, TOSetup%h2o_class_size)
@@ -995,7 +997,7 @@ program EddyproRP
                 !> stops processing this period
                 if (skip_period) then
                     if(allocated(E2Set)) deallocate(E2Set)
-                    if(allocated(E2Primes)) deallocate(E2Primes)
+                    if(allocated(DiagSet)) deallocate(DiagSet)
                     cycle pf_periods_loop
                 end if
 
@@ -1594,9 +1596,12 @@ program EddyproRP
         !***********************************************************************
 
         !> Allocate arrays for actual data processing
-        if (.not. allocated(E2Set))    allocate(E2Set(PeriodRecords, E2NumVar))
-        if (.not. allocated(E2Primes)) allocate(E2Primes(PeriodRecords, E2NumVar))
-        if (.not. allocated(DiagSet))  allocate(DiagSet(PeriodRecords, MaxNumDiag))
+        if (.not. allocated(E2Set))    &
+            allocate(E2Set(PeriodRecords, E2NumVar))
+        if (.not. allocated(E2Primes)) &
+            allocate(E2Primes(PeriodRecords, E2NumVar))
+        if (.not. allocated(DiagSet))  &
+            allocate(DiagSet(PeriodRecords, MaxNumDiag))
 
         !> Define EddyPro set of variables for the following processing
         call DefineE2Set(Col, Raw,   size(Raw, 1),     Size(Raw, 2), &
@@ -1633,7 +1638,7 @@ program EddyproRP
         end if
 
         !> Define User set of variables, for main statistics
-        if (NumUserVar > 0) then
+!        if (NumUserVar > 0) then
             if (.not. allocated(UserSet)) &
                 allocate(UserSet(PeriodRecords, NumUserVar))
             if (.not. allocated(UserCol)) &
@@ -1642,7 +1647,7 @@ program EddyproRP
                 allocate(UserPrimes(PeriodRecords, NumUserVar))
             call DefineUserSet(Col, Raw, size(Raw, 1), size(Raw, 2), &
                 UserSet, size(UserSet, 1), size(UserSet, 2))
-        end if
+!        end if
 
         RowLags = 0
         if (EddyProProj%run_mode /= 'md_retrieval') then
@@ -2058,6 +2063,8 @@ program EddyproRP
             end if
         end if
         if (allocated(E2Primes)) deallocate(E2Primes)
+        if (allocated(UserPrimes)) deallocate(UserPrimes)
+        if (allocated(UserSet)) deallocate(UserSet)
 
         !***********************************************************************
         !**** (CO)SPECTRA CALCULATION FINISHES HERE  ***************************

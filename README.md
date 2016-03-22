@@ -100,9 +100,9 @@ You can run EddyPro using sample data files available in the LI-COR [EddyPro web
   - Running mean
   - Exponential running mean
 
-- Compensation of time lag between sonic anemometer and gas analyzer measurements
+- Compensation of time-lag between sonic anemometer and gas analyzer measurements
 
-  - Automatic time lag optimization (optionally as a function of RH for H<sub>2</sub>O)
+  - Automatic time-lag optimization (optionally as a function of RH for H<sub>2</sub>O)
   - Maximum covariance with default (circular correlation)
   - Maximum covariance without default
   - Constant

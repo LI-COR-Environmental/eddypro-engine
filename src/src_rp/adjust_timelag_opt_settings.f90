@@ -20,7 +20,7 @@
 !
 !***************************************************************************
 !
-! \brief       Adjust time lag opt settings if user did not set or set improperly
+! \brief       Adjust time-lag opt settings if user did not set or set improperly
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -71,7 +71,7 @@ subroutine AdjustTimelagOptSettings()
         cell_time(co2:gas4) = 0d0
     end where
 
-    !> If user didn't set min and max time lags, does so by using tube properties for closed path
+    !> If user didn't set min and max time-lags, does so by using tube properties for closed path
     !> and distances for open path
     do gas = co2, gas4
         if (E2Col(gas)%present) then

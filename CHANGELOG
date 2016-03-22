@@ -1,6 +1,11 @@
 6.2.0 (2016-03-16)
 
 	Engine
+	- Fix: missing time-lag optimization file when requested caused tilt correction
+	  method to be set to inexistent value and thus default to no correction
+	- Refine: now planar fit settings are not read if planar-fit file is used. The
+	  useless reading operation did not cause any problems.
+	- Refine: changed "time lag" into "time-lag" everywhere
     - Refine: Kelvin/Celsius conversion factor harmonised everywhere (273.15 instead
       of some occurring 273.16)
     - Refine: now biomet variables that are provided without positional qualifiers
@@ -170,7 +175,7 @@
       from [m] to [min].
     - Refinement: verify that is possible to run multiple instances of the
       program at the same time.
-    - Refinement: set default time lag test to the nominal values in the
+    - Refinement: set default time-lag test to the nominal values in the
       Raw file description.
     - Refinement: remove 7zip dependency to read/write zip files.
     - Refinement: extract 'spectral' settings from spectral corrections, make
@@ -428,14 +433,14 @@ http://envsupport.licor.com/help/EddyPro5/index.htm#Whats_New.htm
         algorithms.
     - Fixed: bug in planar fit with no velocity bias that caused rotations not to be
         performed.
-    - Fixed: bug in time lag optimizer causing a crash.
+    - Fixed: bug in time-lag optimizer causing a crash.
     - Fixed: initialization of footprint results for Kormann and Meixner (2001) and
         Hsieh (2000) models.
     - Fixed: labels of custom variables in full output, when created by FCC program
         (added "_mean" padding to each variable name).
     - Fixed: Management of missing variables when passing from RP to FCC.
     - Fixed: Using flow rate from raw data files when available, with both GHG and
-        non-GHG files, if time lags are not explicitly set by user.
+        non-GHG files, if time-lags are not explicitly set by user.
     - Fixed: bug that caused mismatch in full output headers when advanced processing
         settings were used.
     - Fixed: missing LI-7700 CH4 flux output in full output file when data is screened
@@ -452,7 +457,7 @@ http://envsupport.licor.com/help/EddyPro5/index.htm#Whats_New.htm
         Kormann and Meixner (2001) and Hsieh (2000) models.
     - Refinement: support for TOB1 files with no header lines (explicit user specification
         of variable types 'IEEE4' or 'FP2' is needed).
-    - Refinement: stationarity test evaluated after time lag compensation and
+    - Refinement: stationarity test evaluated after time-lag compensation and
         tilt correction.
     - Refinement: minor modifications to QC flags to better match flag definitions
         according to TK3 approach (M. Mauder, personal communications).
@@ -461,7 +466,7 @@ http://envsupport.licor.com/help/EddyPro5/index.htm#Whats_New.htm
     - Refinement: support of flux averaging intervals equal to 1 minute.
     - Refinement: Raw data filtering for "absolute limits" postponed, in order to
         account for actual T and P rather than "normal values".
-    - Refinement: Extended automatic definition of time lag plausibility windows (min/max)
+    - Refinement: Extended automatic definition of time-lag plausibility windows (min/max)
         for both open and closed path instruments.
     - Refinement: extended range of accepted ambient pressures, now the minimum
         value accepted by EddyPro is 40 kPa, which replaces the former value of 80 kPa.
@@ -523,21 +528,21 @@ http://envsupport.licor.com/help/EddyPro5/index.htm#Whats_New.htm
         used in previous versions.
 
     - Major bug fixes
-      - Automatic time lag optimization
+      - Automatic time-lag optimization
         - Bug description
-          The bug is found in the "Automatic time lag optimization" procedure
+          The bug is found in the "Automatic time-lag optimization" procedure
           (Advanced Settings >> Processing Options >> Time lag compensation"). The bug
-          is such that time lags assessed for H2O (if this gas is treated in flux
+          is such that time-lags assessed for H2O (if this gas is treated in flux
           computation) are erroneously used also for CO2 or CH4. Selection of an
-          erroneous time lag results in flux underestimates: the more the used time
+          erroneous time-lag results in flux underestimates: the more the used time
           lag deviates from the real one, the more fluxes are underestimated.
         - Who is affected
-          Anyone who used the "Automatic time lag optimization" option for flux
+          Anyone who used the "Automatic time-lag optimization" option for flux
           computation is likely to be affected. However, the severity of the effects
           changes according to the gas analyzer in use. For open-path analyzers (e.g.,
           LI-7500A), the bias if most likely negligible, if present at all. For
           enclosed-path analyzers (e.g., LI-7200), the bias is probably detectable but
-          still negligible, because time lags of H2O do not deviate dramatically from
+          still negligible, because time-lags of H2O do not deviate dramatically from
           those of CO2, especially if conditions of low relative humidity (<50-60%,
           typical of daytime). In these analyzers, effects are further minimized
           if a short (< 1 m) and/or heated or insulated sampling line was used. For
@@ -607,8 +612,8 @@ http://envsupport.licor.com/help/EddyPro5/index.htm#Whats_New.htm
       - Metadata Retriever tool to compile all site metadata from GHG files
         into a single metadata file that can be edited or viewed.
       - Planar Fit tool customization with graphical controls.
-      - Time Lag Optimization tool now supports automatic time lag optimization
-        to account for time lags.
+      - Time Lag Optimization tool now supports automatic time-lag optimization
+        to account for time-lags.
       - Random Uncertainty estimation tool.
 
 3.0.1 (2012-03-12, not released)
@@ -620,7 +625,7 @@ http://envsupport.licor.com/help/EddyPro5/index.htm#Whats_New.htm
         dynamic metadata file.
       - Sampling line flow-rate calculation when average flow rate from
         high-frequency data is used to initialize nominal, minimum and maximum
-        time lags.
+        time-lags.
       - Spectral assessment output file when selected correction method is
         Horst (1997).
       - A bug prevented runs without any spectral corrections applied.

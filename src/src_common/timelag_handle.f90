@@ -58,7 +58,7 @@ subroutine TimeLagHandle(TlagMeth, Set, nrow, ncol, TLag, &
     real(kind = dbl) :: TmpSet(nrow, ncol)
 
     if  (.not. InTimelagOpt) write(*, '(a)', advance = 'no') &
-        '  Compensating time lags..'
+        '  Compensating time-lags..'
 
     !> for E2Set scalars, initialise auxiliary vars to zero
     def_rl(:) = 0
@@ -290,7 +290,7 @@ end subroutine CovMax
 !***************************************************************************
 !
 ! \brief       Calculate covariance between two arrays using an imposed  \n
-!              time lag.
+!              time-lag.
 ! \author      Gerardo Fratini
 ! \note
 ! \sa

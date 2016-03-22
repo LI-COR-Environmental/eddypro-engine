@@ -50,7 +50,7 @@ subroutine SetTimelags()
     mult(h2o) = 10d0 !< For active gases
     safety = 0.3d0  !< Safety margin for min/max setting, should nominal tlag be very close to zero
 
-    !> set time lags to optimized values if selected so by user
+    !> set time-lags to optimized values if selected so by user
     if (meth%tlag == 'tlag_opt') then
         do gas = co2, gas4
             if (E2Col(gas)%present) then
@@ -60,7 +60,7 @@ subroutine SetTimelags()
                     E2Col(gas)%min_tl = toPasGas(gas)%min
                     E2Col(gas)%max_tl = toPasGas(gas)%max
                 else
-                    !> For water vapor, if requested adjust time lag to current RH
+                    !> For water vapor, if requested adjust time-lag to current RH
                     !> either taken from meteo or estimated locally from raw data
                     if (TOSetup%h2o_nclass > 1) then
                         if (biomet%val(bRH) > 0d0 .and. biomet%val(bRH) < RHmax) then
@@ -108,7 +108,7 @@ end subroutine SetTimelags
 
 !***************************************************************************
 !
-! \brief       Provides an RH estimate for the purpose of time lag optimization \n
+! \brief       Provides an RH estimate for the purpose of time-lag optimization \n
 ! \author      Gerardo Fratini
 ! \note
 ! \sa

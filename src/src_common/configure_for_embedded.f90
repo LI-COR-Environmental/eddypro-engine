@@ -66,7 +66,7 @@ subroutine ConfigureForEmbedded()
                 close(udf)
             end if
 
-            !> Retrieve time lag optimization file name if needed
+            !> Retrieve time-lag optimization file name if needed
             if (index(Meth%tlag, 'tlag_opt') /= 0) then
 
                 !> Retrieve planar fit file name from /ini folder
@@ -168,4 +168,3 @@ subroutine ConfigureForEmbedded()
     Dir%main_out = trim(homedir) // 'output' // slash
 
 end subroutine ConfigureForEmbedded
-
