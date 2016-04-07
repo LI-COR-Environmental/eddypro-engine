@@ -34,7 +34,7 @@
 subroutine ImportCurrentPeriod(InitialTimestamp, FinalTimestamp, FileList, &
     NumFiles, FirstFile, LocBypassCol, MaxNumFileRecords, MetaIsNeeded, &
     BiometIsNeeded, logout, Raw, nrow, ncol, N, &
-    bDataFound, skip_period, NextFile, LocCol)
+    bDataFound, skip_period, NextFile, LocCol, printout)
 
     use m_rp_global_var
     implicit none
@@ -53,6 +53,7 @@ subroutine ImportCurrentPeriod(InitialTimestamp, FinalTimestamp, FileList, &
     integer, intent(out) :: N
     integer, intent(out) :: NextFile
     real(kind = sgl), intent(out) :: Raw(nrow, ncol)
+    logical, intent(in) :: printout
     logical, intent(out) :: bDataFound
     logical, intent(out) :: skip_period
     logical, intent(inout) :: MetaIsNeeded
@@ -164,7 +165,7 @@ subroutine ImportCurrentPeriod(InitialTimestamp, FinalTimestamp, FileList, &
                     BiometIsNeeded, EddyProProj%run_mode /= 'md_retrieval', &
                     EddyProProj%run_mode /= 'md_retrieval', &
                     fRaw, size(fRaw, 1), size(fRaw, 2), skip_file, passed, &
-                    faulty_col, N, FileEndReached, .true.)
+                    faulty_col, N, FileEndReached, printout)
 
                 !> File skip control
                 if (skip_file .or. (.not.passed(1))) then
@@ -221,6 +222,8 @@ subroutine ImportCurrentPeriod(InitialTimestamp, FinalTimestamp, FileList, &
 
                 !> Extend size of bSet to accommodate new data
                 if (nbRecs == 0) then
+                    if (allocated(bSet)) deallocate(bSet)
+                    if (allocated(bTs)) deallocate(bTs)
                     allocate(bSet(fnbRecs, nbVars))
                     allocate(bTs(fnbRecs))
                 else

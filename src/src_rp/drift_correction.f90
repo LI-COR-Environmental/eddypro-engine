@@ -47,7 +47,7 @@ subroutine DriftCorrection(Set, nrow, ncol, locCol, ncol2, nCalibEvents, Initial
     integer, external :: NumOfPeriods
     real(kind = dbl) :: lDrift(GHGNumVar)
     real(kind = dbl) :: MeanAbs(ncol)
-    real(kind = dbl), allocatable :: TempFact
+    real(kind = dbl) :: TempFact
 
     real(kind = dbl) :: tmp
     real(kind = dbl) :: tmp2
@@ -238,5 +238,3 @@ subroutine ReferenceCounts(Set, nrow, ncol)
         end select
     end do
 end subroutine ReferenceCounts
-
-

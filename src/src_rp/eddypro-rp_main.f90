@@ -542,7 +542,8 @@ program EddyproRP
                     MaxNumFileRecords, MetaIsNeeded, &
                     EddyProProj%biomet_data == 'embedded', .false., &
                     Raw, size(Raw, 1), size(Raw, 2), PeriodRecords, &
-                    EmbBiometDataExist, skip_period, LatestRawFileIndx, Col)
+                    EmbBiometDataExist, skip_period, LatestRawFileIndx, Col, &
+                    .false.)
                 if (skip_period) cycle to_periods_loop
 
                 !> Period skip control with message
@@ -952,9 +953,10 @@ program EddyproRP
                 call ImportCurrentPeriod(tsStart, tsEnd, &
                     RawFileList, NumRawFiles, NextRawFileIndx, BypassCol,  &
                     MaxNumFileRecords, MetaIsNeeded, &
-                    EddyProProj%biomet_data == 'embedded', .false., &
+                    .false., .false., &
                     Raw, size(Raw, 1), size(Raw, 2), PeriodRecords, &
-                    EmbBiometDataExist, skip_period, LatestRawFileIndx, Col)
+                    EmbBiometDataExist, skip_period, LatestRawFileIndx, Col, &
+                    .false.)
                 if (skip_period) cycle pf_periods_loop
 
                 !> Period skip control with message
@@ -1337,7 +1339,7 @@ program EddyproRP
                 MaxNumFileRecords, MetaIsNeeded, &
                 EddyProProj%biomet_data == 'embedded', .false., Raw, &
                 size(Raw, 1), size(Raw, 2), PeriodRecords, EmbBiometDataExist, &
-                skip_period, LatestRawFileIndx, Col)
+                skip_period, LatestRawFileIndx, Col, .false.)
 
             !> Period skip control
             if (skip_period) cycle drift_loop
@@ -1534,7 +1536,7 @@ program EddyproRP
             NumRawFiles, NextRawFileIndx, BypassCol, MaxNumFileRecords, &
             MetaIsNeeded, EddyProProj%biomet_data == 'embedded', .true., &
             Raw, size(Raw, 1), size(Raw, 2), PeriodRecords, &
-            EmbBiometDataExist, skip_period, LatestRawFileIndx, Col)
+            EmbBiometDataExist, skip_period, LatestRawFileIndx, Col, .true.)
 
         !> If it's running in metadata retriever mode,
         !> create a dummy dataset 1 minute long
