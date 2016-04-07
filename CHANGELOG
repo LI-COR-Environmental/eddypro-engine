@@ -1,11 +1,16 @@
-6.2.0 (2016-03-16)
+6.2.0 (2016-04-07)
 
-	Engine
-	- Fix: missing time-lag optimization file when requested caused tilt correction
-	  method to be set to inexistent value and thus default to no correction
-	- Refine: now planar fit settings are not read if planar-fit file is used. The
-	  useless reading operation did not cause any problems.
-	- Refine: changed "time lag" into "time-lag" everywhere
+	  Engine
+    - Fix: now biomet data is not read in during planar fit (which was never useful anyway)
+      and this fixes an array allocation issue that was causing a crash when both planar fit and
+      biomet data were used.
+    - Fix: eliminate 'allocatable' property for TempFact in drift_correction.f90, which is
+      however not yet enabled, so it was causing no issues.
+  	- Fix: missing time-lag optimization file when requested caused tilt correction
+  	  method to be set to inexistent value and thus default to no correction
+  	- Refine: now planar fit settings are not read if planar-fit file is used. The
+  	  useless reading operation did not cause any problems.
+  	- Refine: changed "time lag" into "time-lag" everywhere
     - Refine: Kelvin/Celsius conversion factor harmonised everywhere (273.15 instead
       of some occurring 273.16)
     - Refine: now biomet variables that are provided without positional qualifiers
