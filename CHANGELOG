@@ -1,6 +1,8 @@
-6.2.0 (2016-04-07)
+6.2.0 (2016-04-12)
 
 	  Engine
+    - Add: new supported variable "anemometer_diagnostic". Currently - if selected -
+      it filters sonic data if the diagnostic value is different from zero.
     - Fix: now biomet data is not read in during planar fit (which was never useful anyway)
       and this fixes an array allocation issue that was causing a crash when both planar fit and
       biomet data were used.
