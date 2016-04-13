@@ -389,6 +389,7 @@ module m_common_global_var
     type(Diag7200Type) :: Diag7200
     type(Diag7500Type) :: Diag7500
     type(Diag7700Type) :: Diag7700
+    type(DiagAnemType) :: DiagAnemometer
     type (QCType) :: QCFlag
     real(kind = dbl) :: f_c(GHGNumVar)
     real(kind = dbl) :: f_2(GHGNumVar)
@@ -420,7 +421,8 @@ module m_common_global_var
          EPPrjNTags(16)%Label / 'col_diag_77'     / &
          EPPrjNTags(17)%Label / 'gas_diff'        / &
          EPPrjNTags(18)%Label / 'gas_mw'          / &
-         EPPrjNTags(19)%Label / 'sonic_output_rate' /
+         EPPrjNTags(19)%Label / 'sonic_output_rate' / &
+         EPPrjNTags(20)%Label / 'col_diag_anem' /
 
     data EPPrjCTags(1)%Label / 'sw_version'       / &
          EPPrjCTags(2)%Label / 'ini_version'      / &

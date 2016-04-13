@@ -413,6 +413,10 @@ module m_typedef
         integer :: box_connected
     end type Diag7700Type
 
+    type :: DiagAnemType
+        logical :: present
+    end type DiagAnemType
+
     type :: DirType
         character(PathLen) :: main_in
         character(PathLen) :: main_out

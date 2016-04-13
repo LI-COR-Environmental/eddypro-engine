@@ -41,6 +41,7 @@ module m_index_parameters
     integer, parameter :: diag72 = 1
     integer, parameter :: diag75 = 2
     integer, parameter :: diag77 = 3
+    integer, parameter :: diagAnem = 4
 
     integer, parameter :: Fn = 1
     integer, parameter :: fc = 2

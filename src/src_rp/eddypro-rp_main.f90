@@ -629,13 +629,14 @@ program EddyproRP
                 !**** DATASET DEFINITION FINISHES HERE *************************
                 !**** NOW STARTS RAW DATA REDUCTION ****************************
                 !***************************************************************
-                !> Interpret LI-COR's diagnostic flags
+                !> Interpret diagnostics and filter accordingly
                 if (NumDiag > 0) then
                     call InterpretLicorDiagnostics(DiagSet, &
                         size(DiagSet, 1), size(DiagSet, 2))
                     call FilterDatasetForDiagnostics(E2Set, &
                         size(E2Set, 1), size(E2Set, 2), &
-                        DiagSet, size(DiagSet, 1), size(DiagSet, 2))
+                        DiagSet, size(DiagSet, 1), size(DiagSet, 2), &
+                        .true., .true.)
                 end if
                 if(allocated(DiagSet)) deallocate(DiagSet)
 
@@ -794,7 +795,7 @@ program EddyproRP
 
             allocate(toH2On(TOSetup%h2o_nclass))
 
-!> Improve readability of this subroutine call
+!> Improve readability of this subroutine interface
             !> Optimize time-lags
             call OptimizeTimelags(toSet, size(toSet), tlagn, E2NumVar, toH2On, &
                 TOSetup%h2o_nclass, TOSetup%h2o_class_size)
@@ -985,7 +986,7 @@ program EddyproRP
                 call DefineE2Set(Col, Raw,   size(Raw, 1),     Size(Raw, 2), &
                                     E2Set,   size(E2Set, 1),   Size(E2Set, 2), &
                                     DiagSet, size(DiagSet, 1), Size(DiagSet, 2))
-                if (allocated(DiagSet))  deallocate(DiagSet)
+!                if (allocated(DiagSet))  deallocate(DiagSet)
 
                 !> Clean up E2Set, eliminating values that are clearly un-physical
                 call CleanUpE2Set(E2Set, size(E2Set, 1), size(E2Set, 2))
@@ -1015,6 +1016,15 @@ program EddyproRP
                 !**** DATASET DEFINITION FINISHES HERE. ************************
                 !**** NOW STARTS RAW DATA REDUCTION     ************************
                 !***************************************************************
+                !> Filter only for sonic diagnostics (IRGA is irrelevant in
+                !> planar fit)
+                if (NumDiag > 0) then
+                    call FilterDatasetForDiagnostics(E2Set, size(E2Set, 1), &
+                        size(E2Set, 2), DiagSet, &
+                        size(DiagSet, 1), size(DiagSet, 2), &
+                        .true., .false.)
+                end if
+                if(allocated(DiagSet)) deallocate(DiagSet)
 
                 !> Adjust coordinate systems if the case
                 call AdjustSonicCoordinates(E2Set, &
@@ -1672,12 +1682,14 @@ program EddyproRP
             !**** DATASET DEFINITION FINISHES HERE. ****************************
             !**** STARTS RAW DATA REDUCTION         ****************************
             !*******************************************************************
-            !> Interpret LI-COR's diagnostic flags
+            !> Interpret diagnostics and filter accordingly
             if (NumDiag > 0) then
                 call InterpretLicorDiagnostics(DiagSet, &
                     size(DiagSet, 1), size(DiagSet, 2))
                 call FilterDatasetForDiagnostics(E2Set, size(E2Set, 1), &
-                    size(E2Set, 2), DiagSet, size(DiagSet, 1), size(DiagSet, 2))
+                    size(E2Set, 2), DiagSet, &
+                    size(DiagSet, 1), size(DiagSet, 2), &
+                    .true., .true.)
             end if
             if(allocated(DiagSet)) deallocate(DiagSet)
 

@@ -98,7 +98,7 @@ end function
 !***************************************************************************
 !
 ! \brief       Apply fixed gains/offsets to an array. Gains/offsets can be
-!              positive specified differently for positive and negative array
+!              specified differently for positive and negative array
 !              values
 ! \author      Gerardo Fratini
 ! \note

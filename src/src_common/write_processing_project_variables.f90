@@ -163,6 +163,7 @@ subroutine WriteProcessingProjectVariables()
     EddyProProj%col(E2NumVar + diag72) = nint(EPPrjNTags(14)%value)
     EddyProProj%col(E2NumVar + diag75) = nint(EPPrjNTags(15)%value)
     EddyProProj%col(E2NumVar + diag77) = nint(EPPrjNTags(16)%value)
+    EddyProProj%col(E2NumVar + diagAnem) = nint(EPPrjNTags(20)%value)
 
     !> if a column was selected for gas4, read diffusivity. If diffusivity is
     !> below zero, defaults to gas4 diffusivity

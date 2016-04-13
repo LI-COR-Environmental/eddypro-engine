@@ -67,8 +67,8 @@ subroutine DefineUsedVariables(LocCol)
         LocCol(EddyProProj%Col(co2:E2NumVar))%useit = .true.
     endwhere
 
-    where (EddyProProj%Col(E2NumVar + diag72 :E2NumVar + diag77) > 0)
-        LocCol(EddyProProj%Col(E2NumVar + diag72 :E2NumVar + diag77))%useit = .true.
+    where (EddyProProj%Col(E2NumVar + diag72 :E2NumVar + diagAnem) > 0)
+        LocCol(EddyProProj%Col(E2NumVar + diag72 :E2NumVar + diagAnem))%useit = .true.
     endwhere
 
     !> If gas4 column was selected, change its name to 'n2o', to be treated
@@ -81,6 +81,7 @@ subroutine DefineUsedVariables(LocCol)
     Diag7200%present = .false.
     Diag7500%present = .false.
     Diag7700%present = .false.
+    DiagAnemometer%present = .false.
     if (EddyProProj%Col(E2NumVar + diag72) > 0) then
         LocCol(EddyProProj%Col(E2NumVar + diag72))%useit = .true.
         NumDiag = NumDiag + 1
@@ -95,6 +96,11 @@ subroutine DefineUsedVariables(LocCol)
         LocCol(EddyProProj%Col(E2NumVar + diag77))%useit = .true.
         NumDiag = NumDiag + 1
         Diag7700%present = .true.
+    end if
+    if (EddyProProj%Col(E2NumVar + diagAnem) > 0) then
+        LocCol(EddyProProj%Col(E2NumVar + diagAnem))%useit = .true.
+        NumDiag = NumDiag + 1
+        DiagAnemometer%present = .true.
     end if
 
     !> Loop on the actual number of columns and determine
