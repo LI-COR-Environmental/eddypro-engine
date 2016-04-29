@@ -81,6 +81,7 @@ module m_rp_global_var
     character(PathLen) :: QCdetails_Path
     logical :: OutVarPresent(E2NumVar)
     logical :: TimeLagOptSelected
+    logical :: SonicDataHasWBug
 
     !> global variables
     type(RPsetupType) :: RPsetup

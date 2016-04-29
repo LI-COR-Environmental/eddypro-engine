@@ -67,7 +67,7 @@ subroutine AoaCalibration(Set, nrow, ncol)
     if (RPsetup%calib_aoa == 'nakai_12') then
         !> If WindMaster has w-boost fixed, need to remove the w-boost
         !> before AoA after Nakai and Shimoyama 2012 can be applied
-        if (MasterSonic%sw_ver%major /= 2329 .or. MasterSonic%sw_ver%minor >= 700) &
+        if (.not. SonicDataHasWBug) &
             call RemoveGillWmWBoost(Set, nrow, ncol)
 
         !>Now apply correction

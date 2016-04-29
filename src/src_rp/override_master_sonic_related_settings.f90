@@ -48,9 +48,7 @@ subroutine OverrideMasterSonicRelatedSettings()
 
     !> If MasterSonic is other than a WM/WMPro with specific firmware versions,
     !> the w-boost cannot be applied
-    if ((MasterSonic%model(1:len_trim(MasterSonic%model) - 2) /= 'wm' .and. &
-        MasterSonic%model(1:len_trim(MasterSonic%model) - 2) /= 'wmpro') .or. &
-        MasterSonic%sw_ver%major /= 2329 .or. MasterSonic%sw_ver%minor >= 700) then
+    if (.not. SonicDataHasWBug) then
         if (RPsetup%calib_wboost .and. EddyProProj%run_mode /= 'express') &
             call ExceptionHandler(95)
         RPsetup%calib_wboost = .false.
