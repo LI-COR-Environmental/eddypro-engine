@@ -62,7 +62,6 @@ subroutine DefaultVarsSelection(LocCol)
         end if
     end do
 
-
     co2_instr_indx = 0
     ch4_instr_indx = 0
     do i = 1, NumInstruments
@@ -192,6 +191,7 @@ subroutine DefaultVarsSelection(LocCol)
 
     !> Diagnostic flags
     do i = 1, NumCol
+        !> Gas analyzer diagnostics
         if (co2_instr_indx /= 0) then
             if (LocCol(i)%var == 'diag_75' .and. LocCol(i)%Instr%model == Instr(co2_instr_indx)%model) &
                 EddyProProj%col(E2NumVar + diag75) = i
@@ -202,5 +202,8 @@ subroutine DefaultVarsSelection(LocCol)
             if (LocCol(i)%var == 'diag_77' .and. LocCol(i)%Instr%model == Instr(ch4_instr_indx)%model) &
                 EddyProProj%col(E2NumVar + diag77) = i
             end if
+        !> Anemometer diagnostics
+        if (LocCol(i)%var == 'anemometer_diagnostic' .and. trim(adjustl(LocCol(i)%Instr%model)) == EddyProProj%master_sonic) &
+            EddyProProj%col(E2NumVar + diagAnem) = i
     end do
 end subroutine DefaultVarsSelection
