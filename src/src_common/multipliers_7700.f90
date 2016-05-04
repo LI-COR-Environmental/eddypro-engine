@@ -63,7 +63,7 @@ subroutine Multipliers7700(AirPress, AirTemp, H2OMoleFrac, A, B, C)
     !> Calculate multipliers
     A = key
     B = 1d0 + (1d0 - 1.46d0 * H2OMoleFrac * 1d-3) * coll_p
-    C = 1d0 + (1d0 - H2OMoleFrac * 1d-3) * coll_t + H2OMoleFrac  * 1d-3 * (B - 1d0)
+    C = 1d0 + (1d0 - H2OMoleFrac * 1d-3) * coll_t !+ H2OMoleFrac  * 1d-3 * (B - 1d0)
 end subroutine Multipliers7700
 
 !***************************************************************************
