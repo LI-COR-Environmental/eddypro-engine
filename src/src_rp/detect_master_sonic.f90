@@ -53,7 +53,7 @@ subroutine DetectMasterSonic(LocCol, ncol)
     !> assume the bug is present
     if ((MasterSonic%model(1:len_trim(MasterSonic%model) - 2) == 'wm' .or. &
          MasterSonic%model(1:len_trim(MasterSonic%model) - 2) == 'wmpro') .and. &
-         (MasterSonic%sw_ver%major == 2329 .and. MasterSonic%sw_ver%minor < 700) then
+         (MasterSonic%sw_ver%major == 2329 .and. MasterSonic%sw_ver%minor < 700)) then
          SonicDataHasWBug = .true.
     else
          SonicDataHasWBug = .false.

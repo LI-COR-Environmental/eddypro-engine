@@ -139,6 +139,12 @@ subroutine ImportAsciiWithText(FirstRecord, LastRecord, LocCol, fRaw, &
             dataline = dataline(intsep + 1: len_trim(dataline))
             if (LocCol(j)%var /= 'ignore' .and. LocCol(j)%var /= 'not_numeric') then
                 jj = jj + 1
+                if (EddyProProj%col(E2NumVar + DiagAnem) == j &
+                    .and. (index(EddyProProj%master_sonic, 'wm') /= 0 &
+                    .or. index(EddyProProj%master_sonic, 'hs') /= 0)) then
+                    if (trim(datum) == '0A') datum = '10'
+                    if (trim(datum) == '0B') datum = '11'
+                end if
                 read(datum, *, iostat = io_status) fRaw(N, jj)
                 if (io_status /= 0) then
                     N = N - 1
