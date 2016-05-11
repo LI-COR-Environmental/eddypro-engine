@@ -14,6 +14,7 @@ ifdef ComSpec
 	FC = mingw32-gfortran.exe
 	MAKE_DIR = if not exist DIR mkdir DIR
 	PATHSEP2 = \\
+	LFLAGS = -static
 else
 	#Unix
 	RM = rm -f FILE
@@ -29,6 +30,7 @@ else
 	else
 		OS_DIR = mac
 	endif
+	LFLAGS =
 endif
 PATHSEP=$(strip $(PATHSEP2))
 
@@ -85,12 +87,12 @@ all : rp fcc
 
 rp : $(RP_OBJS_f90d1) $(RP_OBJS_Fd2) $(COMMON_OBJS_f90d1)
 	@$(subst DIR,$(OS_EXE_DIR),$(MAKE_DIR))
-	$(FC) -o $(EXE_DIR)$(RP_EXE) $(RP_OBJS)
+	$(FC) $(LFLAGS) -o $(EXE_DIR)$(RP_EXE) $(RP_OBJS)
 	@$(subst DESTINATION, $(OS_OBJS_DIR), $(subst FILE, *.mod, $(MV)))
 
 fcc : $(FCC_OBJS_f90d1) $(COMMON_OBJS_f90d1)
 	@$(subst DIR,$(OS_EXE_DIR),$(MAKE_DIR))
-	$(FC) -o $(EXE_DIR)$(FCC_EXE) $(FCC_OBJS)
+	$(FC) $(LFLAGS) -o $(EXE_DIR)$(FCC_EXE) $(FCC_OBJS)
 	@$(subst DESTINATION, $(OS_OBJS_DIR), $(subst FILE, *.mod, $(MV)))
 
 #Compilation
