@@ -52,7 +52,8 @@ subroutine FilterDatasetForDiagnostics(Set, nrow, ncol, DiagSet, dnrow, dncol, &
             .or. index(MasterSonic%model, 'hs') /= 0) then
             !> Special case for some Gill sonics, for which values of 10 (0A) and
             !> 11 (0B) indicate good data
-            where (DiagSet(1:nrow, diagAnem) /= 0 &
+            where (DiagSet(1:nrow, diagAnem) /= error &
+                .and. DiagSet(1:nrow, diagAnem) /= 0 &
                 .and. DiagSet(1:nrow, diagAnem) /= 10 &
                 .and. DiagSet(1:nrow, diagAnem) /= 11)
                 Set(1:nrow, u) = error
@@ -62,7 +63,8 @@ subroutine FilterDatasetForDiagnostics(Set, nrow, ncol, DiagSet, dnrow, dncol, &
             endwhere
         else
             !> Otherwise filter all data when flag is different from zero.
-            where (DiagSet(1:nrow, diagAnem) /= 0)
+            where (DiagSet(1:nrow, diagAnem) /= error &
+                .and. DiagSet(1:nrow, diagAnem) /= 0)
                 Set(1:nrow, u) = error
                 Set(1:nrow, v) = error
                 Set(1:nrow, w) = error
