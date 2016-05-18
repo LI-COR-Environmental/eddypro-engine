@@ -552,24 +552,36 @@ function SwVerFromString(string)
     character(*), intent(in) :: string
     type(SwVerType) :: SwVerFromString
     !> Local variables
-    character(4) :: chunk
+    character(32) :: swVerString
+    character(6) :: chunk
     logical, external :: is_not_numeric
     integer, external :: CountCharInString
 
 
-    !> If string is empty, return error software version
-    if (len_trim(string) == 0) then
+    swVerString = trim(adjustl(string))
+
+    !> If swVerString is empty, return error software version
+    if (len_trim(swVerString) == 0) then
         SwVerFromString = errSwVer
         return
     end if
 
-    if (CountCharInString(string, '.') /= 2) then
+    !> If swVerString has no '.', return error software version
+    if (CountCharInString(swVerString, '.') == 0) then
         SwVerFromString = errSwVer
         return
     end if
+
+    !> If swVerString does not contain revision, add a dummy one
+    if (CountCharInString(swVerString, '.') == 1) &
+        swVerString = trim(swVerString) // '.01'
+
+    !> If swVerString has 4 fields, crop to 3 fields
+    if (CountCharInString(swVerString, '.') == 3) &
+        swVerString = swVerString(1:index(swVerString, '.', .true.) - 1)
 
     !> Major version
-    chunk = string(1:index(string, '.')-1)
+    chunk = swVerString(1:index(swVerString, '.')-1)
     if (is_not_numeric(chunk)) then
         SwVerFromString = errSwVer
         return
@@ -577,7 +589,7 @@ function SwVerFromString(string)
     call char2int(trim(chunk), SwVerFromString%major, len_trim(chunk))
 
     !> Minor version
-    chunk = string(index(string, '.')+1: index(string, '.', .true.)-1)
+    chunk = swVerString(index(swVerString, '.')+1: index(swVerString, '.', .true.)-1)
     if (is_not_numeric(chunk)) then
         SwVerFromString = errSwVer
         return
@@ -585,7 +597,7 @@ function SwVerFromString(string)
     call char2int(trim(chunk), SwVerFromString%minor, len_trim(chunk))
 
     !> Revision
-    chunk = string(index(string, '.', .true.)+1:len(string))
+    chunk = swVerString(index(swVerString, '.', .true.)+1:len(swVerString))
     if (is_not_numeric(chunk)) then
         SwVerFromString = errSwVer
         return
