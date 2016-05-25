@@ -55,6 +55,7 @@ subroutine TestAbsoluteLimits(Set, N, printout)
         hflags(v) = 1
     end if
     if (any(abs(Set(:, w)) > al%w_max)) hflags(w) = 1
+
     !> Flag sonic temperature
     if (any(Set(:, ts) < al%t_min + 273.15d0) .or. &
          any(Set(:, ts) > al%t_max + 273.15d0)) hflags(ts) = 1
@@ -68,6 +69,8 @@ subroutine TestAbsoluteLimits(Set, N, printout)
             if (any(Set(:, co2) < al%co2_min) &
                 .or. any(Set(:, co2) > al%co2_max)) hflags(co2) = 1
         end if
+    else
+        hflags(co2) = 9
     end if
 
     !> Flag h2o, expressed as [mmol m-3] if molar_density, [mmol mol-1] otherwise
@@ -79,6 +82,8 @@ subroutine TestAbsoluteLimits(Set, N, printout)
             if (any(Set(:, h2o) < al%h2o_min) &
                 .or. any(Set(:, h2o) > al%h2o_max)) hflags(h2o) = 1
         end if
+    else
+        hflags(h2o) = 9
     end if
 
     !> Flag ch4, expressed as [mmol m-3] if molar_density, [umol mol-1] otherwise
@@ -90,6 +95,8 @@ subroutine TestAbsoluteLimits(Set, N, printout)
             if (any(Set(:, ch4) < al%ch4_min) &
                 .or. any(Set(:, ch4) > al%ch4_max)) hflags(ch4) = 1
         end if
+    else
+        hflags(ch4) = 9
     end if
 
     !> Flag gas4, expressed as [mmol m-3] if molar_density, [umol mol-1] otherwise
@@ -101,6 +108,8 @@ subroutine TestAbsoluteLimits(Set, N, printout)
             if (any(Set(:, gas4) < al%gas4_min) &
                 .or. any(Set(:, gas4) > al%gas4_max)) hflags(gas4) = 1
         end if
+    else
+        hflags(gas4) = 9
     end if
 
     !> Create an 8-digits number containing the values of the hflags
