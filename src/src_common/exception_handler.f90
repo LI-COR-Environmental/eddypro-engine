@@ -73,8 +73,9 @@ subroutine ExceptionHandler(error_code)
         case(14)
             write(*,*) ' Error(14)> Occurred while unzipping GHG archive. File skipped.'
         case(20)
-            write(*,*) '  Fatal error(20)> Incorrect or unsupported "Raw file name format".'
-            write(*,*) '  Fatal error(20)> Check it and try again, or rename raw files appropriately (see software documentation).'
+            write(*,*) '  Fatal error(20)> Encountered while interpreting a timestamp template.'
+            write(*,*) '  Fatal error(20)> It may apply to retrieval of timestamps from the "Raw file name format"'
+            write(*,*) '  Fatal error(20)> or the biomet or dynamic metadata records."'
             write(*,*) '  Fatal error(20)> Program execution aborted.'
             stop 1
         case(21)
