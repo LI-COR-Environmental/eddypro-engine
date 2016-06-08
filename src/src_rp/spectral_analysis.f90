@@ -130,7 +130,7 @@ subroutine SpectralAnalysis(date, time, bf, Set, N, M)
         !> Binned cospectra session
         if (RPsetup%out_bin_sp) then
             !> Exponential binning of frequencies, spectra and co-spectra
-            call ExpAvrgCospectra(bf, nf, Spectrum, Cospectrum, N/2 + 1, bnf &
+            call ExpAvrgCospectra(bf, nf, Spectrum, Cospectrum, N, bnf &
                 , BinnedSpectrum, BinnedCospectrum, bcnt)
             !> Write co-spectra on output file in csv format
             call WriteOutBinnedCoSpectra(Datestring, bnf, bcnt, BinnedSpectrum, BinnedCospectrum &
@@ -428,24 +428,24 @@ subroutine ExpAvrgOgives(bf, nf, Ogive, CoOgive, N, bin_nf, &
     !> in/out variables
     integer, intent(in) :: N
     real(kind = dbl), intent(in) :: bf(Meth%spec%nbins + 1)
-    real(kind = dbl), intent(in) :: nf(N)
+    real(kind = dbl), intent(in) :: nf(N/2)
     integer, intent(out) :: bin_cnt(Meth%spec%nbins)
     real(kind = dbl), intent(out) :: bin_nf(Meth%spec%nbins)
     type (SpectralType), intent(out) :: BinnedOgive(Meth%spec%nbins)
     type (SpectralType), intent(out) :: BinnedCoOgive(Meth%spec%nbins)
-    type (SpectralType), intent(inout) :: Ogive(N)
-    type (SpectralType), intent(inout) :: CoOgive(N)
+    type (SpectralType), intent(inout) :: Ogive(N/2 + 1)
+    type (SpectralType), intent(inout) :: CoOgive(N/2 + 1)
     !> local variables
     integer :: i = 0
     integer :: j = 0
 
     !> Align co-ogives to frequencies before averaging
-    do i = 1, N-1
+    do i = 1, N/2
         Ogive(i) = Ogive(i + 1)
         CoOgive(i) = CoOgive(i + 1)
     end do
-    Ogive(N)%of(:) = 0d0
-    CoOgive(N)%of(:) = 0d0
+    Ogive(N/2 + 1)%of(:) = 0d0
+    CoOgive(N/2 + 1)%of(:) = 0d0
 
     write(*, '(a)', advance = 'no') '   Binning ogives..'
     !> average variables in the exp-spaced ranges
@@ -454,7 +454,7 @@ subroutine ExpAvrgOgives(bf, nf, Ogive, CoOgive, N, bin_nf, &
         bin_nf(i) = 0.d0
         BinnedOgive(i)%of(u:gas4) = 0d0
         BinnedCoOgive(i)%of(w_u:w_gas4) = 0d0
-        do j = 1, N
+        do j = 1, N/2
             if(nf(j) >= bf(i) .and. nf(j) < bf(i + 1)) then
                 bin_nf(i) = bin_nf(i) + nf(j)
                 BinnedOgive(i)%of(u:gas4) = &
