@@ -1,21 +1,9 @@
 6.2.0 (2016-04-12)
 
 	  Engine
-    - Add: new supported variable "anemometer_diagnostic". Currently - if selected -
-      it filters sonic data if the diagnostic value is different from zero.
-    - Fix: now biomet data is not read in during planar fit (which was never useful anyway)
-      and this fixes an array allocation issue that was causing a crash when both planar fit and
-      biomet data were used.
-    - Fix: eliminate 'allocatable' property for TempFact in drift_correction.f90, which is
-      however not yet enabled, so it was causing no issues.
-  	- Fix: missing time-lag optimization file when requested caused tilt correction
-  	  method to be set to inexistent value and thus default to no correction
-  	- Refine: now planar fit settings are not read if planar-fit file is used. The
-  	  useless reading operation did not cause any problems.
-  	- Refine: changed "time lag" into "time-lag" everywhere
-    - Refine: Kelvin/Celsius conversion factor harmonised everywhere (273.15 instead
-      of some occurring 273.16)
-    - Refine: now biomet variables that are provided without positional qualifiers
+    - Add: new supported variable "anemometer_diagnostic". If selected,
+      it filters anemometer data if the diagnostic value is different from zero.
+    - Add: now biomet variables that are provided without positional qualifiers
       are by default given a "null qualifier" in the form of _0_0_n, with n progressing
       from 1. This applies now also to external biomet files, which means that users no longer
       need to assign 'fake' positional qualifiers to variables
@@ -31,6 +19,18 @@
       However, EddyPro controls that both corrections are applicable to the
       current anemometer and overrides user's settings (and output
       corresponding warnings) if necessary.
+  	- Refine: now planar fit settings are not read if planar-fit file is used. The
+  	  useless reading operation did not cause any problems.
+  	- Refine: changed "time lag" into "time-lag" everywhere
+    - Fix: Kelvin/Celsius conversion factor harmonised everywhere (273.15 instead
+      of some occurring 273.16)
+    - Fix: now biomet data is not read in during planar fit (which was never useful anyway)
+      and this fixes an array allocation issue that was causing a crash when both planar fit and
+      biomet data were used.
+    - Fix: eliminate 'allocatable' property for TempFact in drift_correction.f90, which is
+      however not yet enabled, so it was causing no issues.
+  	- Fix: missing time-lag optimization file when requested caused tilt correction
+  	  method to be set to inexistent value and thus default to no correction
     - Fix: flags for absolute limits is now correctly calculated. Flags for
       this test obtained so far are unreliable.
     - Fix: output of full (co)spectra. The bug was such that there was a
@@ -41,7 +41,7 @@
       processed correctly. The bug did not allow processing them in rather
       unusual (but not impossible) situations, such as when files shorter
       than the flux averaging interval were processed.
-    - Refine: handle inconsistent selection of embedded biomet data and non-GHG
+    - Fix: handle inconsistent selection of embedded biomet data and non-GHG
       file type. This pair of inconsistent settings is not possible with the GUI,
       only with manual editing of the .eddypro file.
     - Fix: definitions of Hamming and Hann windows were mistakenly inverted.

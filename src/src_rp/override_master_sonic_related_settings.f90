@@ -54,9 +54,13 @@ subroutine OverrideMasterSonicRelatedSettings()
         RPsetup%calib_wboost = .false.
     end if
 
-    !> If Nakai and Shimoyama 2012 was selected or inferred as an AoA method,
-    !> regardless of the sonic model, the w-boost correction is not to be applied.
-    if (RPSetup%calib_aoa == 'nakai_12') RPsetup%calib_wboost = .false.
+    !> If w-boost is enabled (either because selected and applicable or
+    !> because running in express mode), do not apply AoA
+    if (RPSetup%calib_wboost) RPSetup%calib_aoa = 'none'
+
+    ! !> If Nakai and Shimoyama 2012 was selected or inferred as an AoA method,
+    ! !> regardless of the sonic model, the w-boost correction is not to be applied.
+    ! if (RPSetup%calib_aoa == 'nakai_12') RPsetup%calib_wboost = .false.
 
     !> Handle inappropriate AoA selections
     if (RPsetup%calib_aoa == 'nakai_06') then
