@@ -636,7 +636,7 @@ program EddyproRP
                     call FilterDatasetForDiagnostics(E2Set, &
                         size(E2Set, 1), size(E2Set, 2), &
                         DiagSet, size(DiagSet, 1), size(DiagSet, 2), &
-                        .true., .true.)
+                        DiagAnemometer%present, .true.)
                 end if
                 if(allocated(DiagSet)) deallocate(DiagSet)
 
@@ -1022,7 +1022,7 @@ program EddyproRP
                     call FilterDatasetForDiagnostics(E2Set, size(E2Set, 1), &
                         size(E2Set, 2), DiagSet, &
                         size(DiagSet, 1), size(DiagSet, 2), &
-                        .true., .false.)
+                        DiagAnemometer%present, .false.)
                 end if
                 if(allocated(DiagSet)) deallocate(DiagSet)
 
@@ -1689,7 +1689,7 @@ program EddyproRP
                 call FilterDatasetForDiagnostics(E2Set, size(E2Set, 1), &
                     size(E2Set, 2), DiagSet, &
                     size(DiagSet, 1), size(DiagSet, 2), &
-                    .true., .true.)
+                    DiagAnemometer%present, .true.)
             end if
             if(allocated(DiagSet)) deallocate(DiagSet)
 
