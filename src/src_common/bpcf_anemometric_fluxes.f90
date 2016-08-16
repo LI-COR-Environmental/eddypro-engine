@@ -109,5 +109,3 @@ subroutine BPCF_AnemometricFluxes(measuring_height, displ_height, loc_var_presen
     call SpectralCorrectionFactors(Cospectrum%of(w_u),  u,  nf, nfreq, BPTF)
     call SpectralCorrectionFactors(Cospectrum%of(w_ts), ts, nf, nfreq, BPTF)
 end subroutine BPCF_AnemometricFluxes
-
-
