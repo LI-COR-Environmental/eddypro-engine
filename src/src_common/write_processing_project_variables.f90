@@ -278,15 +278,17 @@ subroutine WriteProcessingProjectVariables()
 
     !> select whether to correct for LI-7550-related attenuations
     !> Relevant only for GHG files and logger software version < 7.7.0
-    !>  Block-averaging
-    EddyProProj%hf_correct_ghg_ba = EPPrjCTags(46)%value(1:1) == '1'
-    !>  ZOH
-    EddyProProj%hf_correct_ghg_zoh = EPPrjCTags(47)%value(1:1) == '1'
+    ! !>  Block-averaging
+    ! EddyProProj%hf_correct_ghg_ba = EPPrjCTags(46)%value(1:1) == '1'
+    ! !>  ZOH
+    ! EddyProProj%hf_correct_ghg_zoh = EPPrjCTags(47)%value(1:1) == '1'
+    ! if (EddyProProj%ftype /= 'licor_ghg') then
+    !     EddyProProj%hf_correct_ghg_ba = .false.
+    !     EddyProProj%hf_correct_ghg_zoh = .false.
+    ! end if
+    EddyProProj%hf_correct_ghg_ba = .false.
+    EddyProProj%hf_correct_ghg_zoh = .false.
 
-    if (EddyProProj%ftype /= 'licor_ghg') then
-        EddyProProj%hf_correct_ghg_ba = .false.
-        EddyProProj%hf_correct_ghg_zoh = .false.
-    end if
     EddyProProj%sonic_output_rate = nint(EPPrjNTags(19)%value)
 
     !> select whether to fill gaps with error codes

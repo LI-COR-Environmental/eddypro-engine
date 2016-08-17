@@ -1,4 +1,4 @@
-6.2.0 (2016-04-12)
+6.2.0 (2016-08-17)
 
 	  Engine
     - Add: new supported variable "anemometer_diagnostic". If selected,
@@ -22,6 +22,8 @@
   	- Refine: now planar fit settings are not read if planar-fit file is used. The
   	  useless reading operation did not cause any problems.
   	- Refine: changed "time lag" into "time-lag" everywhere
+    - Fix: shut down BA/ZOH correction, which is currently implemented but not
+      exposed via the GUI.
     - Fix: Kelvin/Celsius conversion factor harmonised everywhere (273.15 instead
       of some occurring 273.16)
     - Fix: now biomet data is not read in during planar fit (which was never useful anyway)
