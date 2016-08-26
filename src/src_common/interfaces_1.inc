@@ -1,14 +1,3 @@
-!interface
-!    function sinc(x, N)
-!        use m_numeric_kinds
-!        implicit none
-!        !> In/out variables
-!        integer, intent(in) :: N
-!        real (kind = dbl), intent(in) :: x(N)
-!        real (kind = dbl) :: sinc(N)
-!    end function
-!end interface
-
 interface
     subroutine fcn(m, npar, x, fvec, fjac, iflag)
         implicit none
@@ -30,17 +19,6 @@ interface
         type(SwVerType) :: SwVerFromString
         !> Local variables
         character(4) :: chunk
-    end function
-end interface
-
-interface
-    function sinc(x, N)
-        use m_numeric_kinds
-        implicit none
-        !> In/out variables
-        integer, intent(in) :: N
-        real (kind = dbl), intent(in) :: x(N)
-        real (kind = dbl) :: sinc(N)
     end function
 end interface
 
@@ -73,5 +51,31 @@ interface
         !> In/out variables
         character(*), intent(in) :: model
         integer :: DefaultSonicOutputRate
+    end function
+end interface
+
+interface
+    function sinc(x, N)
+        use m_numeric_kinds
+        implicit none
+        !> In/out variables
+        integer, intent(in) :: N
+        real(kind = dbl) , intent(in) :: x(N)
+        real(kind = dbl)  :: sinc(N)
+    end function
+end interface
+
+interface
+    function asymmetric_linear_transformation(x, N, pgain, poffset, ngain, noffset)
+        use m_numeric_kinds
+        implicit none
+        !> In/out variables
+        integer, intent(in) :: N
+        real(kind = dbl) , intent(inout) :: x(N)
+        real(kind = dbl) , intent(in) :: pgain
+        real(kind = dbl) , intent(in) :: poffset
+        real(kind = dbl) , intent(in) :: ngain
+        real(kind = dbl) , intent(in) :: noffset
+        real(kind = dbl)  :: asymmetric_linear_transformation(N)
     end function
 end interface

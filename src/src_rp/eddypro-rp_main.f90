@@ -162,8 +162,8 @@ program EddyproRP
 
     integer, external :: NumOfPeriods
     integer, external :: NumberOfFilesInSubperiod
-    real(kind=dbl), external :: LaggedCovarianceNoError
-    real (kind = dbl), external :: Poly6
+    real(kind = dbl), external :: LaggedCovarianceNoError
+    real(kind = dbl) , external :: Poly6
     integer, external :: CreateDir
     include '../src_common/interfaces.inc'
 
@@ -306,18 +306,11 @@ program EddyproRP
         deallocate(Raw)
     end if
 
+    !> MasterSonic-related settings
     call DetectMasterSonic(Col, NumCol)
 
-    !> Now that master sonic is known (also in embedded mode) it's time
-    !> to set the aoa correction
-    !> If AoA selection was set to 'automatic', it's time to retrieve it
-    if (RPsetup%calib_aoa == 'automatic') &
-        call InferAoaMethod(MasterSonic)
-
-    !> If running with EXP settings, override any previous setting and go
-    !> automatic
-    if (EddyProProj%run_mode == 'express') &
-        call InferAoaMethod(MasterSonic)
+    !> Override/adjust settings related to the MasterSonic
+    call OverrideMasterSonicRelatedSettings()
 
     !> Now that metadata are read, can set avrg_len in case user didn't
     if (RPsetup%avrg_len <= 0) RPsetup%avrg_len = nint(Metadata%file_length)
@@ -437,7 +430,7 @@ program EddyproRP
     !***************************************************************************
     !***************************************************************************
 
-    if (Meth%tlag(1:len_trim(Meth%tlag)) == 'tlag_opt') then
+    if (trim(adjustl(Meth%tlag)) == 'tlag_opt') then
         if (.not. RPsetup%to_onthefly) then
             call ReadTimelagOptFile(TOSetup%h2o_nclass)
             if (TOSetup%h2o_nclass > 1) &
@@ -446,12 +439,12 @@ program EddyproRP
             write(*,'(a)') ' Performing time-lag optimization:'
 
             if (TOSetup%subperiod) then
-                !> Timestamps of start and end of time lag optimization period
+                !> Timestamps of start and end of time-lag optimization period
                 call DateTimeToDateType(TOSetup%start_date, TOSetup%start_time, auxStartTimestamp)
                 call DateTimeToDateType(TOSetup%end_date, TOSetup%end_time, auxEndTimestamp)
 
                 !> In RawTimeSeries, detect indices of first and last files
-                !> relevant to time lag optimization
+                !> relevant to time-lag optimization
                 call tsExtractSubperiodIndexes(RawTimeSeries, &
                     size(RawTimeSeries), auxStartTimestamp, auxEndTimestamp, &
                     toStartTimestampIndx, toEndTimestampIndx)
@@ -549,7 +542,8 @@ program EddyproRP
                     MaxNumFileRecords, MetaIsNeeded, &
                     EddyProProj%biomet_data == 'embedded', .false., &
                     Raw, size(Raw, 1), size(Raw, 2), PeriodRecords, &
-                    EmbBiometDataExist, skip_period, LatestRawFileIndx, Col)
+                    EmbBiometDataExist, skip_period, LatestRawFileIndx, Col, &
+                    .false.)
                 if (skip_period) cycle to_periods_loop
 
                 !> Period skip control with message
@@ -588,7 +582,7 @@ program EddyproRP
                     toInit = .false.
                 end if
 
-                !> Clean up E2Set, eliminating values that are clearly un-physical
+                !> Clean up E2Set, eliminating values that are clearly unphysical
                 call CleanUpE2Set(E2Set, size(E2Set, 1), size(E2Set, 2))
 
                 !> Define as not present, variables for which
@@ -600,12 +594,14 @@ program EddyproRP
                 if (skip_period) then
                     if(allocated(E2Set)) deallocate(E2Set)
                     if(allocated(E2Primes)) deallocate(E2Primes)
+                    if(allocated(DiagSet)) deallocate(DiagSet)
                     cycle to_periods_loop
                 end if
 
                 if (.not. any(E2Col(co2:gas4)%present)) then
                     if(allocated(E2Set)) deallocate(E2Set)
                     if(allocated(E2Primes)) deallocate(E2Primes)
+                    if(allocated(DiagSet)) deallocate(DiagSet)
                     cycle to_periods_loop
                 end if
 
@@ -633,13 +629,14 @@ program EddyproRP
                 !**** DATASET DEFINITION FINISHES HERE *************************
                 !**** NOW STARTS RAW DATA REDUCTION ****************************
                 !***************************************************************
-                !> Interpret LI-COR's diagnostic flags
+                !> Interpret diagnostics and filter accordingly
                 if (NumDiag > 0) then
                     call InterpretLicorDiagnostics(DiagSet, &
                         size(DiagSet, 1), size(DiagSet, 2))
                     call FilterDatasetForDiagnostics(E2Set, &
                         size(E2Set, 1), size(E2Set, 2), &
-                        DiagSet, size(DiagSet, 1), size(DiagSet, 2))
+                        DiagSet, size(DiagSet, 1), size(DiagSet, 2), &
+                        DiagAnemometer%present, .true.)
                 end if
                 if(allocated(DiagSet)) deallocate(DiagSet)
 
@@ -685,18 +682,12 @@ program EddyproRP
                     size(E2Set, 1), size(E2Set, 2), 3, .false.)
                 Stats3 = Stats
 
-                !> If requested - and if sonic is a Gill - perform
-                !> angle-of-attack calibration according to
-                !> Nakai et al. 2006/2012
-                if (RPsetup%calib_aoa /= 'none') then
-                    select case(E2Col(u)%Instr%model(1:len_trim(E2Col(u)%Instr%model) - 2))
-                        case ('r2','r3_50','r3_100','r3a_100','wm','wmpro')
-                            call AoaCalibrationNakai(E2Set, &
-                                size(E2Set, 1), size(E2Set, 2))
-                        case default
-                            continue
-                    end select
-                end if
+                !> Angle-of-attack calibration
+                call AoaCalibration(E2Set, size(E2Set, 1), size(E2Set, 2))
+
+                !> Gill WindMaster w-boost
+                if (RPsetup%calib_wboost) &
+                    call ApplyGillWmWBoost(E2Set, size(E2Set, 1), size(E2Set, 2))
 
                 !> Calculate basic stats
                 call BasicStats(E2Set, &
@@ -722,7 +713,7 @@ program EddyproRP
                 !> retrieving sensor parameters
                 call RetrieveSensorParams()
 
-                !> Adjust min/max time lags associated to columns, to fit
+                !> Adjust min/max time-lags associated to columns, to fit
                 !> user settings in the Time lag optimizer dialog
                 call AdjustTimelagOptSettings()
 
@@ -795,7 +786,7 @@ program EddyproRP
             !**** NOW STARTS TIME LAG OPT CALCULATIONS *************************
             !*******************************************************************
 
-            !> Adjust time lag opt dataset to eliminate errors,
+            !> Adjust time-lag opt dataset to eliminate errors,
             !> so that it's easier to treat them later
             allocate (toSet(ton))
             call FixTimelagOptDataset(TimelagOpt, size(TimelagOpt), &
@@ -804,12 +795,12 @@ program EddyproRP
 
             allocate(toH2On(TOSetup%h2o_nclass))
 
-!> Improve readability of this subroutine call
-            !> Optimize time lags
+!> Improve readability of this subroutine interface
+            !> Optimize time-lags
             call OptimizeTimelags(toSet, size(toSet), tlagn, E2NumVar, toH2On, &
                 TOSetup%h2o_nclass, TOSetup%h2o_class_size)
 
-            !> Write time lag optimization results on output file
+            !> Write time-lag optimization results on output file
             if (.not. (Meth%tlag == 'maxcov')) &
                 call WriteOutTimelagOptimization(tlagn, E2NumVar, &
                     toH2On, TOSetup%h2o_nclass, TOSetup%h2o_class_size)
@@ -963,9 +954,10 @@ program EddyproRP
                 call ImportCurrentPeriod(tsStart, tsEnd, &
                     RawFileList, NumRawFiles, NextRawFileIndx, BypassCol,  &
                     MaxNumFileRecords, MetaIsNeeded, &
-                    EddyProProj%biomet_data == 'embedded', .false., &
+                    .false., .false., &
                     Raw, size(Raw, 1), size(Raw, 2), PeriodRecords, &
-                    EmbBiometDataExist, skip_period, LatestRawFileIndx, Col)
+                    EmbBiometDataExist, skip_period, LatestRawFileIndx, Col, &
+                    .false.)
                 if (skip_period) cycle pf_periods_loop
 
                 !> Period skip control with message
@@ -994,7 +986,7 @@ program EddyproRP
                 call DefineE2Set(Col, Raw,   size(Raw, 1),     Size(Raw, 2), &
                                     E2Set,   size(E2Set, 1),   Size(E2Set, 2), &
                                     DiagSet, size(DiagSet, 1), Size(DiagSet, 2))
-                if (allocated(DiagSet))  deallocate(DiagSet)
+!                if (allocated(DiagSet))  deallocate(DiagSet)
 
                 !> Clean up E2Set, eliminating values that are clearly un-physical
                 call CleanUpE2Set(E2Set, size(E2Set, 1), size(E2Set, 2))
@@ -1008,7 +1000,7 @@ program EddyproRP
                 !> stops processing this period
                 if (skip_period) then
                     if(allocated(E2Set)) deallocate(E2Set)
-                    if(allocated(E2Primes)) deallocate(E2Primes)
+                    if(allocated(DiagSet)) deallocate(DiagSet)
                     cycle pf_periods_loop
                 end if
 
@@ -1024,6 +1016,15 @@ program EddyproRP
                 !**** DATASET DEFINITION FINISHES HERE. ************************
                 !**** NOW STARTS RAW DATA REDUCTION     ************************
                 !***************************************************************
+                !> Filter only for sonic diagnostics (IRGA is irrelevant in
+                !> planar fit)
+                if (NumDiag > 0) then
+                    call FilterDatasetForDiagnostics(E2Set, size(E2Set, 1), &
+                        size(E2Set, 2), DiagSet, &
+                        size(DiagSet, 1), size(DiagSet, 2), &
+                        DiagAnemometer%present, .false.)
+                end if
+                if(allocated(DiagSet)) deallocate(DiagSet)
 
                 !> Adjust coordinate systems if the case
                 call AdjustSonicCoordinates(E2Set, &
@@ -1058,18 +1059,12 @@ program EddyproRP
                 Stats2 = Stats
                 Stats3 = Stats
 
-                !> If requested - and if sonic is a Gill -
-                !> perform angle-of-attack calibration
-                !> according to Nakai et al. 2006/2012
-                if (RPsetup%calib_aoa /= 'none') then
-                    select case(E2Col(u)%Instr%model(1:len_trim(E2Col(u)%Instr%model) - 2))
-                        case ('r2','r3_50','r3_100','r3a_100','wm','wmpro')
-                            call AoaCalibrationNakai(E2Set, &
-                                size(E2Set, 1), size(E2Set, 2))
-                        case default
-                            continue
-                    end select
-                end if
+                !> Angle-of-attack calibration
+                call AoaCalibration(E2Set, size(E2Set, 1), size(E2Set, 2))
+
+                !> Gill WindMaster w-boost
+                if (RPsetup%calib_wboost) &
+                    call ApplyGillWmWBoost(E2Set, size(E2Set, 1), size(E2Set, 2))
 
                 !> Calculate basic stats
                 call BasicStats(E2Set, size(E2Set, 1), size(E2Set, 2), &
@@ -1227,6 +1222,8 @@ program EddyproRP
             write(*,'(a)') ' Planar Fit session terminated.'
             write(*,'(a)')
         end if
+    else
+        if (.not. allocated(GoPlanarFit)) allocate(GoPlanarFit(PFSetup%num_sec))
     end if
 
     !***************************************************************************
@@ -1352,7 +1349,7 @@ program EddyproRP
                 MaxNumFileRecords, MetaIsNeeded, &
                 EddyProProj%biomet_data == 'embedded', .false., Raw, &
                 size(Raw, 1), size(Raw, 2), PeriodRecords, EmbBiometDataExist, &
-                skip_period, LatestRawFileIndx, Col)
+                skip_period, LatestRawFileIndx, Col, .false.)
 
             !> Period skip control
             if (skip_period) cycle drift_loop
@@ -1549,7 +1546,7 @@ program EddyproRP
             NumRawFiles, NextRawFileIndx, BypassCol, MaxNumFileRecords, &
             MetaIsNeeded, EddyProProj%biomet_data == 'embedded', .true., &
             Raw, size(Raw, 1), size(Raw, 2), PeriodRecords, &
-            EmbBiometDataExist, skip_period, LatestRawFileIndx, Col)
+            EmbBiometDataExist, skip_period, LatestRawFileIndx, Col, .true.)
 
         !> If it's running in metadata retriever mode,
         !> create a dummy dataset 1 minute long
@@ -1611,9 +1608,12 @@ program EddyproRP
         !***********************************************************************
 
         !> Allocate arrays for actual data processing
-        if (.not. allocated(E2Set))    allocate(E2Set(PeriodRecords, E2NumVar))
-        if (.not. allocated(E2Primes)) allocate(E2Primes(PeriodRecords, E2NumVar))
-        if (.not. allocated(DiagSet))  allocate(DiagSet(PeriodRecords, MaxNumDiag))
+        if (.not. allocated(E2Set))    &
+            allocate(E2Set(PeriodRecords, E2NumVar))
+        if (.not. allocated(E2Primes)) &
+            allocate(E2Primes(PeriodRecords, E2NumVar))
+        if (.not. allocated(DiagSet))  &
+            allocate(DiagSet(PeriodRecords, MaxNumDiag))
 
         !> Define EddyPro set of variables for the following processing
         call DefineE2Set(Col, Raw,   size(Raw, 1),     Size(Raw, 2), &
@@ -1650,7 +1650,7 @@ program EddyproRP
         end if
 
         !> Define User set of variables, for main statistics
-        if (NumUserVar > 0) then
+!        if (NumUserVar > 0) then
             if (.not. allocated(UserSet)) &
                 allocate(UserSet(PeriodRecords, NumUserVar))
             if (.not. allocated(UserCol)) &
@@ -1659,7 +1659,7 @@ program EddyproRP
                 allocate(UserPrimes(PeriodRecords, NumUserVar))
             call DefineUserSet(Col, Raw, size(Raw, 1), size(Raw, 2), &
                 UserSet, size(UserSet, 1), size(UserSet, 2))
-        end if
+!        end if
 
         RowLags = 0
         if (EddyProProj%run_mode /= 'md_retrieval') then
@@ -1682,12 +1682,14 @@ program EddyproRP
             !**** DATASET DEFINITION FINISHES HERE. ****************************
             !**** STARTS RAW DATA REDUCTION         ****************************
             !*******************************************************************
-            !> Interpret LI-COR's diagnostic flags
+            !> Interpret diagnostics and filter accordingly
             if (NumDiag > 0) then
                 call InterpretLicorDiagnostics(DiagSet, &
                     size(DiagSet, 1), size(DiagSet, 2))
                 call FilterDatasetForDiagnostics(E2Set, size(E2Set, 1), &
-                    size(E2Set, 2), DiagSet, size(DiagSet, 1), size(DiagSet, 2))
+                    size(E2Set, 2), DiagSet, &
+                    size(DiagSet, 1), size(DiagSet, 2), &
+                    DiagAnemometer%present, .true.)
             end if
             if(allocated(DiagSet)) deallocate(DiagSet)
 
@@ -1847,17 +1849,12 @@ program EddyproRP
             end if
 
             !> ===== 4. ANGLE OF ATTACK CORRECTION =============================
-            !> If requested - and if sonic is a Gill - perform angle-of-attack
-            !> calibration according to Nakai et al. 2006/2012
-            if (RPsetup%calib_aoa /= 'none') then
-                select case(E2Col(u)%Instr%model(1:len_trim(E2Col(u)%Instr%model) - 2))
-                    case ('r2','r3_50','r3_100','r3a_100','wm','wmpro')
-                        call AoaCalibrationNakai(E2Set, &
-                            size(E2Set, 1), size(E2Set, 2))
-                    case default
-                        continue
-                end select
-            end if
+            !> Angle-of-attack calibration
+            call AoaCalibration(E2Set, size(E2Set, 1), size(E2Set, 2))
+
+            !> Gill WindMaster w-boost
+            if (RPsetup%calib_wboost) &
+                call ApplyGillWmWBoost(E2Set, size(E2Set, 1), size(E2Set, 2))
 
             !> Output raw dataset forth level
             if (RPsetup%out_raw(4)) call OutRawData(Stats%date, Stats%time, &
@@ -2080,6 +2077,8 @@ program EddyproRP
             end if
         end if
         if (allocated(E2Primes)) deallocate(E2Primes)
+        if (allocated(UserPrimes)) deallocate(UserPrimes)
+        if (allocated(UserSet)) deallocate(UserSet)
 
         !***********************************************************************
         !**** (CO)SPECTRA CALCULATION FINISHES HERE  ***************************

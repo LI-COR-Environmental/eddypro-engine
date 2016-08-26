@@ -21,7 +21,7 @@
 !
 !***************************************************************************
 !
-! \brief       Calculates time lags (in terms of number of records) \n
+! \brief       Calculates time-lags (in terms of number of records) \n
 !              for all non-sensitive variables
 ! \author      Gerardo Fratini
 ! \note
@@ -90,7 +90,7 @@ subroutine UserTimeLagHandle(TlagMeth, UserSet, unrow, uncol, E2W, nrow)
             TLag(1:uncol) = 0d0
     end select
 
-    !> Align data according to relevant time lags, filling remaining with error code.
+    !> Align data according to relevant time-lags, filling remaining with error code.
     do j = 1, uncol
         if (UserRowLags(j) >= 0) then
             !> For positive lags

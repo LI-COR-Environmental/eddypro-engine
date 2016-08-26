@@ -47,10 +47,10 @@ subroutine Storage(PrevStats, prevAmbient)
 !    integer :: i
 !    integer :: j
 !    integer :: var
-    real (kind = dbl) :: seconds
-!    real (kind = dbl) :: dcdt(5, MaxProfNodes)
-!    real (kind = dbl) :: dStor(5, MaxProfNodes - 1)
-!    real (kind = dbl) :: dz(5, MaxProfNodes - 1)
+    real(kind = dbl)  :: seconds
+!    real(kind = dbl)  :: dcdt(5, MaxProfNodes)
+!    real(kind = dbl)  :: dStor(5, MaxProfNodes - 1)
+!    real(kind = dbl)  :: dz(5, MaxProfNodes - 1)
     character(10) tmp_date
     character(5) tmp_time
 

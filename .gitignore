@@ -1,10 +1,5 @@
-# gitignore for EddyPro engine 
+# gitignore for EddyPro engine
 # created by gerardo fratini for Fortran/C::B
-
-### C::B ###
-*.depend
-*.layout
-Makefile
 
 ### FORTRAN ###
 *.exe

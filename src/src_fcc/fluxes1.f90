@@ -35,7 +35,7 @@ subroutine Fluxes1(lEx)
     !> In/out variables
     type(ExType), intent(inout) :: lEx
     !> local variables
-    real (kind = dbl) :: Cox
+    real(kind = dbl)  :: Cox
 
     Flux1 = errFlux
 

@@ -159,6 +159,17 @@ subroutine WriteVariablesFX()
         if (len_trim(AuxFile%sa) == 0) AuxFile%sa = 'none'
     end if
 
+    !> Check existence of full cospectra directory if necessary
+    if (EddyProProj%hf_meth == 'fratini_12') then
+        inquire(file = Dir%full, exist=dirExists)
+        if (.not. dirExists) then
+            call ExceptionHandler(88)
+            EddyProProj%hf_meth = 'moncrieff_97'
+            FCCsetup%SA%in_situ = .false.
+            FCCsetup%import_full_cospectra = .false.
+        end if
+    end if
+
     !> Whether to perform spectral assessment on the fly
     !> Either because (1) in-situ spectral corrections were selected with
     !> on-the-fly spectral assessment or spectral assessment file was not found;
@@ -185,16 +196,6 @@ subroutine WriteVariablesFX()
                 FCCsetup%SA%in_situ = .false.
             end if
             call ExceptionHandler(87)
-        end if
-    end if
-
-    !> Check existence of full cospectra directory if necessary
-    if (EddyProProj%hf_meth == 'fratini_12') then
-        inquire(file = Dir%full, exist=dirExists)
-        if (.not. dirExists) then
-            call ExceptionHandler(88)
-            EddyProProj%hf_meth = 'moncrieff_97'
-            FCCsetup%SA%in_situ = .false.
         end if
     end if
 

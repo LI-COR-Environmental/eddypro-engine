@@ -168,7 +168,7 @@ module m_common_global_var
     real(kind = sgl) :: MW(E2NumVar) !< Molecular weights
     data (MW(mmm), mmm = co2, gas4) / 44.01e-3, 18.02e-3, 16.04e-3, 44.01e-3/
     real(kind = dbl), parameter :: p = 3.14159265358979323846d0 !< Greek pi
-    real(kind = dbl), parameter :: StdVair = 0.02245d0  !< gas molar volume at 25 °C and 101.325 kPa
+    real(kind = dbl), parameter :: StdVair = 0.02245d0  !< gas molar volume at 25 ï¿½C and 101.325 kPa
     real(kind = dbl), parameter :: vk = 0.41d0 !< Von Karman constant
     real(kind = dbl), parameter :: Md = 0.02897d0 !< molecular weight of dry air [kg_d/mol_d]
     real(kind = dbl), parameter :: mu = Md / 18.02d-3
@@ -189,15 +189,15 @@ module m_common_global_var
     real(kind = dbl), parameter :: MaxWindIntensity = 5d2 !< maximum plausible value for wind speed
     real(kind = dbl), parameter :: MaxWTCov = 100d0 !< maximum plausible value for wind speed
     !> Co-spectral model parameters (Runkle et al. 2012, Eq. 3)
-    real (kind = dbl), parameter :: beta1 = 1.05d0
-    real (kind = dbl), parameter :: beta2 = 1.33d0
-    real (kind = dbl), parameter :: beta3 = 0.387d0
-    real (kind = dbl), parameter :: beta4 = 0.38d0
-    real (kind = dbl), allocatable :: xFit(:)
-    real (kind = dbl), allocatable :: yFit(:)
-    real (kind = dbl), allocatable :: zFit(:)
-    real (kind = dbl), allocatable :: zzFit(:)
-    real (kind = dbl), allocatable :: ddum(:)
+    real(kind = dbl) , parameter :: beta1 = 1.05d0
+    real(kind = dbl) , parameter :: beta2 = 1.33d0
+    real(kind = dbl) , parameter :: beta3 = 0.387d0
+    real(kind = dbl) , parameter :: beta4 = 0.38d0
+    real(kind = dbl) , allocatable :: xFit(:)
+    real(kind = dbl) , allocatable :: yFit(:)
+    real(kind = dbl) , allocatable :: zFit(:)
+    real(kind = dbl) , allocatable :: zzFit(:)
+    real(kind = dbl) , allocatable :: ddum(:)
 
     type(FootType) :: Foot
     type(EddyProLogType)   :: EddyProLog
@@ -296,12 +296,12 @@ module m_common_global_var
 !    'MICROEINSTEIN+1M-2S-1','MICROEINSTEINM-2S-1','MICROEINSTEIN/(M^2*S)','MICROEINSTEINM^-2*S^-1',  &
 !    'UEINSTEIN+1M-2S-1','UEINSTEINM-2S-1','UEINSTEIN/(M^2*S)','UEINSTEINM^-2*S^-1',  &
 !    'PPMD','UMOLMOL-1','UMOL/MOL','UMOLMOL^-1', & !> units that don't need to be changed
-!    '°','°DEG','DEGREES','DEGREESFROMNORTH', & !> units that don't need to be changed
+!    'ï¿½','ï¿½DEG','DEGREES','DEGREESFROMNORTH', & !> units that don't need to be changed
 !    '#','PERCENT','%VOL', & !> units that don't need to be changed
 !    'M+3M-3','M3/M3','M^3M^-3','M^3/M^3','M3M-3',& !> units that don't need to be changed
 !    'M+2M-2','M2/M2','M^2M^-2','M2M-2',& !> units that don't need to be changed
 !    'NUMBER','#','DIMENSIONLESS','OTHER' ,'OTHERS', & !> units that don't need to be changed
-!    'C','°C','F','°F','CK','CC','C°C','CF','C°F', & !> units that need change
+!    'C','ï¿½C','F','ï¿½F','CK','CC','Cï¿½C','CF','Cï¿½F', & !> units that need change
 !    'HPA','KPA','MMHG','PSI', 'BAR', 'ATM', 'TORR', & !> units that need change
 !    'NM','UM','MM','CM','KM', & !> units that need change
 !    'CM+1S-1','CM/S','CMS^-1','CMS-1','MM+1S-1','MM/S','MMS^-1','MMS-1', & !> units that need change
@@ -321,7 +321,8 @@ module m_common_global_var
     type(DateType), parameter :: &
         tsNull= DateType(0, 0, 0, 0, 0)
     type(InstrumentType), parameter :: &
-        NullInstrument = InstrumentType('none', 'none', 'none', 'none', error, error, error, error, &
+        NullInstrument = InstrumentType('none', 'none', 'none', 'none', 'none', &
+        error, error, error, error, &
         error, error, error, error, error, error, error, error, error, error, 'none', 'none', &
         'none', 'none', .false., .false., errSwVer)
     type(RawFlagType), parameter :: NullRawFlag = RawFlagType(0, error, .false.)
@@ -347,9 +348,9 @@ module m_common_global_var
     integer :: fnbRecs, nbRecs
     type(BiometFileMetadataType) :: bFileMetadata
     type(BiometVarsType), allocatable :: bVars(:)
-    real(kind=dbl), allocatable :: fbSet(:, :)
-    real(kind=dbl), allocatable :: bSet(:, :), auxbSet(:, :), bAggr(:)
-    real(kind=dbl), allocatable :: bAggrFluxnet(:)
+    real(kind = dbl), allocatable :: fbSet(:, :)
+    real(kind = dbl), allocatable :: bSet(:, :), auxbSet(:, :), bAggr(:)
+    real(kind = dbl), allocatable :: bAggrFluxnet(:)
     type(DateType), allocatable :: fbTs(:), auxbTs(:)
     type(DateType), allocatable :: bTs(:)
     type(BiometVarsType), parameter :: &
@@ -371,8 +372,8 @@ module m_common_global_var
     logical :: ArchiveIsCreated = .false.
 
     !> other shared variables
-    real (kind = dbl) :: PotRad(17568)
-    real (kind = dbl) :: magnetic_declination
+    real(kind = dbl)  :: PotRad(17568)
+    real(kind = dbl)  :: magnetic_declination
     real(kind = dbl) BuMultiPar(2, 3, 4)
     character(11)  :: app
     character(32)  :: TFShape
@@ -388,6 +389,7 @@ module m_common_global_var
     type(Diag7200Type) :: Diag7200
     type(Diag7500Type) :: Diag7500
     type(Diag7700Type) :: Diag7700
+    type(DiagAnemType) :: DiagAnemometer
     type (QCType) :: QCFlag
     real(kind = dbl) :: f_c(GHGNumVar)
     real(kind = dbl) :: f_2(GHGNumVar)
@@ -419,7 +421,8 @@ module m_common_global_var
          EPPrjNTags(16)%Label / 'col_diag_77'     / &
          EPPrjNTags(17)%Label / 'gas_diff'        / &
          EPPrjNTags(18)%Label / 'gas_mw'          / &
-         EPPrjNTags(19)%Label / 'sonic_output_rate' /
+         EPPrjNTags(19)%Label / 'sonic_output_rate' / &
+         EPPrjNTags(20)%Label / 'col_diag_anem' /
 
     data EPPrjCTags(1)%Label / 'sw_version'       / &
          EPPrjCTags(2)%Label / 'ini_version'      / &

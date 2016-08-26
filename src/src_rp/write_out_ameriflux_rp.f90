@@ -39,7 +39,7 @@ subroutine WriteOutAmeriFlux_rp(date, time)
     character(LongOutstringLen) :: dataline
     character(DatumLen) :: datum
     integer :: int_doy
-    real(kind=dbl) :: float_doy
+    real(kind = dbl) :: float_doy
 
 
     call DateTimeToDOY(date, time, int_doy, float_doy)
@@ -54,7 +54,7 @@ subroutine WriteOutAmeriFlux_rp(date, time)
     if(time(1:1) /= '0') call AddDatum(dataline, time(1:2) // time(4:5), separator)
     write(datum, *) Ambient%us
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Ambient%Ta - 273.16d0
+    write(datum, *) Ambient%Ta - 273.15d0
     call AddDatum(dataline, datum, separator)
     write(datum, *) Stats4%wind_dir
     call AddDatum(dataline, datum, separator)

@@ -185,20 +185,20 @@ subroutine KormannMeixner01(ustar, zL, wind_speed, sonic_height, disp_height)
     real(kind = dbl), intent(in) :: disp_height
     !> local variables
     integer :: i
-    real(kind=dbl) :: n
-    real(kind=dbl) :: phi_m
-    real(kind=dbl) :: phi_c
-    real(kind=dbl) :: psi_m
-    real(kind=dbl) :: eta
-    real(kind=dbl) :: key
-    real(kind=dbl) :: m
-    real(kind=dbl) :: UU
-    real(kind=dbl) :: r
-    real(kind=dbl) :: mmu
-    real(kind=dbl) :: zeta
-    real(kind=dbl) :: zm
-    real(kind=dbl) :: int_foot
-    real(kind=dbl), parameter :: di = 1d0
+    real(kind = dbl) :: n
+    real(kind = dbl) :: phi_m
+    real(kind = dbl) :: phi_c
+    real(kind = dbl) :: psi_m
+    real(kind = dbl) :: eta
+    real(kind = dbl) :: key
+    real(kind = dbl) :: m
+    real(kind = dbl) :: UU
+    real(kind = dbl) :: r
+    real(kind = dbl) :: mmu
+    real(kind = dbl) :: zeta
+    real(kind = dbl) :: zm
+    real(kind = dbl) :: int_foot
+    real(kind = dbl), parameter :: di = 1d0
     logical :: do_offset
     logical :: do10
     logical :: do30
@@ -319,17 +319,17 @@ subroutine Hsieh00(MO_length, sonic_height, disp_height, rough_length)
     real(kind = dbl), intent(in) :: rough_length
     !> local variables
     integer :: i
-    real(kind=dbl) :: a1
-    real(kind=dbl) :: DD
-    real(kind=dbl) :: PP
-    real(kind=dbl) :: fact
-    real(kind=dbl) :: p1
-    real(kind=dbl) :: zu
-    real(kind=dbl) :: z0m
-    real(kind=dbl) :: zm
-    real(kind=dbl) :: zL
-    real(kind=dbl) :: int_foot
-    real(kind=dbl), parameter :: di = 5d0
+    real(kind = dbl) :: a1
+    real(kind = dbl) :: DD
+    real(kind = dbl) :: PP
+    real(kind = dbl) :: fact
+    real(kind = dbl) :: p1
+    real(kind = dbl) :: zu
+    real(kind = dbl) :: z0m
+    real(kind = dbl) :: zm
+    real(kind = dbl) :: zL
+    real(kind = dbl) :: int_foot
+    real(kind = dbl), parameter :: di = 5d0
     logical :: do_offset
     logical :: do10
     logical :: do30

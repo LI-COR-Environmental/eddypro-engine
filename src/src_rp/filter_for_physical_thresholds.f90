@@ -38,7 +38,6 @@ subroutine FilterForPhysicalThresholds(Set, N, M, FilterWhat)
     logical, intent(in) :: FilterWhat(M)
     real(kind = dbl), intent(inout) :: Set(N, M)
 
-
     !> Eliminate for values out of bounds in the whole dataset
     do i = 1, N
         !> co2, expressed as [mmol m-3] if molar_density, [umol mol-1] otherwise

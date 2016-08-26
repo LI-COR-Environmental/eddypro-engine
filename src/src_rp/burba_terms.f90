@@ -60,7 +60,7 @@ subroutine BurbaTerms()
 
     !> Air Conductivity [W m-1 K-1]
     if (Stats%T /= error) then
-        k_air = 0.000067d0 * (Stats%T - 273.16d0) + 0.024343d0
+        k_air = 0.000067d0 * (Stats%T - 273.15d0) + 0.024343d0
     else
         k_air = error
     end if
@@ -81,15 +81,15 @@ subroutine BurbaTerms()
         if (Stats%daytime) then
             if (Stats%T /= error .and. biomet%val(bRg) /= error .and. Umean /= error) then
                 deT_bot  = BurbaPar%m(daytime, bot, 1)  &
-                              + BurbaPar%m(daytime, bot, 2)  * (Stats%T - 273.16d0)  &
+                              + BurbaPar%m(daytime, bot, 2)  * (Stats%T - 273.15d0)  &
                               + BurbaPar%m(daytime, bot, 3)  * biomet%val(bRg) &
                               + BurbaPar%m(daytime, bot, 4)  * Umean
                 deT_top  = BurbaPar%m(daytime, top, 1)  &
-                              + BurbaPar%m(daytime, top, 2)  * (Stats%T - 273.16d0) &
+                              + BurbaPar%m(daytime, top, 2)  * (Stats%T - 273.15d0) &
                               + BurbaPar%m(daytime, top, 3)  * biomet%val(bRg) &
                               + BurbaPar%m(daytime, top, 4)  * Umean
                 deT_spar = BurbaPar%m(daytime, spar, 1) &
-                              + BurbaPar%m(daytime, spar, 2) * (Stats%T - 273.16d0) &
+                              + BurbaPar%m(daytime, spar, 2) * (Stats%T - 273.15d0) &
                               + BurbaPar%m(daytime, spar, 3) * biomet%val(bRg) &
                               + BurbaPar%m(daytime, spar, 4) * Umean
             else
@@ -100,15 +100,15 @@ subroutine BurbaTerms()
         else
             if (Stats%T /= error .and. biomet%val(bLWin) /= error .and. Umean /= error) then
                 deT_bot  = BurbaPar%m(nighttime, bot, 1)  &
-                              + BurbaPar%m(nighttime, bot, 2)  * (Stats%T - 273.16d0) &
+                              + BurbaPar%m(nighttime, bot, 2)  * (Stats%T - 273.15d0) &
                               + BurbaPar%m(nighttime, bot, 3)  * biomet%val(bLWin) &
                               + BurbaPar%m(nighttime, bot, 4)  * Umean
                 deT_top  = BurbaPar%m(nighttime, top, 1)  &
-                              + BurbaPar%m(nighttime, top, 2)  * (Stats%T - 273.16d0)  &
+                              + BurbaPar%m(nighttime, top, 2)  * (Stats%T - 273.15d0)  &
                               + BurbaPar%m(nighttime, top, 3)  * biomet%val(bLWin) &
                               + BurbaPar%m(nighttime, top, 4)  * Umean
                 deT_spar = BurbaPar%m(nighttime, spar, 1) &
-                              + BurbaPar%m(nighttime, spar, 2) * (Stats%T - 273.16d0)  &
+                              + BurbaPar%m(nighttime, spar, 2) * (Stats%T - 273.15d0)  &
                               + BurbaPar%m(nighttime, spar, 3) * biomet%val(bLWin) &
                               + BurbaPar%m(nighttime, spar, 4) * Umean
             else
@@ -121,12 +121,12 @@ subroutine BurbaTerms()
         !> Simple linear regression option
         if(Stats%daytime) then
             if (Stats%T /= error) then
-                deT_bot  = BurbaPar%l(daytime, bot, 1) * (Stats%T - 273.16d0)&
-                              + BurbaPar%l(daytime, bot, 2) + 273.16d0 - Stats%T
-                deT_top  = BurbaPar%l(daytime, top, 1) * (Stats%T - 273.16d0) &
-                              + BurbaPar%l(daytime, top, 2) + 273.16d0 - Stats%T
-                deT_spar = BurbaPar%l(daytime, spar, 1) * (Stats%T - 273.16d0) &
-                              + BurbaPar%l(daytime, spar, 2) + 273.16d0 - Stats%T
+                deT_bot  = BurbaPar%l(daytime, bot, 1) * (Stats%T - 273.15d0)&
+                              + BurbaPar%l(daytime, bot, 2) + 273.15d0 - Stats%T
+                deT_top  = BurbaPar%l(daytime, top, 1) * (Stats%T - 273.15d0) &
+                              + BurbaPar%l(daytime, top, 2) + 273.15d0 - Stats%T
+                deT_spar = BurbaPar%l(daytime, spar, 1) * (Stats%T - 273.15d0) &
+                              + BurbaPar%l(daytime, spar, 2) + 273.15d0 - Stats%T
             else
                 deT_bot  = error
                 deT_top  = error
@@ -134,12 +134,12 @@ subroutine BurbaTerms()
             end if
         else
             if (Stats%T /= error) then
-                deT_bot  = BurbaPar%l(nighttime, bot, 1) * (Stats%T - 273.16d0) &
-                              + BurbaPar%l(nighttime, bot, 2) + 273.16d0 - Stats%T
-                deT_top  = BurbaPar%l(nighttime, top, 1) * (Stats%T - 273.16d0) &
-                              + BurbaPar%l(nighttime, top, 2) + 273.16d0 - Stats%T
-                deT_spar = BurbaPar%l(nighttime, spar, 1) * (Stats%T - 273.16d0) &
-                              + BurbaPar%l(nighttime, spar, 2) + 273.16d0 - Stats%T
+                deT_bot  = BurbaPar%l(nighttime, bot, 1) * (Stats%T - 273.15d0) &
+                              + BurbaPar%l(nighttime, bot, 2) + 273.15d0 - Stats%T
+                deT_top  = BurbaPar%l(nighttime, top, 1) * (Stats%T - 273.15d0) &
+                              + BurbaPar%l(nighttime, top, 2) + 273.15d0 - Stats%T
+                deT_spar = BurbaPar%l(nighttime, spar, 1) * (Stats%T - 273.15d0) &
+                              + BurbaPar%l(nighttime, spar, 2) + 273.15d0 - Stats%T
             else
                 deT_bot  = error
                 deT_top  = error

@@ -73,8 +73,9 @@ subroutine ExceptionHandler(error_code)
         case(14)
             write(*,*) ' Error(14)> Occurred while unzipping GHG archive. File skipped.'
         case(20)
-            write(*,*) '  Fatal error(20)> Incorrect or unsupported "Raw file name format".'
-            write(*,*) '  Fatal error(20)> Check it and try again, or rename raw files appropriately (see software documentation).'
+            write(*,*) '  Fatal error(20)> Encountered while interpreting a timestamp template.'
+            write(*,*) '  Fatal error(20)> It may apply to retrieval of timestamps from the "Raw file name format"'
+            write(*,*) '  Fatal error(20)> or the biomet or dynamic metadata records."'
             write(*,*) '  Fatal error(20)> Program execution aborted.'
             stop 1
         case(21)
@@ -339,5 +340,16 @@ subroutine ExceptionHandler(error_code)
         case(92)
             write(*,*) ' Error(92)> Occurred while writing passive gases ensemble spectra on output file.'
             write(*,*) ' Error(92)> File not created.'
+        case(93)
+            write(*,*) ' Error(93)> Embedded biomet selected, but not processing GHG files. This is not possible.'
+            write(*,*) ' Error(93)> EddyPro will proceed without using biomet data.'
+        case(94)
+            write(*,*) ' Warning(94)> The selected or inferred angle-of-attack correction method is not applicable'
+            write(*,*) ' Warning(94)> to data collected with selected sonic anemometer.'
+            write(*,*) ' Warning(94)> Continuing without applying any angle-of-attack correction.'
+        case(95)
+            write(*,*) ' Warning(95)> The selected "w-boost" correction is not applicable'
+            write(*,*) ' Warning(95)> to data collected with selected sonic anemometer.'
+            write(*,*) ' Warning(95)> Continuing without applying "w-boost" correction.'
     end select
 end subroutine ExceptionHandler

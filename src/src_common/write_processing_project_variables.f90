@@ -163,6 +163,7 @@ subroutine WriteProcessingProjectVariables()
     EddyProProj%col(E2NumVar + diag72) = nint(EPPrjNTags(14)%value)
     EddyProProj%col(E2NumVar + diag75) = nint(EPPrjNTags(15)%value)
     EddyProProj%col(E2NumVar + diag77) = nint(EPPrjNTags(16)%value)
+    EddyProProj%col(E2NumVar + diagAnem) = nint(EPPrjNTags(20)%value)
 
     !> if a column was selected for gas4, read diffusivity. If diffusivity is
     !> below zero, defaults to gas4 diffusivity
@@ -195,6 +196,14 @@ subroutine WriteProcessingProjectVariables()
             EddyProProj%biomet_tail = trim(adjustl(EPPrjCTags(30)%value))
             EddyProProj%biomet_recurse = EPPrjCTags(31)%value(1:1) == '1'
         end if
+    end if
+
+    !> If selected embedded biomet without GHG files (only possible via non-GUI
+    !> file edit), set biomet to none.
+    if (EddyProProj%biomet_data == 'embedded' &
+        .and. EddyProProj%ftype /= 'licor_ghg') then
+        call ExceptionHandler(93)
+        EddyProProj%biomet_data = 'none'
     end if
 
     !> select whether to binned/full spectra files are available
@@ -269,15 +278,17 @@ subroutine WriteProcessingProjectVariables()
 
     !> select whether to correct for LI-7550-related attenuations
     !> Relevant only for GHG files and logger software version < 7.7.0
-    !>  Block-averaging
-    EddyProProj%hf_correct_ghg_ba = EPPrjCTags(46)%value(1:1) == '1'
-    !>  ZOH
-    EddyProProj%hf_correct_ghg_zoh = EPPrjCTags(47)%value(1:1) == '1'
+    ! !>  Block-averaging
+    ! EddyProProj%hf_correct_ghg_ba = EPPrjCTags(46)%value(1:1) == '1'
+    ! !>  ZOH
+    ! EddyProProj%hf_correct_ghg_zoh = EPPrjCTags(47)%value(1:1) == '1'
+    ! if (EddyProProj%ftype /= 'licor_ghg') then
+    !     EddyProProj%hf_correct_ghg_ba = .false.
+    !     EddyProProj%hf_correct_ghg_zoh = .false.
+    ! end if
+    EddyProProj%hf_correct_ghg_ba = .false.
+    EddyProProj%hf_correct_ghg_zoh = .false.
 
-    if (EddyProProj%ftype /= 'licor_ghg') then
-        EddyProProj%hf_correct_ghg_ba = .false.
-        EddyProProj%hf_correct_ghg_zoh = .false.
-    end if
     EddyProProj%sonic_output_rate = nint(EPPrjNTags(19)%value)
 
     !> select whether to fill gaps with error codes

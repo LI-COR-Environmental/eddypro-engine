@@ -62,11 +62,9 @@ subroutine DefaultVarsSelection(LocCol)
         end if
     end do
 
-
     co2_instr_indx = 0
     ch4_instr_indx = 0
     do i = 1, NumInstruments
-
         !> Attach master sonic property to the first anemometer, regardless of which one it is,
         !> Implement this: ..under the only condition that all anemometric variables are available for it.
         if (Instr(i)%category == 'sonic') &
@@ -94,7 +92,6 @@ subroutine DefaultVarsSelection(LocCol)
     !> the decision on which variable to use to EddyPro, so select most
     !> appropriate variable now
 
-
     !> co2 and h2o variables
     co2r_col = 0
     co2f_col = 0
@@ -103,6 +100,10 @@ subroutine DefaultVarsSelection(LocCol)
     h2of_col = 0
     h2od_col = 0
     do i = 1, NumCol
+        !> Sonic diagnostics
+        if (LocCol(i)%var == 'anemometer_diagnostic' .and. trim(adjustl(LocCol(i)%Instr%model)) == EddyProProj%master_sonic) &
+            EddyProProj%col(E2NumVar + diagAnem) = i
+
         !> co2
         if (EddyProProj%col(co2) < 0 .and. LocCol(i)%var == 'co2') then
             !> A co2 reading was detected, see if it comes from the right instrument
@@ -190,6 +191,7 @@ subroutine DefaultVarsSelection(LocCol)
 
     !> Diagnostic flags
     do i = 1, NumCol
+        !> Gas analyzer diagnostics
         if (co2_instr_indx /= 0) then
             if (LocCol(i)%var == 'diag_75' .and. LocCol(i)%Instr%model == Instr(co2_instr_indx)%model) &
                 EddyProProj%col(E2NumVar + diag75) = i
@@ -200,5 +202,8 @@ subroutine DefaultVarsSelection(LocCol)
             if (LocCol(i)%var == 'diag_77' .and. LocCol(i)%Instr%model == Instr(ch4_instr_indx)%model) &
                 EddyProProj%col(E2NumVar + diag77) = i
             end if
+        !> Anemometer diagnostics
+        if (LocCol(i)%var == 'anemometer_diagnostic' .and. trim(adjustl(LocCol(i)%Instr%model)) == EddyProProj%master_sonic) &
+            EddyProProj%col(E2NumVar + diagAnem) = i
     end do
 end subroutine DefaultVarsSelection

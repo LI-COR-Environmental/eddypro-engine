@@ -44,8 +44,18 @@ subroutine DetectMasterSonic(LocCol, ncol)
         if (trim(adjustl(LocCol(i)%var)) == 'u' &
             .and. LocCol(i)%Instr%master_sonic) then
             MasterSonic = LocCol(i)%Instr
-            return
+            exit
         end if
     end do
 
+    !> Convenient variable that tells if sonic data is biased by the w-boost bug
+    !> Note: If SwVer is not available for the sonic, and the sonic is a WM/WMP, then
+    !> assume the bug is not present
+    if ((MasterSonic%model(1:len_trim(MasterSonic%model) - 2) == 'wm' .or. &
+         MasterSonic%model(1:len_trim(MasterSonic%model) - 2) == 'wmpro') .and. &
+         (MasterSonic%sw_ver%major == 2329 .and. MasterSonic%sw_ver%minor < 700)) then
+         SonicDataHasWBug = .true.
+    else
+         SonicDataHasWBug = .false.
+    end if
 end subroutine DetectMasterSonic

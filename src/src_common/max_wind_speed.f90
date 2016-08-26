@@ -34,11 +34,11 @@ subroutine MaxWindSpeed(Set, nrow, ncol, MaxSpeed)
     implicit none
     !> In/out variables
     integer, intent(in) :: nrow, ncol
-    real (kind = dbl), intent(in) :: Set(nrow, ncol)
-    real (kind = dbl), intent(out) :: MaxSpeed
+    real(kind = dbl) , intent(in) :: Set(nrow, ncol)
+    real(kind = dbl) , intent(out) :: MaxSpeed
     !> Local variables
     integer :: i
-    real (kind = dbl) :: CurrentSpeed
+    real(kind = dbl)  :: CurrentSpeed
 
     MaxSpeed = 0d0
     do i = 1, nrow

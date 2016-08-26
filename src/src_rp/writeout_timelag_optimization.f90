@@ -20,7 +20,7 @@
 !
 !***************************************************************************
 !
-! \brief       Write time lag optimization results on output file \n
+! \brief       Write time-lag optimization results on output file \n
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -53,7 +53,7 @@ subroutine WriteOutTimelagOptimization(actn, M, h2o_n, ncls, cls_size)
               // TimelagOpt_FilePadding // Timestamp_FilePadding // TxtExt
     open(uto, file = TimelagOpt_Path, iostat = open_status, encoding = 'utf-8')
 
-    !> Write on output file time lag optimization results
+    !> Write on output file time-lag optimization results
     write(uto, '(a)') 'Time-lag_optimisation_results'
     write(uto, '(a, f7.2)') 'Plausibility_range_[timefolds_standard_deviation]:',TOSetup%pg_range
     write(uto, '(a, a)') 'Beginning_of_timelag_optimization_period: ', TOSetup%start_date

@@ -30,7 +30,7 @@
 ! \todo
 !***************************************************************************
 subroutine ReadBiometFile(BiometFile, skip_file)
-    use m_common_global_var
+    use m_rp_global_var
     implicit none
     !> in/out variables
     character(*), intent(in) :: BiometFile
@@ -92,4 +92,3 @@ subroutine ReadBiometFile(BiometFile, skip_file)
     end do
     close(udf)
 end subroutine ReadBiometFile
-

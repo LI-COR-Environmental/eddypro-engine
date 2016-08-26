@@ -81,5 +81,5 @@ subroutine CospectraMoncrieff97(nf, kf, Cospectrum, zL, N)
     Cospectrum(:)%of(w_ts)  = Cospectrum(:)%of(w_co2)
     Cospectrum(:)%of(w_h2o) = Cospectrum(:)%of(w_co2)
     Cospectrum(:)%of(w_ch4) = Cospectrum(:)%of(w_co2)
-    Cospectrum(:)%of(w_n2o) = Cospectrum(:)%of(w_co2)
+    Cospectrum(:)%of(w_gas4) = Cospectrum(:)%of(w_co2)
 end subroutine CospectraMoncrieff97

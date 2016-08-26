@@ -88,16 +88,19 @@ subroutine RetrieveExtBiometVars(row1, row2, nitems)
             !> Variable label
             bVars(cnt)%label = item1
             call ShrinkString(bVars(cnt)%label)
-            !> Variable in units
+            !> Variable units
             bVars(cnt)%unit_in = item2
             call uppercase(bVars(cnt)%unit_in)
-            !> Check validity of biomet variable label
-            if (.not. BiometValidateVar(bVars(cnt))) then
-                write(*,'(a)')
-                call ExceptionHandler(73)
-                EddyProProj%biomet_data = 'none'
-                return
-            end if
+
+
+            ! !> Check validity of biomet variable label
+            ! if (.not. BiometValidateVar(bVars(cnt))) then
+            !     write(*,'(a)')
+            !     call ExceptionHandler(73)
+            !     EddyProProj%biomet_data = 'none'
+            !     return
+            ! end if
+
             !> Retrieve variable base name
             bVars(cnt)%base_name = biometBaseName(bVars(cnt)%label)
         end if
@@ -114,6 +117,10 @@ subroutine RetrieveExtBiometVars(row1, row2, nitems)
     end if
 
     bFileMetadata%numTsCol = tsCnt
+
+    !> Append suffix if variables have not
+    call BiometAppendReplicateSuffix()
+
 end subroutine RetrieveExtBiometVars
 
 !***************************************************************************
@@ -337,7 +344,7 @@ end function BiometValidateVar
 ! \deprecated
 ! \test
 !***************************************************************************
-subroutine BiometAppendLocationSuffix()
+subroutine BiometAppendReplicateSuffix()
     use m_rp_global_var
     implicit none
     !> Local variables
@@ -370,11 +377,10 @@ subroutine BiometAppendLocationSuffix()
                 end do
             end if
             write(loc, '(i8)') numVarsFound(cnt)
-            bVars(i)%label = trim(bVars(i)%label) // '_' &
-                // trim(adjustl(loc)) // '_1_1'
+            bVars(i)%label = trim(bVars(i)%label) // '_0_0_' // trim(adjustl(loc))
         end if
     end do
-end subroutine BiometAppendLocationSuffix
+end subroutine BiometAppendReplicateSuffix
 
 
 !***************************************************************************
@@ -536,7 +542,7 @@ subroutine BiometParseRow(row, tstamp, vals, ncol, skip_row)
     implicit none
     !> In/out variables
     integer, intent(in) :: ncol
-    real(kind=dbl), intent(out) :: vals(ncol)
+    real(kind = dbl), intent(out) :: vals(ncol)
     type(DateType), intent(out) :: tstamp
     logical, intent(out) :: skip_row
     character(*), intent(inout) :: row
@@ -722,27 +728,27 @@ subroutine BiometStandardUnits()
         select case(trim(bVars(i)%nature))
             case('TEMPERATURE')
                 select case(bVars(i)%unit_in)
-                    case('C','°C')
+                    case('C','ï¿½C')
                         where (bSet(:, i) /= error)
-                            bSet(:, i) = bSet(:, i) + 273.16d0
+                            bSet(:, i) = bSet(:, i) + 273.15d0
                         end where
-                    case('F','°F')
+                    case('F','ï¿½F')
                         where (bSet(:, i) /= error)
                             bSet(:, i) = (bSet(:, i) - 32d0) * 5d0 / 9d0 &
-                                + 273.16d0
+                                + 273.15d0
                         end where
                     case('CK')
                         where (bSet(:, i) /= error)
                             bSet(:, i) = bSet(:, i) * 1d-2
                         end where
-                    case('CC','C°C')
+                    case('CC','Cï¿½C')
                         where (bSet(:, i) /= error)
-                            bSet(:, i) = bSet(:, i) * 1d-2 + 273.16d0
+                            bSet(:, i) = bSet(:, i) * 1d-2 + 273.15d0
                         end where
-                    case('CF','C°F')
+                    case('CF','Cï¿½F')
                         where (bSet(:, i) /= error)
                             bSet(:, i) = (bSet(:, i) * 1d-2 - 32d0) * 5d0 / 9d0 &
-                                + 273.16d0
+                                + 273.15d0
                         end where
                     case default
                 end select

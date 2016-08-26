@@ -2,7 +2,7 @@
 ! override_settings.f90
 ! ---------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2015, LI-COR Biosciences
+! Copyright (C) 2011-2016, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
 !
@@ -35,16 +35,9 @@ subroutine OverrideSettings()
     use m_rp_global_var
     implicit none
 
-    !> Cross wind correction must be applied for R2
-    if (E2Col(ts)%Instr%model(1:len_trim(E2Col(ts)%Instr%model) - 2) == 'r2') &
-        RPsetup%calib_cw = .true.
-
-    !> Cross wind correction should not be applied for CSAT3
-    if (E2Col(ts)%Instr%model(1:len_trim(E2Col(ts)%Instr%model) - 2) == 'csat3') &
-        RPsetup%calib_cw = .false.
-
     !> If biomet measurements are not to be used, they are also not to be output
     if (EddyProProj%biomet_data == 'none') EddyProProj%out_biomet = .false.
+    if (EddyProProj%biomet_data == 'none') EddyProProj%out_fluxnet_biomet = .false.
 
     !> if there is no LI-7500 among the instruments, Burba terms should not be calculated
     if (index(E2Col(co2)%Instr%model, 'li7500') == 0 &

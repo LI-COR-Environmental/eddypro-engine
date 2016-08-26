@@ -280,10 +280,10 @@ subroutine NormalizeForRegression(N)
     integer, intent(in) :: N
     !> local variables
     integer :: i
-    real(kind=dbl) :: fit(N)
-    real(kind=dbl) :: sq_diff(N)
-    real(kind=dbl) :: sum_diff
-    real(kind=dbl) :: gain
+    real(kind = dbl) :: fit(N)
+    real(kind = dbl) :: sq_diff(N)
+    real(kind = dbl) :: sum_diff
+    real(kind = dbl) :: gain
 
     !> Determine tentative sum of squared differences
     fit(1:N)     = zFit(1:N) / (1d0 + (xFit(1:N)/0.5d0)**2)

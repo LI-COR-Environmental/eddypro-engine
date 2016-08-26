@@ -213,13 +213,15 @@ subroutine WriteVariablesRP()
     else
         select case (nint(SNTags(290)%value))
             case (1)
-                RPsetup%calib_aoa = 'nakai_12'
+                RPSetup%calib_aoa = 'nakai_12'
             case (2)
-                RPsetup%calib_aoa = 'nakai_06'
+                RPSetup%calib_aoa = 'nakai_06'
             case default
-                RPsetup%calib_aoa = 'none'
+                RPSetup%calib_aoa = 'none'
         end select
     end if
+    !> Select whether to apply the w-boost correction to WM/WMPro sonics
+    RPsetup%calib_wboost = SCTags(67)%value(1:1) == '1'
 
     !> Cross-wind correction
     RPsetup%calib_cw = SCTags(13)%value(1:1) == '1'
@@ -252,7 +254,7 @@ subroutine WriteVariablesRP()
     RPsetup%out_full_cosp(w_co2) = SCTags(38)%value(1:1) == '1'
     RPsetup%out_full_cosp(w_h2o) = SCTags(39)%value(1:1) == '1'
     RPsetup%out_full_cosp(w_ch4) = SCTags(40)%value(1:1) == '1'
-    RPsetup%out_full_cosp(w_n2o) = SCTags(41)%value(1:1) == '1'
+    RPsetup%out_full_cosp(w_gas4) = SCTags(41)%value(1:1) == '1'
 
     RPsetup%out_st(1) = SCTags(42)%value(1:1) == '1'
     RPsetup%out_st(2) = SCTags(43)%value(1:1) == '1'
@@ -386,9 +388,9 @@ subroutine WriteVariablesRP()
     end select
 
     !> Planar fit extra settings
+    RPsetup%pf_onthefly = .false.
     if (index(Meth%rot, 'planar_fit') /= 0) then
         !> Whether to perfom planar fit on the fly or use previous results file
-        RPsetup%pf_onthefly = .false.
         if (SCTags(56)%value(1:1) == '1') then
             RPsetup%pf_onthefly = .true.
         else
@@ -458,51 +460,53 @@ subroutine WriteVariablesRP()
 
     !> Planar fit settings
     if (index(Meth%rot, 'planar_fit') /= 0) then
-        PFSetup%subperiod     = SCTags(97)%value(1:1) == '1'
-        PFSetup%start_date    = SCTags(49)%value(1:len_trim(SCTags(49)%value))
-        PFSetup%end_date      = SCTags(50)%value(1:len_trim(SCTags(50)%value))
-        PFSetup%start_time    = SCTags(22)%value(1:len_trim(SCTags(22)%value))
-        PFSetup%end_time      = SCTags(23)%value(1:len_trim(SCTags(23)%value))
-        PFSetup%min_per_sec   = nint(SNTags(70)%value)
-        PFSetup%w_max         = SNTags(71)%value
-        PFSetup%u_min         = SNTags(72)%value
-        !> If w_max is found to be < 0.099, it means it has not been set, so it
-        !> is forced to the max value, which implies no filtering for w_max.
-        if(PFSetup%w_max  <= 0.099d0) PFSetup%w_max = 10d0
+        if (RPsetup%pf_onthefly) then
+            PFSetup%subperiod     = SCTags(97)%value(1:1) == '1'
+            PFSetup%start_date    = SCTags(49)%value(1:len_trim(SCTags(49)%value))
+            PFSetup%end_date      = SCTags(50)%value(1:len_trim(SCTags(50)%value))
+            PFSetup%start_time    = SCTags(22)%value(1:len_trim(SCTags(22)%value))
+            PFSetup%end_time      = SCTags(23)%value(1:len_trim(SCTags(23)%value))
+            PFSetup%min_per_sec   = nint(SNTags(70)%value)
+            PFSetup%w_max         = SNTags(71)%value
+            PFSetup%u_min         = SNTags(72)%value
+            !> If w_max is found to be < 0.099, it means it has not been set, so it
+            !> is forced to the max value, which implies no filtering for w_max.
+            if(PFSetup%w_max  <= 0.099d0) PFSetup%w_max = 10d0
+
+            !> Customization of wind sectors
+            leap_an_wsect = 2
+            init_an_wsect = 209 - leap_an_wsect
+            PFSetup%num_sec = 0
+            PFSetup%north_offset = SNTags(208)%value
+            do i = 1, MaxNumWSect
+                if (SNTagFound(init_an_wsect + i*leap_an_wsect) .and. &
+                    SNTags(init_an_wsect + i*leap_an_wsect)%value > 0) then
+                    PFSetup%num_sec = PFSetup%num_sec + 1
+                    PFSetup%width(PFSetup%num_sec) = &
+                        SNTags(init_an_wsect + i*leap_an_wsect)%value
+                    PFSetup%wsect_exclude(PFSetup%num_sec) = &
+                        nint(SNTags(init_an_wsect + i*leap_an_wsect + 1)%value) == 1
+
+                end if
+            end do
+            if (PFSetup%num_sec == 0) then
+                call ExceptionHandler(40)
+                PFSetup%num_sec = 1
+            elseif (PFSetup%num_sec == 1) then
+                PFSetup%wsect_end(PFSetup%num_sec) = 360
+            elseif (PFSetup%num_sec > 1) then
+                !> Calculate ending angle of each sector
+                do i = 1, PFSetup%num_sec
+                    PFSetup%wsect_end(i) = nint(sum(PFSetup%width(1:i)))
+                    if (PFSetup%wsect_end(i) < 0) &
+                        PFSetup%wsect_end(i) = 360 + PFSetup%wsect_end(i)
+                end do
+                PFSetup%wsect_end(PFSetup%num_sec) = 360
+            end if
+        end if
         PFSetup%fix = 'clockwise'
         if(SCTags(88)%value(1:1) == '1') PFSetup%fix = 'counterclockwise'
         if(SCTags(88)%value(1:1) == '2') PFSetup%fix = 'double_rotation'
-
-        !> Customization of wind sectors
-        leap_an_wsect = 2
-        init_an_wsect = 209 - leap_an_wsect
-        PFSetup%num_sec = 0
-        PFSetup%north_offset = SNTags(208)%value
-        do i = 1, MaxNumWSect
-            if (SNTagFound(init_an_wsect + i*leap_an_wsect) .and. &
-                SNTags(init_an_wsect + i*leap_an_wsect)%value > 0) then
-                PFSetup%num_sec = PFSetup%num_sec + 1
-                PFSetup%width(PFSetup%num_sec) = &
-                    SNTags(init_an_wsect + i*leap_an_wsect)%value
-                PFSetup%wsect_exclude(PFSetup%num_sec) = &
-                    nint(SNTags(init_an_wsect + i*leap_an_wsect + 1)%value) == 1
-
-            end if
-        end do
-        if (PFSetup%num_sec == 0) then
-            call ExceptionHandler(40)
-            PFSetup%num_sec = 1
-        elseif (PFSetup%num_sec == 1) then
-            PFSetup%wsect_end(PFSetup%num_sec) = 360
-        elseif (PFSetup%num_sec > 1) then
-            !> Calculate ending angle of each sector
-            do i = 1, PFSetup%num_sec
-                PFSetup%wsect_end(i) = nint(sum(PFSetup%width(1:i)))
-                if (PFSetup%wsect_end(i) < 0) &
-                    PFSetup%wsect_end(i) = 360 + PFSetup%wsect_end(i)
-            end do
-            PFSetup%wsect_end(PFSetup%num_sec) = 360
-        end if
     end if
 
     !> Time lag optimizer settings

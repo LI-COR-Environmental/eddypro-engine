@@ -106,7 +106,6 @@ module m_typedef
     integer, parameter :: w_co2 = 5
     integer, parameter :: w_h2o = 6
     integer, parameter :: w_ch4 = 7
-    integer, parameter :: w_n2o = 8
     integer, parameter :: w_gas4 = 8
 
     !> Other labels
@@ -305,6 +304,7 @@ module m_typedef
 
     type :: InstrumentType
         character(32) :: firm
+        character(32) :: ep_label
         character(32) :: model
         character(32) :: category
         character(32) :: sw_ver_string
@@ -412,6 +412,10 @@ module m_typedef
         integer :: bad_aux_tc3
         integer :: box_connected
     end type Diag7700Type
+
+    type :: DiagAnemType
+        logical :: present
+    end type DiagAnemType
 
     type :: DirType
         character(PathLen) :: main_in
@@ -843,6 +847,7 @@ module m_typedef
         character(32) :: tap_win
         character(32) :: bu_corr
         character(32) :: calib_aoa
+        logical :: calib_wboost
         logical :: do_spectral_analysis
         logical :: use_geo_north
         logical :: power_of_two
@@ -1224,4 +1229,3 @@ module m_typedef
         Type(SwVerType) :: logger_swver
     end type ExType
 end module m_typedef
-

@@ -56,14 +56,14 @@ subroutine Multipliers7700(AirPress, AirTemp, H2OMoleFrac, A, B, C)
     Peq = AirPress * (1d0 + 0.455d0 * H2OMoleFrac * 1d-3) * 1d-3
 
     !> Retrieve parameters from LUT, by linear interpolation
-    call LinearLookUp(KeyTable,  size(KeyTable, 1),  size(KeyTable, 2),  Peq, AirTemp - 273.16d0, .true., key)
-    call LinearLookUp(KeyTTable, size(KeyTTable, 1), size(KeyTTable, 2), Peq, AirTemp - 273.16d0, .true., coll_t)
-    call LinearLookUp(KeyPTable, size(KeyPTable, 1), size(KeyPTable, 2), Peq, AirTemp - 273.16d0, .true., coll_p)
+    call LinearLookUp(KeyTable,  size(KeyTable, 1),  size(KeyTable, 2),  Peq, AirTemp - 273.15d0, .true., key)
+    call LinearLookUp(KeyTTable, size(KeyTTable, 1), size(KeyTTable, 2), Peq, AirTemp - 273.15d0, .true., coll_t)
+    call LinearLookUp(KeyPTable, size(KeyPTable, 1), size(KeyPTable, 2), Peq, AirTemp - 273.15d0, .true., coll_p)
 
     !> Calculate multipliers
     A = key
     B = 1d0 + (1d0 - 1.46d0 * H2OMoleFrac * 1d-3) * coll_p
-    C = 1d0 + (1d0 - H2OMoleFrac * 1d-3) * coll_t + H2OMoleFrac  * 1d-3 * (B - 1d0)
+    C = 1d0 + (1d0 - H2OMoleFrac * 1d-3) * coll_t !+ H2OMoleFrac  * 1d-3 * (B - 1d0)
 end subroutine Multipliers7700
 
 !***************************************************************************

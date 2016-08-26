@@ -154,7 +154,7 @@ subroutine FluxParams(printout)
     !> by 10^3 to get kPa as in the formula.
     if (Ambient%e > 0d0) then
         Ambient%Td = (240.97d0 * dlog(Ambient%e * 1d-3 /0.611d0) &
-            / (17.502d0 - dlog(Ambient%e * 1d-3 / 0.611d0))) + 273.16d0
+            / (17.502d0 - dlog(Ambient%e * 1d-3 / 0.611d0))) + 273.15d0
     else
         Ambient%Td = error
     end if
@@ -187,7 +187,7 @@ subroutine FluxParams(printout)
 
     !> Dry air heat capacity at costant pressure [J+1kg-1K-1],
     !> as a function of temperature
-    Cpd = 1005d0 + (Stats%T - 273.16d0 + 23.12d0)**2 / 3364d0
+    Cpd = 1005d0 + (Stats%T - 273.15d0 + 23.12d0)**2 / 3364d0
 
     !> Density of wet air [kg_a m-3]
     if (RHO%d > 0d0) then
@@ -255,7 +255,7 @@ subroutine FluxParams(printout)
                     Ambient%VPD = 0d0 !< RH slightly higher than 100% VPD is set to 0
                 end if
                 Ambient%Td = (240.97d0 * dlog(Ambient%e * 1d-3 /0.611d0) &
-                    / (17.502d0 - dlog(Ambient%e * 1d-3 / 0.611d0))) + 273.16d0
+                    / (17.502d0 - dlog(Ambient%e * 1d-3 / 0.611d0))) + 273.15d0
                 Ambient%p_d =  Stats%Pr - Ambient%e
                 if (Ambient%p_d > 0d0) then
                     Ambient%Vd = (Stats%Pr * Ambient%Va) / Ambient%p_d
@@ -264,7 +264,7 @@ subroutine FluxParams(printout)
                 end if
                 RHO%d = Ambient%p_d / (Rd * Ambient%Ta)
                 RHO%a = RHO%d + RHO%w
-                Cpd = 1005d0 + (Ambient%Ta - 273.16d0 + 23.12d0)**2 / 3364d0
+                Cpd = 1005d0 + (Ambient%Ta - 273.15d0 + 23.12d0)**2 / 3364d0
                 Ambient%Q = RHO%w / RHO%a
                 if (E2Col(ts)%instr%category == 'fast_t_sensor') then
                     !> If Ts was actually from a fast temperature sensor,
@@ -285,7 +285,7 @@ subroutine FluxParams(printout)
                 Ambient%Vd = (Stats%Pr * Ambient%Va) / Ambient%p_d
                 RHO%d = Ambient%p_d / (Rd * Ambient%Ta)
                 RHO%a = RHO%d
-                Cpd = 1005d0 + (Ambient%Ta - 273.16d0 + 23.12d0)**2 &
+                Cpd = 1005d0 + (Ambient%Ta - 273.15d0 + 23.12d0)**2 &
                     / 3364d0
                 Ambient%Ta  = Stats%Mean(ts)
                 Ambient%Tmap = 1
@@ -303,8 +303,8 @@ subroutine FluxParams(printout)
     !> Water vapour heat capacity at costant pressure [J+1kg-1K-1],
     !> as a function of temperature and RH
     Cpv = 1859d0 + 0.13d0 * Stats%RH &
-        + (0.193d0 + 5.6d-3 * Stats%RH) * (Ambient%Ta - 273.16d0) &
-        + (1d-3 + 5d-5 * Stats%RH) * (Ambient%Ta - 273.16d0)**2
+        + (0.193d0 + 5.6d-3 * Stats%RH) * (Ambient%Ta - 273.15d0) &
+        + (1d-3 + 5d-5 * Stats%RH) * (Ambient%Ta - 273.15d0)**2
     !> RhoAir by Cp (this is wet air Cp), in [J+1K-1m-3]
     if (RHO%d > 0d0 .and. RHO%w >= 0d0) then
             Ambient%RhoCp = Cpv * RHO%w + Cpd * Rho%d

@@ -80,6 +80,7 @@ subroutine SpectralAnalysis(date, time, bf, Set, N, M)
     write(*, '(a)') '  Calculating (co)spectra..'
     Datestring = date(1:4) // date(6:7) // date(9:10) &
                // '-' // time(1:2) // time(4:5)
+
     !> Define the "natural frequency" vector nf, extending
     !> from f_min = 1/N --> f_max = AcFreq/2 (= Nyquist frequency)
     !> it is period-dependent
@@ -129,7 +130,7 @@ subroutine SpectralAnalysis(date, time, bf, Set, N, M)
         !> Binned cospectra session
         if (RPsetup%out_bin_sp) then
             !> Exponential binning of frequencies, spectra and co-spectra
-            call ExpAvrgCospectra(bf, nf, Spectrum, Cospectrum, N/2 + 1, bnf &
+            call ExpAvrgCospectra(bf, nf, Spectrum, Cospectrum, N, bnf &
                 , BinnedSpectrum, BinnedCospectrum, bcnt)
             !> Write co-spectra on output file in csv format
             call WriteOutBinnedCoSpectra(Datestring, bnf, bcnt, BinnedSpectrum, BinnedCospectrum &
@@ -202,7 +203,7 @@ subroutine AllCospectra(Set, sumw, Spectrum, Cospectrum, DoSpectrum, DoCospectru
     !> in/out variables
     integer, intent(in) :: N
     integer, intent(in) :: M
-    real(kind=dbl), intent(in) :: sumw
+    real(kind = dbl), intent(in) :: sumw
     real(kind = dbl), intent(in) :: Set(N, M)
     logical, intent(in) :: DoSpectrum(GHGNumVar)
     logical, intent(in) :: DoCospectrum(GHGNumVar)
@@ -224,7 +225,7 @@ subroutine AllCospectra(Set, sumw, Spectrum, Cospectrum, DoSpectrum, DoCospectru
     end do
 
     !> Cospectra
-    do j = w_u, w_n2o
+    do j = w_u, w_gas4
         if (j /= w_w) then
             if (DoCospectrum(j)) then
                 xx(1:N) = Set(1:N, w)
@@ -262,7 +263,7 @@ subroutine AllOgives(Spectrum, Cospectrum, DoSpectrum, DoCospectrum, Ogive, CoOg
     !> local variables
     integer :: i
     integer :: j
-    real (kind = dbl) :: df
+    real(kind = dbl)  :: df
 
     write(*, '(a)', advance = 'no') '   Ogives..'
 
@@ -279,7 +280,7 @@ subroutine AllOgives(Spectrum, Cospectrum, DoSpectrum, DoCospectrum, Ogive, CoOg
     end do
 
     !> CoOgive
-    do j = w_u, w_n2o
+    do j = w_u, w_gas4
         if (j /= w_w) then
             if (DoCospectrum(j)) then
                 CoOgive(N/2+1)%Of(j) = Cospectrum(N/2+1)%of(j)
@@ -296,7 +297,7 @@ subroutine AllOgives(Spectrum, Cospectrum, DoSpectrum, DoCospectrum, Ogive, CoOg
             Ogive(1:N/2 + 1)%of(j) = Ogive(1:N/2 + 1)%of(j) / Stats%Cov(j, j)
     end do
 
-    do j = w_u, w_n2o
+    do j = w_u, w_gas4
     if (DoCospectrum(j) .and. Stats%Cov(w, j) /= 0d0 .and. Stats%Cov(w, j) /= error) &
         CoOgive(1:N/2 + 1)%of(j) = CoOgive(1:N/2 + 1)%of(j) / Stats%Cov(w, j)
     end do
@@ -332,7 +333,7 @@ subroutine NormalizeCoSpectra(Spectrum, Cospectrum, DoSpectrum, DoCospectrum, N)
             Spectrum(1:N/2 + 1)%of(j) = Spectrum(1:N/2 + 1)%of(j) / Stats%Cov(j, j)
     end do
 
-    do j = w_u, w_n2o
+    do j = w_u, w_gas4
     if (DoCospectrum(j) .and. Stats%Cov(w, j) /= 0d0 .and. Stats%Cov(w, j) /= error) &
         Cospectrum(1:N/2 + 1)%of(j) = Cospectrum(1:N/2 + 1)%of(j) / Stats%Cov(w, j)
     end do
@@ -356,39 +357,41 @@ subroutine ExpAvrgCospectra(bf, nf, Spectrum, Cospectrum, N, bin_nf, &
     !> in/out variables
     integer, intent(in) :: N
     real(kind = dbl), intent(in) :: bf(Meth%spec%nbins + 1)
-    real(kind = dbl), intent(in) :: nf(N)
+    real(kind = dbl), intent(in) :: nf(N/2)
     integer, intent(out) :: bin_cnt(Meth%spec%nbins)
     real(kind = dbl), intent(out) :: bin_nf(Meth%spec%nbins)
     type (SpectralType), intent(out) :: BinnedSpectrum(Meth%spec%nbins)
     type (SpectralType), intent(out) :: BinnedCospectrum(Meth%spec%nbins)
-    type (SpectralType), intent(inout) :: Spectrum(N)
-    type (SpectralType), intent(inout) :: Cospectrum(N)
+    type (SpectralType), intent(inout) :: Spectrum(N/2 + 1)
+    type (SpectralType), intent(inout) :: Cospectrum(N/2 + 1)
     !> local variables
     integer :: i = 0
     integer :: j = 0
 
+
     !> Align co-spectra to frequencies before averaging
-    do i = 1, N-1
+    do i = 1, N/2
         Spectrum(i) = Spectrum(i + 1)
         Cospectrum(i) = Cospectrum(i + 1)
     end do
-    Spectrum(N)%of(:) = 0d0
-    Cospectrum(N)%of(:) = 0d0
+    Spectrum(N/2 + 1)%of(:) = 0d0
+    Cospectrum(N/2 + 1)%of(:) = 0d0
 
     write(*, '(a)', advance = 'no') '   Binning spectra and cospectra..'
     !> average variables in the exp-spaced ranges
+
     do i = 1, Meth%spec%nbins
         bin_cnt(i) = 0
         bin_nf(i) = 0.d0
         BinnedSpectrum(i)%of(u:gas4) = 0d0
-        BinnedCospectrum(i)%of(w_u:w_n2o) = 0d0
-        do j = 1, N
+        BinnedCospectrum(i)%of(w_u:w_gas4) = 0d0
+        do j = 1, N/2
             if(nf(j) > bf(i) .and. nf(j) <= bf(i + 1)) then
                 bin_nf(i) = bin_nf(i) + nf(j)
                 BinnedSpectrum(i)%of(u:gas4) = &
                     BinnedSpectrum(i)%of(u:gas4) + Spectrum(j)%of(u:gas4)
-                BinnedCospectrum(i)%of(w_u:w_n2o) = &
-                    BinnedCospectrum(i)%of(w_u:w_n2o) + Cospectrum(j)%of(w_u:w_n2o)
+                BinnedCospectrum(i)%of(w_u:w_gas4) = &
+                    BinnedCospectrum(i)%of(w_u:w_gas4) + Cospectrum(j)%of(w_u:w_gas4)
                 bin_cnt(i) = bin_cnt(i) + 1
             end if
         end do
@@ -396,12 +399,12 @@ subroutine ExpAvrgCospectra(bf, nf, Spectrum, Cospectrum, N, bin_nf, &
             bin_nf(i)    = bin_nf(i) / dble(bin_cnt(i))
             BinnedSpectrum(i)%of(u:gas4) = &
                 BinnedSpectrum(i)%of(u:gas4) / dble(bin_cnt(i))
-            BinnedCospectrum(i)%of(w_u:w_n2o) = &
-                BinnedCospectrum(i)%of(w_u:w_n2o) / dble(bin_cnt(i))
+            BinnedCospectrum(i)%of(w_u:w_gas4) = &
+                BinnedCospectrum(i)%of(w_u:w_gas4) / dble(bin_cnt(i))
         else
             bin_nf(i)    = error
             BinnedSpectrum(i)%of(u:gas4) = error
-            BinnedCospectrum(i)%of(w_u:w_n2o) = error
+            BinnedCospectrum(i)%of(w_u:w_gas4) = error
         end if
     end do
     write(*,'(a)') ' Done.'
@@ -425,24 +428,24 @@ subroutine ExpAvrgOgives(bf, nf, Ogive, CoOgive, N, bin_nf, &
     !> in/out variables
     integer, intent(in) :: N
     real(kind = dbl), intent(in) :: bf(Meth%spec%nbins + 1)
-    real(kind = dbl), intent(in) :: nf(N)
+    real(kind = dbl), intent(in) :: nf(N/2)
     integer, intent(out) :: bin_cnt(Meth%spec%nbins)
     real(kind = dbl), intent(out) :: bin_nf(Meth%spec%nbins)
     type (SpectralType), intent(out) :: BinnedOgive(Meth%spec%nbins)
     type (SpectralType), intent(out) :: BinnedCoOgive(Meth%spec%nbins)
-    type (SpectralType), intent(inout) :: Ogive(N)
-    type (SpectralType), intent(inout) :: CoOgive(N)
+    type (SpectralType), intent(inout) :: Ogive(N/2 + 1)
+    type (SpectralType), intent(inout) :: CoOgive(N/2 + 1)
     !> local variables
     integer :: i = 0
     integer :: j = 0
 
     !> Align co-ogives to frequencies before averaging
-    do i = 1, N-1
+    do i = 1, N/2
         Ogive(i) = Ogive(i + 1)
         CoOgive(i) = CoOgive(i + 1)
     end do
-    Ogive(N)%of(:) = 0d0
-    CoOgive(N)%of(:) = 0d0
+    Ogive(N/2 + 1)%of(:) = 0d0
+    CoOgive(N/2 + 1)%of(:) = 0d0
 
     write(*, '(a)', advance = 'no') '   Binning ogives..'
     !> average variables in the exp-spaced ranges
@@ -450,14 +453,14 @@ subroutine ExpAvrgOgives(bf, nf, Ogive, CoOgive, N, bin_nf, &
         bin_cnt(i) = 0
         bin_nf(i) = 0.d0
         BinnedOgive(i)%of(u:gas4) = 0d0
-        BinnedCoOgive(i)%of(w_u:w_n2o) = 0d0
-        do j = 1, N
+        BinnedCoOgive(i)%of(w_u:w_gas4) = 0d0
+        do j = 1, N/2
             if(nf(j) >= bf(i) .and. nf(j) < bf(i + 1)) then
                 bin_nf(i) = bin_nf(i) + nf(j)
                 BinnedOgive(i)%of(u:gas4) = &
                     BinnedOgive(i)%of(u:gas4) + Ogive(j)%of(u:gas4)
-                BinnedCoOgive(i)%of(w_u:w_n2o) = &
-                    BinnedCoOgive(i)%of(w_u:w_n2o) + CoOgive(j)%of(w_u:w_n2o)
+                BinnedCoOgive(i)%of(w_u:w_gas4) = &
+                    BinnedCoOgive(i)%of(w_u:w_gas4) + CoOgive(j)%of(w_u:w_gas4)
                 bin_cnt(i) = bin_cnt(i) + 1
             end if
         end do
@@ -465,12 +468,12 @@ subroutine ExpAvrgOgives(bf, nf, Ogive, CoOgive, N, bin_nf, &
             bin_nf(i)    = bin_nf(i)    / dble(bin_cnt(i))
             BinnedOgive(i)%of(u:gas4) = &
                 BinnedOgive(i)%of(u:gas4) / dble(bin_cnt(i))
-            BinnedCoOgive(i)%of(w_u:w_n2o) = &
-                BinnedCoOgive(i)%of(w_u:w_n2o) / dble(bin_cnt(i))
+            BinnedCoOgive(i)%of(w_u:w_gas4) = &
+                BinnedCoOgive(i)%of(w_u:w_gas4) / dble(bin_cnt(i))
         else
             bin_nf(i)    = error
             BinnedOgive(i)%of(u:gas4) = error
-            BinnedCoOgive(i)%of(w_u:w_n2o) = error
+            BinnedCoOgive(i)%of(w_u:w_gas4) = error
         end if
     end do
     write(*,'(a)') ' Done.'
@@ -555,7 +558,7 @@ subroutine WriteOutBinnedCoSpectra(String, bnf, bcnt, BinnedSpectrum, BinnedCosp
             end if
         end do
         !> Cospectra
-        do j = w_u, w_n2o
+        do j = w_u, w_gas4
             if (j /= w_w) then
                 if (DoCospectrum(j) .and. bnf(i) /= error .and. BinnedCospectrum(i)%of(j) /= error) then
                     call WriteDatumFloat(bnf(i) * BinnedCospectrum(i)%of(j), datum, '-9999.0')
@@ -647,7 +650,7 @@ subroutine WriteOutBinnedOgives(String, bnf, bcnt, BinnedOgive, BinnedCoOgive &
             end if
         end do
         !> Co-ogives
-        do j = w_u, w_n2o
+        do j = w_u, w_gas4
             if (j /= w_w) then
                 if (DoCospectrum(j)) then
                     call WriteDatumFloat(BinnedCoOgive(i)%of(j), datum, '-9999.0')
@@ -767,7 +770,7 @@ subroutine WriteOutFullCoSpectra(String, nf, Spectrum, Cospectrum, &
         do var = 1, GHGNumVar
             if (RPsetup%out_full_sp(var) .and. DoSpectrum(var)) then
                 if (nf(i) /= error .and. Stats%cov(var, var) /= 0d0 .and. Stats%cov(var, var) /= error) then
-                    call WriteDatumFloat(nf(i) * Spectrum(i)%of(var) / Stats%cov(var, var), datum, '-9999.0')
+                    call WriteDatumFloat(nf(i) * Spectrum(i+1)%of(var) / Stats%cov(var, var), datum, '-9999.0')
                     call AddDatum(dataline, datum, separator)
                 else
                     call AddDatum(dataline, '-9999.0', separator)
@@ -778,7 +781,7 @@ subroutine WriteOutFullCoSpectra(String, nf, Spectrum, Cospectrum, &
         do var = 1, GHGNumVar
             if (RPsetup%out_full_cosp(var) .and. DoCospectrum(var)) then
                 if (nf(i) /= error .and. Stats%cov(w, var) /= 0d0 .and. Stats%cov(w, var) /= error) then
-                    call WriteDatumFloat(nf(i) * Cospectrum(i)%of(var) / Stats%cov(w, var), datum, '-9999.0')
+                    call WriteDatumFloat(nf(i) * Cospectrum(i+1)%of(var) / Stats%cov(w, var), datum, '-9999.0')
                     call AddDatum(dataline, datum, separator)
                 else
                     call AddDatum(dataline, '-9999.0', separator)

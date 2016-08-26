@@ -1,0 +1,31 @@
+# Auto detect text files and perform LF normalization
+*        text=auto
+
+# Sources
+*.f90 text
+*.f text
+*.F text
+*.inc text
+*.bat text
+
+# Makefiles
+Makefile* text
+
+# Codeblocks files
+*.cbp text
+*.layout binary
+*.depend binary
+
+# Compiled Object files
+*.mod binary
+*.o binary
+
+# Compiled Dynamic libraries
+*.so binary
+*.dylib binary
+*.dll binary
+
+# Executables
+*.exe binary
+*.out binary
+*.app binary

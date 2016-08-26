@@ -47,7 +47,7 @@ subroutine DriftCorrection(Set, nrow, ncol, locCol, ncol2, nCalibEvents, Initial
     integer, external :: NumOfPeriods
     real(kind = dbl) :: lDrift(GHGNumVar)
     real(kind = dbl) :: MeanAbs(ncol)
-    real(kind = dbl), allocatable :: TempFact
+    real(kind = dbl) :: TempFact
 
     real(kind = dbl) :: tmp
     real(kind = dbl) :: tmp2
@@ -79,7 +79,7 @@ subroutine DriftCorrection(Set, nrow, ncol, locCol, ncol2, nCalibEvents, Initial
 
             if (Ambient%Tcell > 0d0) then
                 TempFact = 0.6d0 + 0.4d0 / (1d0 &
-                    + DriftCorr%b * dexp(DriftCorr%c * (Ambient%Tcell - 273.16d0)))
+                    + DriftCorr%b * dexp(DriftCorr%c * (Ambient%Tcell - 273.15d0)))
             else
                 TempFact = 1d0
             end if
@@ -238,5 +238,3 @@ subroutine ReferenceCounts(Set, nrow, ncol)
         end select
     end do
 end subroutine ReferenceCounts
-
-

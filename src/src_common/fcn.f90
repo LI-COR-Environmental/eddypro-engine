@@ -37,15 +37,15 @@ subroutine fcn(m, npar, FcnPar, fvec, fjac, iflag)
     !> In/out variables
     integer, intent(in) :: m
     integer, intent(in) :: npar
-    real (kind = dbl), intent(in)    :: FcnPar(:)
-    real (kind = dbl), intent(out)   :: fjac(:,:)
-    real (kind = dbl), intent(inout) :: fvec(:)
+    real(kind = dbl) , intent(in)    :: FcnPar(:)
+    real(kind = dbl) , intent(out)   :: fjac(:,:)
+    real(kind = dbl) , intent(inout) :: fvec(:)
     integer, intent(inout)    :: iflag
     !> Local variables
-    real (kind = dbl), external :: func
-    real (kind = dbl), external :: ridders_diff
+    real(kind = dbl) , external :: func
+    real(kind = dbl) , external :: ridders_diff
     integer :: i
-    real (kind = dbl) :: err
+    real(kind = dbl)  :: err
 
 
 	!> Fn = FcnPar(1), f_co = FcnPar(2)\n

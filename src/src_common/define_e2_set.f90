@@ -163,7 +163,7 @@ subroutine DefineE2Set(LocCol, Raw, nrow, ncol, E2Set, e2nrow, e2ncol, DiagSet, 
     end do
 
     do j = 1, ncol
-        !> Diagnostic flags set (but provided on output)
+        !> Diagnostic flags set
         if (LocCol(j)%var(1:len_trim(LocCol(j)%var)) == 'diag_72' .and. LocCol(j)%useit) then
             DiagSet(1:dnrow, diag72) = Raw(1:dnrow, j)
             cycle
@@ -174,6 +174,10 @@ subroutine DefineE2Set(LocCol, Raw, nrow, ncol, E2Set, e2nrow, e2ncol, DiagSet, 
         end if
         if (LocCol(j)%var(1:len_trim(LocCol(j)%var)) == 'diag_77' .and. LocCol(j)%useit) then
             DiagSet(1:dnrow, diag77) = Raw(1:dnrow, j)
+            cycle
+        end if
+        if (LocCol(j)%var(1:len_trim(LocCol(j)%var)) == 'anemometer_diagnostic' .and. LocCol(j)%useit) then
+            DiagSet(1:dnrow, diagAnem) = Raw(1:dnrow, j)
             cycle
         end if
     end do

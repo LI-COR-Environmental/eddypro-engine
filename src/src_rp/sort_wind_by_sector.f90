@@ -35,7 +35,7 @@ subroutine SortWindBySector(Wind, nrow, NumElem, WindBySect)
     implicit none
     !> in/out variables
     integer, intent(in) :: nrow
-    real (kind = dbl), intent(in) :: Wind(nrow, 3)
+    real(kind = dbl) , intent(in) :: Wind(nrow, 3)
     integer, intent(out) :: NumElem(PFSetup%num_sec)
     real(kind = dbl), intent(out) :: WindBySect(nrow, 3, PFSetup%num_sec)
     !> local variables

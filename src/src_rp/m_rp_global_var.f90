@@ -81,6 +81,7 @@ module m_rp_global_var
     character(PathLen) :: QCdetails_Path
     logical :: OutVarPresent(E2NumVar)
     logical :: TimeLagOptSelected
+    logical :: SonicDataHasWBug
 
     !> global variables
     type(RPsetupType) :: RPsetup
@@ -541,7 +542,7 @@ module m_rp_global_var
          SCTags(38)%Label / 'out_full_cosp_w_co2' / &
          SCTags(39)%Label / 'out_full_cosp_w_h2o' / &
          SCTags(40)%Label / 'out_full_cosp_w_ch4' / &
-         SCTags(41)%Label / 'out_full_cosp_w_n2o' / &
+         SCTags(41)%Label / 'out_full_cosp_w_gas4' / &
          SCTags(42)%Label / 'out_st_1' / &
          SCTags(43)%Label / 'out_st_2' / &
          SCTags(44)%Label / 'out_st_3' / &
@@ -567,7 +568,7 @@ module m_rp_global_var
          SCTags(64)%Label / 'filter_al'        / &
          SCTags(65)%Label / 'bu_corr'          / &
          SCTags(66)%Label / 'bu_multi'         / &
-!         SCTags(67)%Label / 'qc_meth'          / &   !< no longer used
+         SCTags(67)%Label / 'gill_wm_wboost'   / &
          SCTags(68)%Label / 'out_raw_1'        / &
          SCTags(69)%Label / 'out_raw_2'        / &
          SCTags(70)%Label / 'out_raw_3'        / &

@@ -110,7 +110,7 @@ subroutine IntegralTurbulenceScale(Set, nrow, ncol)
                 end if
             end do
         case('full_integral')
-            !> Integrate over the full range of variation of time lag
+            !> Integrate over the full range of variation of time-lag
             do var = u, gas4
                 if (var /= w .and. E2Col(var)%present) then
                     if (.not. w_cross_corr_failed(var)) then
@@ -136,7 +136,7 @@ subroutine IntegralTurbulenceScale(Set, nrow, ncol)
     else
         ITS_bill = error
     end if
-    !> ITS shouldn't be higher than the integral of "1" over the whole time lag period.
+    !> ITS shouldn't be higher than the integral of "1" over the whole time-lag period.
     !> Use a factor of 2 to account for anomalies.
     where (ITS(u:gas4) > 2. * RUsetup%tlag_max .or. ITS(u:gas4) == error)
        ITS(u:gas4) = ITS_bill

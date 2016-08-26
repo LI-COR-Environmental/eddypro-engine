@@ -21,7 +21,7 @@
 !
 !***************************************************************************
 !
-! \brief       Calculate most likely time lag and range of variation for
+! \brief       Calculate most likely time-lag and range of variation for
 !              all gases
 ! \author      Gerardo Fratini
 ! \note
@@ -106,7 +106,7 @@ subroutine OptimizeTimelags(toSet, nrow, actn, M, h2o_n, MM, cls_size)
                     N = h2o_n(cls)
                     if (N < min_numerosity) cycle
                     !> Eliminate outliers in each class
-                    !> and redefine "short" time lag set (without outliers)
+                    !> and redefine "short" time-lag set (without outliers)
                     mvec = sum(tmpvec(:)) / N
                     sdvec = dsqrt(sum((tmpvec(:) - mvec)**2))
                     nn = 0
@@ -154,10 +154,10 @@ subroutine OptimizeTimelags(toSet, nrow, actn, M, h2o_n, MM, cls_size)
                     deallocate (devup, devdw)
                 end do
 
-                !> Adjust time lags for classes not filled
+                !> Adjust time-lags for classes not filled
                 !> Detects first good class
                 first = 1
-                do cls = 2, MM
+                do cls = 1, MM
                     if (h2o_n(cls) > min_numerosity) then
                         first = cls
                         exit
@@ -165,7 +165,7 @@ subroutine OptimizeTimelags(toSet, nrow, actn, M, h2o_n, MM, cls_size)
                 end do
                 !> Detects last good class
                 last = MM
-                do cls = MM - 1, 1, -1
+                do cls = MM, 1, -1
                     if (h2o_n(cls) > min_numerosity) then
                         last = cls
                         exit
@@ -195,7 +195,7 @@ subroutine OptimizeTimelags(toSet, nrow, actn, M, h2o_n, MM, cls_size)
         end if
     end do
 
-    !> If time lag optimization failed, switch to covariance maximization
+    !> If time-lag optimization failed, switch to covariance maximization
     if (toH2O(1)%def == error .and. toH2O(MM)%def == error) then
         call ExceptionHandler(43)
         Meth%tlag = 'maxcov'

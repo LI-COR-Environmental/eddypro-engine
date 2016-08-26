@@ -77,6 +77,7 @@ subroutine InitExVars(StartTimestamp, EndTimestamp, NumRecords, NumValidRecords)
     Diag7200%present = .false.
     Diag7500%present = .false.
     Diag7700%present = .false.
+    DiagAnemometer%present = .false.
 
     !> Cycle on all records
     NumRecords = 0

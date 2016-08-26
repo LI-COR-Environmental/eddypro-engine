@@ -31,52 +31,84 @@
 ! \todo        Allow user to select a different threshold (now 10%) to decide
 !              whether to calculate flux or not or to switch to WPL
 !***************************************************************************
-subroutine FilterDatasetForDiagnostics(Set, nrow, ncol, DiagSet, dnrow, dncol)
+subroutine FilterDatasetForDiagnostics(Set, nrow, ncol, DiagSet, dnrow, dncol, &
+    filter_for_diag_anem, filter_for_diag_irga)
     use m_rp_global_var
     !> in/out variables
     integer, intent(in) :: nrow, ncol
     integer, intent(in) :: dnrow, dncol
     real(kind = dbl), intent(in) :: DiagSet(dnrow, dncol)
     real(kind = dbl), intent(inout) :: Set(nrow, ncol)
+    logical, intent(in) :: filter_for_diag_anem
+    logical, intent(in) :: filter_for_diag_irga
     !> lcoal variables
     integer :: var
 !    logical :: mask(nrow)
 
 
-    do var = co2, pe
-        select case(var)
-            case (co2:gas4, pi:pe)
-                !> For LI-7200 flag is OK if = 1, so checks that all bits are
-                !> set to 1, which means 7 integer for 3 bits words and 15 for four bits words
-                if (index(E2Col(var)%instr%model, 'li7200') /= 0) then
-                    do i = 1, nrow
-                        if (DiagSet(i, diag72) /= error .and. &
-                            (ibits(nint(DiagSet(i, diag72)),  5, 4) < 15 .or. &
-                            ibits(nint(DiagSet(i, diag72)), 12, 1)  == 0)) &
-                            Set(i, var) = error
-                    end do
-                !> For LI-7500 flag is OK if = 1, so checks that all bits are
-                !> set to 1, which means 7 integer for three bits words and 15 for four bits words
-                elseif (index(E2Col(var)%instr%model, 'li7500') /= 0) then
-                    do i = 1, nrow
-                        if (DiagSet(i, diag75) /= error .and. &
-                            ibits(nint(DiagSet(i, diag75)),  5, 3) < 7) &
-                            Set(i, var) = error
-                    end do
-                !> For LI-7700 flag is OK if = 0, so checks that all bits are
-                !> set to 0, which means 0 integer for both 3 and 4 bits words
-                elseif (index(E2Col(var)%instr%model, 'li7700') /= 0) then
-                    do i = 1, nrow
-                        if (DiagSet(i, diag77) /= error .and. &
-                            (ibits(nint(DiagSet(i, diag77)), 5, 1) /= 0 .or. &
-                            ibits(nint(DiagSet(i, diag77)),  8, 4) /= 0 .or. &
-                            ibits(nint(DiagSet(i, diag77)), 13, 3) /= 0)) &
-                            Set(i, var) = error
-                    end do
-                end if
-        end select
-    end do
+    !> Anemometer diagnostics
+    if (filter_for_diag_anem) then
+        if (index(MasterSonic%model, 'wm') /= 0 &
+            .or. index(MasterSonic%model, 'hs') /= 0) then
+            !> Special case for some Gill sonics, for which values of 10 (0A) and
+            !> 11 (0B) indicate good data
+            where (DiagSet(1:nrow, diagAnem) /= error &
+                .and. DiagSet(1:nrow, diagAnem) /= 0 &
+                .and. DiagSet(1:nrow, diagAnem) /= 10 &
+                .and. DiagSet(1:nrow, diagAnem) /= 11)
+                Set(1:nrow, u) = error
+                Set(1:nrow, v) = error
+                Set(1:nrow, w) = error
+                Set(1:nrow, ts) = error
+            endwhere
+        else
+            !> Otherwise filter all data when flag is different from zero.
+            where (DiagSet(1:nrow, diagAnem) /= error &
+                .and. DiagSet(1:nrow, diagAnem) /= 0)
+                Set(1:nrow, u) = error
+                Set(1:nrow, v) = error
+                Set(1:nrow, w) = error
+                Set(1:nrow, ts) = error
+            endwhere
+        end if
+    end if
 
+    !> IRGA diagnostics
+    if (filter_for_diag_irga) then
+        do var = co2, pe
+            select case(var)
+                case (co2:gas4, pi:pe)
+                    !> For LI-7200 flag is OK if = 1, so checks that all bits are
+                    !> set to 1, which means 7 integer for 3 bits words and 15 for four bits words
+                    if (index(E2Col(var)%instr%model, 'li7200') /= 0) then
+                        do i = 1, nrow
+                            if (DiagSet(i, diag72) /= error .and. &
+                                (ibits(nint(DiagSet(i, diag72)),  5, 4) < 15 .or. &
+                                ibits(nint(DiagSet(i, diag72)), 12, 1)  == 0)) &
+                                Set(i, var) = error
+                        end do
+                    !> For LI-7500 flag is OK if = 1, so checks that all bits are
+                    !> set to 1, which means 7 integer for three bits words and 15 for four bits words
+                    elseif (index(E2Col(var)%instr%model, 'li7500') /= 0) then
+                        do i = 1, nrow
+                            if (DiagSet(i, diag75) /= error .and. &
+                                ibits(nint(DiagSet(i, diag75)),  5, 3) < 7) &
+                                Set(i, var) = error
+                        end do
+                    !> For LI-7700 flag is OK if = 0, so checks that all bits are
+                    !> set to 0, which means 0 integer for both 3 and 4 bits words
+                    elseif (index(E2Col(var)%instr%model, 'li7700') /= 0) then
+                        do i = 1, nrow
+                            if (DiagSet(i, diag77) /= error .and. &
+                                (ibits(nint(DiagSet(i, diag77)), 5, 1) /= 0 .or. &
+                                ibits(nint(DiagSet(i, diag77)),  8, 4) /= 0 .or. &
+                                ibits(nint(DiagSet(i, diag77)), 13, 3) /= 0)) &
+                                Set(i, var) = error
+                        end do
+                    end if
+            end select
+        end do
+    end if
 !!    > Special case of Tin/Tout for LI-7200
 !!    > Count occurrences of bad flags for either temperature reading
 !    mask = .false.

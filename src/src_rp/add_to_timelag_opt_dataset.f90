@@ -21,8 +21,8 @@
 !
 !***************************************************************************
 !
-! \brief       Store calculated time lags and other variables used for the
-!              time lag optimization, if all conditions are met
+! \brief       Store calculated time-lags and other variables used for the
+!              time-lag optimization, if all conditions are met
 ! \author      Gerardo Fratini
 ! \note
 ! \sa

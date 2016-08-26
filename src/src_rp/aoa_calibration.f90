@@ -33,7 +33,7 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine AoaCalibrationNakai(Set, nrow, ncol)
+subroutine AoaCalibration(Set, nrow, ncol)
     use m_rp_global_var
     implicit none
     !> in/out variables
@@ -41,38 +41,48 @@ subroutine AoaCalibrationNakai(Set, nrow, ncol)
     real(kind = dbl), intent(inout) :: Set(nrow, ncol)
     !> local variables
     integer :: i
-    real(kind = dbl) :: VelU    !< Original and corrected VelU
-    real(kind = dbl) :: VelV    !< Original and corrected VelV
-    real(kind = dbl) :: VelW    !< Original and corrected VelW
+    real(kind = dbl) :: wind(3)
+    include '../src_common/interfaces.inc'
 
 
-    !> for nr elements
-    do i = 1, nrow
-        !> initialize VelU,VelV,VelW
-        VelU = Set(i, u)
-        VelV = Set(i, v)
-        VelW = Set(i, w)
+    !> No AoA to apply
+    if (RPsetup%calib_aoa == 'none') return
 
-        !if (VelW == 0d0) cycle
-        !> call angle of attack dependent calibration routines
-        if (VelU /= error .and. VelV /= error .and. VelW /= error) then
-            if (RPsetup%calib_aoa == 'nakai_06') then
-                call AoaSteffensen(VelU, VelV, VelW)
-            elseif (RPsetup%calib_aoa == 'nakai_12') then
-                call AoaSteffensen2012(VelU, VelV, VelW)
+    !> Nakai et al. 2006
+    if (RPsetup%calib_aoa == 'nakai_06') then
+        !> Apply Nakai et al. 2006
+        do i = 1, nrow
+            wind(u:w) = Set(i, u:w)
+            if (all(wind /= error)) then
+                call AoaSteffensen(wind(u), wind(v), wind(w))
+            else
+                wind = error
             end if
-        else
-            VelU = error
-            VelV = error
-            VelW = error
-        end if
+            Set(i, u:w) = wind(u:w)
+        end do
+        return
+    end if
 
-        !> replace originals with corrected VelU, VelV, VelW
-        Set(i, u) = VelU
-        Set(i, v) = VelV
-        Set(i, w) = VelW
-    enddo
-end subroutine AoaCalibrationNakai
+    !> Nakai et al. 2012
+    if (RPsetup%calib_aoa == 'nakai_12') then
+        !> If WindMaster has w-boost fixed, need to remove the w-boost
+        !> before AoA after Nakai and Shimoyama 2012 can be applied
+        if (.not. SonicDataHasWBug) &
+            call RemoveGillWmWBoost(Set, nrow, ncol)
+
+        !>Now apply correction
+        do i = 1, nrow
+            wind(u:w) = Set(i, u:w)
+            if (all(wind /= error)) then
+                call AoaSteffensen2012(wind(u), wind(v), wind(w))
+            else
+                wind = error
+            end if
+            Set(i, u:w) = wind(u:w)
+        end do
+        return
+    end if
+end subroutine AoaCalibration
 
 !***************************************************************************
 !
