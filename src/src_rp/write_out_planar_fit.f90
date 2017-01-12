@@ -57,9 +57,9 @@ subroutine WriteOutPlanarFit(NumElem, N)
         zero = nint(360 + PFSetup%north_offset)
     end if
     write(upf, '(a)') 'Planar_fit_results'
-    write(upf, '(a, i3)') 'Number_of_selected_wind_sectors:', PFSetup%num_sec
-    write(upf, '(a, i4)') 'Minimum_number_of_data_per_wind_sector:', PFSetup%min_per_sec
-    write(upf, '(a, f5.2)') 'Maximum_average_vertical_wind_component_(m/s):', PFSetup%w_max
+    write(upf, '(a, i3)') 'Number_of_selected_wind_sectors: ', PFSetup%num_sec
+    write(upf, '(a, i4)') 'Minimum_number_of_data_per_wind_sector: ', PFSetup%min_per_sec
+    write(upf, '(a, f5.2)') 'Maximum_average_vertical_wind_component_(m/s): ', PFSetup%w_max
     write(upf, '(a, f5.2)') 'Minimum_average_horizontal_wind_component_(m/s): ', PFSetup%u_min
     write(upf, '(a, a)') 'Beginning_of_planar_fit_determination_period: ', PFSetup%start_date
     write(upf, '(a, a)') 'End_of_planar_fit_determination_period: ', PFSetup%end_date
