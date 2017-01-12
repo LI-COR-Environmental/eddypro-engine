@@ -41,6 +41,7 @@ subroutine PointByPointToMixingRatio(Set, nrow, ncol, printout)
     !> Local variables
     real(kind = dbl) :: H2Omf(nrow)
     real(kind = dbl) :: Va(nrow)
+    logical :: cellVaAvailable
 
 
     !> Point-by-point, accurate conversion to mixing ratio cannot be
@@ -62,6 +63,12 @@ subroutine PointByPointToMixingRatio(Set, nrow, ncol, printout)
         Va(:) = error
     end if
 
+    if (all(Va(:) == error)) then
+        cellVaAvailable = .false.
+    else
+        cellVaAvailable = .true.
+    end if
+    
     !> Locally transform h2o into mole fraction [mmol/mol]
     select case (E2Col(h2o)%measure_type)
         case ('mixing_ratio')
@@ -113,7 +120,7 @@ subroutine PointByPointToMixingRatio(Set, nrow, ncol, printout)
             elsewhere
                 Set(:, co2) = error
             endwhere
-        elseif (E2Col(co2)%measure_type == 'molar_density') then
+        elseif (E2Col(co2)%measure_type == 'molar_density' .and. cellVaAvailable) then
             E2Col(co2)%measure_type = 'mixing_ratio'
             where(Va(:) /= error .and. H2Omf(:) /= error &
                 .and. Set(:, co2) /= error)
@@ -134,7 +141,7 @@ subroutine PointByPointToMixingRatio(Set, nrow, ncol, printout)
             elsewhere
                 Set(:, ch4) = error
             endwhere
-        elseif (E2Col(ch4)%measure_type == 'molar_density') then
+        elseif (E2Col(ch4)%measure_type == 'molar_density' .and. cellVaAvailable) then
             E2Col(ch4)%measure_type = 'mixing_ratio'
             where(Va(:) /= error .and. H2Omf(:) /= error &
                 .and. Set(:, ch4) /= error)
@@ -154,7 +161,7 @@ subroutine PointByPointToMixingRatio(Set, nrow, ncol, printout)
             elsewhere
                 Set(:, gas4) = error
             endwhere
-        elseif (E2Col(gas4)%measure_type == 'molar_density') then
+        elseif (E2Col(gas4)%measure_type == 'molar_density' .and. cellVaAvailable) then
             E2Col(gas4)%measure_type = 'mixing_ratio'
             where(Va(:) /= error .and. H2Omf(:) /= error &
             .and. Set(:, gas4) /= error)
