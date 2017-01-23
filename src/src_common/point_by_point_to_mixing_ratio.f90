@@ -102,7 +102,7 @@ subroutine PointByPointToMixingRatio(Set, nrow, ncol, printout)
         elsewhere
             Set(:, h2o) = error
         endwhere
-    elseif (E2Col(h2o)%measure_type == 'molar_density') then
+    elseif (E2Col(h2o)%measure_type == 'molar_density' .and. cellVaAvailable) then
         E2Col(h2o)%measure_type = 'mixing_ratio'
         where(Va(:) /= error .and. H2Omf(:) /= error)
             Set(:, h2o) = Set(:, h2o) * Va(:) / (1.d0 - H2Omf(:) * 1d-3)
