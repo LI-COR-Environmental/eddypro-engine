@@ -255,7 +255,7 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, &
         write(datum, *) Mul7700%C
         call AddDatum(dataline, datum, separator)
 
-        !> Bruba terms
+        !> Burba terms
         write(datum, *) Burba%h_bot
         call AddDatum(dataline, datum, separator)
         write(datum, *) Burba%h_top
@@ -304,7 +304,7 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, &
         call AddDatum(dataline, datum, separator)
         !> Gas timelags
         do gas = co2, gas4
-            write(datum, *) Essentials%timelag(gas)
+            write(datum, *) Essentials%used_timelag(gas)
             call AddDatum(dataline, datum, separator)
             write(datum, *) Essentials%def_tlag(gas)
             call AddDatum(dataline, datum, separator)
@@ -735,7 +735,7 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, &
                 call AddDatum(dataline, datum, separator)
                 call WriteDatumFloat(Stats%r(gas), datum, EddyProProj%err_label)
                 call AddDatum(dataline, datum, separator)
-                call WriteDatumFloat(Essentials%timelag(gas), datum, EddyProProj%err_label)
+                call WriteDatumFloat(Essentials%used_timelag(gas), datum, EddyProProj%err_label)
                 call AddDatum(dataline, datum, separator)
                 if (Essentials%def_tlag(gas)) then
                     call AddDatum(dataline, '1', separator)

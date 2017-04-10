@@ -317,26 +317,6 @@ subroutine int2char(num, string, pad)
     string = trim(adjustl(str))
 end subroutine int2char
 
-! DEPRECATED (WHAT WAS I THINKING ABOUT?)
-!    integer :: i
-!    integer :: j
-!    integer :: aux
-!    logical :: check
-!    check = .false.
-!    aux = num
-!    do j = 1, pad
-!        do i = 1, 9
-!            if (((aux / (i*10**(pad - j))) >= 1).and.((aux / ((i + 1)*10**(pad - j))) < 1)) then
-!            check = .true.
-!            string(j:j) = char(i + 48)
-!            aux = aux - i*10**(pad - j)
-!            end if
-!        end do
-!        if(.not. check) string(j:j) = char(48)
-!        check = .false.
-!    end do
-! DEPRECATED
-
 !***************************************************************************
 !
 ! \brief       Add a datum to a "separator"-separated string, and \n
