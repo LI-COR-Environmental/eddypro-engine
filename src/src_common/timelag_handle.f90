@@ -33,7 +33,7 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine TimeLagHandle(TlagMeth, Set, nrow, ncol, TLag, &
+subroutine TimeLagHandle(TlagMeth, Set, nrow, ncol, ActTLag, TLag, &
     DefTlagUsed, InTimelagOpt)
     use m_common_global_var
     implicit none
@@ -42,6 +42,7 @@ subroutine TimeLagHandle(TlagMeth, Set, nrow, ncol, TLag, &
     character(*), intent(in) :: TlagMeth
     logical, intent(in) :: InTimelagOpt
     logical, intent(out) :: DefTlagUsed(ncol)
+    real(kind = dbl), intent(out) :: ActTLag(ncol)
     real(kind = dbl), intent(out) :: TLag(ncol)
     real(kind = dbl), intent(inout) :: Set(nrow, ncol)
     !> local variables
@@ -78,6 +79,7 @@ subroutine TimeLagHandle(TlagMeth, Set, nrow, ncol, TLag, &
             !> constant timelags are set equal to default values (user selected)
             RowLags(ts:pe) = def_rl(ts:pe)
             TLag(ts:pe)    = E2Col(ts:pe)%def_tl
+            ActTLag(ts:pe) = E2Col(ts:pe)%def_tl
             DefTlagUsed(ts:pe) = .true.
         case ('maxcov', 'maxcov&default')
             !> covariance maximization method, with or without default
@@ -88,12 +90,25 @@ subroutine TimeLagHandle(TlagMeth, Set, nrow, ncol, TLag, &
                     .and. (min_rl(j) /= 0 .or. max_rl(j) /= 0)) then
                     FirstCol(:)  = Set(:, w)
                     SecondCol(:) = Set(:, j)
-                    call CovMax(TlagMeth, def_rl(j), min_rl(j), max_rl(j), &
+                    call CovMax(def_rl(j), min_rl(j), max_rl(j), &
                         FirstCol, SecondCol, size(FirstCol), &
-                        TLag(j), RowLags(j), DefTlagUsed(j))
+                        TLag(j), RowLags(j))
+                    ActTLag(j) = TLag(j)
+                    !> If no max cov has been detected within the interval, \n
+                    !> sets the time lag to the suggested values
+                    if (TlagMeth == 'maxcov&default') then
+                        if ( (RowLags(j) == min_rl(j)) .or. (RowLags(j) == max_rl(j)) ) then
+                            DefTlagUsed(j) = .true.
+                            TLag(j) = dble(def_rl(j)) / Metadata%ac_freq
+                            RowLags(j) = def_rl(j)
+                        end if
+                    end if
+
+
                 else
                     RowLags(j) = 0
                     TLag(j) = 0d0
+                    ActTLag(j) = 0d0
                 end if
             end do
         case ('none')
@@ -203,8 +218,7 @@ end subroutine TimeLagHandle
 ! \test
 ! \todo
 !*******************************************************************************
-subroutine CovMax(TlagMeth, lagctr, lagmin, lagmax, Col1, Col2, nrow, &
-    TLag, RLag, def_used)
+subroutine CovMax(lagctr, lagmin, lagmax, Col1, Col2, nrow, TLag, RLag)
     use m_common_global_var
     implicit none
     !> in/out variables
@@ -214,10 +228,8 @@ subroutine CovMax(TlagMeth, lagctr, lagmin, lagmax, Col1, Col2, nrow, &
     integer, intent(in) :: lagctr
     real(kind = dbl), intent(in) :: Col1(nrow)
     real(kind = dbl), intent(in) :: Col2(nrow)
-    character(*), intent(in) :: TlagMeth
     integer, intent(out) :: RLag
     real(kind = dbl), intent(out) :: TLag
-    logical, intent(out) :: def_used
     !> local variables
     integer :: i = 0
     integer :: ii = 0
@@ -229,7 +241,7 @@ subroutine CovMax(TlagMeth, lagctr, lagmin, lagmax, Col1, Col2, nrow, &
     real(kind = dbl) ::sum1
     real(kind = dbl) ::sum2
 
-    def_used = .false.
+
     Cov = 0.d0
     MaxCov = 0.d0
     TLag = 0.d0
@@ -275,16 +287,6 @@ subroutine CovMax(TlagMeth, lagctr, lagmin, lagmax, Col1, Col2, nrow, &
         end if
         deallocate(ShLocSet)
     end do
-
-    !> If no max cov has been detected within the interval, \n
-    !> sets the time lag to the suggested values
-    if (TlagMeth == 'maxcov&default') then
-        if ( (RLag == lagmin) .or. (RLag == lagmax) ) then
-            def_used = .true.
-            TLag = dble(lagctr) / Metadata%ac_freq
-            RLag = lagctr
-        end if
-    end if
 end subroutine CovMax
 
 !***************************************************************************

@@ -719,8 +719,8 @@ program EddyproRP
 
                 !> Calculate and compensate time-lags
                 call TimeLagHandle('maxcov', E2Set, &
-                    size(E2Set, 1), size(E2Set, 2), Essentials%timelag, &
-                    Essentials%def_tlag, .true.)
+                    size(E2Set, 1), size(E2Set, 2), Essentials%actual_timelag, &
+                    Essentials%used_timelag, Essentials%def_tlag, .true.)
 
                 !> Calculate basic stats
                 call BasicStats(E2Set, &
@@ -1935,12 +1935,11 @@ program EddyproRP
             !> Calculate and compensate time-lags
             if (TimeLagOptSelected) Meth%tlag = 'maxcov&default'
             call TimeLagHandle(Meth%tlag(1:len_trim(Meth%tlag)), E2Set, &
-                size(E2Set, 1), size(E2Set, 2), Essentials%timelag, &
-                Essentials%def_tlag, .false.)
+                size(E2Set, 1), size(E2Set, 2), Essentials%actual_timelag, &
+                Essentials%used_timelag, Essentials%def_tlag, .false.)
             if (NumUserVar > 0) then
-                call UserTimeLagHandle(Meth%tlag(1:len_trim(Meth%tlag)), &
-                    UserSet, size(UserSet, 1), size(UserSet, 2), &
-                    E2Set(:, w), size(E2Set, 1))
+                call UserTimeLagHandle(UserSet, size(UserSet, 1), &
+                    size(UserSet, 2), E2Set(:, w), size(E2Set, 1))
             end if
             if (TimeLagOptSelected) Meth%tlag = 'tlag_opt'
 
@@ -2219,6 +2218,7 @@ program EddyproRP
     close(ufnet_b)
     close(uaflx)
     close(uex)
+    close(uicos)
     close(ubiomet)
     close(uqc)
 

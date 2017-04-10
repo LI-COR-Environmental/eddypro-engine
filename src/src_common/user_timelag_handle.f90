@@ -31,14 +31,13 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine UserTimeLagHandle(TlagMeth, UserSet, unrow, uncol, E2W, nrow)
+subroutine UserTimeLagHandle(UserSet, unrow, uncol, E2W, nrow)
     use m_common_global_var
     implicit none
     !> in/out variables
     integer, intent(in) :: unrow, uncol
     integer, intent(in) :: nrow
     real(kind = dbl), intent(in) :: E2W(nrow)
-    character(*), intent(in) :: TlagMeth
     real(kind = dbl), intent(inout) :: UserSet(unrow, uncol)
     !> local variables
     integer :: i = 0
@@ -50,7 +49,6 @@ subroutine UserTimeLagHandle(TlagMeth, UserSet, unrow, uncol, E2W, nrow)
     real(kind = dbl) :: SecondCol(unrow)
     real(kind = dbl) :: TLag(uncol)
     real(kind = dbl) :: TmpUserSet(unrow, uncol)
-    logical :: DefTlagUsed(uncol)
 
     write(*, '(a)', advance = 'no') '  Compensating user variables time-lags..'
 
@@ -77,8 +75,8 @@ subroutine UserTimeLagHandle(TlagMeth, UserSet, unrow, uncol, E2W, nrow)
                 if (UserCol(j)%var /= 'none') then
                     FirstCol(:)  = E2W(:)
                     SecondCol(:) = UserSet(:, j)
-                    call CovMax(TlagMeth, def_rl(j), min_rl(j), max_rl(j), &
-                        FirstCol, SecondCol, size(FirstCol), TLag(j), UserRowLags(j), DefTlagUsed(j))
+                    call CovMax(def_rl(j), min_rl(j), max_rl(j), &
+                        FirstCol, SecondCol, size(FirstCol), TLag(j), UserRowLags(j))
                 else
                     UserRowLags(j) = 0
                     TLag(j) = 0d0
