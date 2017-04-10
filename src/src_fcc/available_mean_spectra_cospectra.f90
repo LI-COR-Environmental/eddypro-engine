@@ -56,8 +56,10 @@ subroutine AvailableMeanSpectraCospectra(nbins)
     do gas = ts, gas4
         do cls = 1, 8
             if (all(MeanBinCosp(1:nbins, cls)%fnum(gas) == error) &
-                .or. all(MeanBinSpec(1:nbins, cls)%fnum(gas) == 0d0)) &
+                .or. all(MeanBinCosp(1:nbins, cls)%fnum(gas) == 0d0)) then
                 MeanBinCospAvailable(cls, gas) = .false.
+            else
+            end if
         end do
     end do
 
