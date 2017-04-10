@@ -126,7 +126,7 @@ subroutine ImportAsciiWithText(FirstRecord, LastRecord, LocCol, fRaw, &
         end if
 
         !> Eliminate multiple separators from dataline, but currently only if it's a space
-        if (FileInterpreter%separator == '') &
+        if (FileInterpreter%separator == ' ') &
             call StripConsecutiveChar(dataline, FileInterpreter%separator)
 
         !> Parse variables out of the string
