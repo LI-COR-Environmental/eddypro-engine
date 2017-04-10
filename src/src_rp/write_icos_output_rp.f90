@@ -1,0 +1,417 @@
+!***************************************************************************
+! write_outfiles.f90
+! ------------------
+! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
+! Copyright (C) 2011-2015, LI-COR Biosciences
+!
+! This file is part of EddyPro (TM).
+!
+! EddyPro (TM) is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! EddyPro (TM) is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
+!
+!***************************************************************************
+!
+! \brief       Write all results on (temporary) output files
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+subroutine WriteIcosOutputRp(init_string, PeriodRecords, PeriodActualRecords, &
+    StDiff, DtDiff)
+    use m_rp_global_var
+    implicit none
+    !> in/out variables
+    character(*), intent(in) :: init_string
+    integer, intent(in) :: PeriodRecords
+    integer, intent(in) :: PeriodActualRecords
+    type(QCType), intent(in) :: StDiff
+    type(QCType), intent(in) :: DtDiff
+    !> local variables
+    integer :: var
+    integer :: gas
+    integer :: j
+    integer :: i
+!    integer :: prof
+    character(LongOutstringLen) :: dataline
+    character(DatumLen) :: datum
+    character(64) :: tmp_init_string
+    character(14) :: iso_basic
+    include '../src_common/interfaces.inc'
+
+    !> write Essentials output file (csv) for communication
+    !> with Fluxes
+    if (EddyProProj%out_fluxnet_eddy) then
+        call clearstr(dataline)
+
+        !> Timestamp
+        tmp_init_string = &
+            init_string(index(init_string, ',') +1: &
+                        index(init_string, ',', .true.) - 1)
+        iso_basic = tmp_init_string(1:4) // tmp_init_string(6:7) &
+            // tmp_init_string(9:10) // tmp_init_string(12:13)  &
+            // tmp_init_string(15:16) // '00'
+        call AddDatum(dataline, trim(adjustl(iso_basic)), separator)
+
+        !> Daytime
+        if (Stats%daytime) then
+            call AddDatum(dataline, '1', separator)
+        else
+            call AddDatum(dataline, '0', separator)
+        endif
+
+    !> Number of records
+        !> Number of records teoretically available for current Averaging Interval
+        write(datum, *) PeriodRecords
+        call AddDatum(dataline, datum, separator)
+        !> Number of records actually available for current Averaging Interval (N_in)
+        write(datum, *) PeriodActualRecords
+        call AddDatum(dataline, datum, separator)
+        !> Number of valid records for anemometric data (N_in – M_diag_anemometer)
+        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        !> Number of valid records for IRGA data  (N_in – M_diag_IRGA)
+        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        !> Number of valid records available for each main covariance (w/u, w/ts, w/co2, w/h2o, w/ch4, w/gas4)
+        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+
+    !> Fluxes
+        !> Fluxes level 3 (final fluxes) 
+        call WriteDatumFloat(Flux3%tau, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumFloat(Flux3%H, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumFloat(Flux3%LE, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumFloat(Flux3%co2, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumFloat(Flux3%h2o, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumFloat(Flux3%ch4, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumFloat(Flux3%gas4, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+
+    !> Flux random uncertainties
+        write(datum, *) Essentials%rand_uncer(u)
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Essentials%rand_uncer(ts)
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Essentials%rand_uncer_LE
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Essentials%rand_uncer(co2)
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Essentials%rand_uncer(h2o)
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Essentials%rand_uncer(ch4)
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Essentials%rand_uncer(gas4)
+        call AddDatum(dataline, datum, separator)
+
+    !> Additional flux terms (single-point calculation)
+        !> Storage fluxes
+        call WriteDatumFloat(Stor%H, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumFloat(Stor%LE, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        do gas = co2, gas4
+            call WriteDatumFloat(Stor%of(gas), datum, EddyProProj%err_label)
+            call AddDatum(dataline, datum, separator)
+        end do
+        !> Advection fluxes
+        do gas = co2, gas4
+            if (Stats5%Mean(w) /= error .and. Stats%d(gas) >= 0d0) then
+                if (gas /= h2o) then
+                    call WriteDatumFloat(Stats5%Mean(w) * Stats%d(gas) * 1d3, datum, EddyProProj%err_label)
+                    call AddDatum(dataline, datum, separator)
+                else
+                    call WriteDatumFloat(Stats5%Mean(w) * Stats%d(gas), datum, EddyProProj%err_label)
+                    call AddDatum(dataline, datum, separator)
+                end if
+            else
+                call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            end if
+        end do
+
+    !> Turbulence and micromet
+        !> Unrotated and rotated wind components
+        write(datum, *) Stats4%Mean(u)
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Stats4%Mean(v)
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Stats4%Mean(w)
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Stats5%Mean(u)
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Stats5%Mean(v)
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Stats5%Mean(w)
+        call AddDatum(dataline, datum, separator)
+        !> wind speed, wind direction, u*, stability, bowen ratio
+        write(datum, *) Ambient%WS
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Ambient%MWS
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Stats4%wind_dir
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Ambient%us
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Stats7%TKE
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Essentials%L
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Essentials%zL
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Ambient%bowen
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Ambient%Ts
+        call AddDatum(dataline, datum, separator)
+
+    !> Termodynamics 
+        !> Temperature, pressure, RH, VPD, e, es, etc.
+        write(datum, *) Stats7%Mean(ts)
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Ambient%Ta
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Stats%Pr
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Stats%RH
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Ambient%Va
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) RHO%a
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Ambient%RhoCp
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) RHO%w
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Ambient%e
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Ambient%es
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Ambient%Q
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Ambient%VPD
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Ambient%Td
+        call AddDatum(dataline, datum, separator)
+        !> Dry air properties
+        write(datum, *) Ambient%p_d
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) RHO%d
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Ambient%Vd
+        call AddDatum(dataline, datum, separator)
+        !> Specific heat of evaporation
+        write(datum, *) Ambient%lambda
+        call AddDatum(dataline, datum, separator)
+        !> Wet to dry air density ratio
+        write(datum, *) Ambient%sigma
+        call AddDatum(dataline, datum, separator)
+        !> Water USe Efficiency
+        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+
+    !> Gases
+        !> Concentrations, densities and "nature" of the raw data (mixing ratio, mole fraction, molar density)
+        !> Gas concentrations, densities and timelags
+        do gas = co2, gas4
+            select case (E2Col(gas)%measure_type)
+                case('mixing_ratio')
+                    call AddDatum(dataline, '0', separator)
+                case('mole_fraction')
+                    call AddDatum(dataline, '1', separator)
+                case('molar_density')
+                    call AddDatum(dataline, '2', separator)
+            end select
+            write(datum, *) Stats%d(gas)
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) Stats%r(gas)
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) Stats%chi(gas)
+            call AddDatum(dataline, datum, separator)
+        end do
+        !> Timelags (calculated, used, min/max/nominal) for all gases
+        !> Gas timelags
+        do gas = co2, gas4
+            write(datum, *) Essentials%actual_timelag(gas)
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) Essentials%used_timelag(gas)
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) E2Col(gas)%def_tl
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) E2Col(gas)%min_tl
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) E2Col(gas)%max_tl
+            call AddDatum(dataline, datum, separator)
+        end do
+
+    !> Basic stats
+        !> All mean values
+        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        !> 25-50-75%
+        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        !> All variances 
+        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        !> All w-covariances 
+        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        !> All gas covariances (co2/h2o, co2/ch4, etc) 
+        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        !> Skwenesses and Kurtosis for all variables
+        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+
+    !> Intermediate results
+        !> Fluxes level 0 (uncorrected fluxes)
+        write(datum, *) Flux0%tau
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Flux0%H
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Flux0%LE
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Flux0%co2
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Flux0%h2o
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Flux0%ch4
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Flux0%gas4
+        call AddDatum(dataline, datum, separator)
+        !> Fluxes level 1
+        write(datum, *) Flux1%tau
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Flux1%H
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Flux1%LE
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Flux1%co2
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Flux1%h2o
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Flux1%ch4
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Flux1%gas4
+        call AddDatum(dataline, datum, separator)
+        !> Fluxes level 2
+        write(datum, *) Flux2%tau
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Flux2%H
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Flux2%LE
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Flux2%co2
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Flux2%h2o
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Flux2%ch4
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Flux2%gas4
+        call AddDatum(dataline, datum, separator)
+        !> Temperature, pressure and molar volume 
+        !> in the cell of closed-paths, for all gases
+        !> Cell parameters              **************************************** (make it gas specific like molar volume)
+        write(datum, *) Ambient%Tcell
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Ambient%Pcell
+        call AddDatum(dataline, datum, separator)
+        !> Molar volume
+        do gas = co2, gas4
+            write(datum, *) E2Col(gas)%Va
+            call AddDatum(dataline, datum, separator)
+        end do
+        !> Evapotranspiration and sensible heat fluxes in the cell of 
+        !> closed-paths (for WPL), with timelags of other gases
+        write(datum, *) Flux3%E_co2
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Flux3%E_ch4
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Flux3%E_gas4
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Flux3%Hi_co2
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Flux3%Hi_h2o
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Flux3%Hi_ch4
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Flux3%Hi_gas4
+        call AddDatum(dataline, datum, separator)
+        !> Burba Terms 
+        write(datum, *) Burba%h_bot
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Burba%h_top
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Burba%h_spar
+        call AddDatum(dataline, datum, separator)
+        !> LI-7700 multipliers
+        write(datum, *) Mul7700%A
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Mul7700%B
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Mul7700%C
+        call AddDatum(dataline, datum, separator)
+        !> WPL Terms
+        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        !> Spectral correction factors
+        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        !> Increasingly filtered w/T covariances (for spectral assessment)
+        write(datum, *) Essentials%degH(NumDegH + 1)
+        call AddDatum(dataline, datum, separator)
+        do j = 1, NumDegH
+            write(datum, *) Essentials%degH(j)
+            call AddDatum(dataline, datum, separator)
+        end do
+
+    !> QC details
+        !> Summary of data values/records eliminated based on diagnostics:
+        !> Number or records whose IRGA data was eliminated based on IRGA diagnostics (M_diag_IRGA)
+        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        !> Number or records whose anemometric data was eliminated based on Anemometer diagnostics (M_diag_anemometer)
+        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        !> Summary of data values/records eliminated based on other filters:
+        !> Number or records whose anemometric data was eliminated based on wind direction filter (M_wind_dir)
+        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        !> Number of values eliminated due to spike test or absolute limits test, by variable (M_spikes_u, M_spikes_v, …, M_abslim_u, M_abslim_v, …) 
+        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        !> VM Stats used to calculate flags
+        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        !> VM flags
+        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        !> Foken stats used to calculate flags
+        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        !> Foken flags
+        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        !> Number of calculated spikes per variables
+        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        !> LI-7x00 diagnostics breakdown
+        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        !> AGC/RSSI
+        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+
+    !> Processing settings
+        !> Rotation angles
+        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        !> Detrending method and time constant
+        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+
+    !> Metadata
+        !> All metadata currently in the essentials file
+        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+
+        !> Custom variables
+        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+
+        write(uicos, '(a)') dataline(1:len_trim(dataline) - 1)
+    end if
+
+
+end subroutine WriteIcosOutputRp

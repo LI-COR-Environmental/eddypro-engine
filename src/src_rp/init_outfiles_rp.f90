@@ -671,13 +671,36 @@ subroutine InitOutFiles_rp()
             &li77_motor_spinning,li77_pump_on,li77_top_heater_on,li77_bottom_heater_on,li77_calibrating,li77_motor_failure,&
             &li77_bad_aux_tc1,li77_bad_aux_tc2,li77_bad_aux_tc3,li77_box_connected,&
             &li72_AGC,li75_AGC,li77_RSSI,num_user_var,'
-            if (NumUserVar > 0) then
-                do i = 1, NumUserVar
-                    dataline = dataline(1:len_trim(dataline)) &
-                        // usg(i)(1:len_trim(usg(i))) // 'mean' // ','
-                end do
-            end if
-            write(uex, '(a)') dataline(1:len_trim(dataline) - 1)
+        if (NumUserVar > 0) then
+            do i = 1, NumUserVar
+                dataline = dataline(1:len_trim(dataline)) &
+                    // usg(i)(1:len_trim(usg(i))) // 'mean' // ','
+            end do
+        end if
+        write(uex, '(a)') dataline(1:len_trim(dataline) - 1)
+    end if
+
+    !>==========================================================================
+    !>==========================================================================
+    !> ICOS output
+    if (EddyProProj%out_fluxnet_eddy) then
+        Test_Path = Dir%main_out(1:len_trim(Dir%main_out)) &
+                  // EddyProProj%id(1:len_trim(EddyProProj%id)) &
+                  // ICOS_FilePadding // Timestamp_FilePadding // CsvExt
+        dot = index(Test_Path, CsvExt, .true.) - 1
+        ICOS_Path = Test_Path(1:dot) // CsvTmpExt
+        open(uicos, file = ICOS_Path, iostat = open_status, encoding = 'utf-8')
+
+        call clearstr(dataline)
+        dataline = 'filename,date,time,daytime,file_records,used_records'
+
+        if (NumUserVar > 0) then
+            do i = 1, NumUserVar
+                dataline = dataline(1:len_trim(dataline)) &
+                    // usg(i)(1:len_trim(usg(i))) // 'mean' // ','
+            end do
+        end if
+        write(uicos, '(a)') dataline(1:len_trim(dataline) - 1)
     end if
 
     !>==========================================================================
