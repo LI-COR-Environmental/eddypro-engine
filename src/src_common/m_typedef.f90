@@ -692,7 +692,8 @@ module m_typedef
         real(kind = dbl) :: zL
         real(kind = dbl) :: L
         real(kind = dbl) :: degH(NumDegH + 1)
-        real(kind = dbl) :: timelag(E2NumVar)
+        real(kind = dbl) :: used_timelag(E2NumVar)
+        real(kind = dbl) :: actual_timelag(E2NumVar)
         real(kind = dbl) :: AGC72
         real(kind = dbl) :: AGC75
         real(kind = dbl) :: RSSI77

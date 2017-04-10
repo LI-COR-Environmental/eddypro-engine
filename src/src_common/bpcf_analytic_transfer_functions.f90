@@ -92,7 +92,7 @@ subroutine AnalyticLowPassTransferFunction(nf, N, var, LocInstr, loc_var_present
                         (9.5728d-11 * t_air**2) + (3.7604d-8 * t_air) - 3.4484d-6
                     tube_velocity  = LocInstr(var)%tube_f / (p * (LocInstr(var)%tube_d / 2d0)**2)
                     ! if (var == h2o) &
-                        !tube_velocity  = tube_velocity * Essentials%timelag(co2) / Essentials%timelag(h2o)
+                        !tube_velocity  = tube_velocity * Essentials%used_timelag(co2) / Essentials%used_timelag(h2o)
                     tube_time = LocInstr(var)%tube_l / tube_velocity
                     Re       = tube_velocity * LocInstr(var)%tube_d / air_viscosity
                     !> attenuantions in the intake tube
