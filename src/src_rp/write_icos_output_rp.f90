@@ -258,18 +258,52 @@ subroutine WriteIcosOutputRp(init_string, PeriodRecords, PeriodActualRecords, &
         end do
 
     !> Basic stats
-        !> All mean values
-        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        !> Mean values
+        do var = u, pe
+            write(datum, *) Stats%Mean(var)
+            call AddDatum(dataline, datum, separator)
+        end do
         !> 25-50-75%
-        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
-        !> All variances 
-        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
-        !> All w-covariances 
-        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
-        !> All gas covariances (co2/h2o, co2/ch4, etc) 
-        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
-        !> Skwenesses and Kurtosis for all variables
-        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        do var = u, pe
+            write(datum, *) Stats%Median(var)
+            call AddDatum(dataline, datum, separator)
+        end do
+        do var = u, pe
+            write(datum, *) Stats%Q1(var)
+            call AddDatum(dataline, datum, separator)
+        end do
+        do var = u, pe
+            write(datum, *) Stats%Q3(var)
+            call AddDatum(dataline, datum, separator)
+        end do
+        !> Variances 
+        do var = u, pe
+            write(datum, *) Stats%Cov(var, var)
+            call AddDatum(dataline, datum, separator)
+        end do
+        !> w-covariances 
+        do var = u, pe
+            if (var == w) cycle
+            write(datum, *) Stats%Cov(w, var)
+            call AddDatum(dataline, datum, separator)
+        end do
+        !> Gases covariance matrix
+        do gas1 = co2, ch4
+            do gas2 = gas1 + 1, gas4 
+                write(datum, *) Stats%Cov(gas1, gas2)
+                call AddDatum(dataline, datum, separator)
+            end do
+        end do
+        !> Skwenesses
+        do var = u, pe
+            write(datum, *) Stats%Skw(var)
+            call AddDatum(dataline, datum, separator)
+        end do
+        !> Kurtosis
+        do var = u, pe
+            write(datum, *) Stats%Kur(var)
+            call AddDatum(dataline, datum, separator)
+        end do
 
     !> Intermediate results
         !> Fluxes level 0 (uncorrected fluxes)

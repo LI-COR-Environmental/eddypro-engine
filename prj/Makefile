@@ -675,6 +675,9 @@ init_outfiles_rp.o: \
 median.o: \
 	median.f90 \
 	m_common_global_var.o
+sort.o: \
+	sort.f90 \
+	m_common_global_var.o
 despike_user_set.o: \
 	despike_user_set.f90 \
 	m_rp_global_var.o

@@ -148,3 +148,73 @@ subroutine median(ivec, n, med)
     med = 0.5*(xmin + xmax)
     return
 end subroutine median
+
+!***************************************************************************
+! median.f90
+! ----------
+! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
+! Copyright (C) 2011-2015, LI-COR Biosciences
+!
+! This file is part of EddyPro (TM).
+!
+! EddyPro (TM) is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! EddyPro (TM) is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
+!
+!***************************************************************************
+!
+! \brief       Find the median of vec(1), ... , vec(n), using as much of the
+!              quicksort algorithm as is needed to isolate it.
+! \ brief      Calculate Quartiles using SAS Method 5
+!              This method is the default method of SAS and is based on the empirical distribution function. 
+!              Based on discussion in this paper http://www.haiweb.org/medicineprices/manual/quartiles_iTSS.pdf
+! \author      Patched by Gerardo Fratini from original code
+!              available in the public domain at:
+!              http://fortranwiki.org/fortran/show/Quartiles
+
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+double precision function quantile_sas5(x, N, qin)
+    use m_common_global_var
+    implicit none
+    integer, intent(in) :: N
+    !> In/out variables
+    real(kind = dbl), intent(in) :: x(N)
+    real(kind = dbl), intent(in) :: qin
+    !> Local variables
+    real(kind = dbl) :: xx(N)
+    real(kind = dbl), parameter :: tol = 1d-8
+    real(kind = dbl) :: a,b,c
+    real(kind = dbl) :: diff
+    integer :: ib
+
+
+    a = N * qin
+    b = mod(a, 1d0)
+    c = a - b
+
+    !> Sort array
+    call sort(x, size(x), xx)
+    !> Find quantile qin
+    ib = int(c)
+    diff = b - 0d0
+    if (diff <= tol) then
+        quantile_sas5 = (xx(ib+1) + xx(ib)) / 2d0
+    else
+        quantile_sas5 = xx(ib+1)
+    end if
+end function quantile_sas5
