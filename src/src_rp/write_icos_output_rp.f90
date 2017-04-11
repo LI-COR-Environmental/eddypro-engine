@@ -57,7 +57,9 @@ subroutine WriteIcosOutputRp(init_string, PeriodRecords, PeriodActualRecords, &
     if (EddyProProj%out_fluxnet_eddy) then
         call clearstr(dataline)
 
-        !> Timestamp
+                                       !**************************************** (Look at whether to limit to u:gas4 everywhere instead of u:pe somewhere
+
+    !> Timestamp
         tmp_init_string = &
             init_string(index(init_string, ',') +1: &
                         index(init_string, ',', .true.) - 1)
@@ -66,7 +68,7 @@ subroutine WriteIcosOutputRp(init_string, PeriodRecords, PeriodActualRecords, &
             // tmp_init_string(15:16) // '00'
         call AddDatum(dataline, trim(adjustl(iso_basic)), separator)
 
-        !> Daytime
+    !> Daytime
         if (Stats%daytime) then
             call AddDatum(dataline, '1', separator)
         else
@@ -396,7 +398,20 @@ subroutine WriteIcosOutputRp(init_string, PeriodRecords, PeriodActualRecords, &
         !> WPL Terms
         !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
         !> Spectral correction factors
-        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        call WriteDatumFloat(BPCF%of(w_u), datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumFloat(BPCF%of(w_ts), datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumFloat(BPCF%of(w_h2o), datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumFloat(BPCF%of(w_co2), datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumFloat(BPCF%of(w_h2o), datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumFloat(BPCF%of(w_ch4), datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumFloat(BPCF%of(w_gas4), datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
         !> Increasingly filtered w/T covariances (for spectral assessment)
         write(datum, *) Essentials%degH(NumDegH + 1)
         call AddDatum(dataline, datum, separator)
@@ -406,7 +421,7 @@ subroutine WriteIcosOutputRp(init_string, PeriodRecords, PeriodActualRecords, &
         end do
 
     !> QC details
-        !> Summary of data values/records eliminated based on diagnostics:
+        !> Summary of data values/records eliminated based on diagnostics
         !> Number or records whose IRGA data was eliminated based on IRGA diagnostics (M_diag_IRGA)
         !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
         !> Number or records whose anemometric data was eliminated based on Anemometer diagnostics (M_diag_anemometer)
@@ -416,33 +431,269 @@ subroutine WriteIcosOutputRp(init_string, PeriodRecords, PeriodActualRecords, &
         !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
         !> Number of values eliminated due to spike test or absolute limits test, by variable (M_spikes_u, M_spikes_v, …, M_abslim_u, M_abslim_v, …) 
         !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
-        !> VM Stats used to calculate flags
+        !> VM97 Stats used to calculate flags
         !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
-        !> VM flags
-        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        !> VM97 flags
+        call AddDatum(dataline, '8'//CharHF%sr(2:9), separator)
+        call AddDatum(dataline, '8'//CharHF%ar(2:9), separator)
+        call AddDatum(dataline, '8'//CharHF%do(2:9), separator)
+        call AddDatum(dataline, '8'//CharHF%al(2:9), separator)
+        call AddDatum(dataline, '8'//CharHF%sk(2:9), separator)
+        call AddDatum(dataline, '8'//CharSF%sk(2:9), separator)
+        call AddDatum(dataline, '8'//CharHF%ds(2:9), separator)
+        call AddDatum(dataline, '8'//CharSF%ds(2:9), separator)
+        call AddDatum(dataline, '8'//CharHF%tl(6:9), separator)
+        call AddDatum(dataline, '8'//CharSF%tl(6:9), separator)
+        call AddDatum(dataline, '8'//CharHF%aa(9:9), separator)
+        call AddDatum(dataline, '8'//CharHF%ns(9:9), separator)
         !> Foken stats used to calculate flags
-        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        !> Quality test results
+        write(datum, *) STDiff%w_u
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) STDiff%w_ts
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) StDiff%w_co2
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) StDiff%w_h2o
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) StDiff%w_ch4
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) StDiff%w_gas4
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) DtDiff%u
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) DtDiff%w
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) DtDiff%ts
+        call AddDatum(dataline, datum, separator)
         !> Foken flags
-        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        call WriteDatumInt(QCFlag%tau, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumInt(QCFlag%H, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumInt(QCFlag%h2o, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumInt(QCFlag%co2, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumInt(QCFlag%h2o, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumInt(QCFlag%ch4, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumInt(QCFlag%gas4, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
         !> Number of calculated spikes per variables
-        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        write(datum, *) Essentials%e2spikes(u)
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Essentials%e2spikes(v)
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Essentials%e2spikes(w)
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Essentials%e2spikes(ts)
+        call AddDatum(dataline, datum, separator)
+        do var = co2, gas4
+            write(datum, *) Essentials%e2spikes(var)
+            call AddDatum(dataline, datum, separator)
+        end do
         !> LI-7x00 diagnostics breakdown
-        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
-        !> AGC/RSSI
-        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        if (Diag7200%present) then
+            write(datum, *) Diag7200%head_detect
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) Diag7200%t_out
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) Diag7200%t_in
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) Diag7200%aux_in
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) Diag7200%delta_p
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) Diag7200%chopper
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) Diag7200%detector
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) Diag7200%pll
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) Diag7200%sync
+            call AddDatum(dataline, datum, separator)
+        else
+            do i = 1, 9
+                write(datum, *) nint(error)
+                call AddDatum(dataline, datum, separator)
+            end do
+        end if
+        if (Diag7500%present) then
+            write(datum, *) Diag7500%chopper
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) Diag7500%detector
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) Diag7500%pll
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) Diag7500%sync
+            call AddDatum(dataline, datum, separator)
+        else
+            do i = 1, 4
+                write(datum, *) nint(error)
+                call AddDatum(dataline, datum, separator)
+            end do
+        end if
+        if (Diag7700%present) then
+            write(datum, *) Diag7700%not_ready
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) Diag7700%no_signal
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) Diag7700%re_unlocked
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) Diag7700%bad_temp
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) Diag7700%laser_temp_unregulated
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) Diag7700%block_temp_unregulated
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) Diag7700%motor_spinning
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) Diag7700%pump_on
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) Diag7700%top_heater_on
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) Diag7700%bottom_heater_on
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) Diag7700%calibrating
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) Diag7700%motor_failure
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) Diag7700%bad_aux_tc1
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) Diag7700%bad_aux_tc2
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) Diag7700%bad_aux_tc3
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) Diag7700%box_connected
+            call AddDatum(dataline, datum, separator)
+        else
+            do i = 1, 16
+                write(datum, *) error
+                call AddDatum(dataline, datum, separator)
+            end do
+        end if
+        !> AGC/RSSI                     **************************************** (may need to adapt header to whether it's AGC or RSSI for 7200/7500) 
+        if(CompareSwVer(E2Col(co2)%instr%sw_ver, SwVerFromString('6.0.0'))) then
+            write(datum, *)   nint(Essentials%AGC72)
+        else
+            write(datum, *) - nint(Essentials%AGC72)
+        end if
+        call AddDatum(dataline, datum, separator)
+        !> LI-7500
+        if(CompareSwVer(E2Col(co2)%instr%sw_ver, SwVerFromString('6.0.0'))) then
+            write(datum, *)   nint(Essentials%AGC75)
+        else
+            write(datum, *) - nint(Essentials%AGC75)
+        end if
+        call AddDatum(dataline, datum, separator)
+        !> LI-7700
+        write(datum, *) nint(Essentials%RSSI77)
+        call AddDatum(dataline, datum, separator)
 
     !> Processing settings
         !> Rotation angles
-        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        write(datum, *) Essentials%yaw
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Essentials%pitch
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Essentials%roll
+        call AddDatum(dataline, datum, separator)
         !> Detrending method and time constant
-        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        write(datum, *) Meth%det
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) RPsetup%Tconst
+        call AddDatum(dataline, datum, separator)
 
     !> Metadata
-        !> All metadata currently in the essentials file
-        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        !> Data logger software version
+        write(datum, *) Metadata%logger_swver%major
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Metadata%logger_swver%minor
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Metadata%logger_swver%revision
+        call AddDatum(dataline, datum, separator)
+        !> Site location and features
+        write(datum, *) Metadata%lat
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Metadata%lon
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Metadata%alt
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Metadata%canopy_height
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Metadata%d
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Metadata%z0
+        call AddDatum(dataline, datum, separator)
+        !> Data acquisition settings
+        write(datum, *) Metadata%file_length
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) Metadata%ac_freq
+        call AddDatum(dataline, datum, separator)
+        !> Flux averaging interval
+        write(datum, *) RPsetup%avrg_len
+        call AddDatum(dataline, datum, separator)
+        !> master anemometer
+        write(datum, *) E2Col(u)%instr%firm(1:len_trim(E2Col(u)%Instr%firm))
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) E2Col(u)%Instr%model(1:len_trim(E2Col(u)%Instr%model))
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) E2Col(u)%Instr%height
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) E2Col(u)%Instr%wformat(1:len_trim(E2Col(u)%Instr%wformat))
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) E2Col(u)%Instr%wref(1:len_trim(E2Col(u)%Instr%wref))
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) E2Col(u)%Instr%north_offset
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) E2Col(u)%Instr%hpath_length
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) E2Col(u)%Instr%vpath_length
+        call AddDatum(dataline, datum, separator)
+        write(datum, *) E2Col(u)%Instr%tau
+        call AddDatum(dataline, datum, separator)
+        !> gas analysers details
+        do gas = co2, gas4
+            write(datum, *) E2Col(gas)%Instr%firm(1:len_trim(E2Col(gas)%Instr%firm))
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) E2Col(gas)%Instr%model(1:len_trim(E2Col(gas)%Instr%model))
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) E2Col(gas)%Instr%nsep
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) E2Col(gas)%Instr%esep
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) E2Col(gas)%Instr%vsep
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) E2Col(gas)%Instr%tube_l
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) E2Col(gas)%Instr%tube_d
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) E2Col(gas)%Instr%tube_f
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) E2Col(gas)%Instr%kw
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) E2Col(gas)%Instr%ko
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) E2Col(gas)%Instr%hpath_length
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) E2Col(gas)%Instr%vpath_length
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) E2Col(gas)%Instr%tau
+            call AddDatum(dataline, datum, separator)
+        end do
 
-        !> Custom variables
-        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+    !> Custom variables
+        !> Number and mean values of custom variables
+        write(datum, *) NumUserVar
+        call AddDatum(dataline, datum, separator)
+        if (NumUserVar > 0) then
+            do var = 1, NumUserVar
+                write(datum, *) UserStats%Mean(var)
+                call AddDatum(dataline, datum, separator)
+            end do
+        end if
 
         write(uicos, '(a)') dataline(1:len_trim(dataline) - 1)
     end if
