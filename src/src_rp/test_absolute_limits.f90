@@ -76,8 +76,8 @@ subroutine TestAbsoluteLimits(Set, N, printout)
     !> Flag h2o, expressed as [mmol m-3] if molar_density, [mmol mol-1] otherwise
     if (E2Col(h2o)%present) then
         if(E2Col(h2o)%measure_type == 'molar_density') then
-            if (any(Set(:, h2o) * StdVair * 1d3 < al%h2o_min) &
-                .or. any(Set(:, h2o) * StdVair * 1d3 > al%h2o_max)) hflags(h2o) = 1
+            if (any(Set(:, h2o) * StdVair < al%h2o_min) &
+                .or. any(Set(:, h2o) * StdVair > al%h2o_max)) hflags(h2o) = 1
         else
             if (any(Set(:, h2o) < al%h2o_min) &
                 .or. any(Set(:, h2o) > al%h2o_max)) hflags(h2o) = 1
