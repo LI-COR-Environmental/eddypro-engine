@@ -702,7 +702,7 @@ module m_typedef
         real(kind = dbl) :: ar_s(GHGNumVar)
         real(kind = dbl) :: do_s_ctr(GHGNumVar)
         real(kind = dbl) :: do_s_ext(GHGNumVar)
-        real(kind = dbl) :: al_s(GHGNumVar)
+        integer :: al_s(GHGNumVar)
         real(kind = dbl) :: sk_s_skw(GHGNumVar)
         real(kind = dbl) :: sk_s_kur(GHGNumVar)
         real(kind = dbl) :: ds_s_haar_avg(6, GHGNumVar)

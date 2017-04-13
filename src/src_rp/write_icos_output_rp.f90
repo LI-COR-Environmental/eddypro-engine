@@ -453,25 +453,30 @@ subroutine WriteIcosOutputRp(init_string, PeriodRecords, PeriodActualRecords, &
             call AddDatum(dataline, datum, separator)
         end do
         !>> Absolute limits             **************************************** (may be done by couting how many vals are outside threshold, per variable)
-        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        do j = u, gas4
+            call WriteDatumFloat(Essentials%al_s(j), datum, EddyProProj%err_label)
+            call AddDatum(dataline, datum, separator)
+        end do                          
         !>> Higher moments Skewness
         do j = u, gas4
             call WriteDatumFloat(Essentials%sk_s_skw(j), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
-        end do
-        !>> Higher moments Kurtosis
+        end do                          
+        !>> Higher moments Kurtosis     
         do j = u, gas4
             call WriteDatumFloat(Essentials%sk_s_kur(j), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         end do
-        !>> Discontinuites
+        !>> Discontinuites              **************************************** (refactor test to consider potential error codes in the data)
         do j = u, gas4
-            do i = 1, 6
-                call WriteDatumFloat(Essentials%ds_s_haar_avg(i, j), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-                call WriteDatumFloat(Essentials%ds_s_haar_var(i, j), datum, EddyProProj%err_label)
-                call AddDatum(dataline, datum, separator)
-            end do
+            if (j == w .or. j == co2 .or. j == h2o) then  !< Limit to a subset of variables
+                do i = 1, 6
+                    call WriteDatumFloat(Essentials%ds_s_haar_avg(i, j), datum, EddyProProj%err_label)
+                    call AddDatum(dataline, datum, separator)
+                    call WriteDatumFloat(Essentials%ds_s_haar_var(i, j), datum, EddyProProj%err_label)
+                    call AddDatum(dataline, datum, separator)
+                end do
+            end if
         end do
         !>> AoA
         call WriteDatumFloat(Essentials%aa_s, datum, EddyProProj%err_label)
