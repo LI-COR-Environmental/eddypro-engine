@@ -452,7 +452,7 @@ subroutine WriteIcosOutputRp(init_string, PeriodRecords, PeriodActualRecords, &
             call WriteDatumFloat(Essentials%do_s_ext(j), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         end do
-        !>> Absolute limits             **************************************** (may be done by couting how many vals are outside threshold, per variable)
+        !>> Absolute limits              *************************************** (need to move the flagging of gases to after calculation of air molar volume)
         do j = u, gas4
             call WriteDatumFloat(Essentials%al_s(j), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)

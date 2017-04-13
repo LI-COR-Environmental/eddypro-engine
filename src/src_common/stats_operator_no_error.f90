@@ -410,8 +410,10 @@ subroutine QuantileNoError(Set, nrow, ncol, Quantile, qin, err_float)
             allocate(x(M))
             cnt = 0
             do i = 1, nrow
-                cnt = cnt + 1
-                if (Set(i, j) /= err_float) x(cnt) = Set(i, j)
+                if (Set(i, j) /= err_float) then 
+                    cnt = cnt + 1
+                    x(cnt) = Set(i, j)
+                end if
             end do
             Quantile(j) = quantile_sas5(x, size(x), qin)
             deallocate(x)
