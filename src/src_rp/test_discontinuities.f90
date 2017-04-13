@@ -145,9 +145,9 @@ subroutine TestDiscontinuities(Set, N)
 
         if((sum(hflags) == GHGNumVar) .and. (sum(sflags) == GHGNumVar)) exit
 
-        !> Store details of test results
-        Essentials%ds_s_haar_avg(wdw, u:gas4) = HaarAvr(u:gas4)
-        Essentials%ds_s_haar_var(wdw, u:gas4) = HaarVar(u:gas4)
+        ! !> Store details of test results
+        ! Essentials%ds_s_haar_avg(wdw, u:gas4) = HaarAvr(u:gas4)
+        ! Essentials%ds_s_haar_var(wdw, u:gas4) = HaarVar(u:gas4)
     end do
     if(allocated(XX)) deallocate(XX)
     if(allocated(XX_dw)) deallocate(XX_dw)
