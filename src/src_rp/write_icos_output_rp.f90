@@ -432,7 +432,58 @@ subroutine WriteIcosOutputRp(init_string, PeriodRecords, PeriodActualRecords, &
         !> Number of values eliminated due to spike test or absolute limits test, by variable (M_spikes_u, M_spikes_v, …, M_abslim_u, M_abslim_v, …) 
         !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
         !> VM97 Stats used to calculate flags
-        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        !>> Spikes
+        do j = u, gas4
+            call WriteDatumFloat(Essentials%e2spikes(j), datum, EddyProProj%err_label)
+            call AddDatum(dataline, datum, separator)
+        end do
+        !>> Amplitude resolution
+        do j = u, gas4
+            call WriteDatumFloat(Essentials%ar_s(j), datum, EddyProProj%err_label)
+            call AddDatum(dataline, datum, separator)
+        end do
+        !>> Dropouts central
+        do j = u, gas4
+            call WriteDatumFloat(Essentials%do_s_ctr(j), datum, EddyProProj%err_label)
+            call AddDatum(dataline, datum, separator)
+        end do
+        !>> Dropouts extremes
+        do j = u, gas4
+            call WriteDatumFloat(Essentials%do_s_ext(j), datum, EddyProProj%err_label)
+            call AddDatum(dataline, datum, separator)
+        end do
+        !>> Absolute limits             **************************************** (may be done by couting how many vals are outside threshold, per variable)
+        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        !>> Higher moments Skewness
+        do j = u, gas4
+            call WriteDatumFloat(Essentials%sk_s_skw(j), datum, EddyProProj%err_label)
+            call AddDatum(dataline, datum, separator)
+        end do
+        !>> Higher moments Kurtosis
+        do j = u, gas4
+            call WriteDatumFloat(Essentials%sk_s_kur(j), datum, EddyProProj%err_label)
+            call AddDatum(dataline, datum, separator)
+        end do
+        !>> Discontinuites
+        do j = u, gas4
+            do i = 1, 6
+                call WriteDatumFloat(Essentials%ds_s_haar_avg(i, j), datum, EddyProProj%err_label)
+                call AddDatum(dataline, datum, separator)
+                call WriteDatumFloat(Essentials%ds_s_haar_var(i, j), datum, EddyProProj%err_label)
+                call AddDatum(dataline, datum, separator)
+            end do
+        end do
+        !>> AoA
+        call WriteDatumFloat(Essentials%aa_s, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        !>> Non-steady wind
+        call WriteDatumFloat(Essentials%ns_s_rnv(1), datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumFloat(Essentials%ns_s_rnv(2), datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumFloat(Essentials%ns_s_rns, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+
         !> VM97 flags
         call AddDatum(dataline, '8'//CharHF%sr(2:9), separator)
         call AddDatum(dataline, '8'//CharHF%ar(2:9), separator)

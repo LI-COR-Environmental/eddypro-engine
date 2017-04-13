@@ -121,6 +121,11 @@ subroutine TestHigherMoments(Set, N)
             else
                 sflags(j) = 0
             end if
+            Essentials%sk_s_skw(j) = Skw(j)
+            Essentials%sk_s_kur(j) = Kur(j)
+        else
+            Essentials%sk_s_skw(j) = error
+            Essentials%sk_s_kur(j) = error
         end if
     end do
 

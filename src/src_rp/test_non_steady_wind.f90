@@ -118,6 +118,9 @@ subroutine TestNonSteadyWind(Set, N)
     end do
     RNS = abs(sqrt((Vmax(1) - Vmin(1)) **2 + (Vmax(2) - Vmin(2)) **2) / Vm(U))
     !> Hard-flagging if one of RNV or RNS is beyond specified thresholds
+    Essentials%ns_s_rnv(1) = RNv(1)
+    Essentials%ns_s_rnv(2) = RNv(2)
+    Essentials%ns_s_rns = RNS
     if ((RNv(1) >= ns%hf_lim) .or. (RNv(2) >= ns%hf_lim) .or. (RNS >= ns%hf_lim)) then
         IntHF%ns = 1
     end if

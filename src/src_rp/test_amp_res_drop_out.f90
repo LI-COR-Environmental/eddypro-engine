@@ -195,6 +195,9 @@ subroutine TestAmpResDropOut(Set, N)
             else
                 ar_hflags(j) = 0
             end if
+            Essentials%ar_s(j) = 1d2 * (dble(tot_mptbins(j))) / dble(ar%bins * wdw_num)
+        else
+            Essentials%ar_s(j) = error
         end if
     end do
     !> Flags the variable if the num of dropouts is larger than threshold
@@ -211,6 +214,11 @@ subroutine TestAmpResDropOut(Set, N)
             else
                 do_hflags(j) = 0
             end if
+            Essentials%do_s_ctr(j) = 100.d0 * dble(idint(dble(tot_drops_ctr(j) / (nn * wdw_num))))
+            Essentials%do_s_ext(j) = 100.d0 * dble(idint(dble(tot_drops_ext(j) / (nn * wdw_num))))
+        else
+            Essentials%do_s_ctr(j) = error
+            Essentials%do_s_ext(j) = error
         end if
     end do
 

@@ -112,6 +112,7 @@ subroutine TestDiscontinuities(Set, N)
         !> Haar functions
         HaarAvr(:) = Mean_dw(:) - Mean_up(:)
         HaarVar(:) = (Var_dw(:) - Var_up(:)) / Var(:)
+
         !> Hard/soft flags for discontinuities beyond prescribed thresholds
         do j = u, v
             if (HaarAvr(j) > ds%hf_uv)  hflags(j) = 1
@@ -145,6 +146,10 @@ subroutine TestDiscontinuities(Set, N)
         if (HaarVar(gas4) > ds%sf_var)   sflags(gas4) = 1
 
         if((sum(hflags) == GHGNumVar) .and. (sum(sflags) == GHGNumVar)) exit
+
+        !> Store details of test results
+        Essentials%ds_s_haar_avg(wdw, u:gas4) = HaarAvr(u:gas4)
+        Essentials%ds_s_haar_var(wdw, u:gas4) = HaarVar(u:gas4)
     end do
     if(allocated(XX)) deallocate(XX)
 

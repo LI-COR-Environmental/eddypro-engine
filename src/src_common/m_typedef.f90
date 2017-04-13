@@ -699,6 +699,17 @@ module m_typedef
         real(kind = dbl) :: RSSI77
         real(kind = dbl) :: rand_uncer(E2NumVar)
         real(kind = dbl) :: rand_uncer_LE
+        real(kind = dbl) :: ar_s(GHGNumVar)
+        real(kind = dbl) :: do_s_ctr(GHGNumVar)
+        real(kind = dbl) :: do_s_ext(GHGNumVar)
+        real(kind = dbl) :: al_s(GHGNumVar)
+        real(kind = dbl) :: sk_s_skw(GHGNumVar)
+        real(kind = dbl) :: sk_s_kur(GHGNumVar)
+        real(kind = dbl) :: ds_s_haar_avg(6, GHGNumVar)
+        real(kind = dbl) :: ds_s_haar_var(6, GHGNumVar)
+        real(kind = dbl) :: aa_s
+        real(kind = dbl) :: ns_s_rnv(2)
+        real(kind = dbl) :: ns_s_rns
         logical :: def_tlag(E2NumVar)
     end type EssentialsType
 
