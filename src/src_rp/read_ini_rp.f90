@@ -117,6 +117,23 @@ subroutine WriteVariablesRP()
     Dir%main_in = SCTags(1)%value(1:len_trim(SCTags(1)%value))
     if (len_trim(Dir%main_in) == 0) Dir%main_in = 'none'
 
+    !> Wind directionfilter option and corresponding sectors
+    RPSetup%apply_wdf = SCTags(99)%value(1:1) == '1'
+    if (RPSetup%apply_wdf) then
+        leap_an_wsect = 2
+        init_an_wsect = 373 - leap_an_wsect
+        RPSetup%wdf_num_secs = 0
+        do i = 1, MaxNumWdfSectors
+            if (SNTagFound(init_an_wsect + i*leap_an_wsect)) then
+                RPSetup%wdf_num_secs = RPSetup%wdf_num_secs + 1
+                RPSetup%wdf_start(RPSetup%wdf_num_secs) = &
+                    SNTags(init_an_wsect + i*leap_an_wsect)%value
+                RPSetup%wdf_end(RPSetup%wdf_num_secs) = &
+                    SNTags(init_an_wsect + i*leap_an_wsect + 1)%value
+            end if
+        end do
+    end if
+
     !> Everything about raw statistical tests
     Test%sr = SCTags(3)%value(1:1) == '1'
     Test%ar = SCTags(4)%value(1:1) == '1'

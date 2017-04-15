@@ -43,6 +43,8 @@ subroutine WriteIcosOutputRp(init_string, PeriodRecords, PeriodActualRecords, &
     !> local variables
     integer :: var
     integer :: gas
+    integer :: gas1
+    integer :: gas2
     integer :: j
     integer :: i
 !    integer :: prof
@@ -428,7 +430,8 @@ subroutine WriteIcosOutputRp(init_string, PeriodRecords, PeriodActualRecords, &
         !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
         !> Summary of data values/records eliminated based on other filters:
         !> Number or records whose anemometric data was eliminated based on wind direction filter (M_wind_dir)
-        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        call WriteDatumFloat(Essentials%m_wdf, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
         !> Number of values eliminated due to spike test or absolute limits test, by variable (M_spikes_u, M_spikes_v, …, M_abslim_u, M_abslim_v, …) 
         !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
         !> VM97 Stats used to calculate flags

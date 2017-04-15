@@ -1696,6 +1696,10 @@ program EddyproRP
             !> Adjust coordinate systems if the case
             call AdjustSonicCoordinates(E2Set, size(E2Set, 1), size(E2Set, 2))
 
+            !> Filter for wind direction if requested
+            if (RPSetup%apply_wdf) &
+                call FilterDatasetForWindDirection(E2Set, size(E2Set, 1), size(E2Set, 2))
+
             !> Generate cell temperature dataset if the case, using either
             !> (1) native cell temperature, (2) weighted average of ti1 and ti2,
             !> (3) either ti1 or ti2 depending on availability

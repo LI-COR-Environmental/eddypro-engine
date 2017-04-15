@@ -64,6 +64,7 @@ module m_typedef
     integer, parameter :: MaxGasClasses = 12
     integer, parameter :: toMaxH2OClass = 20
     integer, parameter :: MaxNumWSect = 36
+    integer, parameter :: MaxNumWdfSectors = 8
 
     integer, parameter :: MaxProfNodes = 7
     integer, parameter :: NumStdCustom = 50
@@ -686,6 +687,7 @@ module m_typedef
 
     type :: EssentialsType
         integer :: e2spikes(E2NumVar)
+        integer :: m_wdf
         real(kind = dbl) :: yaw
         real(kind = dbl) :: pitch
         real(kind = dbl) :: roll
@@ -854,11 +856,15 @@ module m_typedef
         integer :: Tconst
         integer :: nspec
         integer :: avrg_len
-        real(kind = dbl) :: max_lack
+        integer :: wdf_num_secs
+        real(kind = dbl) :: wdf_start(MaxNumWdfSectors)
+        real(kind = dbl) :: wdf_end(MaxNumWdfSectors)
         real(kind = dbl) :: offset(3)
+        real(kind = dbl) :: max_lack
         character(32) :: tap_win
         character(32) :: bu_corr
         character(32) :: calib_aoa
+        logical :: apply_wdf
         logical :: calib_wboost
         logical :: do_spectral_analysis
         logical :: use_geo_north

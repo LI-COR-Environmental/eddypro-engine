@@ -500,7 +500,24 @@ module m_rp_global_var
          SNTags(356)%Label  / 'drift_inv_gas4_6'        / &
          SNTags(370)%Label  / 'drift_tempsens_b'        / &
          SNTags(371)%Label  / 'drift_tempsens_c'        / &
-         SNTags(372)%Label  / 'tcell_filter_tconst'     /
+         SNTags(372)%Label  / 'tcell_filter_tconst'     / &
+         SNTags(373)%Label  / 'wdf_sect_1_start'      / &
+         SNTags(374)%Label  / 'wdf_sect_1_end'        / &
+         SNTags(375)%Label  / 'wdf_sect_2_start'      / &
+         SNTags(376)%Label  / 'wdf_sect_2_end'        / &
+         SNTags(377)%Label  / 'wdf_sect_3_start'      / &
+         SNTags(378)%Label  / 'wdf_sect_3_end'        / &
+         SNTags(379)%Label  / 'wdf_sect_4_start'      / &
+         SNTags(380)%Label  / 'wdf_sect_4_end'        / &
+         SNTags(381)%Label  / 'wdf_sect_5_start'      / &
+         SNTags(382)%Label  / 'wdf_sect_5_end'        / &
+         SNTags(383)%Label  / 'wdf_sect_6_start'      / &
+         SNTags(384)%Label  / 'wdf_sect_6_end'        / &
+         SNTags(385)%Label  / 'wdf_sect_7_start'      / &
+         SNTags(386)%Label  / 'wdf_sect_7_end'        / &
+         SNTags(387)%Label  / 'wdf_sect_8_start'      / &
+         SNTags(388)%Label  / 'wdf_sect_8_end'        / &
+         SNTags(389)%Label  / 'wdf_apply'             /
 
     data SCTags(1)%Label  / 'data_path'    / &
          SCTags(2)%Label  / 'out_path'     / &
@@ -599,5 +616,6 @@ module m_rp_global_var
          SCTags(95)%Label / 'filter_spectra_qc'/ &
          SCTags(96)%Label / 'pf_subtract_b0'   / &
          SCTags(97)%Label / 'pf_subset'        / &
-         SCTags(98)%Label / 'to_subset'        /
+         SCTags(98)%Label / 'to_subset'        / &
+         SCTags(99)%Label / 'wdf_apply'        /
 end module m_rp_global_var
