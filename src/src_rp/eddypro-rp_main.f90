@@ -643,6 +643,10 @@ program EddyproRP
                 !> Adjust coordinate systems if the case
                 call AdjustSonicCoordinates(E2Set, size(E2Set, 1), size(E2Set, 2))
 
+                !> Filter for wind direction if requested
+                if (RPSetup%apply_wdf) &
+                    call FilterDatasetForWindDirection(E2Set, size(E2Set, 1), size(E2Set, 2))
+
                 !> Calculate basic stats
                 call BasicStats(E2Set, size(E2Set, 1), size(E2Set, 2), 1, .false.)
                 Stats1 = Stats
@@ -1029,6 +1033,10 @@ program EddyproRP
                 !> Adjust coordinate systems if the case
                 call AdjustSonicCoordinates(E2Set, &
                     size(E2Set, 1), size(E2Set, 2))
+
+                !> Filter for wind direction if requested
+                if (RPSetup%apply_wdf) &
+                    call FilterDatasetForWindDirection(E2Set, size(E2Set, 1), size(E2Set, 2))
 
                 !> Calculate basic stats
                 call BasicStats(E2Set, size(E2Set, 1), size(E2Set, 2), &

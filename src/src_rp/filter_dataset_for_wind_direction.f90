@@ -42,16 +42,18 @@ subroutine FilterDatasetForWindDirection(Set, nrow, ncol)
 
     Essentials%m_wdf = Essentials%m_wdf + 1
     do i = 1, nrow
+        if (any(Set(i, u:w)) == error) cycle
         !> Instantaneous wind direction
         call WindDirection(Set(i, u:w), &
             E2Col(u)%instr%north_offset + magnetic_declination, WD)
 
         !> Set record to error if wind is coming from an excluded sector
-        do sec = 1, RPSetup%wdf_num_secs
+        sec_loop: do sec = 1, RPSetup%wdf_num_secs
             if (WD > RPSetup%wdf_start(sec) .and. WD < RPSetup%wdf_end(sec)) then
                 Set (i, :) = error
                 Essentials%m_wdf = Essentials%m_wdf + 1
+                exit sec_loop
             end if 
-        end do
+        end do sec_loop
     end do
 end subroutine FilterDatasetForWindDirection
