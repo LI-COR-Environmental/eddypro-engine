@@ -425,9 +425,13 @@ subroutine WriteIcosOutputRp(init_string, PeriodRecords, PeriodActualRecords, &
     !> QC details
         !> Summary of data values/records eliminated based on diagnostics
         !> Number or records whose IRGA data was eliminated based on IRGA diagnostics (M_diag_IRGA)
-        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        do gas = co2, gas4
+            call WriteDatumFloat(Essentials%m_diag_irga(gas), datum, EddyProProj%err_label)
+            call AddDatum(dataline, datum, separator)
+        end do
         !> Number or records whose anemometric data was eliminated based on Anemometer diagnostics (M_diag_anemometer)
-        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        call WriteDatumFloat(Essentials%m_diag_anem, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
         !> Summary of data values/records eliminated based on other filters:
         !> Number or records whose anemometric data was eliminated based on wind direction filter (M_wind_dir)
         call WriteDatumFloat(Essentials%m_wdf, datum, EddyProProj%err_label)
