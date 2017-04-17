@@ -688,6 +688,7 @@ module m_typedef
     type :: EssentialsType
         integer :: e2spikes(E2NumVar)
         integer :: m_wdf
+        integer :: m_despiking(E2NumVar)
         integer :: m_diag_anem
         integer :: m_diag_irga(E2NumVar)
         real(kind = dbl) :: yaw

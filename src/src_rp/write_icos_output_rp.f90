@@ -437,6 +437,10 @@ subroutine WriteIcosOutputRp(init_string, PeriodRecords, PeriodActualRecords, &
         call WriteDatumFloat(Essentials%m_wdf, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
         !> Number of values eliminated due to spike test or absolute limits test, by variable (M_spikes_u, M_spikes_v, …, M_abslim_u, M_abslim_v, …) 
+        do var = u, gas4
+            call WriteDatumFloat(Essentials%m_despiking(var), datum, EddyProProj%err_label)
+            call AddDatum(dataline, datum, separator)
+        end do
         !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
         !> VM97 Stats used to calculate flags
         !>> Spikes
