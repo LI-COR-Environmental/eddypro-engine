@@ -90,7 +90,7 @@ subroutine TimeLagHandle(TlagMeth, Set, nrow, ncol, ActTLag, TLag, &
                     .and. (min_rl(j) /= 0 .or. max_rl(j) /= 0)) then
                     FirstCol(:)  = Set(:, w)
                     SecondCol(:) = Set(:, j)
-                    call CovMax(def_rl(j), min_rl(j), max_rl(j), &
+                    call CovMax(min_rl(j), max_rl(j), &
                         FirstCol, SecondCol, size(FirstCol), &
                         TLag(j), RowLags(j))
                     ActTLag(j) = TLag(j)
@@ -218,14 +218,13 @@ end subroutine TimeLagHandle
 ! \test
 ! \todo
 !*******************************************************************************
-subroutine CovMax(lagctr, lagmin, lagmax, Col1, Col2, nrow, TLag, RLag)
+subroutine CovMax(lagmin, lagmax, Col1, Col2, nrow, TLag, RLag)
     use m_common_global_var
     implicit none
     !> in/out variables
     integer, intent(in) :: nrow
     integer, intent(in) :: lagmin
     integer, intent(in) :: lagmax
-    integer, intent(in) :: lagctr
     real(kind = dbl), intent(in) :: Col1(nrow)
     real(kind = dbl), intent(in) :: Col2(nrow)
     integer, intent(out) :: RLag

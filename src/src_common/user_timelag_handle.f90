@@ -75,7 +75,7 @@ subroutine UserTimeLagHandle(UserSet, unrow, uncol, E2W, nrow)
                 if (UserCol(j)%var /= 'none') then
                     FirstCol(:)  = E2W(:)
                     SecondCol(:) = UserSet(:, j)
-                    call CovMax(def_rl(j), min_rl(j), max_rl(j), &
+                    call CovMax(min_rl(j), max_rl(j), &
                         FirstCol, SecondCol, size(FirstCol), TLag(j), UserRowLags(j))
                 else
                     UserRowLags(j) = 0
