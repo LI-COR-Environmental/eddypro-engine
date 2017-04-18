@@ -102,6 +102,15 @@ subroutine TestAbsoluteLimits(Set, N, printout)
             Essentials%al_s(co2) = count(Set(:, co2) /= error .and. &
                                          (Set(:, co2) < al%co2_min .or. &
                                           Set(:, co2) > al%co2_max))
+            !> If filtering is requested and data is mole fraction / mixing ratio
+            !> eliminate OOR data
+            if(RPsetup%filter_al) then
+                where (Set(:, co2) /= error .and. &
+                       (Set(:, co2) < al%co2_min .or. &
+                        Set(:, co2) > al%co2_max)) 
+                    Set(:, co2) = error
+                end where
+            end if
         end if
         if (Essentials%al_s(co2) > 0) hflags(co2) = 1
     else
@@ -119,6 +128,15 @@ subroutine TestAbsoluteLimits(Set, N, printout)
             Essentials%al_s(h2o) = count(Set(:, h2o) /= error .and. &
                                          (Set(:, h2o) < al%h2o_min .or. &
                                           Set(:, h2o) > al%h2o_max))
+            !> If filtering is requested and data is mole fraction / mixing ratio
+            !> eliminate OOR data
+            if(RPsetup%filter_al) then
+                where (Set(:, h2o) /= error .and. &
+                       (Set(:, h2o) < al%h2o_min .or. &
+                        Set(:, h2o) > al%h2o_max)) 
+                    Set(:, h2o) = error
+                end where
+            end if
         end if
         if (Essentials%al_s(h2o) > 0) hflags(h2o) = 1
     else
@@ -136,6 +154,15 @@ subroutine TestAbsoluteLimits(Set, N, printout)
             Essentials%al_s(ch4) = count(Set(:, ch4) /= error .and. &
                                          (Set(:, ch4) < al%ch4_min .or. &
                                           Set(:, ch4) > al%ch4_max))
+            !> If filtering is requested and data is mole fraction / mixing ratio
+            !> eliminate OOR data
+            if(RPsetup%filter_al) then
+                where (Set(:, ch4) /= error .and. &
+                       (Set(:, ch4) < al%ch4_min .or. &
+                        Set(:, ch4) > al%ch4_max)) 
+                    Set(:, ch4) = error
+                end where
+            end if
         end if
         if (Essentials%al_s(ch4) > 0) hflags(ch4) = 1
     else
@@ -153,6 +180,15 @@ subroutine TestAbsoluteLimits(Set, N, printout)
             Essentials%al_s(gas4) = count(Set(:, gas4) /= error .and. &
                                          (Set(:, gas4) < al%gas4_min .or. &
                                           Set(:, gas4) > al%gas4_max))
+            !> If filtering is requested and data is mole fraction / mixing ratio
+            !> eliminate OOR data
+            if(RPsetup%filter_al) then
+                where (Set(:, gas4) /= error .and. &
+                       (Set(:, gas4) < al%gas4_min .or. &
+                        Set(:, gas4) > al%gas4_max)) 
+                    Set(:, gas4) = error
+                end where
+            end if
         end if
         if (Essentials%al_s(gas4) > 0) hflags(gas4) = 1
     else
