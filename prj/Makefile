@@ -171,6 +171,9 @@ basic_stats.o: \
 timelag_handle.o: \
 	timelag_handle.f90 \
 	m_common_global_var.o
+count_records_and_values.o: \
+	count_records_and_values.f90 \
+	m_common_global_var.o
 wind_sector.o: \
 	wind_sector.f90 \
 	m_rp_global_var.o

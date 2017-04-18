@@ -81,15 +81,20 @@ subroutine WriteIcosOutputRp(init_string, PeriodRecords, PeriodActualRecords, &
         !> Number of records teoretically available for current Averaging Interval
         write(datum, *) MaxPeriodNumRecords
         call AddDatum(dataline, datum, separator)
-        !> Number of records teoretically available for current Averaging Interval given length of actual files
-        write(datum, *) PeriodRecords
+        !> Number of records actually available for current Averaging Interval given length of actual files
+        write(datum, *) Essentials%n_in
         call AddDatum(dataline, datum, separator)
-        !> Number of records actually available for current Averaging Interval (N_in)
-        !> Note that this is the max number, and accounts only for entire
-        !> records set to error code. There might be individual values
-        !> set to error code for some variables, that do not imply
-        !> the elimination of the whole data record. 
-        write(datum, *) PeriodActualRecords
+        !> Number of records actually available after custom flags filtering
+        write(datum, *) Essentials%n_after_custom_flags
+        call AddDatum(dataline, datum, separator)
+        !> Number of records actually available after diagnostics filtering
+        write(datum, *) Essentials%n_after_diags
+        call AddDatum(dataline, datum, separator)
+        !> Number of records actually available after wind direction filtering
+        write(datum, *) Essentials%n_after_wdf
+        call AddDatum(dataline, datum, separator)
+        !> Number of records actually available after statistical screening filtering
+        write(datum, *) Essentials%n_after_stats_screening
         call AddDatum(dataline, datum, separator)
         !> Number of valid records for anemometric data (N_in – M_diag_anemometer)
         !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
