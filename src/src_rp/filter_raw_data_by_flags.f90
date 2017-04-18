@@ -67,4 +67,5 @@ subroutine FilterRawDataByFlags(LocCol, Raw, nrow, ncol)
             end if
         end if
     end do
+    Essentials%m_custom_flags = count(filtered)
 end subroutine FilterRawDataByFlags

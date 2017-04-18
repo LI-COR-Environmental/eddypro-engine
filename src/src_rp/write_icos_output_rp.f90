@@ -79,9 +79,16 @@ subroutine WriteIcosOutputRp(init_string, PeriodRecords, PeriodActualRecords, &
 
     !> Number of records
         !> Number of records teoretically available for current Averaging Interval
+        write(datum, *) MaxPeriodNumRecords
+        call AddDatum(dataline, datum, separator)
+        !> Number of records teoretically available for current Averaging Interval given length of actual files
         write(datum, *) PeriodRecords
         call AddDatum(dataline, datum, separator)
         !> Number of records actually available for current Averaging Interval (N_in)
+        !> Note that this is the max number, and accounts only for entire
+        !> records set to error code. There might be individual values
+        !> set to error code for some variables, that do not imply
+        !> the elimination of the whole data record. 
         write(datum, *) PeriodActualRecords
         call AddDatum(dataline, datum, separator)
         !> Number of valid records for anemometric data (N_in – M_diag_anemometer)
@@ -423,25 +430,32 @@ subroutine WriteIcosOutputRp(init_string, PeriodRecords, PeriodActualRecords, &
         end do
 
     !> QC details
+        !>> Number or records eliminated based on custom flags
+        call WriteDatumFloat(Essentials%m_custom_flags, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
         !> Summary of data values/records eliminated based on diagnostics
-        !> Number or records whose IRGA data was eliminated based on IRGA diagnostics (M_diag_IRGA)
+        !>> Number or records whose IRGA data was eliminated based on IRGA diagnostics
         do gas = co2, gas4
             call WriteDatumFloat(Essentials%m_diag_irga(gas), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         end do
-        !> Number or records whose anemometric data was eliminated based on Anemometer diagnostics (M_diag_anemometer)
+        !>> Number or records whose anemometric data was eliminated based on Anemometer diagnostics
         call WriteDatumFloat(Essentials%m_diag_anem, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
         !> Summary of data values/records eliminated based on other filters:
-        !> Number or records whose anemometric data was eliminated based on wind direction filter (M_wind_dir)
+        !>> Number or records whose anemometric data was eliminated based on wind direction filter
         call WriteDatumFloat(Essentials%m_wdf, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        !> Number of values eliminated due to spike test or absolute limits test, by variable (M_spikes_u, M_spikes_v, …, M_abslim_u, M_abslim_v, …) 
+        !>> Number of values eliminated by the Spike test
         do var = u, gas4
             call WriteDatumFloat(Essentials%m_despiking(var), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         end do
-        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        !>> Number of values eliminated by the Absolute Limits test     ******** (may need to anticipate calculation of air molar volume)
+        do j = u, gas4
+            call WriteDatumFloat(Essentials%al_s(j), datum, EddyProProj%err_label)
+            call AddDatum(dataline, datum, separator)
+        end do                          
         !> VM97 Stats used to calculate flags
         !>> Spikes
         do j = u, gas4
@@ -463,7 +477,7 @@ subroutine WriteIcosOutputRp(init_string, PeriodRecords, PeriodActualRecords, &
             call WriteDatumFloat(Essentials%do_s_ext(j), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         end do
-        !>> Absolute limits              *************************************** (need to move the flagging of gases to after calculation of air molar volume)
+        !>> Absolute limits              *************************************** (may need to anticipate calculation of air molar volume)
         do j = u, gas4
             call WriteDatumFloat(Essentials%al_s(j), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)

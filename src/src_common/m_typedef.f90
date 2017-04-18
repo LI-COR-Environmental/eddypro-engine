@@ -687,6 +687,7 @@ module m_typedef
 
     type :: EssentialsType
         integer :: e2spikes(E2NumVar)
+        integer :: m_custom_flags
         integer :: m_wdf
         integer :: m_despiking(E2NumVar)
         integer :: m_diag_anem
