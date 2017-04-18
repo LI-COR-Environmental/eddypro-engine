@@ -87,10 +87,11 @@ subroutine PointByPointToMixingRatio(Set, nrow, ncol, printout)
             end where
     end select
 
-    !> If there is any scalar expressed as mole_fraction, coming
-    !> from the same analyzer of H2O, convert it into mixing ratio using
+    !> If there is any scalar expressed as mole_fraction or molar density, 
+    !> measured by the same analyzer of H2O, convert it into mixing ratio using
     !> water vapor mole fraction as calculated above
-    !> H2O mole fraction is expressed as  mmol_w / mol_a
+    !> (H2O mole fraction is expressed as  mmol_w / mol_a)
+    !> and using cell air molar volume
     if (printout) write(*, '(a)', advance = 'no') &
         '  WPL step: converting into mixing ratios wherever possible..'
 
