@@ -1830,6 +1830,13 @@ program EddyproRP
             !> If got until here, incrase number of ok periods
             NumberOfOkPeriods = NumberOfOkPeriods + 1
 
+            !> Count pairs of data available for main w-covariance
+            do j = ts, gas4
+                if (E2Col(w)%present .and. E2Col(j)%present) &
+                    Essentials%n_wcov(j) = &
+                        CountRecordsAndValues(E2Set, size(E2Set, 1), size(E2Set, 2), w, j)
+            end do
+
             !> If a 4th gas calibration has to be done (using a 'cal-ref'
             !> column from UserCol) does so. Note that so far the calibration
             !> procedure is fully customized on the needs of a

@@ -697,6 +697,7 @@ module m_typedef
         integer :: n_after_diags
         integer :: n_after_wdf
         integer :: n_after_stats_screening
+        integer :: n_wcov(E2NumVar)
         real(kind = dbl) :: yaw
         real(kind = dbl) :: pitch
         real(kind = dbl) :: roll

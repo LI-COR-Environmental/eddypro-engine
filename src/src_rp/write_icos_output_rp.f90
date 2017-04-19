@@ -30,14 +30,11 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine WriteIcosOutputRp(init_string, PeriodRecords, PeriodActualRecords, &
-    StDiff, DtDiff)
+subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff)
     use m_rp_global_var
     implicit none
     !> in/out variables
     character(*), intent(in) :: init_string
-    integer, intent(in) :: PeriodRecords
-    integer, intent(in) :: PeriodActualRecords
     type(QCType), intent(in) :: StDiff
     type(QCType), intent(in) :: DtDiff
     !> local variables
@@ -59,7 +56,7 @@ subroutine WriteIcosOutputRp(init_string, PeriodRecords, PeriodActualRecords, &
     if (EddyProProj%out_fluxnet_eddy) then
         call clearstr(dataline)
 
-                                       !**************************************** (Look at whether to limit to u:gas4 everywhere instead of u:pe somewhere
+                                       !**************************************** (Look at whether to limit to u:gas4 everywhere instead of u:pe somewhere)
 
     !> Timestamp
         tmp_init_string = &
@@ -101,7 +98,10 @@ subroutine WriteIcosOutputRp(init_string, PeriodRecords, PeriodActualRecords, &
         !> Number of valid records for IRGA data  (N_in – M_diag_IRGA)
         !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
         !> Number of valid records available for each main covariance (w/u, w/ts, w/co2, w/h2o, w/ch4, w/gas4)
-        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        do var = ts, gas4
+            write(datum, *) Essentials%n_wcov(var)
+            call AddDatum(dataline, datum, separator)
+        end do
 
     !> Fluxes
         !> Fluxes level 3 (final fluxes) 
