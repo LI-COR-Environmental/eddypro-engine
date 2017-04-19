@@ -1694,24 +1694,6 @@ program EddyproRP
             end if
             if(allocated(DiagSet)) deallocate(DiagSet)
 
-            !> Number of valid records after filtering for diagnostics
-            Essentials%n_after_diags = &
-                CountRecordsAndValues(E2Set, size(E2Set, 1), size(E2Set, 2))
-
-            !> Period skip control
-            MissingRecords = dfloat(MaxPeriodNumRecords - Essentials%n_after_diags) &
-                / dfloat(MaxPeriodNumRecords) * 100d0
-            if (MissingRecords > RPsetup%max_lack) then
-                if(allocated(E2Set)) deallocate(E2Set)
-                if(allocated(E2Primes)) deallocate(E2Primes)
-                if(allocated(UserSet)) deallocate(UserSet)
-                if(allocated(UserPrimes)) deallocate(UserPrimes)
-                call ExceptionHandler(58)
-                write(*,*)''
-                call hms_delta_print(PeriodSkipMessage,'')
-                cycle periods_loop
-            end if
-
             !> Adjust coordinate systems if the case
             call AdjustSonicCoordinates(E2Set, size(E2Set, 1), size(E2Set, 2))
 
@@ -1722,7 +1704,8 @@ program EddyproRP
             !> Number of valid records after filtering for wind direction
             Essentials%n_after_wdf = &
                 CountRecordsAndValues(E2Set, size(E2Set, 1), size(E2Set, 2))
-
+            PeriodActualRecords = Essentials%n_after_wdf
+            
             !> Period skip control
             MissingRecords = dfloat(MaxPeriodNumRecords - Essentials%n_after_wdf) &
                 / dfloat(MaxPeriodNumRecords) * 100d0
@@ -1791,24 +1774,6 @@ program EddyproRP
             if (NumUserVar > 0) call DespikeUserSet(UserSet, &
                 size(UserSet, 1), size(UserSet, 2))
 
-            !> Number of valid records after filtering for statistical screening
-            Essentials%n_after_stats_screening = &
-                CountRecordsAndValues(E2Set, size(E2Set, 1), size(E2Set, 2))
-            PeriodActualRecords = Essentials%n_after_stats_screening
-            !> Period skip control
-            MissingRecords = dfloat(MaxPeriodNumRecords - Essentials%n_after_stats_screening) &
-                / dfloat(MaxPeriodNumRecords) * 100d0
-            if (MissingRecords > RPsetup%max_lack) then
-                if(allocated(E2Set)) deallocate(E2Set)
-                if(allocated(E2Primes)) deallocate(E2Primes)
-                if(allocated(UserSet)) deallocate(UserSet)
-                if(allocated(UserPrimes)) deallocate(UserPrimes)
-                call ExceptionHandler(58)
-                write(*,*)''
-                call hms_delta_print(PeriodSkipMessage,'')
-                cycle periods_loop
-            end if
-
             !> Define as not present, variables for which
             !> too many values are out-ranged
             call EliminateCorruptedVariables(E2Set, &
@@ -1829,13 +1794,22 @@ program EddyproRP
 
             !> If got until here, incrase number of ok periods
             NumberOfOkPeriods = NumberOfOkPeriods + 1
-
-            !> Count pairs of data available for main w-covariance
-            if (E2Col(w)%present .and. E2Col(u)%present) &
-                Essentials%n_wcov(u) = &
-                    CountRecordsAndValues(E2Set, size(E2Set, 1), size(E2Set, 2), w, u)
+            
+            !> Count values available for each variable and value pairs 
+            !> available for each main w-covariance
+            !>> 
+            Essentials%n = ierror
+            Essentials%n_wcov = ierror
+            !> Wind data
+            Essentials%n(w) = &
+                CountRecordsAndValues(E2Set, size(E2Set, 1), size(E2Set, 2), w)
+            Essentials%n_wcov(u) = &
+                CountRecordsAndValues(E2Set, size(E2Set, 1), size(E2Set, 2), w, u)
+            !> Gas data
             do j = ts, gas4
-                if (E2Col(w)%present .and. E2Col(j)%present) &
+                if (E2Col(j)%present) &
+                    Essentials%n(j) = &
+                        CountRecordsAndValues(E2Set, size(E2Set, 1), size(E2Set, 2), j)
                     Essentials%n_wcov(j) = &
                         CountRecordsAndValues(E2Set, size(E2Set, 1), size(E2Set, 2), w, j)
             end do

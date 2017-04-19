@@ -84,19 +84,17 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff)
         !> Number of records actually available after custom flags filtering
         write(datum, *) Essentials%n_after_custom_flags
         call AddDatum(dataline, datum, separator)
-        !> Number of records actually available after diagnostics filtering
-        write(datum, *) Essentials%n_after_diags
-        call AddDatum(dataline, datum, separator)
         !> Number of records actually available after wind direction filtering
         write(datum, *) Essentials%n_after_wdf
         call AddDatum(dataline, datum, separator)
-        !> Number of records actually available after statistical screening filtering
-        write(datum, *) Essentials%n_after_stats_screening
+        !> Number of valid records for anemometric data
+        write(datum, *) Essentials%n(w)
         call AddDatum(dataline, datum, separator)
-        !> Number of valid records for anemometric data (N_in – M_diag_anemometer)
-        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
         !> Number of valid records for IRGA data  (N_in – M_diag_IRGA)
-        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        do var = ts, gas4
+            write(datum, *) Essentials%n(var)
+            call AddDatum(dataline, datum, separator)
+        end do
         !> Number of valid records available for each main covariance (w/u, w/ts, w/co2, w/h2o, w/ch4, w/gas4)
         write(datum, *) Essentials%n_wcov(u)
         call AddDatum(dataline, datum, separator)

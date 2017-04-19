@@ -694,10 +694,9 @@ module m_typedef
         integer :: m_diag_irga(E2NumVar)
         integer :: n_in
         integer :: n_after_custom_flags
-        integer :: n_after_diags
         integer :: n_after_wdf
-        integer :: n_after_stats_screening
         integer :: n_wcov(E2NumVar)
+        integer :: n(E2NumVar)
         real(kind = dbl) :: yaw
         real(kind = dbl) :: pitch
         real(kind = dbl) :: roll
