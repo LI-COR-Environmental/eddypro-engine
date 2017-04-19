@@ -98,6 +98,8 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff)
         !> Number of valid records for IRGA data  (N_in – M_diag_IRGA)
         !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
         !> Number of valid records available for each main covariance (w/u, w/ts, w/co2, w/h2o, w/ch4, w/gas4)
+        write(datum, *) Essentials%n_wcov(u)
+        call AddDatum(dataline, datum, separator)
         do var = ts, gas4
             write(datum, *) Essentials%n_wcov(var)
             call AddDatum(dataline, datum, separator)

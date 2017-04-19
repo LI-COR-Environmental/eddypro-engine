@@ -1831,6 +1831,9 @@ program EddyproRP
             NumberOfOkPeriods = NumberOfOkPeriods + 1
 
             !> Count pairs of data available for main w-covariance
+            if (E2Col(w)%present .and. E2Col(u)%present) &
+                Essentials%n_wcov(u) = &
+                    CountRecordsAndValues(E2Set, size(E2Set, 1), size(E2Set, 2), w, u)
             do j = ts, gas4
                 if (E2Col(w)%present .and. E2Col(j)%present) &
                     Essentials%n_wcov(j) = &
