@@ -30,13 +30,15 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff)
+subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
     use m_rp_global_var
     implicit none
     !> in/out variables
     character(*), intent(in) :: init_string
     type(QCType), intent(in) :: StDiff
     type(QCType), intent(in) :: DtDiff
+    integer, intent(in) :: STFlg(GHGNumVar)
+    integer, intent(in) :: DTFlg(GHGNumVar)
     !> local variables
     integer :: var
     integer :: gas
@@ -56,9 +58,7 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff)
     if (EddyProProj%out_fluxnet_eddy) then
         call clearstr(dataline)
 
-                                       !**************************************** (Look at whether to limit to u:gas4 everywhere instead of u:pe somewhere)
-
-    !> Timestamp
+        !> Timestamp
         tmp_init_string = &
             init_string(index(init_string, ',') +1: &
                         index(init_string, ',', .true.) - 1)
@@ -66,6 +66,24 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff)
             // tmp_init_string(9:10) // tmp_init_string(12:13)  &
             // tmp_init_string(15:16) // '00'
         call AddDatum(dataline, trim(adjustl(iso_basic)), separator)
+
+
+    ! !> Biomet timestamp
+    !     if (embedded) then
+    !         tmp_init_string = init_string(index(init_string, ',') + 1: &
+    !             index(init_string, ',', .true.) - 1)
+    !     else
+    !         tmp_init_string = &
+    !             init_string(1: index(init_string, ',', .true.) - 1)
+    !     end if
+
+    !     !> derive ISO basic format timestamp
+    !     iso_basic = tmp_init_string(1:4) // tmp_init_string(6:7) &
+    !         // tmp_init_string(9:10) // tmp_init_string(12:13)  &
+    !         // tmp_init_string(15:16) // '00'
+
+    !     call clearstr(dataline)
+    !     call AddDatum(dataline, trim(adjustl(iso_basic)), separator)
 
     !> Daytime
         if (Stats%daytime) then
@@ -237,10 +255,11 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff)
         write(datum, *) Ambient%sigma
         call AddDatum(dataline, datum, separator)
         !> Water USe Efficiency
-        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+        !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
 
     !> Gases
-        !> Concentrations, densities and "nature" of the raw data (mixing ratio, mole fraction, molar density)
+        !> Concentrations, densities and "nature" of the raw data 
+        !> (mixing ratio, mole fraction, molar density)
         !> Gas concentrations, densities and timelags
         do gas = co2, gas4
             select case (E2Col(gas)%measure_type)
@@ -275,50 +294,51 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff)
 
     !> Basic stats
         !> Mean values
-        do var = u, pe
-            write(datum, *) Stats%Mean(var)
+        do var = u, gas4
+            write(datum, *) Stats6%Mean(var)
             call AddDatum(dataline, datum, separator)
         end do
         !> 25-50-75%
-        do var = u, pe
-            write(datum, *) Stats%Median(var)
+        do var = u, gas4
+            write(datum, *) Stats6%Median(var)
             call AddDatum(dataline, datum, separator)
         end do
-        do var = u, pe
-            write(datum, *) Stats%Q1(var)
+        do var = u, gas4
+            write(datum, *) Stats6%Q1(var)
             call AddDatum(dataline, datum, separator)
         end do
-        do var = u, pe
-            write(datum, *) Stats%Q3(var)
+        do var = u, gas4
+            write(datum, *) Stats6%Q3(var)
             call AddDatum(dataline, datum, separator)
         end do
         !> Variances 
-        do var = u, pe
-            write(datum, *) Stats%Cov(var, var)
+        do var = u, gas4
+            write(datum, *) Stats7%Cov(var, var)
+            call AddDatum(dataline, datum, separator)
+        end do
+        !> Skwenesses
+        do var = u, gas4
+            write(datum, *) Stats7%Skw(var)
+            call AddDatum(dataline, datum, separator)
+        end do
+        !> Kurtosis
+        do var = u, gas4
+            write(datum, *) Stats7%Kur(var)
             call AddDatum(dataline, datum, separator)
         end do
         !> w-covariances 
-        do var = u, pe
-            if (var == w) cycle
-            write(datum, *) Stats%Cov(w, var)
+        write(datum, *) Stats7%Cov(u, w)
+        call AddDatum(dataline, datum, separator)
+        do var = ts, gas4
+            write(datum, *) Stats7%Cov(w, var)
             call AddDatum(dataline, datum, separator)
         end do
         !> Gases covariance matrix
         do gas1 = co2, ch4
             do gas2 = gas1 + 1, gas4 
-                write(datum, *) Stats%Cov(gas1, gas2)
+                write(datum, *) Stats7%Cov(gas1, gas2)
                 call AddDatum(dataline, datum, separator)
             end do
-        end do
-        !> Skwenesses
-        do var = u, pe
-            write(datum, *) Stats%Skw(var)
-            call AddDatum(dataline, datum, separator)
-        end do
-        !> Kurtosis
-        do var = u, pe
-            write(datum, *) Stats%Kur(var)
-            call AddDatum(dataline, datum, separator)
         end do
 
     !> Intermediate results
@@ -438,29 +458,28 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff)
         !>> Number or records eliminated based on custom flags
         call WriteDatumFloat(Essentials%m_custom_flags, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
+        !>> Number or records eliminated based on wind direction filter
+        call WriteDatumFloat(Essentials%m_wdf, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
         !> Summary of data values/records eliminated based on diagnostics
+        !>> Number or records whose anemometric data was eliminated based on Anemometer diagnostics
+        call WriteDatumFloat(Essentials%m_diag_anem, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
         !>> Number or records whose IRGA data was eliminated based on IRGA diagnostics
         do gas = co2, gas4
             call WriteDatumFloat(Essentials%m_diag_irga(gas), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         end do
-        !>> Number or records whose anemometric data was eliminated based on Anemometer diagnostics
-        call WriteDatumFloat(Essentials%m_diag_anem, datum, EddyProProj%err_label)
-        call AddDatum(dataline, datum, separator)
-        !> Summary of data values/records eliminated based on other filters:
-        !>> Number or records whose anemometric data was eliminated based on wind direction filter
-        call WriteDatumFloat(Essentials%m_wdf, datum, EddyProProj%err_label)
-        call AddDatum(dataline, datum, separator)
         !>> Number of values eliminated by the Spike test
         do var = u, gas4
             call WriteDatumFloat(Essentials%m_despiking(var), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         end do
-        !>> Number of values eliminated by the Absolute Limits test     ******** (may need to anticipate calculation of air molar volume)
+        !>> Number of values eliminated by the Absolute Limits test
         do j = u, gas4
             call WriteDatumFloat(Essentials%al_s(j), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
-        end do                          
+        end do
         !> VM97 Stats used to calculate flags
         !>> Spikes
         do j = u, gas4
@@ -482,11 +501,11 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff)
             call WriteDatumFloat(Essentials%do_s_ext(j), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         end do
-        !>> Absolute limits              *************************************** (may need to anticipate calculation of air molar volume)
-        do j = u, gas4
-            call WriteDatumFloat(Essentials%al_s(j), datum, EddyProProj%err_label)
-            call AddDatum(dataline, datum, separator)
-        end do                          
+        ! !>> Absolute limits
+        ! do j = u, gas4
+        !     call WriteDatumFloat(Essentials%al_s(j), datum, EddyProProj%err_label)
+        !     call AddDatum(dataline, datum, separator)
+        ! end do                          
         !>> Higher moments Skewness
         do j = u, gas4
             call WriteDatumFloat(Essentials%sk_s_skw(j), datum, EddyProProj%err_label)
@@ -518,7 +537,6 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff)
         call AddDatum(dataline, datum, separator)
         call WriteDatumFloat(Essentials%ns_s_rns, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-
         !> VM97 flags
         call AddDatum(dataline, '8'//CharHF%sr(2:9), separator)
         call AddDatum(dataline, '8'//CharHF%ar(2:9), separator)
@@ -532,8 +550,8 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff)
         call AddDatum(dataline, '8'//CharSF%tl(6:9), separator)
         call AddDatum(dataline, '8'//CharHF%aa(9:9), separator)
         call AddDatum(dataline, '8'//CharHF%ns(9:9), separator)
-        !> Foken stats used to calculate flags
         !> Quality test results
+        !> Foken stats used to calculate flags
         write(datum, *) STDiff%w_u
         call AddDatum(dataline, datum, separator)
         write(datum, *) STDiff%w_ts
@@ -552,7 +570,26 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff)
         call AddDatum(dataline, datum, separator)
         write(datum, *) DtDiff%ts
         call AddDatum(dataline, datum, separator)
-        !> Foken flags
+        !> Partial Foken flags
+        call WriteDatumInt(STFlg(w_u), datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumInt(STFlg(w_ts), datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumInt(STFlg(w_co2), datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumInt(STFlg(w_h2o), datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumInt(STFlg(w_ch4), datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumInt(STFlg(w_gas4), datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumInt(DTFlg(u), datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumInt(DTFlg(w), datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumInt(DTFlg(ts), datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        !> Final Foken flags
         call WriteDatumInt(QCFlag%tau, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
         call WriteDatumInt(QCFlag%H, datum, EddyProProj%err_label)
@@ -770,7 +807,16 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff)
             call AddDatum(dataline, datum, separator)
         end do
 
-    !> Custom variables
+        !> All aggregated biomet values in FLUXNET units
+        write(datum, *) nbVars
+        call AddDatum(dataline, datum, separator)
+        do i = 1, nbVars
+            call WriteDatumFloat(bAggrFluxnet(i), datum, '-9999.')
+            call AddDatum(dataline, datum, separator)
+        end do
+        write(uicos, '(a)') dataline(1:len_trim(dataline) - 1)
+        
+        !> Custom variables
         !> Number and mean values of custom variables
         write(datum, *) NumUserVar
         call AddDatum(dataline, datum, separator)
