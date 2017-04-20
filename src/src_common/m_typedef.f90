@@ -516,6 +516,7 @@ module m_typedef
         logical :: use_extmd_file
         logical :: use_dynmd_file
         logical :: out_full
+        logical :: out_icos
         logical :: out_fluxnet
         logical :: out_fluxnet_eddy
         logical :: out_fluxnet_biomet

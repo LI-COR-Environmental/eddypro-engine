@@ -100,6 +100,7 @@ subroutine ConfigureForEmbedded()
             end if
             EddyProProj%out_fluxnet  = .false.
             EddyProProj%out_fluxnet_eddy  = .false.
+            EddyProProj%out_icos  = .false.
             EddyProProj%out_fluxnet_biomet  = .false.
             EddyProProj%out_amflux  = .false.
             EddyProProj%out_md      = .false.
@@ -160,6 +161,7 @@ subroutine ConfigureForEmbedded()
             !> Selection of output files
             EddyProProj%out_fluxnet  = .false.
             EddyProProj%out_fluxnet_eddy  = .false.
+            EddyProProj%out_icos  = .false.
             EddyProProj%out_fluxnet_biomet  = .false.
             EddyProProj%out_amflux  = .false.
     end select

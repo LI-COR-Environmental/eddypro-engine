@@ -213,6 +213,7 @@ subroutine WriteProcessingProjectVariables()
 
     !> select whether to output GHG-europe-formatted file
     EddyProProj%out_fluxnet = EPPrjCTags(19)%value(1:1) == '1'
+    EddyProProj%out_icos = EPPrjCTags(48)%value(1:1) == '1'
     EddyProProj%out_fluxnet_eddy   = EddyProProj%out_fluxnet
     EddyProProj%out_fluxnet_biomet = EddyProProj%out_fluxnet
     !> select whether to output AmeriFlux-formatted file

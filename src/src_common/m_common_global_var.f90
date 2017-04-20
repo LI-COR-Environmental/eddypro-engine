@@ -472,7 +472,8 @@ module m_common_global_var
          EPPrjCTags(44)%Label / 'bin_sp_avail'     / &
          EPPrjCTags(45)%Label / 'full_sp_avail'    / &
          EPPrjCTags(46)%Label / 'hf_correct_ghg_ba'  / &
-         EPPrjCTags(47)%Label / 'hf_correct_ghg_zoh' /
+         EPPrjCTags(47)%Label / 'hf_correct_ghg_zoh' / &
+         EPPrjCTags(48)%Label / 'out_icos'          / 
 
     !> tags of the metadata file created by GHG software
     integer, parameter :: Nan = 884

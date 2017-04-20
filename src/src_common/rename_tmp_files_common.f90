@@ -70,7 +70,7 @@ subroutine RenameTmpFilesCommon()
     end if
 
     !> ICOS file
-    if (EddyProProj%out_fluxnet_eddy) then
+    if (EddyProProj%out_icos) then
         tmp_indx = index(ICOS_Path, TmpExt)
         OutPath = ICOS_Path(1: tmp_indx - 1)
         move_status = system(comm_move // '"' &
