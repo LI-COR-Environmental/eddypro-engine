@@ -793,20 +793,20 @@ subroutine InitOutFiles_rp()
                   &GS4_IRGA_TUBE_LENGTH,GS4_IRGA_TUBE_DIAMETER,GS4_IRGA_TUBE_FLOWRATE,&
                   &GS4_IRGA_KW,GS4_IRGA_KO,GS4_IRGA_HPATH_LENGTH,GS4_IRGA_VPATH_LENGTH,GS4_IRGA_TAU,'
 
-        !> Add biomet variables
-        call AddDatum(dataline, 'NUM_BIOMET_VARS', separator)
-        if (nbVars > 0) then
-            do i = 1, nbVars
-                call AddDatum(dataline, trim(bVars(i)%label), separator)
-            end do
-        end if
-
         !> Add custom variables
         call AddDatum(dataline, 'NUM_CUSTOM_VARS', separator)
         if (NumUserVar > 0) then
             do i = 1, NumUserVar
                 dataline = dataline(1:len_trim(dataline)) &
                     // usg(i)(1:len_trim(usg(i))) // 'mean' // ','
+            end do
+        end if
+
+        !> Add biomet variables
+        call AddDatum(dataline, 'NUM_BIOMET_VARS', separator)
+        if (nbVars > 0) then
+            do i = 1, nbVars
+                call AddDatum(dataline, trim(bVars(i)%label), separator)
             end do
         end if
 

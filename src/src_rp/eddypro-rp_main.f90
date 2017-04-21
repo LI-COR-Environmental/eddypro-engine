@@ -2192,6 +2192,9 @@ program EddyproRP
         call WriteOutFiles(suffixOutString, PeriodRecords, PeriodActualRecords, &
             StDiff, DtDiff)
 
+        if (EddyProProj%out_icos) &
+            call WriteIcosOutputRp(suffixOutString, StDiff, DtDiff, STFlg, DTFlg)
+
         !> Write on Ameriflux style output
         if (EddyProProj%out_amflux) &
             call WriteOutAmeriFlux_rp(Stats%date, Stats%time)

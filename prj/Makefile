@@ -195,6 +195,12 @@ ts_extract_subperiod_indexes.o: \
 write_out_biomet.o: \
 	write_out_biomet.f90 \
 	m_rp_global_var.o
+write_icos_output_rp.o: \
+	write_icos_output_rp.f90 \
+	m_rp_global_var.o
+write_out_icos_only_biomet.o: \
+	write_out_icos_only_biomet.f90 \
+	m_rp_global_var.o
 out_raw_data.o: \
 	out_raw_data.f90 \
 	m_rp_global_var.o
