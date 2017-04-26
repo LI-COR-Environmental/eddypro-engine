@@ -385,6 +385,8 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
     call AddDatum(dataline, datum, separator)
     write(datum, *) Flux2%gas4
     call AddDatum(dataline, datum, separator)
+    !> Tin and Tout                 ********************************************
+
     !> Temperature, pressure and molar volume 
     !> in the cell of closed-paths, for all gases
     !> Cell parameters              **************************************** (make it gas specific like molar volume)
@@ -427,7 +429,7 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
     call AddDatum(dataline, datum, separator)
     write(datum, *) Mul7700%C
     call AddDatum(dataline, datum, separator)
-    !> WPL Terms
+    !> WPL Terms                    ********************************************(Individual: H, LE, Pressure)
     !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
     !> Spectral correction factors
     call WriteDatumFloat(BPCF%of(w_u), datum, EddyProProj%err_label)
@@ -459,7 +461,7 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
     !>> Number or records eliminated based on wind direction filter
     call WriteDatumFloat(Essentials%m_wdf, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    !> Summary of data values/records eliminated based on diagnostics
+    !> Summary of data values eliminated based on diagnostics
     !>> Number or records whose anemometric data was eliminated based on Anemometer diagnostics
     call WriteDatumFloat(Essentials%m_diag_anem, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
@@ -602,7 +604,7 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
     call AddDatum(dataline, datum, separator)
     call WriteDatumInt(QCFlag%gas4, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    !> Number of calculated spikes per variables
+    !> Number of calculated spikes per variables       *************************(Eliminare)
     write(datum, *) Essentials%e2spikes(u)
     call AddDatum(dataline, datum, separator)
     write(datum, *) Essentials%e2spikes(v)
