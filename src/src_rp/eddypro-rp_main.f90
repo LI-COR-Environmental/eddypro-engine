@@ -1954,10 +1954,6 @@ program EddyproRP
             call TimeLagHandle(Meth%tlag(1:len_trim(Meth%tlag)), E2Set, &
                 size(E2Set, 1), size(E2Set, 2), Essentials%actual_timelag, &
                 Essentials%used_timelag, Essentials%def_tlag, .false.)
-            if (NumUserVar > 0) then
-                call UserTimeLagHandle(UserSet, size(UserSet, 1), &
-                    size(UserSet, 2), E2Set(:, w), size(E2Set, 1))
-            end if
             if (TimeLagOptSelected) Meth%tlag = 'tlag_opt'
 
             !> Output raw dataset sixth level
