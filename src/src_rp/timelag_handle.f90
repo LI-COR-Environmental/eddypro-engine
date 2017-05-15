@@ -35,7 +35,7 @@
 !***************************************************************************
 subroutine TimeLagHandle(TlagMeth, Set, nrow, ncol, ActTLag, TLag, &
     DefTlagUsed, InTimelagOpt)
-    use m_common_global_var
+    use m_rp_global_var
     implicit none
     !> in/out variables
     integer, intent(in) :: nrow, ncol
@@ -103,13 +103,11 @@ subroutine TimeLagHandle(TlagMeth, Set, nrow, ncol, ActTLag, TLag, &
                             RowLags(j) = def_rl(j)
                         end if
                     end if
-
-
                 else
                     RowLags(j) = 0
                     TLag(j) = 0d0
                     ActTLag(j) = 0d0
-                end if
+               end if
             end do
         case ('none')
             !> not compensating for timelags
@@ -219,7 +217,7 @@ end subroutine TimeLagHandle
 ! \todo
 !*******************************************************************************
 subroutine CovMax(lagmin, lagmax, Col1, Col2, nrow, TLag, RLag)
-    use m_common_global_var
+    use m_rp_global_var
     implicit none
     !> in/out variables
     integer, intent(in) :: nrow
@@ -233,60 +231,56 @@ subroutine CovMax(lagmin, lagmax, Col1, Col2, nrow, TLag, RLag)
     integer :: i = 0
     integer :: ii = 0
     integer :: N2
-    integer :: N3
-    real(kind = dbl), allocatable :: ShLocSet(:, :)
+    real(kind = dbl), allocatable :: ShSet(:, :)
+    real(kind = dbl), allocatable :: ShPrimes(:, :)
+    real(kind = dbl) :: CovMat(2,2)
     real(kind = dbl) :: Cov
     real(kind = dbl) :: MaxCov
-    real(kind = dbl) ::sum1
-    real(kind = dbl) ::sum2
-
 
     Cov = 0.d0
     MaxCov = 0.d0
     TLag = 0.d0
     do i = lagmin, lagmax
         N2 = nrow - abs(i)
-        allocate(ShLocSet(N2, 2))
-        !> Preliminary calculations
+        allocate(ShSet(N2, 2))
+        allocate(ShPrimes(N2, 2))
+
+        !> Align the two timeseries at the current time-lag 
         do ii = 1, N2
             if (i < 0) then
-                ShLocSet(ii, 1) = Col1(ii - i)
-                ShLocSet(ii, 2) = Col2(ii)
+                ShSet(ii, 1) = Col1(ii - i)
+                ShSet(ii, 2) = Col2(ii)
             else
-                ShLocSet(ii, 1) = Col1(ii)
-                ShLocSet(ii, 2) = Col2(ii + i)
+                ShSet(ii, 1) = Col1(ii)
+                ShSet(ii, 2) = Col2(ii + i)
             end if
         end do
-        !> covariance
-        sum1 = 0d0
-        sum2 = 0d0
-        Cov = 0d0
-        N3 = 0
-        do ii = 1, N2
-            if (ShLocSet(ii, 1) /= error .and. ShLocSet(ii, 2) /= error) then
-                N3 = N3 + 1
-                Cov = Cov + ShLocSet(ii, 1) * ShLocSet(ii, 2)
-                sum1 = sum1 + ShLocSet(ii, 1)
-                sum2 = sum2 + ShLocSet(ii, 2)
-            end if
-        end do
-        if (N3/= 0) then
-            sum1 = sum1 / dble(N3)
-            sum2 = sum2 / dble(N3)
-            Cov = Cov / dble(N3)
-            Cov = Cov - sum1 * sum2
-        else
-            Cov = error
-        end if
+
+        !> Block average
+        ShPrimes = ShSet
+
+        !> Linear detrending
+        ! call VariableLinearDetrending(ShSet(:, 1), ShPrimes(:, 1), N2)
+        ! call VariableLinearDetrending(ShSet(:, 2), ShPrimes(:, 2), N2)
+
+        !> Stochastic detrending
+        ! call VariableStochasticDetrending(ShSet(:, 1), ShPrimes(:, 1), N2)
+        ! call VariableStochasticDetrending(ShSet(:, 2), ShPrimes(:, 2), N2)
+
+        call CovarianceMatrixNoError(ShPrimes, size(ShPrimes, 1), size(ShPrimes, 2), CovMat, error)
+        Cov = CovMat(1, 2)
+
         !> Max cov and actual time lag
         if (abs(Cov) > MaxCov) then
             MaxCov = abs(Cov)
             TLag = dble(i) / Metadata%ac_freq
             RLag = i
         end if
-        deallocate(ShLocSet)
+        deallocate(ShSet)
+        deallocate(ShPrimes)
     end do
 end subroutine CovMax
+
 
 !***************************************************************************
 !
@@ -301,7 +295,7 @@ end subroutine CovMax
 ! \todo
 !***************************************************************************
 subroutine CovarianceW(col1, col2, nrow, lag, cov)
-    use m_common_global_var
+    use m_rp_global_var
     implicit none
     !> in/out variables
     integer, intent(in) :: nrow
@@ -337,3 +331,149 @@ subroutine CovarianceW(col1, col2, nrow, lag, cov)
         cov = error
     end if
 end subroutine CovarianceW
+
+!***************************************************************************
+!
+! \brief       Stochastic Detrending
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+subroutine VariableStochasticDetrending(Var, Primes, N)
+    use m_common_global_var
+    implicit none
+    !> in/out variables
+    integer, intent(in) :: N
+    real(kind = dbl), intent(in) :: Var(N)
+    real(kind = dbl), intent(out) :: Primes(N)
+    !> local variables
+    integer :: i
+
+    Primes(1) = error
+    do i = 2, N
+        if (Var(i) /= error .and. Var(i-1) /= error) then
+            Primes(i) = Var(i) - Var(i-1)
+        else 
+            Primes(i) = error
+        end if
+    end do
+end subroutine VariableStochasticDetrending
+
+!***************************************************************************
+!
+! \brief       Linear detrending of one time series
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+subroutine VariableLinearDetrending(Var, Primes, N)
+    use m_rp_global_var
+    implicit none
+    !> in/out variables
+    integer, intent(in) :: N
+    real(kind = dbl), intent(in) :: Var(N)
+    real(kind = dbl), intent(out) :: Primes(N)
+    !> Local variables
+    real(kind = dbl) :: Trend(N)
+
+    call CalculateTrend(Var, Trend, N)
+    call Detrend(Var, Trend, Primes, N)
+
+end subroutine VariableLinearDetrending
+
+!***************************************************************************
+!
+! \brief       Remove trend from time series
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+subroutine Detrend(Var, Trend, Primes, N)
+    use m_rp_global_var
+    implicit none
+    !> in/out variables
+    integer, intent(in) :: N
+    real(kind = dbl), intent(in) :: Var(N)
+    real(kind = dbl), intent(in) :: Trend(N)
+    real(kind = dbl), intent(out) :: Primes(N)
+
+
+    Primes = error
+    where (Var /= error .and. Trend /= error)
+        Primes = Var - Trend
+    end where
+end subroutine Detrend
+
+!***************************************************************************
+!
+! \brief       Calculate linear trend in time series
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+subroutine CalculateTrend(Var, Trend, N)
+    use m_rp_global_var
+    implicit none
+    !> in/out variables
+    integer, intent(in) :: N
+    real(kind = dbl), intent(in) :: Var(N)
+    real(kind = dbl), intent(out) :: Trend(N)
+    !> local variables
+    integer :: i
+    integer :: nn
+    integer :: mm
+    real(kind = dbl) :: sumx1
+    real(kind = dbl) :: sumx2
+    real(kind = dbl) :: mean
+    real(kind = dbl) :: sumtime
+    real(kind = dbl) :: sumtime2
+    real(kind = dbl) :: b
+
+
+    !> Linear regression
+    sumx1 = 0d0
+    sumx2 = 0d0
+    sumtime = 0d0
+    sumtime2 = 0d0
+    nn = 0
+    do i = 1, N
+        if (Var(i) /= error) then
+            nn = nn + 1
+            sumx1 = sumx1 + (Var(i) * (dble(nn - 1)))
+            sumx2 = sumx2 + Var(i)
+            sumtime = sumtime + (dble(nn - 1))
+            sumtime2 = sumtime2 + (dble(nn - 1))**2
+        end if
+    end do
+    if (nn /= 0) then
+        mean = sumx2 / dble(nn)
+    end if
+
+    !> Trend
+    mm = 0
+    b = (sumx1 - (sumx2 * sumtime) / dble(nn)) / (sumtime2 - (sumtime * sumtime) / dble(nn))
+    do i = 1, N
+        mm = mm + 1
+        if (Var(i) /= error) then
+            Trend(i) = mean + b * (dble(mm - 1) - sumtime / dble(nn))
+        else
+            Trend(i) = error
+        end if
+    end do        
+end subroutine CalculateTrend
