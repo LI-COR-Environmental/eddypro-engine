@@ -79,3 +79,15 @@ interface
         real(kind = dbl)  :: asymmetric_linear_transformation(N)
     end function
 end interface
+
+interface
+    function CountRecordsAndValues(Set, nrow, ncol, var1, var2)
+        use m_common_global_var
+        implicit none
+        !> In/out variables
+        integer, intent(in) :: nrow, ncol
+        real(kind = dbl), intent(in) :: Set(nrow, ncol)
+        integer, optional, intent(in) :: var1, var2
+        integer :: CountRecordsAndValues
+    end function
+end interface

@@ -47,7 +47,7 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
     integer :: j
     integer :: i
 !    integer :: prof
-    character(LongOutstringLen) :: dataline
+    character(16000) :: dataline
     character(DatumLen) :: datum
     character(64) :: tmp_init_string
     character(14) :: iso_basic
@@ -260,20 +260,26 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
     !> (mixing ratio, mole fraction, molar density)
     !> Gas concentrations, densities and timelags
     do gas = co2, gas4
-        select case (E2Col(gas)%measure_type)
-            case('mixing_ratio')
-                call AddDatum(dataline, '0', separator)
-            case('mole_fraction')
-                call AddDatum(dataline, '1', separator)
-            case('molar_density')
-                call AddDatum(dataline, '2', separator)
-        end select
-        write(datum, *) Stats%d(gas)
-        call AddDatum(dataline, datum, separator)
-        write(datum, *) Stats%r(gas)
-        call AddDatum(dataline, datum, separator)
-        write(datum, *) Stats%chi(gas)
-        call AddDatum(dataline, datum, separator)
+        if (E2Col(gas)%present) then
+            select case (E2Col(gas)%measure_type)
+                case('mixing_ratio')
+                    call AddDatum(dataline, '0', separator)
+                case('mole_fraction')
+                    call AddDatum(dataline, '1', separator)
+                case('molar_density')
+                    call AddDatum(dataline, '2', separator)
+            end select
+            write(datum, *) Stats%d(gas)
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) Stats%r(gas)
+            call AddDatum(dataline, datum, separator)
+            write(datum, *) Stats%chi(gas)
+            call AddDatum(dataline, datum, separator)
+        else
+            do i = 1, 4
+                call AddDatum(dataline, EddyProProj%err_label, separator)
+            end do
+        end if
     end do
     !> Timelags (calculated, used, min/max/nominal) for all gases
     !> Gas timelags
@@ -456,34 +462,34 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
 
 !> QC details
     !>> Number or records eliminated based on custom flags
-    call WriteDatumFloat(Essentials%m_custom_flags, datum, EddyProProj%err_label)
+    call WriteDatumInt(Essentials%m_custom_flags, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     !>> Number or records eliminated based on wind direction filter
-    call WriteDatumFloat(Essentials%m_wdf, datum, EddyProProj%err_label)
+    call WriteDatumInt(Essentials%m_wdf, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     !> Summary of data values eliminated based on diagnostics
     !>> Number or records whose anemometric data was eliminated based on Anemometer diagnostics
-    call WriteDatumFloat(Essentials%m_diag_anem, datum, EddyProProj%err_label)
+    call WriteDatumInt(Essentials%m_diag_anem, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     !>> Number or records whose IRGA data was eliminated based on IRGA diagnostics
     do gas = co2, gas4
-        call WriteDatumFloat(Essentials%m_diag_irga(gas), datum, EddyProProj%err_label)
+        call WriteDatumInt(Essentials%m_diag_irga(gas), datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
     end do
     !>> Number of values eliminated by the Spike test
     do var = u, gas4
-        call WriteDatumFloat(Essentials%m_despiking(var), datum, EddyProProj%err_label)
+        call WriteDatumInt(Essentials%m_despiking(var), datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
     end do
     !>> Number of values eliminated by the Absolute Limits test
     do j = u, gas4
-        call WriteDatumFloat(Essentials%al_s(j), datum, EddyProProj%err_label)
+        call WriteDatumInt(Essentials%al_s(j), datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
     end do
     !> VM97 Stats used to calculate flags
     !>> Spikes
     do j = u, gas4
-        call WriteDatumFloat(Essentials%e2spikes(j), datum, EddyProProj%err_label)
+        call WriteDatumInt(Essentials%e2spikes(j), datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
     end do
     !>> Amplitude resolution
@@ -501,11 +507,6 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
         call WriteDatumFloat(Essentials%do_s_ext(j), datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
     end do
-    ! !>> Absolute limits
-    ! do j = u, gas4
-    !     call WriteDatumFloat(Essentials%al_s(j), datum, EddyProProj%err_label)
-    !     call AddDatum(dataline, datum, separator)
-    ! end do                          
     !>> Higher moments Skewness
     do j = u, gas4
         call WriteDatumFloat(Essentials%sk_s_skw(j), datum, EddyProProj%err_label)
@@ -546,8 +547,6 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
     call AddDatum(dataline, '8'//CharSF%sk(2:9), separator)
     call AddDatum(dataline, '8'//CharHF%ds(2:9), separator)
     call AddDatum(dataline, '8'//CharSF%ds(2:9), separator)
-    call AddDatum(dataline, '8'//CharHF%tl(6:9), separator)
-    call AddDatum(dataline, '8'//CharSF%tl(6:9), separator)
     call AddDatum(dataline, '8'//CharHF%aa(9:9), separator)
     call AddDatum(dataline, '8'//CharHF%ns(9:9), separator)
     !> Quality test results
@@ -639,8 +638,7 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
         call AddDatum(dataline, datum, separator)
     else
         do i = 1, 9
-            write(datum, *) nint(error)
-            call AddDatum(dataline, datum, separator)
+            call AddDatum(dataline, EddyProProj%err_label, separator)
         end do
     end if
     if (Diag7500%present) then
@@ -654,8 +652,7 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
         call AddDatum(dataline, datum, separator)
     else
         do i = 1, 4
-            write(datum, *) nint(error)
-            call AddDatum(dataline, datum, separator)
+            call AddDatum(dataline, EddyProProj%err_label, separator)
         end do
     end if
     if (Diag7700%present) then
@@ -694,7 +691,7 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
     else
         do i = 1, 16
             write(datum, *) error
-            call AddDatum(dataline, datum, separator)
+            call AddDatum(dataline, EddyProProj%err_label, separator)
         end do
     end if
     !> AGC/RSSI                     **************************************** (may need to adapt header to whether it's AGC or RSSI for 7200/7500) 

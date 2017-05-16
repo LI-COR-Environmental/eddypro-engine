@@ -159,7 +159,6 @@ program EddyproRP
     type(TimeLagOptType), allocatable :: TimelagOpt(:)
     type(TimeLagDatasetType), allocatable :: toSet(:)
 
-    integer, external :: CountRecordsAndValues
     integer, external :: NumOfPeriods
     integer, external :: NumberOfFilesInSubperiod
     real(kind = dbl), external :: LaggedCovarianceNoError
@@ -1610,7 +1609,7 @@ program EddyproRP
 
             !> Number of valid records after filtering for custom flags
             Essentials%n_after_custom_flags = &
-                CountRecordsAndValues(Raw, size(Raw, 1), size(Raw, 2))
+                CountRecordsAndValues(dble(Raw), size(Raw, 1), size(Raw, 2))
 
             !> Period skip control
             MissingRecords = dfloat(MaxPeriodNumRecords - Essentials%n_after_custom_flags) &
@@ -1807,11 +1806,12 @@ program EddyproRP
                 CountRecordsAndValues(E2Set, size(E2Set, 1), size(E2Set, 2), w, u)
             !> Gas data
             do j = ts, gas4
-                if (E2Col(j)%present) &
+                if (E2Col(j)%present) then
                     Essentials%n(j) = &
                         CountRecordsAndValues(E2Set, size(E2Set, 1), size(E2Set, 2), j)
                     Essentials%n_wcov(j) = &
                         CountRecordsAndValues(E2Set, size(E2Set, 1), size(E2Set, 2), w, j)
+                end if
             end do
 
             !> If a 4th gas calibration has to be done (using a 'cal-ref'

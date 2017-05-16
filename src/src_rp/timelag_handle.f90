@@ -104,9 +104,9 @@ subroutine TimeLagHandle(TlagMeth, Set, nrow, ncol, ActTLag, TLag, &
                         end if
                     end if
                 else
-                    RowLags(j) = 0
-                    TLag(j) = 0d0
-                    ActTLag(j) = 0d0
+                    RowLags(j) = ierror
+                    TLag(j) = error
+                    ActTLag(j) = error
                end if
             end do
         case ('none')
