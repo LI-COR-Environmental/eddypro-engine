@@ -1521,8 +1521,10 @@ program EddyproRP
         !> If files are finished, keep going until the end of the selected
         !> period
         if (LatestRawFileIndx > NumRawFiles) then
-            if (EddyProProj%run_mode /= 'md_retrieval') &
+            if (EddyProProj%run_mode /= 'md_retrieval') then
                 call ExceptionHandler(53)
+                if (EddYProProj%out_icos) call WriteOutIcosOnlyBiomet(suffixOutString)
+            end if
             call hms_delta_print(PeriodSkipMessage,'')
             cycle periods_loop
         end if
@@ -1539,8 +1541,10 @@ program EddyproRP
 
         !> Exception handling
         if (skip_period) then
-            if (EddyProProj%run_mode /= 'md_retrieval') &
+            if (EddyProProj%run_mode /= 'md_retrieval') then
                 call ExceptionHandler(53)
+                if (EddYProProj%out_icos) call WriteOutIcosOnlyBiomet(suffixOutString)
+            end if
             call hms_delta_print(PeriodSkipMessage,'')
             cycle periods_loop
         end if
@@ -1581,6 +1585,7 @@ program EddyproRP
 
             !> Period skip control
             if (skip_period) then
+                if (EddYProProj%out_icos) call WriteOutIcosOnlyBiomet(suffixOutString)
                 call hms_delta_print(PeriodSkipMessage,'')
                 cycle periods_loop
             end if
@@ -1598,6 +1603,7 @@ program EddyproRP
             MissingRecords = dfloat(MaxPeriodNumRecords - PeriodRecords) &
                 / dfloat(MaxPeriodNumRecords) * 100d0
             if (PeriodRecords > 0 .and. MissingRecords > RPsetup%max_lack) then
+                if (EddYProProj%out_icos) call WriteOutIcosOnlyBiomet(suffixOutString)
                 call ExceptionHandler(58)
                 call hms_delta_print(PeriodSkipMessage,'')
                 cycle periods_loop
@@ -1615,6 +1621,7 @@ program EddyproRP
             MissingRecords = dfloat(MaxPeriodNumRecords - Essentials%n_after_custom_flags) &
                 / dfloat(MaxPeriodNumRecords) * 100d0
             if (MissingRecords > RPsetup%max_lack) then
+                if (EddYProProj%out_icos) call WriteOutIcosOnlyBiomet(suffixOutString)
                 call ExceptionHandler(58)
                 call hms_delta_print(PeriodSkipMessage,'')
                 cycle periods_loop
@@ -1709,6 +1716,7 @@ program EddyproRP
             MissingRecords = dfloat(MaxPeriodNumRecords - Essentials%n_after_wdf) &
                 / dfloat(MaxPeriodNumRecords) * 100d0
             if (MissingRecords > RPsetup%max_lack) then
+                if (EddYProProj%out_icos) call WriteOutIcosOnlyBiomet(suffixOutString)
                 if(allocated(E2Set)) deallocate(E2Set)
                 if(allocated(E2Primes)) deallocate(E2Primes)
                 if(allocated(UserSet)) deallocate(UserSet)
@@ -1781,6 +1789,7 @@ program EddyproRP
             !> If either u, v or w have been eliminated,
             !> stops processing this period
             if (skip_period) then
+                if (EddYProProj%out_icos) call WriteOutIcosOnlyBiomet(suffixOutString)
                 if(allocated(E2Set)) deallocate(E2Set)
                 if(allocated(E2Primes)) deallocate(E2Primes)
                 if(allocated(UserSet)) deallocate(UserSet)

@@ -51,7 +51,10 @@ subroutine tsValidateTemplate(Template)
     if ( index(Template, 'yy') == 0 &
     .or. index(Template, 'dd') == 0 &
     .or. index(Template, 'HH') == 0 &
-    .or. index(Template, 'MM') == 0) call ExceptionHandler(20)
+    .or. index(Template, 'MM') == 0) then
+        write(*, *) ''
+        call ExceptionHandler(20)
+    end if
 end subroutine tsValidateTemplate
 
 !***************************************************************************

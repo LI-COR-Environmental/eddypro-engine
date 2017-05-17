@@ -277,7 +277,7 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
             call AddDatum(dataline, datum, separator)
         else
             do i = 1, 4
-                call AddDatum(dataline, EddyProProj%err_label, separator)
+                call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
             end do
         end if
     end do
@@ -638,7 +638,7 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
         call AddDatum(dataline, datum, separator)
     else
         do i = 1, 9
-            call AddDatum(dataline, EddyProProj%err_label, separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
         end do
     end if
     if (Diag7500%present) then
@@ -652,7 +652,7 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
         call AddDatum(dataline, datum, separator)
     else
         do i = 1, 4
-            call AddDatum(dataline, EddyProProj%err_label, separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
         end do
     end if
     if (Diag7700%present) then
@@ -691,7 +691,7 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
     else
         do i = 1, 16
             write(datum, *) error
-            call AddDatum(dataline, EddyProProj%err_label, separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
         end do
     end if
     !> AGC/RSSI                     **************************************** (may need to adapt header to whether it's AGC or RSSI for 7200/7500) 
