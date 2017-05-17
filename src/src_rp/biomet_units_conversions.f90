@@ -39,7 +39,7 @@ subroutine BiometStandardEddyProUnits()
     !> local variables
     integer :: i
 
-    !> Temperatures
+
     do i = 1, nbVars
         select case(trim(bVars(i)%nature))
             case('TEMPERATURE')
@@ -108,29 +108,6 @@ subroutine BiometStandardEddyProUnits()
                     case default
                         continue
                 end select
-
-!            !> Precipitation is converted to [m]
-!            case('PRECIPITATION')
-!                select case(bVars(i)%unit_in)
-!                    case('NM')
-!                        where (bSet(:, i) /= error)
-!                            bSet(:, i) = bSet(:, i) * 1d-6
-!                        end where
-!                    case('UM')
-!                        where (bSet(:, i) /= error)
-!                            bSet(:, i) = bSet(:, i) * 1d-3
-!                        end where
-!                    case('CM')
-!                        where (bSet(:, i) /= error)
-!                            bSet(:, i) = bSet(:, i) * 10
-!                        end where
-!                    case('M')
-!                        where (bSet(:, i) /= error)
-!                            bSet(:, i) = bSet(:, i) * 1d3
-!                        end where
-!                    case default
-!                        continue
-!                end select
 
             !> Lengths
             !> converted to [m]
