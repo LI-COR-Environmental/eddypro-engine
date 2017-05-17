@@ -228,8 +228,8 @@ subroutine WriteEddyProMetadataVariables(LocCol, printout)
             !> If instrument firm is empty, retrieve it from the instrument model
             if (len(Instr(i)%firm) == 0 .or. Instr(i)%firm == 'none') then
                 select case (Instr(i)%model(1:len_trim(Instr(i)%model) - 2))
-                    case('li7500', 'li7500a', 'li7500rs', 'li7200', 'li7200rs', &
-                        'li7700', 'li6262', 'li7000')
+                    case('li7500', 'li7500a', 'li7500rs', 'li7500ds', 'li7200', &
+                        'li7200rs', 'li7700', 'li6262', 'li7000')
                         Instr(i)%firm = 'licor'
                     case('generic_open_path', 'generic_closed_path', 'open_path_krypton', &
                         'open_path_lyman', 'closed_path_krypton', 'closed_path_lyman')
@@ -317,7 +317,7 @@ subroutine WriteEddyProMetadataVariables(LocCol, printout)
                 Instr(i)%tube_f = error
 
                 select case (Instr(i)%model(1:len_trim(Instr(i)%model) - 2))
-                    case ('li7700', 'li7500', 'li7500a', 'li7500rs', &
+                    case ('li7700', 'li7500', 'li7500a', 'li7500rs', 'li7500ds', &
                         'generic_open_path', 'open_path_krypton', &
                         'open_path_lyman')
                         Instr(i)%path_type = 'open'
