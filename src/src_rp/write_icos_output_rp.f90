@@ -92,30 +92,30 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
 
 !> Number of records
     !> Number of records teoretically available for current Averaging Interval
-    write(datum, *) MaxPeriodNumRecords
+    call WriteDatumInt(MaxPeriodNumRecords, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     !> Number of records actually available for current Averaging Interval given length of actual files
-    write(datum, *) Essentials%n_in
+    call WriteDatumInt(Essentials%n_in, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     !> Number of records actually available after custom flags filtering
-    write(datum, *) Essentials%n_after_custom_flags
+    call WriteDatumInt(Essentials%n_after_custom_flags, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     !> Number of records actually available after wind direction filtering
-    write(datum, *) Essentials%n_after_wdf
+    call WriteDatumInt(Essentials%n_after_wdf, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     !> Number of valid records for anemometric data
-    write(datum, *) Essentials%n(w)
+    call WriteDatumInt(Essentials%n(w), datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     !> Number of valid records for IRGA data  (N_in – M_diag_IRGA)
     do var = ts, gas4
-        write(datum, *) Essentials%n(var)
+        call WriteDatumInt(Essentials%n(var), datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
     end do
     !> Number of valid records available for each main covariance (w/u, w/ts, w/co2, w/h2o, w/ch4, w/gas4)
-    write(datum, *) Essentials%n_wcov(u)
+    call WriteDatumInt(Essentials%n_wcov(u), datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     do var = ts, gas4
-        write(datum, *) Essentials%n_wcov(var)
+        call WriteDatumInt(Essentials%n_wcov(var), datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
     end do
 
@@ -137,20 +137,54 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
     call AddDatum(dataline, datum, separator)
 
 !> Flux random uncertainties
-    write(datum, *) Essentials%rand_uncer(u)
-    call AddDatum(dataline, datum, separator)
-    write(datum, *) Essentials%rand_uncer(ts)
-    call AddDatum(dataline, datum, separator)
-    write(datum, *) Essentials%rand_uncer_LE
-    call AddDatum(dataline, datum, separator)
-    write(datum, *) Essentials%rand_uncer(co2)
-    call AddDatum(dataline, datum, separator)
-    write(datum, *) Essentials%rand_uncer(h2o)
-    call AddDatum(dataline, datum, separator)
-    write(datum, *) Essentials%rand_uncer(ch4)
-    call AddDatum(dataline, datum, separator)
-    write(datum, *) Essentials%rand_uncer(gas4)
-    call AddDatum(dataline, datum, separator)
+    if (Essentials%rand_uncer(u) == aflx_error) then
+        call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+    else
+        call WriteDatumFloat(Essentials%rand_uncer(u), datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+    end if
+
+    if (Essentials%rand_uncer(ts) == aflx_error) then
+        call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+    else
+        call WriteDatumFloat(Essentials%rand_uncer(ts), datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+    end if
+
+    if (Essentials%rand_uncer_LE == aflx_error) then
+        call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+    else
+        call WriteDatumFloat(Essentials%rand_uncer_LE, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+    end if
+
+    if (Essentials%rand_uncer(co2) == aflx_error) then
+        call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+    else
+        call WriteDatumFloat(Essentials%rand_uncer(co2), datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+    end if
+
+    if (Essentials%rand_uncer(h2o) == aflx_error) then
+        call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+    else
+        call WriteDatumFloat(Essentials%rand_uncer(h2o), datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+    end if
+
+    if (Essentials%rand_uncer(ch4) == aflx_error) then
+        call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+    else
+        call WriteDatumFloat(Essentials%rand_uncer(ch4), datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+    end if
+
+    if (Essentials%rand_uncer(gas4) == aflx_error) then
+        call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+    else
+        call WriteDatumFloat(Essentials%rand_uncer(gas4), datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+    end if
 
 !> Additional flux terms (single-point calculation)
     !> Storage fluxes
@@ -179,78 +213,78 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
 
 !> Turbulence and micromet
     !> Unrotated and rotated wind components
-    write(datum, *) Stats4%Mean(u)
+    call WriteDatumFloat(Stats4%Mean(u), datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Stats4%Mean(v)
+    call WriteDatumFloat(Stats4%Mean(v), datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Stats4%Mean(w)
+    call WriteDatumFloat(Stats4%Mean(w), datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Stats5%Mean(u)
+    call WriteDatumFloat(Stats5%Mean(u), datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Stats5%Mean(v)
+    call WriteDatumFloat(Stats5%Mean(v), datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Stats5%Mean(w)
+    call WriteDatumFloat(Stats5%Mean(w), datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     !> wind speed, wind direction, u*, stability, bowen ratio
-    write(datum, *) Ambient%WS
+    call WriteDatumFloat(Ambient%WS, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Ambient%MWS
+    call WriteDatumFloat(Ambient%MWS, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Stats4%wind_dir
+    call WriteDatumFloat(Stats4%wind_dir, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Ambient%us
+    call WriteDatumFloat(Ambient%us, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Stats7%TKE
+    call WriteDatumFloat(Stats%TKE, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Essentials%L
+    call WriteDatumFloat(Ambient%L, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Essentials%zL
+    call WriteDatumFloat(Ambient%zL, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Ambient%bowen
+    call WriteDatumFloat(Ambient%bowen, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Ambient%Ts
+    call WriteDatumFloat(Ambient%Ts, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
 
 !> Termodynamics 
     !> Temperature, pressure, RH, VPD, e, es, etc.
-    write(datum, *) Stats7%Mean(ts)
+    call WriteDatumFloat(Stats7%Mean(ts), datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Ambient%Ta
+    call WriteDatumFloat(Ambient%Ta, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Stats%Pr
+    call WriteDatumFloat(Stats%Pr, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Stats%RH
+    call WriteDatumFloat(Stats%RH, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Ambient%Va
+    call WriteDatumFloat(Ambient%Va, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) RHO%a
+    call WriteDatumFloat(RHO%a, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Ambient%RhoCp
+    call WriteDatumFloat(Ambient%RhoCp, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) RHO%w
+    call WriteDatumFloat(RHO%w, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Ambient%e
+    call WriteDatumFloat(Ambient%e, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Ambient%es
+    call WriteDatumFloat(Ambient%es, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Ambient%Q
+    call WriteDatumFloat(Ambient%Q, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Ambient%VPD
+    call WriteDatumFloat(Ambient%VPD, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Ambient%Td
+    call WriteDatumFloat(Ambient%Td, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     !> Dry air properties
-    write(datum, *) Ambient%p_d
+    call WriteDatumFloat(Ambient%p_d, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) RHO%d
+    call WriteDatumFloat(RHO%d, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Ambient%Vd
+    call WriteDatumFloat(Ambient%Vd, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     !> Specific heat of evaporation
-    write(datum, *) Ambient%lambda
+    call WriteDatumFloat(Ambient%lambda, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     !> Wet to dry air density ratio
-    write(datum, *) Ambient%sigma
+    call WriteDatumFloat(Ambient%sigma, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     !> Water USe Efficiency
     !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
@@ -269,11 +303,11 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
                 case('molar_density')
                     call AddDatum(dataline, '2', separator)
             end select
-            write(datum, *) Stats%d(gas)
+            call WriteDatumFloat(Stats%d(gas), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
-            write(datum, *) Stats%r(gas)
+            call WriteDatumFloat(Stats%r(gas), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
-            write(datum, *) Stats%chi(gas)
+            call WriteDatumFloat(Stats%chi(gas), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         else
             do i = 1, 4
@@ -284,156 +318,156 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
     !> Timelags (calculated, used, min/max/nominal) for all gases
     !> Gas timelags
     do gas = co2, gas4
-        write(datum, *) Essentials%actual_timelag(gas)
+        call WriteDatumFloat(Essentials%actual_timelag(gas), datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) Essentials%used_timelag(gas)
+        call WriteDatumFloat(Essentials%used_timelag(gas), datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) E2Col(gas)%def_tl
+        call WriteDatumFloat(E2Col(gas)%def_tl, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) E2Col(gas)%min_tl
+        call WriteDatumFloat(E2Col(gas)%min_tl, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) E2Col(gas)%max_tl
+        call WriteDatumFloat(E2Col(gas)%max_tl, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
     end do
 
 !> Basic stats
     !> Mean values
     do var = u, gas4
-        write(datum, *) Stats6%Mean(var)
+        call WriteDatumFloat(Stats6%Mean(var), datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
     end do
     !> 25-50-75%
     do var = u, gas4
-        write(datum, *) Stats6%Median(var)
+        call WriteDatumFloat(Stats6%Median(var), datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
     end do
     do var = u, gas4
-        write(datum, *) Stats6%Q1(var)
+        call WriteDatumFloat(Stats6%Q1(var), datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
     end do
     do var = u, gas4
-        write(datum, *) Stats6%Q3(var)
+        call WriteDatumFloat(Stats6%Q3(var), datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
     end do
     !> Variances 
     do var = u, gas4
-        write(datum, *) Stats7%Cov(var, var)
+        call WriteDatumFloat(Stats7%Cov(var, var), datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
     end do
     !> Skwenesses
     do var = u, gas4
-        write(datum, *) Stats7%Skw(var)
+        call WriteDatumFloat(Stats7%Skw(var), datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
     end do
     !> Kurtosis
     do var = u, gas4
-        write(datum, *) Stats7%Kur(var)
+        call WriteDatumFloat(Stats7%Kur(var), datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
     end do
     !> w-covariances 
-    write(datum, *) Stats7%Cov(u, w)
+    call WriteDatumFloat(Stats7%Cov(u, w), datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     do var = ts, gas4
-        write(datum, *) Stats7%Cov(w, var)
+        call WriteDatumFloat(Stats7%Cov(w, var), datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
     end do
     !> Gases covariance matrix
     do gas1 = co2, ch4
         do gas2 = gas1 + 1, gas4 
-            write(datum, *) Stats7%Cov(gas1, gas2)
+            call WriteDatumFloat(Stats7%Cov(gas1, gas2), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         end do
     end do
 
 !> Intermediate results
     !> Fluxes level 0 (uncorrected fluxes)
-    write(datum, *) Flux0%tau
+    call WriteDatumFloat(Flux0%tau, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Flux0%H
+    call WriteDatumFloat(Flux0%H, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Flux0%LE
+    call WriteDatumFloat(Flux0%LE, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Flux0%co2
+    call WriteDatumFloat(Flux0%co2, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Flux0%h2o
+    call WriteDatumFloat(Flux0%h2o, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Flux0%ch4
+    call WriteDatumFloat(Flux0%ch4, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Flux0%gas4
+    call WriteDatumFloat(Flux0%gas4, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     !> Fluxes level 1
-    write(datum, *) Flux1%tau
+    call WriteDatumFloat(Flux1%tau, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Flux1%H
+    call WriteDatumFloat(Flux1%H, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Flux1%LE
+    call WriteDatumFloat(Flux1%LE, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Flux1%co2
+    call WriteDatumFloat(Flux1%co2, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Flux1%h2o
+    call WriteDatumFloat(Flux1%h2o, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Flux1%ch4
+    call WriteDatumFloat(Flux1%ch4, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Flux1%gas4
+    call WriteDatumFloat(Flux1%gas4, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     !> Fluxes level 2
-    write(datum, *) Flux2%tau
+    call WriteDatumFloat(Flux2%tau, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Flux2%H
+    call WriteDatumFloat(Flux2%H, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Flux2%LE
+    call WriteDatumFloat(Flux2%LE, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Flux2%co2
+    call WriteDatumFloat(Flux2%co2, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Flux2%h2o
+    call WriteDatumFloat(Flux2%h2o, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Flux2%ch4
+    call WriteDatumFloat(Flux2%ch4, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Flux2%gas4
+    call WriteDatumFloat(Flux2%gas4, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     !> Tin and Tout                 ********************************************
 
     !> Temperature, pressure and molar volume 
     !> in the cell of closed-paths, for all gases
     !> Cell parameters              **************************************** (make it gas specific like molar volume)
-    write(datum, *) Ambient%Tcell
+    call WriteDatumFloat(Ambient%Tcell, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Ambient%Pcell
+    call WriteDatumFloat(Ambient%Pcell, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     !> Molar volume
     do gas = co2, gas4
-        write(datum, *) E2Col(gas)%Va
+        call WriteDatumFloat(E2Col(gas)%Va, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
     end do
     !> Evapotranspiration and sensible heat fluxes in the cell of 
     !> closed-paths (for WPL), with timelags of other gases
-    write(datum, *) Flux3%E_co2
+    call WriteDatumFloat(Flux3%E_co2, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Flux3%E_ch4
+    call WriteDatumFloat(Flux3%E_ch4, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Flux3%E_gas4
+    call WriteDatumFloat(Flux3%E_gas4, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Flux3%Hi_co2
+    call WriteDatumFloat(Flux3%Hi_co2, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Flux3%Hi_h2o
+    call WriteDatumFloat(Flux3%Hi_h2o, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Flux3%Hi_ch4
+    call WriteDatumFloat(Flux3%Hi_ch4, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Flux3%Hi_gas4
+    call WriteDatumFloat(Flux3%Hi_gas4, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     !> Burba Terms 
-    write(datum, *) Burba%h_bot
+    call WriteDatumFloat(Burba%h_bot, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Burba%h_top
+    call WriteDatumFloat(Burba%h_top, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Burba%h_spar
+    call WriteDatumFloat(Burba%h_spar, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     !> LI-7700 multipliers
-    write(datum, *) Mul7700%A
+    call WriteDatumFloat(Mul7700%A, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Mul7700%B
+    call WriteDatumFloat(Mul7700%B, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Mul7700%C
+    call WriteDatumFloat(Mul7700%C, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     !> WPL Terms                    ********************************************(Individual: H, LE, Pressure)
     !>!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
@@ -453,10 +487,10 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
     call WriteDatumFloat(BPCF%of(w_gas4), datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     !> Increasingly filtered w/T covariances (for spectral assessment)
-    write(datum, *) Essentials%degH(NumDegH + 1)
+    call WriteDatumFloat(Essentials%degH(NumDegH + 1), datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     do j = 1, NumDegH
-        write(datum, *) Essentials%degH(j)
+        call WriteDatumFloat(Essentials%degH(j), datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
     end do
 
@@ -551,23 +585,23 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
     call AddDatum(dataline, '8'//CharHF%ns(9:9), separator)
     !> Quality test results
     !> Foken stats used to calculate flags
-    write(datum, *) STDiff%w_u
+    call WriteDatumFloat(STDiff%w_u, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) STDiff%w_ts
+    call WriteDatumFloat(STDiff%w_ts, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) StDiff%w_co2
+    call WriteDatumFloat(StDiff%w_co2, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) StDiff%w_h2o
+    call WriteDatumFloat(StDiff%w_h2o, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) StDiff%w_ch4
+    call WriteDatumFloat(StDiff%w_ch4, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) StDiff%w_gas4
+    call WriteDatumFloat(StDiff%w_gas4, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) DtDiff%u
+    call WriteDatumFloat(DtDiff%u, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) DtDiff%w
+    call WriteDatumFloat(DtDiff%w, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) DtDiff%ts
+    call WriteDatumFloat(DtDiff%ts, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     !> Partial Foken flags
     call WriteDatumInt(STFlg(w_u), datum, EddyProProj%err_label)
@@ -604,37 +638,37 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
     call WriteDatumInt(QCFlag%gas4, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     !> Number of calculated spikes per variables       *************************(Eliminare)
-    write(datum, *) Essentials%e2spikes(u)
+    call WriteDatumInt(Essentials%e2spikes(u), datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Essentials%e2spikes(v)
+    call WriteDatumInt(Essentials%e2spikes(v), datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Essentials%e2spikes(w)
+    call WriteDatumInt(Essentials%e2spikes(w), datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Essentials%e2spikes(ts)
+    call WriteDatumInt(Essentials%e2spikes(ts), datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     do var = co2, gas4
-        write(datum, *) Essentials%e2spikes(var)
+        call WriteDatumInt(Essentials%e2spikes(var), datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
     end do
     !> LI-7x00 diagnostics breakdown
     if (Diag7200%present) then
-        write(datum, *) Diag7200%head_detect
+        call WriteDatumInt(Diag7200%head_detect, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) Diag7200%t_out
+        call WriteDatumInt(Diag7200%t_out, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) Diag7200%t_in
+        call WriteDatumInt(Diag7200%t_in, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) Diag7200%aux_in
+        call WriteDatumInt(Diag7200%aux_in, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) Diag7200%delta_p
+        call WriteDatumInt(Diag7200%delta_p, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) Diag7200%chopper
+        call WriteDatumInt(Diag7200%chopper, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) Diag7200%detector
+        call WriteDatumInt(Diag7200%detector, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) Diag7200%pll
+        call WriteDatumInt(Diag7200%pll, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) Diag7200%sync
+        call WriteDatumInt(Diag7200%sync, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
     else
         do i = 1, 9
@@ -642,13 +676,13 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
         end do
     end if
     if (Diag7500%present) then
-        write(datum, *) Diag7500%chopper
+        call WriteDatumInt(Diag7500%chopper, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) Diag7500%detector
+        call WriteDatumInt(Diag7500%detector, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) Diag7500%pll
+        call WriteDatumInt(Diag7500%pll, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) Diag7500%sync
+        call WriteDatumInt(Diag7500%sync, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
     else
         do i = 1, 4
@@ -656,123 +690,122 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
         end do
     end if
     if (Diag7700%present) then
-        write(datum, *) Diag7700%not_ready
+        call WriteDatumInt(Diag7700%not_ready, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) Diag7700%no_signal
+        call WriteDatumInt(Diag7700%no_signal, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) Diag7700%re_unlocked
+        call WriteDatumInt(Diag7700%re_unlocked, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) Diag7700%bad_temp
+        call WriteDatumInt(Diag7700%bad_temp, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) Diag7700%laser_temp_unregulated
+        call WriteDatumInt(Diag7700%laser_temp_unregulated, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) Diag7700%block_temp_unregulated
+        call WriteDatumInt(Diag7700%block_temp_unregulated, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) Diag7700%motor_spinning
+        call WriteDatumInt(Diag7700%motor_spinning, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) Diag7700%pump_on
+        call WriteDatumInt(Diag7700%pump_on, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) Diag7700%top_heater_on
+        call WriteDatumInt(Diag7700%top_heater_on, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) Diag7700%bottom_heater_on
+        call WriteDatumInt(Diag7700%bottom_heater_on, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) Diag7700%calibrating
+        call WriteDatumInt(Diag7700%calibrating, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) Diag7700%motor_failure
+        call WriteDatumInt(Diag7700%motor_failure, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) Diag7700%bad_aux_tc1
+        call WriteDatumInt(Diag7700%bad_aux_tc1, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) Diag7700%bad_aux_tc2
+        call WriteDatumInt(Diag7700%bad_aux_tc2, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) Diag7700%bad_aux_tc3
+        call WriteDatumInt(Diag7700%bad_aux_tc3, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) Diag7700%box_connected
+        call WriteDatumInt(Diag7700%box_connected, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
     else
         do i = 1, 16
-            write(datum, *) error
             call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
         end do
     end if
     !> AGC/RSSI                     **************************************** (may need to adapt header to whether it's AGC or RSSI for 7200/7500) 
     if(CompareSwVer(E2Col(co2)%instr%sw_ver, SwVerFromString('6.0.0'))) then
-        write(datum, *)   nint(Essentials%AGC72)
+        call WriteDatumInt(nint(Essentials%AGC72), datum, EddyProProj%err_label)
     else
-        write(datum, *) - nint(Essentials%AGC72)
+        call WriteDatumInt(-nint(Essentials%AGC72), datum, EddyProProj%err_label)
     end if
     call AddDatum(dataline, datum, separator)
     !> LI-7500
     if(CompareSwVer(E2Col(co2)%instr%sw_ver, SwVerFromString('6.0.0'))) then
-        write(datum, *)   nint(Essentials%AGC75)
+        call WriteDatumInt(nint(Essentials%AGC75), datum, EddyProProj%err_label)
     else
-        write(datum, *) - nint(Essentials%AGC75)
+        call WriteDatumInt(-nint(Essentials%AGC75), datum, EddyProProj%err_label)
     end if
     call AddDatum(dataline, datum, separator)
     !> LI-7700
-    write(datum, *) nint(Essentials%RSSI77)
+    call WriteDatumInt(nint(Essentials%RSSI77), datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
 
 !> Processing settings
     !> Rotation angles
-    write(datum, *) Essentials%yaw
+    call WriteDatumFloat(Essentials%yaw, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Essentials%pitch
+    call WriteDatumFloat(Essentials%pitch, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Essentials%roll
+    call WriteDatumFloat(Essentials%roll, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     !> Detrending method and time constant
-    write(datum, *) Meth%det
+    call WriteDatumFloat(Meth%det, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) RPsetup%Tconst
+    call WriteDatumFloat(RPsetup%Tconst, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
 
 !> Metadata
     !> Data logger software version
-    write(datum, *) Metadata%logger_swver%major
+    call WriteDatumInt(Metadata%logger_swver%major, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Metadata%logger_swver%minor
+    call WriteDatumInt(Metadata%logger_swver%minor, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Metadata%logger_swver%revision
+    call WriteDatumInt(Metadata%logger_swver%revision, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     !> Site location and features
-    write(datum, *) Metadata%lat
+    call WriteDatumFloat(Metadata%lat, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Metadata%lon
+    call WriteDatumFloat(Metadata%lon, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Metadata%alt
+    call WriteDatumFloat(Metadata%alt, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Metadata%canopy_height
+    call WriteDatumFloat(Metadata%canopy_height, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Metadata%d
+    call WriteDatumFloat(Metadata%d, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Metadata%z0
+    call WriteDatumFloat(Metadata%z0, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     !> Data acquisition settings
-    write(datum, *) Metadata%file_length
+    call WriteDatumInt(nint(Metadata%file_length), datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) Metadata%ac_freq
+    call WriteDatumInt(nint(Metadata%ac_freq), datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     !> Flux averaging interval
-    write(datum, *) RPsetup%avrg_len
+    call WriteDatumInt(RPsetup%avrg_len, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     !> master anemometer
     write(datum, *) E2Col(u)%instr%firm(1:len_trim(E2Col(u)%Instr%firm))
     call AddDatum(dataline, datum, separator)
     write(datum, *) E2Col(u)%Instr%model(1:len_trim(E2Col(u)%Instr%model))
     call AddDatum(dataline, datum, separator)
-    write(datum, *) E2Col(u)%Instr%height
+    call WriteDatumFloat(E2Col(u)%Instr%height, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     write(datum, *) E2Col(u)%Instr%wformat(1:len_trim(E2Col(u)%Instr%wformat))
     call AddDatum(dataline, datum, separator)
     write(datum, *) E2Col(u)%Instr%wref(1:len_trim(E2Col(u)%Instr%wref))
     call AddDatum(dataline, datum, separator)
-    write(datum, *) E2Col(u)%Instr%north_offset
+    call WriteDatumFloat(E2Col(u)%Instr%north_offset, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) E2Col(u)%Instr%hpath_length
+    call WriteDatumFloat(E2Col(u)%Instr%hpath_length, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) E2Col(u)%Instr%vpath_length
+    call WriteDatumFloat(E2Col(u)%Instr%vpath_length, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) E2Col(u)%Instr%tau
+    call WriteDatumFloat(E2Col(u)%Instr%tau, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     !> gas analysers details
     do gas = co2, gas4
@@ -780,42 +813,42 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
         call AddDatum(dataline, datum, separator)
         write(datum, *) E2Col(gas)%Instr%model(1:len_trim(E2Col(gas)%Instr%model))
         call AddDatum(dataline, datum, separator)
-        write(datum, *) E2Col(gas)%Instr%nsep
+        call WriteDatumFloat(E2Col(gas)%Instr%nsep, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) E2Col(gas)%Instr%esep
+        call WriteDatumFloat(E2Col(gas)%Instr%esep, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) E2Col(gas)%Instr%vsep
+        call WriteDatumFloat(E2Col(gas)%Instr%vsep, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) E2Col(gas)%Instr%tube_l
+        call WriteDatumFloat(E2Col(gas)%Instr%tube_l, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) E2Col(gas)%Instr%tube_d
+        call WriteDatumFloat(E2Col(gas)%Instr%tube_d, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) E2Col(gas)%Instr%tube_f
+        call WriteDatumFloat(E2Col(gas)%Instr%tube_f, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) E2Col(gas)%Instr%kw
+        call WriteDatumFloat(E2Col(gas)%Instr%kw, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) E2Col(gas)%Instr%ko
+        call WriteDatumFloat(E2Col(gas)%Instr%ko, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) E2Col(gas)%Instr%hpath_length
+        call WriteDatumFloat(E2Col(gas)%Instr%hpath_length, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) E2Col(gas)%Instr%vpath_length
+        call WriteDatumFloat(E2Col(gas)%Instr%vpath_length, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        write(datum, *) E2Col(gas)%Instr%tau
+        call WriteDatumFloat(E2Col(gas)%Instr%tau, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
     end do
 
     !> Number and mean values of custom variables
-    write(datum, *) NumUserVar
+    call WriteDatumInt(NumUserVar, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     if (NumUserVar > 0) then
         do var = 1, NumUserVar
-            write(datum, *) UserStats%Mean(var)
+            call WriteDatumFloat(UserStats%Mean(var), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         end do
     end if
 
     !> All aggregated biomet values in FLUXNET units
-    write(datum, *) nbVars
+    call WriteDatumInt(nbVars, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     do i = 1, nbVars
         call WriteDatumFloat(bAggrFluxnet(i), datum, '-9999.')
