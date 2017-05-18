@@ -47,7 +47,13 @@ subroutine FootprintHandle(var_w, ustar, zL, wind_speed, MO_length, sonic_height
     !> Local variables
     real(kind = dbl) :: std_w
 
+
     foot_model_used = Meth%foot(1:len_trim(Meth%foot))
+    if (foot_model_used == 'none') then
+        Foot = errFootprint
+        return
+    end if
+
     !> If Kljun model was chosen, but conditions are outside those stated at Pag. 512 of the paper
     !> shift to Kormann and Meixner model.
     if (foot_model_used == 'kljun_04' .and. &

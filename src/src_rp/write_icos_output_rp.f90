@@ -361,6 +361,22 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
         end do
     end do
 
+!> Footprint
+    call WriteDatumFloat(Foot%peak, datum, EddyProProj%err_label)
+    call AddDatum(dataline, datum, separator)
+    call WriteDatumFloat(Foot%offset, datum, EddyProProj%err_label)
+    call AddDatum(dataline, datum, separator)
+    call WriteDatumFloat(Foot%x10, datum, EddyProProj%err_label)
+    call AddDatum(dataline, datum, separator)
+    call WriteDatumFloat(Foot%x30, datum, EddyProProj%err_label)
+    call AddDatum(dataline, datum, separator)
+    call WriteDatumFloat(Foot%x50, datum, EddyProProj%err_label)
+    call AddDatum(dataline, datum, separator)
+    call WriteDatumFloat(Foot%x70, datum, EddyProProj%err_label)
+    call AddDatum(dataline, datum, separator)
+    call WriteDatumFloat(Foot%x90, datum, EddyProProj%err_label)
+    call AddDatum(dataline, datum, separator)
+
 !> Intermediate results
     !> Fluxes level 0 (uncorrected fluxes)
     call WriteDatumFloat(Flux0%tau, datum, EddyProProj%err_label)
@@ -832,6 +848,17 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
             call WriteDatumInt(5, datum, EddyProProj%err_label)
     end select
     call AddDatum(dataline, datum, separator)
+    !> Footprint model
+    select case(trim(adjustl(foot_model_used)))
+        case('none')
+        call AddDatum(dataline, '0', separator)
+        case('kljun_04')
+        call AddDatum(dataline, '1', separator)
+        case('kormann_meixner_01')
+        call AddDatum(dataline, '2', separator)
+        case('hsieh_00')
+        call AddDatum(dataline, '3', separator)
+    end select
 
 !> Metadata
     !> Data logger software version

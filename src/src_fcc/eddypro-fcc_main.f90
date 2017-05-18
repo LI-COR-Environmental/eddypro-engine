@@ -490,20 +490,15 @@ Program EddyproFCC
             lEx%det_meth, nint(lEx%det_timec), .false., AuxInstrument, &
             size(FullFileList), FullFileList, nrow_full, lEx, FCCsetup)
 
-
         !> Calculate fluxes at Level 1
         call Fluxes1(lEx)
 
         !> Calculate fluxes at Level 2 and Level 3
         call Fluxes23(lEx)
 
-        !> Calculate footprint estimation
-        if (Meth%foot(1:len_trim(Meth%foot)) /= 'none') then
-            call FootprintHandle(lEx%var(w), lEx%ustar, lEx%zL, lEx%WS, lEx%L, &
-                lEx%instr(sonic)%height, lEx%disp_height, lEx%rough_length)
-        else
-            Foot = errFootprint
-        end if
+        !> Calculate footprint estimation   
+        call FootprintHandle(lEx%var(w), lEx%ustar, lEx%zL, lEx%WS, lEx%L, &
+            lEx%instr(sonic)%height, lEx%disp_height, lEx%rough_length)
 
         !> Calculate quality flags
         StDiff%w_u    = nint(lEx%st_w_u)

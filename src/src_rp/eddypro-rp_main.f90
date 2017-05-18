@@ -2156,13 +2156,9 @@ program EddyproRP
                 call Fluxes23_rp()
 
                 !> Footprint estimation
-                if (Meth%foot(1:len_trim(Meth%foot)) /= 'none') then
-                    call FootprintHandle(Stats%Cov(w, w), Ambient%us, &
-                        Ambient%zL, Ambient%WS, Ambient%L, &
-                        E2Col(u)%Instr%height, Metadata%d, Metadata%z0)
-                else
-                    Foot = errFootprint
-                end if
+                call FootprintHandle(Stats%Cov(w, w), Ambient%us, &
+                    Ambient%zL, Ambient%WS, Ambient%L, &
+                    E2Col(u)%Instr%height, Metadata%d, Metadata%z0)
             end if
 
             !> Calculate storage terms
