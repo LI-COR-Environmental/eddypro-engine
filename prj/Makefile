@@ -741,6 +741,9 @@ fit_cospectral_models.o: \
 read_ex_record.o: \
 	read_ex_record.f90 \
 	m_common_global_var.o
+read_ex2_record.o: \
+	read_ex2_record.f90 \
+	m_common_global_var.o
 fit_rh_to_cutoff.o: \
 	fit_rh_to_cutoff.f90 \
 	m_fx_global_var_mod.o \
