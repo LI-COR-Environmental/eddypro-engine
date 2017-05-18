@@ -65,24 +65,6 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
         // tmp_init_string(15:16) // '00'
     call AddDatum(dataline, trim(adjustl(iso_basic)), separator)
 
-
-! !> Biomet timestamp
-!     if (embedded) then
-!         tmp_init_string = init_string(index(init_string, ',') + 1: &
-!             index(init_string, ',', .true.) - 1)
-!     else
-!         tmp_init_string = &
-!             init_string(1: index(init_string, ',', .true.) - 1)
-!     end if
-
-!     !> derive ISO basic format timestamp
-!     iso_basic = tmp_init_string(1:4) // tmp_init_string(6:7) &
-!         // tmp_init_string(9:10) // tmp_init_string(12:13)  &
-!         // tmp_init_string(15:16) // '00'
-
-!     call clearstr(dataline)
-!     call AddDatum(dataline, trim(adjustl(iso_basic)), separator)
-
 !> Daytime
     if (Stats%daytime) then
         call AddDatum(dataline, '1', separator)
@@ -583,6 +565,7 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
     call AddDatum(dataline, '8'//CharSF%ds(2:9), separator)
     call AddDatum(dataline, '8'//CharHF%aa(9:9), separator)
     call AddDatum(dataline, '8'//CharHF%ns(9:9), separator)
+
     !> Quality test results
     !> Foken stats used to calculate flags
     call WriteDatumFloat(STDiff%w_u, datum, EddyProProj%err_label)
@@ -650,6 +633,7 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
         call WriteDatumInt(Essentials%e2spikes(var), datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
     end do
+
     !> LI-7x00 diagnostics breakdown
     if (Diag7200%present) then
         call WriteDatumInt(Diag7200%head_detect, datum, EddyProProj%err_label)
@@ -746,6 +730,39 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
     call AddDatum(dataline, datum, separator)
 
 !> Processing settings
+    !> Whether w-boost calibration was applied
+    if (RPsetup%calib_wboost) then
+        call WriteDatumInt(1, datum, EddyProProj%err_label)
+    else
+        call WriteDatumInt(0, datum, EddyProProj%err_label)
+    end if
+    call AddDatum(dataline, datum, separator)
+    !> Whether AoA calibration was applied
+    select case(trim(adjustl(RPsetup%calib_aoa)))
+        case('automatic')
+            call WriteDatumInt(-1, datum, EddyProProj%err_label)
+        case('none')
+            call WriteDatumInt(0, datum, EddyProProj%err_label)
+        case('nakai_06')
+            call WriteDatumInt(1, datum, EddyProProj%err_label)
+        case('nakai_12')
+            call WriteDatumInt(2, datum, EddyProProj%err_label)
+    end select
+    call AddDatum(dataline, datum, separator)
+    !> Tilt compensation method
+    select case(trim(adjustl(Meth%rot)))
+        case('none')
+            call WriteDatumInt(0, datum, EddyProProj%err_label)
+        case('double_rotation')
+            call WriteDatumInt(1, datum, EddyProProj%err_label)
+        case('triple_rotation')
+            call WriteDatumInt(2, datum, EddyProProj%err_label)
+        case('planar_fit')
+            call WriteDatumInt(3, datum, EddyProProj%err_label)
+        case('planar_fit_no_bias')
+            call WriteDatumInt(4, datum, EddyProProj%err_label)
+    end select
+    call AddDatum(dataline, datum, separator)
     !> Rotation angles
     call WriteDatumFloat(Essentials%yaw, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
@@ -754,9 +771,66 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
     call WriteDatumFloat(Essentials%roll, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     !> Detrending method and time constant
-    call WriteDatumFloat(Meth%det, datum, EddyProProj%err_label)
+    select case(trim(adjustl(Meth%det)))
+        case('ba')
+            call WriteDatumInt(0, datum, EddyProProj%err_label)
+        case('ld')
+            call WriteDatumInt(1, datum, EddyProProj%err_label)
+        case('rm')
+            call WriteDatumInt(2, datum, EddyProProj%err_label)
+        case('ew')
+            call WriteDatumInt(3, datum, EddyProProj%err_label)
+    end select
     call AddDatum(dataline, datum, separator)
     call WriteDatumFloat(RPsetup%Tconst, datum, EddyProProj%err_label)
+    call AddDatum(dataline, datum, separator)
+    !> Time lag detection method
+    select case(trim(adjustl(Meth%tlag)))
+        case('none')
+            call WriteDatumInt(0, datum, EddyProProj%err_label)
+        case('constant')
+            call WriteDatumInt(1, datum, EddyProProj%err_label)
+        case('maxcov&default')
+            call WriteDatumInt(2, datum, EddyProProj%err_label)
+        case('maxcov')
+            call WriteDatumInt(3, datum, EddyProProj%err_label)
+        case('tlag_opt')
+            call WriteDatumInt(4, datum, EddyProProj%err_label)
+    end select
+    call AddDatum(dataline, datum, separator)
+    !> WPL terms
+    if (EddyProProj%wpl) then
+        call WriteDatumInt(1, datum, EddyProProj%err_label)
+    else
+        call WriteDatumInt(0, datum, EddyProProj%err_label)
+    end if
+    call AddDatum(dataline, datum, separator)
+    !> Burba terms
+    if (trim(adjustl(RPSetup%bu_corr)) == 'yes') then
+        if (RPSetup%bu_multi) then
+            call WriteDatumInt(2, datum, EddyProProj%err_label)
+        else
+            call WriteDatumInt(1, datum, EddyProProj%err_label)
+        end if
+    else
+        call WriteDatumInt(0, datum, EddyProProj%err_label)
+    end if
+    call AddDatum(dataline, datum, separator)
+    !> Spectral correction method
+    select case(trim(adjustl(EddyProProj%hf_meth)))
+        case('none')
+            call WriteDatumInt(0, datum, EddyProProj%err_label)
+        case('moncrieff_97')
+            call WriteDatumInt(1, datum, EddyProProj%err_label)
+        case('horst_97')
+            call WriteDatumInt(2, datum, EddyProProj%err_label)
+        case('ibrom_07')
+            call WriteDatumInt(3, datum, EddyProProj%err_label)
+        case('fratini_12')
+            call WriteDatumInt(4, datum, EddyProProj%err_label)
+        case('massman_00')
+            call WriteDatumInt(5, datum, EddyProProj%err_label)
+    end select
     call AddDatum(dataline, datum, separator)
 
 !> Metadata
