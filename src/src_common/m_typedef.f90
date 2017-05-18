@@ -1259,4 +1259,100 @@ module m_typedef
         type(FluxType) :: Flux0
         Type(SwVerType) :: logger_swver
     end type ExType
+
+    type :: Ex2Type
+        character(FilenameLen) :: fname
+        character(16) :: timestamp
+        character(10) :: date
+        character(5) :: time
+        character(32) :: measure_type(GHGNumVar)
+        character(8) :: det_meth
+        character(10) :: vm_flags(12)
+        integer :: file_records
+        integer :: used_records
+        integer :: spikes(GHGNumVar)
+        real(kind = dbl) :: file_length
+        real(kind = dbl) :: lat
+        real(kind = dbl) :: lon
+        real(kind = dbl) :: alt
+        real(kind = dbl) :: licor_flags(29)
+        real(kind = dbl) :: det_timec
+        real(kind = dbl) :: unrot_u
+        real(kind = dbl) :: unrot_v
+        real(kind = dbl) :: unrot_w
+        real(kind = dbl) :: rot_u
+        real(kind = dbl) :: rot_v
+        real(kind = dbl) :: rot_w
+        real(kind = dbl) :: MWS
+        real(kind = dbl) :: WS
+        real(kind = dbl) :: WD
+        real(kind = dbl) :: ustar
+        real(kind = dbl) :: TKE
+        real(kind = dbl) :: L
+        real(kind = dbl) :: zL
+        real(kind = dbl) :: Bowen
+        real(kind = dbl) :: Tstar
+        real(kind = dbl) :: d(GHGNumVar)
+        real(kind = dbl) :: r(GHGNumVar)
+        real(kind = dbl) :: chi(GHGNumVar)
+        real(kind = dbl) :: Ts
+        real(kind = dbl) :: Ta
+        real(kind = dbl) :: Pa
+        real(kind = dbl) :: RH
+        real(kind = dbl) :: Va
+        real(kind = dbl) :: RhoCp
+        real(kind = dbl) :: e
+        real(kind = dbl) :: es
+        real(kind = dbl) :: Q
+        real(kind = dbl) :: VPD
+        real(kind = dbl) :: Tdew
+        real(kind = dbl) :: Pd
+        real(kind = dbl) :: Vd
+        real(kind = dbl) :: lambda
+        real(kind = dbl) :: sigma
+        real(kind = dbl) :: Tcell
+        real(kind = dbl) :: Pcell
+        real(kind = dbl) :: Vcell(GHGNumVar)
+        real(kind = dbl) :: Var(E2NumVar)
+        real(kind = dbl) :: Cov_w(E2NumVar)
+        real(kind = dbl) :: tlag(GHGNumVar)
+        real(kind = dbl) :: yaw
+        real(kind = dbl) :: pitch
+        real(kind = dbl) :: roll
+        real(kind = dbl) :: st_w_u
+        real(kind = dbl) :: st_w_ts
+        real(kind = dbl) :: st_w_co2
+        real(kind = dbl) :: st_w_h2o
+        real(kind = dbl) :: st_w_ch4
+        real(kind = dbl) :: st_w_gas4
+        real(kind = dbl) :: dt_u
+        real(kind = dbl) :: dt_w
+        real(kind = dbl) :: dt_ts
+        real(kind = dbl) :: avrg_length
+        real(kind = dbl) :: ac_freq
+        real(kind = dbl) :: canopy_height
+        real(kind = dbl) :: disp_height
+        real(kind = dbl) :: rough_length
+        real(kind = dbl) :: bWS
+        real(kind = dbl) :: bzL
+        real(kind = dbl) :: agc72
+        real(kind = dbl) :: agc75
+        real(kind = dbl) :: rssi77
+        real(kind = dbl) :: user_var(MaxUserVar)
+        real(kind = dbl) :: rand_uncer(E2NumVar)
+        real(kind = dbl) :: rand_uncer_LE
+        logical :: daytime
+        logical :: var_present(GHGNumVar)
+        logical :: def_tlag(GHGNumVar)
+        type(StorType) :: Stor
+        type(RhoType) :: RHO
+        type(Mul7700Type) :: Mul7700
+        type(BurbaType) :: Burba
+        type(DegTType) :: degT
+        type(InstrumentType) :: instr(ExNumInstruments)
+        type(FluxType) :: Flux0
+        Type(SwVerType) :: logger_swver
+    end type Ex2Type
+
+
 end module m_typedef

@@ -855,7 +855,7 @@ end function SplitCount
 ! \bug
 ! \deprecated
 ! \test
-!***************************************************************************function replace(string,what,with, outlen)  result(nstring)
+!***************************************************************************
 function replace(string, what, with, outlen) result(nstring)
     use m_common_global_var
     implicit none
@@ -1055,3 +1055,38 @@ logical function strings_match(s1, s2, wcard)
     end do
     strings_match = .true.
 end function strings_match
+!***************************************************************************
+!
+! \brief       Returns index of n-th occurrence of c in s. If s doesn't have
+!              n times c, returns ierror
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+!***************************************************************************
+integer function strCharIndex(s, c, n)
+    use m_common_global_var
+    implicit none
+    !> In/out variables
+    character(*),intent(in) :: s
+    character(*),intent(in) :: c
+    integer, intent(in) :: n
+    !> Local variables
+    integer :: i
+    integer :: cnt
+
+    strCharIndex = ierror
+    cnt = 0
+    do i = 1, len(s)
+        if (s(i:i) == c) then 
+            cnt = cnt + 1
+            if (cnt == n) then 
+                strCharIndex = i
+                exit
+            end if
+        end if
+    end do
+end function strCharIndex
+
