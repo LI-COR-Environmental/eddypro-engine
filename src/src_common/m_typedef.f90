@@ -1239,7 +1239,6 @@ module m_typedef
         real(kind = dbl) :: canopy_height
         real(kind = dbl) :: disp_height
         real(kind = dbl) :: rough_length
-        real(kind = dbl) :: bWS
         real(kind = dbl) :: bzL
         real(kind = dbl) :: agc72
         real(kind = dbl) :: agc75
@@ -1260,17 +1259,22 @@ module m_typedef
         Type(SwVerType) :: logger_swver
     end type ExType
 
-    type :: Ex2Type
+    type Ex2Type
         character(FilenameLen) :: fname
         character(16) :: timestamp
         character(10) :: date
         character(5) :: time
+        character(10) :: vm_flags(12)
         character(32) :: measure_type(GHGNumVar)
         character(8) :: det_meth
-        character(10) :: vm_flags(12)
         integer :: file_records
         integer :: used_records
         integer :: spikes(GHGNumVar)
+        integer :: det_meth_int
+        integer :: measure_type_int(GHGNumVar)
+        integer :: nr_theor
+        integer :: nr(3)
+        integer :: daytime_int
         real(kind = dbl) :: file_length
         real(kind = dbl) :: lat
         real(kind = dbl) :: lon
@@ -1316,6 +1320,11 @@ module m_typedef
         real(kind = dbl) :: Var(E2NumVar)
         real(kind = dbl) :: Cov_w(E2NumVar)
         real(kind = dbl) :: tlag(GHGNumVar)
+        real(kind = dbl) :: act_tlag(GHGNumVar)
+        real(kind = dbl) :: used_tlag(GHGNumVar)
+        real(kind = dbl) :: nom_tlag(GHGNumVar)
+        real(kind = dbl) :: min_tlag(GHGNumVar)
+        real(kind = dbl) :: max_tlag(GHGNumVar)
         real(kind = dbl) :: yaw
         real(kind = dbl) :: pitch
         real(kind = dbl) :: roll
@@ -1333,8 +1342,6 @@ module m_typedef
         real(kind = dbl) :: canopy_height
         real(kind = dbl) :: disp_height
         real(kind = dbl) :: rough_length
-        real(kind = dbl) :: bWS
-        real(kind = dbl) :: bzL
         real(kind = dbl) :: agc72
         real(kind = dbl) :: agc75
         real(kind = dbl) :: rssi77
@@ -1354,5 +1361,7 @@ module m_typedef
         Type(SwVerType) :: logger_swver
     end type Ex2Type
 
-
+    type icosChunksType
+        character(LongOutstringLen) s(10)
+    end type icosChunksType
 end module m_typedef

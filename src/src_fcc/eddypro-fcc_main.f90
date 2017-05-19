@@ -114,6 +114,10 @@ Program EddyproFCC
     if (EddyProProj%run_env == 'embedded') &
         call ConfigureForEmbedded('EddyPro-FCC')
 
+    
+    call ReadEx2Record(AuxFile%ex, udf, 1, lEx, ValidRecord, EndOfFileReached)
+
+
     !> Preliminarily read essential files and retrieve a few information
     call InitExVars(exStartTimestamp, exEndTimestamp, &
         NumExRecords, NumValidExRecords)

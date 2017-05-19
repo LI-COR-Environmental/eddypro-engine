@@ -206,6 +206,7 @@ module m_common_global_var
     type(EddyProProjType) :: EddyProProj
     type(SpectralType) :: BPCF
     type(SpectralType) :: ADDCF
+    type(icosChunksType) :: icosChunks
 
     !> Variables to be validate
     real(kind = dbl) :: PFMat(3, 3, MaxNumWSect) = 0.d0
