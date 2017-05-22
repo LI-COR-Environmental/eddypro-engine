@@ -1273,7 +1273,11 @@ module m_typedef
         integer :: det_meth_int
         integer :: measure_type_int(GHGNumVar)
         integer :: nr_theor
-        integer :: nr(3)
+        integer :: nr_files
+        integer :: nr_after_custom_flags
+        integer :: nr_after_wdf
+        integer :: nr(GHGNumVar)
+        integer :: nr_w(GHGNumVar)
         integer :: daytime_int
         real(kind = dbl) :: file_length
         real(kind = dbl) :: lat
@@ -1358,7 +1362,10 @@ module m_typedef
         type(DegTType) :: degT
         type(InstrumentType) :: instr(ExNumInstruments)
         type(FluxType) :: Flux0
+        type(FluxType) :: Flux1
+        type(FluxType) :: Flux2
         Type(SwVerType) :: logger_swver
+        type(StatsType) :: stats
     end type Ex2Type
 
     type icosChunksType

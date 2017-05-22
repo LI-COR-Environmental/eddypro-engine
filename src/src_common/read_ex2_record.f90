@@ -44,6 +44,7 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
     integer :: open_status
     integer :: read_status
     integer :: i
+    integer :: var
     integer :: ix
     character(16000) :: dataline
 
@@ -89,16 +90,12 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
 
     !> Extract some data
     read(dataline, *, iostat = read_status) lEx2%daytime_int, lEx2%nr_theor, &
-        lEx2%nr(1), lEx2%nr(2), lEx2%nr(3)
-    ix = strCharIndex(dataline, ',', 5)
+        lEx2%nr_files, lEx2%nr_after_custom_flags, lEx2%nr_after_wdf, &
+        lEx2%nr(u), lEx2%nr(ts:gas4), lEx2%nr_w(u), lEx2%nr_w(ts:gas4)
+    ix = strCharIndex(dataline, ',', 17)
     dataline = dataline(ix+1: len_trim(dataline))
 
-    !> Copy NR_WIND thru NR_W_GS4
-    ix = strCharIndex(dataline, ',', 12)
-    icosChunks%s(1) = dataline(1: ix)
-    dataline = dataline(ix+1: len_trim(dataline))
-
-    !> Skip final fluxes
+    !> Skip final fluxes (they are recalculated in FCC)
     ix = strCharIndex(dataline, ',', 7)
     dataline = dataline(ix+1: len_trim(dataline))
 
@@ -112,19 +109,13 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
     ix = strCharIndex(dataline, ',', 13)
     dataline = dataline(ix+1: len_trim(dataline))
         
-    !> Copy FC_V_ADV thru FGS4_V_ADV
+    !> Skip vertical advections (they are recalculated in FCC)
     ix = strCharIndex(dataline, ',', 4)
-    icosChunks%s(2) = dataline(1: ix)
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> Extract rotated and unrotated wind components
     read(dataline, *, iostat = read_status) &        
-        lEx2%unrot_u, lEx2%unrot_v, lEx2%unrot_w, lEx2%rot_u, lEx2%rot_v, lEx2%rot_w
-    ix = strCharIndex(dataline, ',', 6)
-    dataline = dataline(ix+1: len_trim(dataline))
-
-    !> Read out some data
-    read(dataline, *, iostat = read_status) &
+        lEx2%unrot_u, lEx2%unrot_v, lEx2%unrot_w, lEx2%rot_u, lEx2%rot_v, lEx2%rot_w, &
         lEx2%WS, lEx2%MWS, lEx2%WD, lEx2%ustar, lEx2%TKE, lEx2%L, lEx2%zL, lEx2%Bowen, lEx2%Tstar, &
         lEx2%Ts, lEx2%Ta, lEx2%Pa, lEx2%RH, lEx2%Va, lEx2%RHO%a, lEx2%RhoCp, &
         lEx2%RHO%w, lEx2%e, lEx2%es, lEx2%Q, lEx2%VPD, lEx2%Tdew, &
@@ -136,31 +127,15 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
         lEx2%act_tlag(co2), lEx2%used_tlag(co2), lEx2%nom_tlag(co2), lEx2%min_tlag(co2), lEx2%max_tlag(co2), &
         lEx2%act_tlag(h2o), lEx2%used_tlag(h2o), lEx2%nom_tlag(h2o), lEx2%min_tlag(h2o), lEx2%max_tlag(h2o),&
         lEx2%act_tlag(ch4), lEx2%used_tlag(ch4), lEx2%nom_tlag(ch4), lEx2%min_tlag(ch4), lEx2%max_tlag(ch4),&
-        lEx2%act_tlag(gas4), lEx2%used_tlag(gas4), lEx2%nom_tlag(gas4), lEx2%min_tlag(gas4), lEx2%max_tlag(gas4)
-    ix = strCharIndex(dataline, ',', 63)
+        lEx2%act_tlag(gas4), lEx2%used_tlag(gas4), lEx2%nom_tlag(gas4), lEx2%min_tlag(gas4), lEx2%max_tlag(gas4), &
+        lEx2%stats%mean(u:gas4), lEx2%stats%median(u:gas4), lEx2%stats%Q1(u:gas4), lEx2%stats%Q3(u:gas4), &
+        (lEx2%stats%Cov(var, var), var=u, gas4), lEx2%stats%Skw(u:gas4), lEx2%stats%Kur(u:gas4), &
+        lEx2%stats%Cov(w, u), lEx2%stats%Cov(w, ts:gas4), lEx2%stats%Cov(co2, h2o:gas4), &
+        lEx2%stats%Cov(h2o, ch4:gas4), lEx2%stats%Cov(ch4, gas4)
+    ix = strCharIndex(dataline, ',', 137)
     dataline = dataline(ix+1: len_trim(dataline))
 
-    !> Copy U_MEAN thru GS4_Q3
-    ix = strCharIndex(dataline, ',', 52)
-    icosChunks%s(4) = dataline(1: ix)
-    dataline = dataline(ix+1: len_trim(dataline))
-
-    !> Read out variances
-    read(dataline, *, iostat = read_status) lEx2%var(u:gas4)
-    ix = strCharIndex(dataline, ',', 8)
-    dataline = dataline(ix+1: len_trim(dataline))
-
-    !> Copy U_SKW thru GS4_KUR
-    ix = strCharIndex(dataline, ',', 16)
-    icosChunks%s(4) = dataline(1: ix)
-    dataline = dataline(ix+1: len_trim(dataline))
-
-    !> Read out covariances
-    read(dataline, *, iostat = read_status) lEx2%cov_w(u), lEx2%cov_w(ts:gas4)
-    ix = strCharIndex(dataline, ',', 6)
-    dataline = dataline(ix+1: len_trim(dataline))
-
-    !> Skip footprint
+    !> Skip footprint (it's recalculated in FCC)
     ix = strCharIndex(dataline, ',', 7)
     dataline = dataline(ix+1: len_trim(dataline))
 
@@ -170,9 +145,8 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
     ix = strCharIndex(dataline, ',', 7)
     dataline = dataline(ix+1: len_trim(dataline))
 
-    !> Copy TAU_1 thru FGS4_2
+    !> skip Flux0 and Flux1 (they are recalculated in FCC)
     ix = strCharIndex(dataline, ',', 14)
-    icosChunks%s(4) = dataline(1: ix)
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> Read out some data
@@ -185,7 +159,7 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
     ix = strCharIndex(dataline, ',', 19)
     dataline = dataline(ix+1: len_trim(dataline))
 
-    !> Skip SCFs
+    !> Skip SCFs (they are recalculated in FCC)
     ix = strCharIndex(dataline, ',', 7)
     dataline = dataline(ix+1: len_trim(dataline))
 
@@ -291,7 +265,7 @@ subroutine CompleteEssentials2(lEx2)
     type(Ex2Type), intent(inout) :: lEx2
     !> local variables
     integer :: gas
-
+    integer :: var
 
     lEx2%var_present = .false.
     if (lEx2%WS /= error) lEx2%var_present(u:w) = .true.
@@ -362,9 +336,14 @@ subroutine CompleteEssentials2(lEx2)
     !> Daytime
     lEx2%daytime = lEx2%daytime_int == 1
 
-    !> Back compatibility
+    !> Legacy values to be later replaced with newer (left-hand sides) *********
     lEx2%file_records = lEx2%nr(1)
     lEx2%used_records = lEx2%nr(3)
     lEx2%tlag = lEx2%act_tlag
     lEx2%def_tlag = lEx2%act_tlag == lEx2%nom_tlag
+    do var = u, gas4
+        lEx2%var(var) = lEx2%stats%Cov(var, var)
+    end do
+    lEx2%cov_w(u) = lEx2%stats%cov(w, u)
+    lEx2%cov_w(ts:gas4) = lEx2%stats%cov(w, ts:gas4)
 end subroutine CompleteEssentials2
