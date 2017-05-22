@@ -206,13 +206,25 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
     ix = strCharIndex(dataline, ',', 19)
     dataline = dataline(ix+1: len_trim(dataline))
 
-    !> Copy FK04_ST_FLAG_W_U thru ROT_ROLL
-    ix = strCharIndex(dataline, ',', 62)
+    !> Copy FK04_ST_FLAG_W_U thru LI7700_BOX_CONNECTED
+    ix = strCharIndex(dataline, ',', 53)
     icosChunks%s(6) = dataline(1: ix)
     dataline = dataline(ix+1: len_trim(dataline))
 
-    read(dataline, *, iostat = read_status) lEx2%det_meth_int, lEx2%det_timec
-    ix = strCharIndex(dataline, ',', 2)
+    !> Read AGC/RSSI
+    read(dataline, *, iostat = read_status) lEx2%agc72,lEx2%agc75,lEx2%rssi77
+    ix = strCharIndex(dataline, ',', 3)
+    dataline = dataline(ix+1: len_trim(dataline))
+
+    !> Copy WBOOST_APPLIED thru AXES_ROTATION_METHOD
+    ix = strCharIndex(dataline, ',', 3)
+    icosChunks%s(6) = dataline(1: ix)
+    dataline = dataline(ix+1: len_trim(dataline))
+
+    !> Read rotation angles and detrending method/time constant
+    read(dataline, *, iostat = read_status) &
+        lEx2%yaw, lEx2%pitch, lEx2%roll, lEx2%det_meth_int, lEx2%det_timec
+    ix = strCharIndex(dataline, ',', 5)
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> Copy TIMELAG_DETECTION_METHOD thru FOOTPRINT_MODEL
@@ -248,6 +260,8 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
     ix = strCharIndex(dataline, ',', 73)
     dataline = dataline(ix+1: len_trim(dataline))
 
+print*, dataline(1:30)
+stop
     !> Put remaining into last chunk
     icosChunks%s(8) = dataline(1: len_trim(dataline))
 
