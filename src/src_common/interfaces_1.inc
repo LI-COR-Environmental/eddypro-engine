@@ -91,3 +91,36 @@ interface
         integer :: CountRecordsAndValues
     end function
 end interface
+
+interface
+    function PotentialRadiation(latit) result(RP)
+        use m_common_global_var
+        implicit none
+        !> in/out variables
+        real(kind = dbl), intent(in) :: latit
+        real(kind = dbl) :: RP(17568)
+    end function
+end interface
+
+
+interface
+    function DateTimeToHalfHourNumber(date, time) result(indx)
+        character(*), intent(in) :: date
+        character(*), intent(in) :: time
+        integer :: indx
+    end function
+end interface
+
+
+interface
+    function replace(string, what, with, outlen) result(nstring)
+        use m_common_global_var
+        implicit none
+        !> in/out variables
+        integer, intent(in) :: outlen
+        character(*), intent(in) :: string
+        character(*), intent(in) :: what
+        character(*), intent(in) :: with
+        character(outlen) :: nstring
+    end function
+end interface

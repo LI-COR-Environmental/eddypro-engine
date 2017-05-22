@@ -692,7 +692,8 @@ subroutine InitOutFiles_rp()
         open(uicos, file = ICOS_Path, iostat = open_status, encoding = 'utf-8')
 
         call clearstr(dataline)
-        dataline = 'TIMESTAMP,DAYTIME,NR_THEOR,NR_1,NR_2,NR_3,NR_WIND,NR_TS,NR_CO2,NR_H20,NR_CH4,NR_GS4,&
+        dataline = 'TIMESTAMP,POTENTIAL_RADIATION,DAYTIME,NR_THEOR,&
+                  &NR_FILES,NR_AFTER_CUSTOM_FLAGS,NR_AFTER_WDF,NR_WIND,NR_TS,NR_CO2,NR_H20,NR_CH4,NR_GS4,&
                   &NR_W_U,NR_W_TS,NR_W_CO2,NR_W_H2O,NR_W_CH4,NR_W_GS4,&
                   &TAU,H,LE,FC,FH2O,FCH4,FGS4,TAU_RU,H_RU,LE_RU,FC_RU,FH2O_RU,FCH4_RU,FGS4_RU,&
                   &H_STOR,LE_STOR,FC_STOR,FH2O_STOR,FCH4_STOR,FGS4_STOR,&
@@ -730,7 +731,7 @@ subroutine InitOutFiles_rp()
                   &TAU_SCF,H_SCF,LE_SCF,FC_SCF,FH2O_SCF,FCH4_SCF,FGS4_SCF,&
                   &COV_WT,COV_WT_1.626,COV_WT_0.614,COV_WT_0.277,COV_WT_0.133,COV_WT_0.065,&
                   &COV_WT_0.032,COV_WT_0.016,COV_WT_0.008,COV_WT_0.004,&
-                  &M_CUSTOM_FLAGS,M_CUSTOM_WDF,M_SONIC_DIAG,&
+                  &M_CUSTOM_FLAGS,M_WDF,M_SONIC_DIAG,&
                   &M_IRGA_DIAG_CO2,M_IRGA_DIAG_H2O,M_IRGA_DIAG_CH4,M_IRGA_DIAG_GS4,&
                   &M_SPIKES_U,M_SPIKES_V,M_SPIKES_W,M_SPIKES_TS,&
                   &M_SPIKES_CO2,M_SPIKES_H2O,M_SPIKES_CH4,M_SPIKES_GS4,&

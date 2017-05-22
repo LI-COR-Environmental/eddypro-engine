@@ -30,11 +30,10 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
+subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
     use m_rp_global_var
     implicit none
     !> in/out variables
-    character(*), intent(in) :: init_string
     type(QCType), intent(in) :: StDiff
     type(QCType), intent(in) :: DtDiff
     integer, intent(in) :: STFlg(GHGNumVar)
@@ -46,10 +45,10 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
     integer :: gas2
     integer :: j
     integer :: i
+    integer :: indx
 !    integer :: prof
     character(16000) :: dataline
     character(DatumLen) :: datum
-    character(64) :: tmp_init_string
     character(14) :: iso_basic
     include '../src_common/interfaces.inc'
 
@@ -57,13 +56,13 @@ subroutine WriteIcosOutputRp(init_string, StDiff, DtDiff, STFlg, DTFlg)
     call clearstr(dataline)
 
     !> Timestamp
-    tmp_init_string = &
-        init_string(index(init_string, ',') +1: &
-                    index(init_string, ',', .true.) - 1)
-    iso_basic = tmp_init_string(1:4) // tmp_init_string(6:7) &
-        // tmp_init_string(9:10) // tmp_init_string(12:13)  &
-        // tmp_init_string(15:16) // '00'
+    iso_basic = replace(Stats%date, '-', '', len(Stats%date)) // replace(Stats%time, ':', '', len(Stats%time)) // '00'
     call AddDatum(dataline, trim(adjustl(iso_basic)), separator)
+
+!> Potential Radiations
+    indx = DateTimeToHalfHourNumber(Stats%date, Stats%time)
+    call WriteDatumFloat(PotRad(indx), datum, EddyProProj%err_label)
+    call AddDatum(dataline, datum, separator)
 
 !> Daytime
     if (Stats%daytime) then

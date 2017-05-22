@@ -865,6 +865,7 @@ function replace(string, what, with, outlen) result(nstring)
     character(*), intent(in) :: what
     character(*), intent(in) :: with
     character(outlen) :: nstring
+    !> Local variables
     integer :: i, nnr
 
     nstring = string

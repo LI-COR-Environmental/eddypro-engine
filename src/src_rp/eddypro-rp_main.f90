@@ -370,7 +370,7 @@ program EddyproRP
     if (EddyProProj%use_dynmd_file) call InitDynamicMetadata(NumDynRecords)
 
     !> Determine potential radiation, based on lat/long info from metadata file
-    call PotentialRadiation(Metadata%lat)
+    PotRad = PotentialRadiation(Metadata%lat)
 
     !> Initialize output files for "user" variables (non-sensitive variables)
     !> if at least one such variable exists
