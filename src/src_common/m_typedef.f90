@@ -1279,6 +1279,7 @@ module m_typedef
         integer :: nr(GHGNumVar)
         integer :: nr_w(GHGNumVar)
         integer :: daytime_int
+        real(kind = dbl) :: RP
         real(kind = dbl) :: file_length
         real(kind = dbl) :: lat
         real(kind = dbl) :: lon

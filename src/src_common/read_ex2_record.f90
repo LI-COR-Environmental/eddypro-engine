@@ -89,10 +89,10 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
     dataline = dataline(16: len_trim(dataline))
 
     !> Extract some data
-    read(dataline, *, iostat = read_status) lEx2%daytime_int, lEx2%nr_theor, &
+    read(dataline, *, iostat = read_status) lEx2%RP, lEx2%daytime_int, lEx2%nr_theor, &
         lEx2%nr_files, lEx2%nr_after_custom_flags, lEx2%nr_after_wdf, &
         lEx2%nr(u), lEx2%nr(ts:gas4), lEx2%nr_w(u), lEx2%nr_w(ts:gas4)
-    ix = strCharIndex(dataline, ',', 17)
+    ix = strCharIndex(dataline, ',', 18)
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> Skip final fluxes (they are recalculated in FCC)
@@ -102,10 +102,8 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
     !> Extract random uncertainties
     read(dataline, *, iostat = read_status) &
         lEx2%rand_uncer(u), lEx2%rand_uncer(ts), &
-        lEx2%rand_uncer_LE, lEx2%rand_uncer(co2), lEx2%rand_uncer(h2o), &
-        lEx2%rand_uncer(ch4), lEx2%rand_uncer(gas4), &
-        lEx2%Stor%H, lEx2%Stor%LE, lEx2%Stor%of(co2), lEx2%Stor%of(h2o), &
-        lEx2%Stor%of(ch4), lEx2%Stor%of(gas4)
+        lEx2%rand_uncer_LE, lEx2%rand_uncer(co2:gas4), &
+        lEx2%Stor%H, lEx2%Stor%LE, lEx2%Stor%of(co2:gas4)
     ix = strCharIndex(dataline, ',', 13)
     dataline = dataline(ix+1: len_trim(dataline))
         
@@ -113,6 +111,8 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
     ix = strCharIndex(dataline, ',', 4)
     dataline = dataline(ix+1: len_trim(dataline))
 
+print*, dataline(1:30)
+stop
     !> Extract rotated and unrotated wind components
     read(dataline, *, iostat = read_status) &        
         lEx2%unrot_u, lEx2%unrot_v, lEx2%unrot_w, lEx2%rot_u, lEx2%rot_v, lEx2%rot_w, &
@@ -170,7 +170,7 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
 
     !> Copy M_CUSTOM_FLAGS thru VM97_NSW_RNS
     ix = strCharIndex(dataline, ',', 75)
-    icosChunks%s(5) = dataline(1: ix)
+    icosChunks%s(1) = dataline(1: ix)
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> Read out VM flags and Foken QC details
@@ -182,7 +182,7 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
 
     !> Copy FK04_ST_FLAG_W_U thru LI7700_BOX_CONNECTED
     ix = strCharIndex(dataline, ',', 53)
-    icosChunks%s(6) = dataline(1: ix)
+    icosChunks%s(2) = dataline(1: ix)
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> Read AGC/RSSI
@@ -192,7 +192,7 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
 
     !> Copy WBOOST_APPLIED thru AXES_ROTATION_METHOD
     ix = strCharIndex(dataline, ',', 3)
-    icosChunks%s(6) = dataline(1: ix)
+    icosChunks%s(3) = dataline(1: ix)
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> Read rotation angles and detrending method/time constant
@@ -203,7 +203,7 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
 
     !> Copy TIMELAG_DETECTION_METHOD thru FOOTPRINT_MODEL
     ix = strCharIndex(dataline, ',', 5)
-    icosChunks%s(7) = dataline(1: ix)
+    icosChunks%s(4) = dataline(1: ix)
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> Read out metadata

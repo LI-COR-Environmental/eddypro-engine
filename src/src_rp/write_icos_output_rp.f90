@@ -56,7 +56,8 @@ subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
     call clearstr(dataline)
 
     !> Timestamp
-    iso_basic = replace(Stats%date, '-', '', len(Stats%date)) // replace(Stats%time, ':', '', len(Stats%time)) // '00'
+    iso_basic = Stats%date(1:4) // Stats%date(6:7) // Stats%date(9:10) &
+                // Stats%time(1:2) // Stats%time(4:5) // '00'
     call AddDatum(dataline, trim(adjustl(iso_basic)), separator)
 
 !> Potential Radiations
