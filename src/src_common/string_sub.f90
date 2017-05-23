@@ -856,6 +856,76 @@ end function SplitCount
 ! \deprecated
 ! \test
 !***************************************************************************
+! function replace(string, what, with, outlen) result(nstring)
+!     use m_common_global_var
+!     implicit none
+!     !> in/out variables
+!     integer, intent(in) :: outlen
+!     character(*), intent(in) :: string
+!     character(*), intent(in) :: what
+!     character(*), intent(in) :: with
+!     character(:), allocatable :: nstring
+!     !> Local variables
+!     character(len(string) * 10) :: tstring
+!     integer :: i
+
+!     i = outlen
+!     tstring = string
+!     print*, i
+!     do
+!         i = index(tstring, what)
+!         if (i == 0) exit
+!         if (i == 1) then
+!             tstring = with // trim(tstring(1+len(what):))
+!         else if (i == len_trim(tstring)) then
+!             tstring = trim(tstring(:i-1)) // with
+!         else
+!             tstring = tstring(:i-1) // with // trim(tstring(i+len(what):))
+!         end if
+!     end do
+!     nstring = trim(adjustl(tstring))
+! end function replace
+
+function replace2(string, what, with) result(nstring)
+    use m_common_global_var
+    implicit none
+    !> in/out variables
+    character(*), intent(in) :: string
+    character(*), intent(in) :: what
+    character(*), intent(in) :: with
+    character(:), allocatable :: nstring
+    !> Local variables
+    character(len(string) * 10) :: tstring
+    integer :: i
+    integer :: j
+    integer :: cnt
+    integer :: start
+
+    tstring = string
+    start = 1
+    cnt = 0
+    do
+        print*, start
+        i = index(string(start:), what)
+        if (i <= 0) exit
+        j = i + (len(with) - len(what)) * cnt 
+        print*, i, j
+        read(*,*)
+        if (j == 1) then
+            tstring = with // tstring(len(what)+1:)
+            cnt = cnt + 1
+        elseif (j == len(string) - len(what) + 1) then
+            tstring = tstring(:j-1) // with
+            cnt = cnt + 1
+        else 
+            tstring = tstring(:j-1) // with // tstring(j+len(what):)
+            cnt = cnt + 1
+        end if
+        start = i + 1
+    end do
+    nstring = trim(tstring)
+end function replace2
+
 function replace(string, what, with, outlen) result(nstring)
     use m_common_global_var
     implicit none
@@ -876,37 +946,6 @@ function replace(string, what, with, outlen) result(nstring)
         nstring = nstring(:i-1) // with(:nnr) // nstring(i+len(what):)
     end do
 end function replace
-
-!
-!function replace(string, replace_what, replace_with) result(new_string)
-!    use m_common_global_var
-!    implicit none
-!    !> in/out variables
-!    character(*), intent(in) :: string
-!    character(*), intent(in) :: replace_what
-!    character(*), intent(in) :: replace_with
-!    character(*) :: new_string
-!    !> local variables
-!    integer :: init
-!
-!
-!    init = index(string, replace_what)
-!    if (init /= 0) then
-!        if (init == 1) then
-!            new_string = trim(replace_with) &
-!                // string(len(replace_what)+1:len(trim(string)))
-!        else if (init + len(replace_what) == len(string)) then
-!!            new_string = string(1:init-1) // trim(replace_with) &
-!!                // string(init+len(replace_what):len(trim(string)))
-!        else
-!            new_string = string(1:init-1) // trim(replace_with) &
-!                // string(init+len(replace_what):len(trim(string)))
-!        end if
-!    else
-!        new_string = string
-!    end if
-!end function replace
-
 !***************************************************************************
 !
 ! \brief
@@ -1067,7 +1106,7 @@ end function strings_match
 ! \deprecated
 ! \test
 !***************************************************************************
-integer function strCharIndex(s, c, n)
+integer function strCharIndex(s, c, n) result(ix)
     use m_common_global_var
     implicit none
     !> In/out variables
@@ -1078,16 +1117,25 @@ integer function strCharIndex(s, c, n)
     integer :: i
     integer :: cnt
 
-    strCharIndex = ierror
+    ix = ierror
     cnt = 0
     do i = 1, len(s)
         if (s(i:i) == c) then 
             cnt = cnt + 1
             if (cnt == n) then 
-                strCharIndex = i
+                ix = i
                 exit
             end if
         end if
     end do
 end function strCharIndex
 
+
+
+function strByInt(i) result(res)
+    character(:),allocatable :: res
+    integer,intent(in) :: i
+    character(range(i)+2) :: tmp
+    write(tmp,'(i0)') i
+    res = trim(tmp)
+end function strByInt

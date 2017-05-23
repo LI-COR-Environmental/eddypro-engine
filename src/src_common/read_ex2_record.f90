@@ -47,8 +47,9 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
     integer :: var
     integer :: ix
     character(16000) :: dataline
+    include 'interfaces_1.inc'
 
-    integer, external :: strCharIndex
+    ! integer, external :: strCharIndex
 
     !> If rec_num > 0,open file and moves to the requested record
     if (rec_num > 0) then
@@ -65,6 +66,8 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
     ValidRecord = .true.
     EndOfFileReached = .false.
     read(unt, '(a)', iostat = read_status) dataline
+
+    ! dataline = replace(dataline, EddyProProj%err_label, '-9999')
 
     !> Controls on what was read
     ! if (read_status > 0 .or. index(dataline, 'not_enough_data') /= 0) then
@@ -111,8 +114,6 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
     ix = strCharIndex(dataline, ',', 4)
     dataline = dataline(ix+1: len_trim(dataline))
 
-print*, dataline(1:30)
-stop
     !> Extract rotated and unrotated wind components
     read(dataline, *, iostat = read_status) &        
         lEx2%unrot_u, lEx2%unrot_v, lEx2%unrot_w, lEx2%rot_u, lEx2%rot_v, lEx2%rot_w, &
@@ -145,7 +146,7 @@ stop
     ix = strCharIndex(dataline, ',', 7)
     dataline = dataline(ix+1: len_trim(dataline))
 
-    !> skip Flux0 and Flux1 (they are recalculated in FCC)
+    !> skip Flux1 and Flux2 (they are recalculated in FCC)
     ix = strCharIndex(dataline, ',', 14)
     dataline = dataline(ix+1: len_trim(dataline))
 
@@ -234,10 +235,8 @@ stop
     ix = strCharIndex(dataline, ',', 73)
     dataline = dataline(ix+1: len_trim(dataline))
 
-print*, dataline(1:30)
-stop
     !> Put remaining into last chunk
-    icosChunks%s(8) = dataline(1: len_trim(dataline))
+    icosChunks%s(5) = dataline(1: len_trim(dataline))
 
     ! !> Complete essentials information based on retrieved ones
     ! call CompleteEssentials2(lEx2)

@@ -1370,6 +1370,6 @@ module m_typedef
     end type Ex2Type
 
     type icosChunksType
-        character(LongOutstringLen) s(10)
+        character(LongOutstringLen) s(6)
     end type icosChunksType
 end module m_typedef

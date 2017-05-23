@@ -124,3 +124,36 @@ interface
         character(outlen) :: nstring
     end function
 end interface
+
+interface
+    function replace2(string, what, with) result(nstring)
+        use m_common_global_var
+        implicit none
+        !> in/out variables
+        character(*), intent(in) :: string
+        character(*), intent(in) :: what
+        character(*), intent(in) :: with
+        character(:), allocatable :: nstring
+    end function
+end interface
+
+interface 
+    function strCharIndex(s, c, n) result(ix)
+        use m_common_global_var
+        implicit none
+        !> In/out variables
+        character(*),intent(in) :: s
+        character(*),intent(in) :: c
+        integer, intent(in) :: n
+        integer :: ix
+    end function
+end interface
+
+
+interface
+    function strByInt(i) result(res)
+        character(:),allocatable :: res
+        integer,intent(in) :: i
+        character(range(i)+2) :: tmp
+    end function
+end interface

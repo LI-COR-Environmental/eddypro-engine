@@ -92,8 +92,17 @@ Program EddyproFCC
 
     include '../src_common/interfaces.inc'
 
+    character(20) :: aaa
+    character(20) :: bbb
+
     !*******************************************************************************
     !*******************************************************************************
+
+    aaa = 'abaaaabaaa'
+    bbb = replace2(aaa, 'b', 'zh')
+    print*, bbb
+    stop 
+
 
     app = fcc_app
 
@@ -114,9 +123,7 @@ Program EddyproFCC
     if (EddyProProj%run_env == 'embedded') &
         call ConfigureForEmbedded('EddyPro-FCC')
 
-    
     call ReadEx2Record(AuxFile%ex, udf, 1, lEx, ValidRecord, EndOfFileReached)
-
 
     !> Preliminarily read essential files and retrieve a few information
     call InitExVars(exStartTimestamp, exEndTimestamp, &
