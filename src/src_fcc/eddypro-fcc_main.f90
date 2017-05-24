@@ -77,7 +77,7 @@ Program EddyproFCC
     type(InstrumentType) :: AuxInstrument(GHGNumVar)
     type(QCType) :: StDiff
     type(QCType) :: DtDiff
-    type(EXType) :: lEx
+    type(ExType) :: lEx
 
     !> Allocatable variabled
     type(DateType), allocatable :: exTimeSeries(:)
@@ -92,17 +92,8 @@ Program EddyproFCC
 
     include '../src_common/interfaces.inc'
 
-    character(20) :: aaa
-    character(20) :: bbb
-
     !*******************************************************************************
     !*******************************************************************************
-
-    aaa = 'abaaaabaaa'
-    bbb = replace2(aaa, 'b', 'zh')
-    print*, bbb
-    stop 
-
 
     app = fcc_app
 
@@ -123,11 +114,11 @@ Program EddyproFCC
     if (EddyProProj%run_env == 'embedded') &
         call ConfigureForEmbedded('EddyPro-FCC')
 
-    call ReadEx2Record(AuxFile%ex, udf, 1, lEx, ValidRecord, EndOfFileReached)
-
     !> Preliminarily read essential files and retrieve a few information
     call InitExVars(exStartTimestamp, exEndTimestamp, &
         NumExRecords, NumValidExRecords)
+
+    call ReadEx2Record(AuxFile%ex, udf, 1, lEx, ValidRecord, EndOfFileReached)
 
     !> If no good records are found stop execution
     if (NumValidExRecords <= 0) call ExceptionHandler(61)
@@ -452,7 +443,7 @@ Program EddyproFCC
     ex_loop: do i = 1, NumExRecords
 
         !> Read record from essentials file
-        call ReadExRecord('', uex, -1, lEx, ValidRecord, EndOfFileReached)
+        call ReadEx2Record('', uex, -1, lEx, ValidRecord, EndOfFileReached)
 
         !> Initialize presence of key variables for outputting results
         if (InitializeOuputFiles) &

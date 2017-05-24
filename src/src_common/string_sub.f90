@@ -905,22 +905,18 @@ function replace2(string, what, with) result(nstring)
     start = 1
     cnt = 0
     do
-        print*, start
         i = index(string(start:), what)
         if (i <= 0) exit
+        i = i + start - 1
         j = i + (len(with) - len(what)) * cnt 
-        print*, i, j
-        read(*,*)
         if (j == 1) then
             tstring = with // tstring(len(what)+1:)
-            cnt = cnt + 1
         elseif (j == len(string) - len(what) + 1) then
             tstring = tstring(:j-1) // with
-            cnt = cnt + 1
         else 
             tstring = tstring(:j-1) // with // tstring(j+len(what):)
-            cnt = cnt + 1
         end if
+        cnt = cnt + 1
         start = i + 1
     end do
     nstring = trim(tstring)

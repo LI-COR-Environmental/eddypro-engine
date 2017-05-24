@@ -52,7 +52,7 @@ subroutine WriteOutputFiles(lEx)
     if (EddyProProj%out_full) then
         call clearstr(dataline)
         !> Preliminary file and timestamp information
-        call AddDatum(dataline, lEx%fname(1:len_trim(lEx%fname)), separator)
+        ! call AddDatum(dataline, lEx%fname(1:len_trim(lEx%fname)), separator)
         call AddDatum(dataline, lEx%date(1:10), separator)
         call AddDatum(dataline, lEx%time(1:5), separator)
         call WriteDatumFloat(float_doy, datum, EddyProProj%err_label)
@@ -686,8 +686,8 @@ subroutine WriteOutputFiles(lEx)
     if (EddyProProj%out_md) then
         call clearstr(dataline)
         !> Preliminary timestmap information
-        write(datum, *) lEx%fname(1:len_trim(lEx%fname))
-        call AddDatum(dataline, datum, separator)
+        ! write(datum, *) lEx%fname(1:len_trim(lEx%fname))
+        ! call AddDatum(dataline, datum, separator)
         write(datum, *) lEx%date(1:10)
         call AddDatum(dataline, datum, separator)
         write(datum, *) lEx%time(1:5)

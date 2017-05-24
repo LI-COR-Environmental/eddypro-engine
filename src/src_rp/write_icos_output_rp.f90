@@ -549,17 +549,6 @@ subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
         call WriteDatumFloat(Essentials%sk_s_kur(j), datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
     end do
-    ! !>> Discontinuites
-    ! do j = u, gas4
-    !     if (j == w .or. j == co2 .or. j == h2o) then  !< Limit to a subset of variables
-    !         do i = 1, 6
-    !             call WriteDatumFloat(Essentials%ds_s_haar_avg(i, j), datum, EddyProProj%err_label)
-    !             call AddDatum(dataline, datum, separator)
-    !             call WriteDatumFloat(Essentials%ds_s_haar_var(i, j), datum, EddyProProj%err_label)
-    !             call AddDatum(dataline, datum, separator)
-    !         end do
-    !     end if
-    ! end do
     !>> AoA
     call WriteDatumFloat(Essentials%aa_s, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
@@ -579,6 +568,8 @@ subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
     call AddDatum(dataline, '8'//CharSF%sk(2:9), separator)
     call AddDatum(dataline, '8'//CharHF%ds(2:9), separator)
     call AddDatum(dataline, '8'//CharSF%ds(2:9), separator)
+    call AddDatum(dataline, '8'//CharHF%tl(6:9), separator)
+    call AddDatum(dataline, '8'//CharSF%tl(6:9), separator)
     call AddDatum(dataline, '8'//CharHF%aa(9:9), separator)
     call AddDatum(dataline, '8'//CharHF%ns(9:9), separator)
 

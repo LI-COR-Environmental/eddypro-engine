@@ -38,7 +38,7 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
     integer, intent(in) :: rec_num
     logical, intent(out) :: ValidRecord
     logical, intent(out) :: EndOfFileReached
-    type (Ex2Type), intent(out) :: lEx2
+    type (ExType), intent(out) :: lEx2
     integer, intent(inout) :: unt
     !> Local variables
     integer :: open_status
@@ -67,9 +67,7 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
     EndOfFileReached = .false.
     read(unt, '(a)', iostat = read_status) dataline
 
-    ! dataline = replace(dataline, EddyProProj%err_label, '-9999')
-
-    !> Controls on what was read
+    ! !> Controls on what was read
     ! if (read_status > 0 .or. index(dataline, 'not_enough_data') /= 0) then
     !     ValidRecord = .false.
     !     if (rec_num > 0) close(unt)
@@ -82,9 +80,9 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
         return
     end if
 
-    !> Strip file name from dataline
-    ! lEx2%fname = dataline(1:index(dataline, separator) - 1)
-    ! dataline = dataline(index(dataline, separator) + 1: len_trim(dataline))
+    !> Replace error code with -9999
+    dataline = replace2(dataline, trim(EddyProProj%err_label), '-9999')
+
     !> Read timestamp and eliminate if from dataline
     lEx2%timestamp = dataline(1:14)
     lEx2%date = lEx2%timestamp(1:4) // '-' // lEx2%timestamp(5:6) // '-' // lEx2%timestamp(7:8) 
@@ -176,14 +174,19 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
 
     !> Read out VM flags and Foken QC details
     read(dataline, *, iostat = read_status) &
-        lEx2%vm_flags(1:10), lEx2%st_w_u, lEx2%st_w_ts, lEx2%st_w_co2, lEx2%st_w_h2o, &
+        lEx2%vm_flags(1:12), lEx2%st_w_u, lEx2%st_w_ts, lEx2%st_w_co2, lEx2%st_w_h2o, &
         lEx2%st_w_ch4, lEx2%st_w_gas4, lEx2%dt_u, lEx2%dt_w, lEx2%dt_ts
-    ix = strCharIndex(dataline, ',', 19)
+    ix = strCharIndex(dataline, ',', 21)
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> Copy FK04_ST_FLAG_W_U thru LI7700_BOX_CONNECTED
-    ix = strCharIndex(dataline, ',', 53)
+    ix = strCharIndex(dataline, ',', 24)
     icosChunks%s(2) = dataline(1: ix)
+    dataline = dataline(ix+1: len_trim(dataline))
+
+    !> Read licor IRGA flags
+    read(dataline, *, iostat = read_status) lEx2%licor_flags(1:29)
+    ix = strCharIndex(dataline, ',', 29)
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> Read AGC/RSSI
@@ -239,7 +242,7 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
     icosChunks%s(5) = dataline(1: len_trim(dataline))
 
     ! !> Complete essentials information based on retrieved ones
-    ! call CompleteEssentials2(lEx2)
+    call CompleteEssentials2(lEx2)
 
     !> Close file only if it wasn't open on entrance
     if (rec_num > 0) close(unt)
@@ -261,7 +264,7 @@ subroutine CompleteEssentials2(lEx2)
     use m_common_global_var
     implicit none
     !> in/out variables
-    type(Ex2Type), intent(inout) :: lEx2
+    type(ExType), intent(inout) :: lEx2
     !> local variables
     integer :: gas
     integer :: var

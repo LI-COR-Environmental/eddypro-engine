@@ -59,7 +59,7 @@ subroutine ExtractColumnFromEssentials(ExFilename, NumExRecords, column, array, 
     select case (trim(adjustl(column)))
         case ('degraded_wT_covariances')
             do i = 1, NumExRecords
-                call ReadExRecord('', uex, -1, lEx, ValidRecord, EndOfFileReached)
+                call ReadEx2Record('', uex, -1, lEx, ValidRecord, EndOfFileReached)
                 if (EndOfFileReached) exit
                 !> Skip implausible values from the dataset
                 if (dabs(lEx%WS) > MaxWindIntensity .or. dabs(lEx%degT%cov) > MaxWTCov &

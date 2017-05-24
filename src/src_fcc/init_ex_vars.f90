@@ -41,12 +41,11 @@ subroutine InitExVars(StartTimestamp, EndTimestamp, NumRecords, NumValidRecords)
     !> local variables
     integer :: open_status
     integer :: j
+    character(16000) :: dataline
     logical :: ValidRecord
     logical :: EndOfFileReached
     logical :: InitializationPerformed
-    type (EXType) :: lEX
-    character(LongInstringLen) :: dataline
-    character(100) :: substr
+    type (ExType) :: lEX
 
     write(*,'(a)') &
         ' Initializing retrieval of EddyPro-RP results from file: '
@@ -59,18 +58,29 @@ subroutine InitExVars(StartTimestamp, EndTimestamp, NumRecords, NumValidRecords)
     if (open_status /= 0) call ExceptionHandler(60)
 
     write(*, '(a)') '  File found, importing content..'
-    !> Retrieve label of forth gas from header
+
+    !> Skip header
     read(udf, '(a)') dataline
-    substr = dataline(index(dataline, 'ru_ch4'):index(dataline, 'ru_ch4') + 30)
-    g4lab = substr(8: index(substr, '_flux') - 1)
+
+    !> Retrieve label of forth gas from header
+    ! read(udf, '(a)') dataline
+    ! substr = dataline(index(dataline, 'ru_ch4'):index(dataline, 'ru_ch4') + 30)
+    ! g4lab = substr(8: index(substr, '_flux') - 1)
+    ! g4l = len_trim(g4lab)
+    ! !> Retrieve names of user variables from header
+    ! if (len_trim(dataline) >= index(dataline, 'num_user_var') + 13) then
+    !     UserVarHeader = &
+    !         dataline(index(dataline, 'num_user_var') + 13: len_trim(dataline))
+    ! else
+    !     UserVarHeader = ''
+    ! end if
+
+
+                                !*********************************************** Extract UserVarHeader
+                                !*********************************************** Determine how to handle g4lab
+    g4lab = 'GS4'               !*********************************************** Temporary
     g4l = len_trim(g4lab)
-    !> Retrieve names of user variables from header
-    if (len_trim(dataline) >= index(dataline, 'num_user_var') + 13) then
-        UserVarHeader = &
-            dataline(index(dataline, 'num_user_var') + 13: len_trim(dataline))
-    else
-        UserVarHeader = ''
-    end if
+    UserVarHeader = 'XXXXXX'
 
     !> Initialize variables that are determined for the whole
     !> dataset (presence of certain variables)
@@ -86,7 +96,7 @@ subroutine InitExVars(StartTimestamp, EndTimestamp, NumRecords, NumValidRecords)
     FCCMetadata%ru = .true.
     do
         !> Read essentials record
-        call ReadExRecord('', udf, -1, lEx, ValidRecord, EndOfFileReached)
+        call ReadEx2Record('', udf, -1, lEx, ValidRecord, EndOfFileReached)
         if (EndOfFileReached) exit
 
         !> Counts

@@ -1167,7 +1167,7 @@ module m_typedef
         real(kind = dbl) :: burba
     end type WPLType
 
-    type :: ExType
+    type Ex2Type
         character(FilenameLen) :: fname
         character(10) :: date
         character(5) :: time
@@ -1257,9 +1257,9 @@ module m_typedef
         type(InstrumentType) :: instr(ExNumInstruments)
         type(FluxType) :: Flux0
         Type(SwVerType) :: logger_swver
-    end type ExType
+    end type Ex2Type
 
-    type Ex2Type
+    type ExType
         character(FilenameLen) :: fname
         character(16) :: timestamp
         character(10) :: date
@@ -1367,7 +1367,7 @@ module m_typedef
         type(FluxType) :: Flux2
         Type(SwVerType) :: logger_swver
         type(StatsType) :: stats
-    end type Ex2Type
+    end type ExType
 
     type icosChunksType
         character(LongOutstringLen) s(6)
