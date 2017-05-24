@@ -1363,8 +1363,6 @@ module m_typedef
         type(DegTType) :: degT
         type(InstrumentType) :: instr(ExNumInstruments)
         type(FluxType) :: Flux0
-        type(FluxType) :: Flux1
-        type(FluxType) :: Flux2
         Type(SwVerType) :: logger_swver
         type(StatsType) :: stats
     end type ExType

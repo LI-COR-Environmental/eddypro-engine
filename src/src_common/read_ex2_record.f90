@@ -150,7 +150,7 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
 
     !> Read out some data
     read(dataline, *, iostat = read_status) &
-        lEx2%Tcell, lEx2%Pcell, lEx2%Vcell(co2), lEx2%Vcell(h2o), lEx2%Vcell(ch4), lEx2%Vcell(gas4), &
+        lEx2%Tcell, lEx2%Pcell, lEx2%Vcell(co2:gas4), &
         lEx2%Flux0%E_co2, lEx2%Flux0%E_ch4, lEx2%Flux0%E_gas4, &
         lEx2%Flux0%Hi_co2, lEx2%Flux0%Hi_h2o, lEx2%Flux0%Hi_ch4, lEx2%Flux0%Hi_gas4, &
         lEx2%Burba%h_bot, lEx2%Burba%h_top, lEx2%Burba%h_spar, &
@@ -179,7 +179,7 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
     ix = strCharIndex(dataline, ',', 21)
     dataline = dataline(ix+1: len_trim(dataline))
 
-    !> Copy FK04_ST_FLAG_W_U thru LI7700_BOX_CONNECTED
+    !> Copy FK04_ST_FLAG_W_U thru ...
     ix = strCharIndex(dataline, ',', 24)
     icosChunks%s(2) = dataline(1: ix)
     dataline = dataline(ix+1: len_trim(dataline))
