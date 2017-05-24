@@ -50,6 +50,7 @@ module m_fx_global_var
     character(32) :: g4lab
     character(1024) :: UserVarHeader
     character(25), parameter :: SubDirSpecAn = 'eddypro_spectral_analysis'
+    character(16000) :: icos_header
 
     logical :: MeanBinSpecAvailable(MaxGasClasses, GHGNumVar)
     logical :: MeanBinCospAvailable(MaxGasClasses, GHGNumVar)

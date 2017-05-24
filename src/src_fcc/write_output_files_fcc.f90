@@ -35,7 +35,7 @@ subroutine WriteOutputFiles(lEx)
     implicit none
     !> in/out variables
     Type(ExType), intent(in) :: lEx
-    character(LongOutstringLen) :: dataline
+    character(16000) :: dataline
 
     !> local variables
     integer :: var
@@ -767,4 +767,82 @@ subroutine WriteOutputFiles(lEx)
 
         write(umd,*) dataline(1:len_trim(dataline) - 1)
     end if
+
+    !>****************************************************************
+    !>****************************************************************
+
+    !>Write out ICOS output file
+    if (EddyProProj%out_icos) then
+        call clearstr(dataline)
+
+        !> Date and time
+        call AddDatum(dataline, trim(lEx%date), separator)
+        call AddDatum(dataline, trim(lEx%time), separator)
+
+        !> Potential radiation and daytime
+        call WriteDatumFloat(lEx%PR, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumInt(lEx%daytime_int, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+
+        !> Number of records
+        call WriteDatumInt(lEx2%nr_theor, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)        
+        call WriteDatumInt(lEx2%nr_files, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumInt(lEx2%nr_after_custom_flags, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumInt(lEx2%nr_after_wdf, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumInt(lEx2%nr(u), datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        do var = ts, gas4
+            call WriteDatumInt(lEx2%nr(var), datum, EddyProProj%err_label)
+            call AddDatum(dataline, datum, separator)
+        end do
+        call WriteDatumInt(lEx2%nr_w(u), datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        do var = ts, gas4
+            call WriteDatumInt(lEx2%nr_w(var), datum, EddyProProj%err_label)
+            call AddDatum(dataline, datum, separator)
+        end do
+
+        !> Final fluxes
+        call WriteDatumFloat(lEx%Flux3%Tau, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumFloat(lEx%Flux3%H, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumFloat(lEx%Flux3%LE, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumFloat(lEx%Flux3%co2, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumFloat(lEx%Flux3%h2o, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumFloat(lEx%Flux3%ch4, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumFloat(lEx%Flux3%gas4, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+
+        !> Random uncertainties
+        call WriteDatumFloat(lEx2%rand_uncer(u), datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumFloat(lEx2%rand_uncer(ts), datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumFloat(lEx2%rand_uncer_LE,, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        do gas = co2, gas4
+            call WriteDatumFloat(lEx2%rand_uncer(gas), datum, EddyProProj%err_label)
+            call AddDatum(dataline, datum, separator)
+        end do
+
+        !> Storage fluxes
+        call WriteDatumFloat(lEx2%Stor%H, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumFloat(lEx2%Stor%LE, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        do gas = co2, gas4
+            call WriteDatumFloat(lEx2%Stor%of(gas4), datum, EddyProProj%err_label)
+            call AddDatum(dataline, datum, separator)
+        end do
+        
 end subroutine WriteOutputFiles

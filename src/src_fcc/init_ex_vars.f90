@@ -41,7 +41,6 @@ subroutine InitExVars(StartTimestamp, EndTimestamp, NumRecords, NumValidRecords)
     !> local variables
     integer :: open_status
     integer :: j
-    character(16000) :: dataline
     logical :: ValidRecord
     logical :: EndOfFileReached
     logical :: InitializationPerformed
@@ -59,8 +58,8 @@ subroutine InitExVars(StartTimestamp, EndTimestamp, NumRecords, NumValidRecords)
 
     write(*, '(a)') '  File found, importing content..'
 
-    !> Skip header
-    read(udf, '(a)') dataline
+    !> Store header to string, for writing it on output
+    read(udf, '(a)') icos_header
 
     !> Retrieve label of forth gas from header
     ! read(udf, '(a)') dataline
