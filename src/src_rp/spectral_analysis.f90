@@ -139,7 +139,7 @@ subroutine SpectralAnalysis(date, time, bf, Set, N, M)
         !> Ogive session
         if (RPsetup%out_bin_og) then
             !> Exponential binning of ogives
-            call ExpAvrgOgives(bf, nf, Ogive, CoOgive, N/2 + 1, bnf &
+            call ExpAvrgOgives(bf, nf, Ogive, CoOgive, N, bnf &
                 , BinnedOgive, BinnedCoOgive, bcnt)
             !> Write co-ogives on output file in csv format
             call WriteOutBinnedOgives(Datestring, bnf, bcnt, BinnedOgive, BinnedCoOgive &
