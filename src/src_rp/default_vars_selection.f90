@@ -54,7 +54,7 @@ subroutine DefaultVarsSelection(LocCol)
         if (Instr(i)%category == 'sonic') nsonics = nsonics + 1
         if (Instr(i)%category == 'irga') then
             select case(Instr(i)%model(1:len_trim(Instr(i)%model) - 2))
-                case('li7500', 'li7500a', 'li7500rs', 'li7200', 'li7200rs')
+                case('li7500', 'li7500a', 'li7500rs', 'li7500ds', 'li7200', 'li7200rs')
                 nirgas_co2 = nirgas_co2 + 1
                 case('li7700')
                 nirgas_ch4 = nirgas_ch4 + 1
