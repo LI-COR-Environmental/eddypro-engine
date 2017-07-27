@@ -272,10 +272,10 @@ subroutine CompleteEssentials2(lEx2)
     lEx2%var_present = .false.
     if (lEx2%WS /= error) lEx2%var_present(u:w) = .true.
     if (lEx2%Ts /= error) lEx2%var_present(ts)  = .true.
-    if (lEx2%Flux0%co2  /= aflx_error) lEx2%var_present(co2) = .true.
-    if (lEx2%Flux0%h2o  /= aflx_error) lEx2%var_present(h2o) = .true.
-    if (lEx2%Flux0%ch4  /= aflx_error) lEx2%var_present(ch4) = .true.
-    if (lEx2%Flux0%gas4 /= aflx_error) lEx2%var_present(gas4) = .true.
+    if (lEx2%Flux0%co2  /= error) lEx2%var_present(co2) = .true.
+    if (lEx2%Flux0%h2o  /= error) lEx2%var_present(h2o) = .true.
+    if (lEx2%Flux0%ch4  /= error) lEx2%var_present(ch4) = .true.
+    if (lEx2%Flux0%gas4 /= error) lEx2%var_present(gas4) = .true.
 
     lEx2%instr(ico2:igas4)%category = 'irga'
     lEx2%instr(sonic)%category = 'sonic'

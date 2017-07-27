@@ -2274,13 +2274,13 @@ program EddyproRP
     write(*, '(a)') ' Done.'
 
     !> Edit .eddypro file updating path to ex_file
-    call ForceSlash(Essentials_Path, .false.)
+    call ForceSlash(ICOS_Path, .false.)
     call EditIniFile(trim(PrjPath), 'ex_file', &
-        trim(Essentials_Path(1:index(Essentials_Path, '.tmp')-1)))
+        trim(ICOS_Path(1:index(ICOS_Path, '.tmp')-1)))
 
     if (EddyProProj%run_env /= 'embedded') &
         write(*, '(a)') ' Essentials file path: ' &
-            // trim(Essentials_Path(1:index(Essentials_Path, '.tmp')-1))
+            // trim(ICOS_Path(1:index(ICOS_Path, '.tmp')-1))
 
     !> Copy ".eddypro" file into output folder
     call CopyFile(trim(adjustl(PrjPath)), &
