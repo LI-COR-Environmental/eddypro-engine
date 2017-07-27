@@ -681,7 +681,6 @@ subroutine WriteOutputFiles(lEx)
 
     !>****************************************************************
     !>****************************************************************
-
     !> write to metadata output file
     if (EddyProProj%out_md) then
         call clearstr(dataline)
@@ -770,14 +769,11 @@ subroutine WriteOutputFiles(lEx)
 
     !>****************************************************************
     !>****************************************************************
-
     !>Write out ICOS output file
     if (EddyProProj%out_icos) then
         call clearstr(dataline)
-
-        !> Date and time
-        call AddDatum(dataline, trim(lEx%date), separator)
-        call AddDatum(dataline, trim(lEx%time), separator)
+        !> Timestamp
+        call AddDatum(dataline, trim(lEx%timestamp), separator)
 
         !> Potential radiation and daytime
         call WriteDatumFloat(lEx%RP, datum, EddyProProj%err_label)
@@ -828,7 +824,7 @@ subroutine WriteOutputFiles(lEx)
         call AddDatum(dataline, datum, separator)
         call WriteDatumFloat(lEx%rand_uncer(ts), datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(lEx%rand_uncer_LE,, datum, EddyProProj%err_label)
+        call WriteDatumFloat(lEx%rand_uncer_LE, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
         do gas = co2, gas4
             call WriteDatumFloat(lEx%rand_uncer(gas), datum, EddyProProj%err_label)
@@ -929,11 +925,11 @@ subroutine WriteOutputFiles(lEx)
         call AddDatum(dataline, datum, separator)
         call WriteDatumFloat(lEx%RHO%d, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(lEx%RHO%Vd, datum, EddyProProj%err_label)
+        call WriteDatumFloat(lEx%Vd, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(lEx%RHO%lambda, datum, EddyProProj%err_label)
+        call WriteDatumFloat(lEx%lambda, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(lEx%RHO%sigma, datum, EddyProProj%err_label)
+        call WriteDatumFloat(lEx%sigma, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
 
         !> Gas concentrations/densities
@@ -1130,18 +1126,16 @@ subroutine WriteOutputFiles(lEx)
         call WriteDatumFloat(lEx%degT%cov, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
         do i = 1, 9
-            call WriteDatumFloat(lEx%degT%dcov(i), EddyProProj%err_label)
+            call WriteDatumFloat(lEx%degT%dcov(i), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         end do
 
         !> Write first string from Chunks
         !> M_CUSTOM_FLAGS thru VM97_NSW_RNS
-        call AddDatum(dataline, icosChunks%s(1), separator)
-
+        call AddDatum(dataline, trim(icosChunks%s(1)), separator)
         !> VM97 flags and Foken's QC details
         do i = 1, 12
-            call WriteDatumFloat(lEx%vm_flags(i), datum, EddyProProj%err_label)
-            call AddDatum(dataline, datum, separator)
+            call AddDatum(dataline, trim(lEx%vm_flags(i)), separator)
         end do
         call WriteDatumFloat(lEx%st_w_u, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
@@ -1203,11 +1197,11 @@ subroutine WriteOutputFiles(lEx)
         call AddDatum(dataline, icosChunks%s(4), separator)
 
         !> Metadata
-        call WriteDatumFloat(lEx%logger_swver%major, datum, EddyProProj%err_label)
+        call WriteDatumInt(lEx%logger_swver%major, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(lEx%logger_swver%minor, datum, EddyProProj%err_label)
+        call WriteDatumInt(lEx%logger_swver%minor, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(lEx%logger_swver%revision, datum, EddyProProj%err_label)
+        call WriteDatumInt(lEx%logger_swver%revision, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
         !>> Site info
         call WriteDatumFloat(lEx%lat, datum, EddyProProj%err_label)
@@ -1227,17 +1221,15 @@ subroutine WriteOutputFiles(lEx)
         call AddDatum(dataline, datum, separator)
         call WriteDatumFloat(lEx%ac_freq, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
+        call WriteDatumFloat(lEx%avrg_length, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
         !>> Master sonic height and north offset
-        call WriteDatumFloat(lEx%instr(sonic)%firm(1:len_trim(lEx%instr(sonic)%firm)), datum, EddyProProj%err_label)
-        call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(lEx%instr(sonic)%model(1:len_trim(lEx%instr(sonic)%model)), datum, EddyProProj%err_label)
-        call AddDatum(dataline, datum, separator)
+        call AddDatum(dataline, trim(lEx%instr(sonic)%firm), separator)
+        call AddDatum(dataline, trim(lEx%instr(sonic)%model), separator)
         call WriteDatumFloat(lEx%instr(sonic)%height, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(lEx%instr(sonic)%wformat, datum, EddyProProj%err_label)
-        call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(lEx%instr(sonic)%wref, datum, EddyProProj%err_label)
-        call AddDatum(dataline, datum, separator)
+        call AddDatum(dataline, lEx%instr(sonic)%wformat, separator)
+        call AddDatum(dataline, lEx%instr(sonic)%wref, separator)
         call WriteDatumFloat(lEx%instr(sonic)%north_offset, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
         call WriteDatumFloat(lEx%instr(sonic)%hpath_length, datum, EddyProProj%err_label)
@@ -1246,14 +1238,11 @@ subroutine WriteOutputFiles(lEx)
         call AddDatum(dataline, datum, separator)
         call WriteDatumFloat(lEx%instr(sonic)%tau, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
+
         !>> irgas
         do igas = ico2, igas4
-            call WriteDatumFloat(lEx%instr(igas)%firm(1:len_trim(lEx%instr(igas)%firm)), datum, EddyProProj%err_label)
-            call AddDatum(dataline, datum, separator)
-            call WriteDatumFloat(lEx%instr(igas)%model(1:len_trim(lEx%instr(igas)%model)), datum, EddyProProj%err_label)
-            call AddDatum(dataline, datum, separator)
-            call WriteDatumFloat(lEx%measure_type(3 + igas), datum, EddyProProj%err_label)
-            call AddDatum(dataline, datum, separator)
+            call AddDatum(dataline, trim(lEx%instr(igas)%firm), separator)
+            call AddDatum(dataline, trim(lEx%instr(igas)%model), separator)
             call WriteDatumFloat(lEx%instr(igas)%nsep, datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
             call WriteDatumFloat(lEx%instr(igas)%esep, datum, EddyProProj%err_label)
@@ -1281,4 +1270,6 @@ subroutine WriteOutputFiles(lEx)
         !> Write fifth string from Chunks
         !> Custom variables and biomet data
         call AddDatum(dataline, icosChunks%s(5), separator)
+    end if
+    write(uicos, '(a)') dataline(1:len_trim(dataline) - 1)
 end subroutine WriteOutputFiles
