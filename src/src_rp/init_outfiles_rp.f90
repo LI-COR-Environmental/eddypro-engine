@@ -722,6 +722,7 @@ subroutine InitOutFiles_rp()
                   &COV_CO2_H2O,COV_CO2_CH4,COV_CO2_GS4,COV_H2O_CH4,COV_H2O_GS4,COV_CH4_GS4,&
                   &FOOTPRINT_PEAK,FOOTPRINT_OFFSET,&
                   &FOOTPRINT_10,FOOTPRINT_30,FOOTPRINT_50,FOOTPRINT_70,FOOTPRINT_90,&
+                  &L_0,zL_0,&
                   &TAU_0,H_0,LE_0,FC_0,FH2O_0,FCH4_0,FGS4_0,&
                   &TAU_1,H_1,LE_1,FC_1,FH2O_1,FCH4_1,FGS4_1,&
                   &TAU_2,H_2,LE_2,FC_2,FH2O_2,FCH4_2,FGS4_2,&

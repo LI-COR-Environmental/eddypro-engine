@@ -636,6 +636,7 @@ module m_typedef
         real(kind = dbl) :: Hi_gas4
         real(kind = dbl) :: tau
         real(kind = dbl) :: ustar
+        real(kind = dbl) :: L
         real(kind = dbl) :: zL
     end type FluxType
 

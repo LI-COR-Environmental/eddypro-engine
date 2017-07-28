@@ -46,28 +46,28 @@ subroutine CF_HorstLenschow09(lEx, LocSetup)
     real(kind = dbl) :: alpha
     real(kind = dbl) :: direc
     real(kind = dbl) :: r
-
+ 
     integer :: igas
     integer :: gas
 
     !> Initialization
     ADDCF%of(co2:gas4) = 1d0
 
-    if (lEx%zL /= error) then
+    if (lEx%Flux0%zL /= error) then
         !> normalized wavenumber corresponding to cospectrum peak
         !> in streamwise direction as a function of stability (Eq. 15)
-        if (lEx%zL <= -0.1d0) then
+        if (lEx%Flux0%zL <= -0.1d0) then
             n_mx = 0.07d0
         else
-            n_mx = 2.31d0 - 2.24d0 / (1.015d0 + 0.15d0 * lEx%zL)**2
+            n_mx = 2.31d0 - 2.24d0 / (1.015d0 + 0.15d0 * lEx%Flux0%zL)**2
         end if
 
         !> normalized wavenumber corresponding to cospectrum peak
         !> in cross-stream direction as a function of stability (Eq. 18)
-        if (lEx%zL <= -0.05d0) then
+        if (lEx%Flux0%zL <= -0.05d0) then
             n_my = 0.15d0
         else
-            n_my = 2.43d0 - 2.28d0 / (1.01d0 + 0.2d0 * lEx%zL)**2
+            n_my = 2.43d0 - 2.28d0 / (1.01d0 + 0.2d0 * lEx%Flux0%zL)**2
         end if
 
         !> normalized wavenumber corresponding to cospectrum peak
@@ -76,15 +76,15 @@ subroutine CF_HorstLenschow09(lEx, LocSetup)
             gas = igas + 3
             if (lEx%var_present(gas)) then
                 if (lEx%instr(igas)%vsep >= 0) then
-                    zL = lEx%zL
+                    zL = lEx%Flux0%zL
                     if (zL <= 0.03d0) then
                         n_mz(gas) = 0.1d0
                     else
                         n_mz(gas) = 0.43d0 - 0.33d0 / (0.964d0 + 1.2d0 * zL)**2
                     end if
                 else
-                    if (lEx%L /= 0 .and. lEx%L /= error) then
-                        zL = (lEx%instr(sonic)%height + lEx%instr(igas)%vsep - lEx%disp_height) / lEx%L
+                    if (lEx%Flux0%L /= 0 .and. lEx%Flux0%L /= error) then
+                        zL = (lEx%instr(sonic)%height + lEx%instr(igas)%vsep - lEx%disp_height) / lEx%Flux0%L
                         if (zL <= -0.03d0) then
                             n_mz(gas) = 0.013d0
                         else

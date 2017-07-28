@@ -336,7 +336,7 @@ module m_common_global_var
         NullBiometCol = BiometColType('none', 'none', 'none', 'none', 'none', error, error)
 
     type(fluxtype), parameter :: &
-        errFlux = fluxtype('', '', error, error, error, error, error, error, &
+        errFlux = fluxtype('', '', error, error, error, error, error, error, error, &
             error, error, error, error, error, error, error, error, error, &
             error, error)
 

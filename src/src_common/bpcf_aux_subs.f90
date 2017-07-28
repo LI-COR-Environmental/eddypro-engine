@@ -251,11 +251,11 @@ subroutine CorrectionFactorsHorst97(lBPCF, lEx)
     !> in Ibrom et al (2007, AFM), with 2*pi*t_c = 1/fc. Thus, the fc derived with \n
     !> the procedure described in Ibrom et al. 2007 can be used to calculate \n
     !> tau_c, and hence to derive the BPCF with Horst's method.
-    if (lEx%zL <= 0d0) then
+    if (lEx%Flux0%zL <= 0d0) then
         Nm = 0.085d0
         alpha = 7d0 / 8d0
     else
-        Nm = 2d0 - 1.915d0 / (1d0 + 0.5d0 * lEx%zL)
+        Nm = 2d0 - 1.915d0 / (1d0 + 0.5d0 * lEx%Flux0%zL)
         alpha = 1d0
     end if
     zeta = lEx%instr(sonic)%height - lEx%disp_height
@@ -310,7 +310,7 @@ subroutine CorrectionFactorsIbrom07(do_co2, do_h2o, do_ch4, do_gas4, lBPCF, lEx)
     logical, intent(in) :: do_gas4
 
 
-    if (lEx%zL >= 0d0) then
+    if (lEx%Flux0%zL >= 0d0) then
         if (lEx%var_present(co2) .and. do_co2) &
             lBPCF%of(w_co2) = StPar(1) * lEx%WS  / (StPar(2) + f_c(co2))  + 1d0
         if (lEx%var_present(h2o) .and. do_h2o) &

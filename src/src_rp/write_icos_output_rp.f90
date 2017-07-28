@@ -379,6 +379,10 @@ subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
 
 !> Intermediate results
     !> Fluxes level 0 (uncorrected fluxes)
+    call WriteDatumFloat(Essentials%L, datum, EddyProProj%err_label)
+    call AddDatum(dataline, datum, separator)
+    call WriteDatumFloat(Essentials%zL, datum, EddyProProj%err_label)
+    call AddDatum(dataline, datum, separator)
     call WriteDatumFloat(Flux0%tau, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     call WriteDatumFloat(Flux0%H, datum, EddyProProj%err_label)

@@ -357,6 +357,11 @@ subroutine WriteOutputFiles(lEx)
         end if
 
         !> Uncorrected fluxes (Level 0)
+        !> L and zL
+        call WriteDatumFloat(lEx%Flux0%L, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+        call WriteDatumFloat(lEx%Flux0%zL, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
         !> Tau
         call WriteDatumFloat(lEx%Flux0%tau, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
