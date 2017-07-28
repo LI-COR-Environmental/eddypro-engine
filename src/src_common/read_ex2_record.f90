@@ -139,13 +139,13 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> Read out Flux0 data
-    read(dataline, *, iostat = read_status) lEx2%Flux0%L, lEx2%Flux0%zL,&
+    read(dataline, *, iostat = read_status) lEx2%Flux0%L, lEx2%Flux0%zL, &
         lEx2%Flux0%Tau, lEx2%Flux0%H, lEx2%Flux0%LE, lEx2%Flux0%co2, lEx2%Flux0%h2o, lEx2%Flux0%ch4, lEx2%Flux0%gas4
     ix = strCharIndex(dataline, ',', 7)
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> skip Flux1 and Flux2 (they are recalculated in FCC)
-    ix = strCharIndex(dataline, ',', 14)
+    ix = strCharIndex(dataline, ',', 16)
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> Read out some data

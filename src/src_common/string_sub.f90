@@ -871,7 +871,6 @@ end function SplitCount
 
 !     i = outlen
 !     tstring = string
-!     print*, i
 !     do
 !         i = index(tstring, what)
 !         if (i == 0) exit

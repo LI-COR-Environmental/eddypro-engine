@@ -485,13 +485,6 @@ Program EddyproFCC
         AuxInstrument(co2:gas4) = lEx%instr(ico2:igas4)
         if (.not. allocated(FullFileList)) allocate(FullFileList(1))
 
-
-print*, lEx%L
-print*, lEx%zL
-
-print*, lEx%Flux0%L
-print*, lEx%Flux0%zL
-stop
         !> Bad pass spectral correction factors
         call BandPassSpectralCorrections(lEx%instr(sonic)%height, &
             lEx%disp_height, lEx%var_present, lEx%WS, lEx%Ta, lEx%Flux0%zL, &
