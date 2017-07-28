@@ -299,13 +299,13 @@ subroutine CompleteEssentials2(lEx2)
 
     !> Understand software version (AGC (or RSSI) value is negative)
     !> LI-7200
-    if (lEx2%agc72 < 0) then
+    if (lEx2%agc72 < 0 .and. lEx2%agc72 /= error) then
         lEx2%agc72 =  - lEx2%agc72
     else
         co2_new_sw_ver = .true.
     end if
     !> LI-7500
-    if (lEx2%agc75 < 0) then
+    if (lEx2%agc75 < 0 .and. lEx2%agc75 /= error) then
         lEx2%agc75 =  - lEx2%agc75
     else
         co2_new_sw_ver = .true.

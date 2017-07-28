@@ -44,6 +44,7 @@ subroutine WriteOutputFiles(lEx)
     integer :: igas
     character(DatumLen) :: datum
     character(14) :: iso_basic
+    include '../src_common/interfaces_1.inc'
 
     !>***************************************************************
     !>***************************************************************
@@ -1274,6 +1275,10 @@ subroutine WriteOutputFiles(lEx)
         !> Write fifth string from Chunks
         !> Custom variables and biomet data
         call AddDatum(dataline, icosChunks%s(5), separator)
+
+        !> Replace NaN or -9999 with user-defined error code
+        dataline = replace2(dataline, ',-9999,', ',' // trim(EddyProProj%err_label) // ',')
+        dataline = replace2(dataline, ',NaN,',   ',' // trim(EddyProProj%err_label) // ',')
     end if
     write(uicos, '(a)') dataline(1:len_trim(dataline) - 1)
 end subroutine WriteOutputFiles
