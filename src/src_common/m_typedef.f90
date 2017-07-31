@@ -43,7 +43,7 @@ module m_typedef
     integer, parameter :: NumDegH = 9
     integer, parameter :: MaxNumCol = 100
     integer, parameter :: E2NumVar = 14
-    integer, parameter :: MaxNumDiag = 4
+    integer, parameter :: MaxNumDiag = 6
     integer, parameter :: GHGNumVar = 8
     integer, parameter :: MaxUserVar = 30
     integer, parameter :: MaxNumBins = 300
@@ -415,7 +415,8 @@ module m_typedef
     end type Diag7700Type
 
     type :: DiagAnemType
-        logical :: present
+        logical :: binary_flag_present
+        logical :: staa_present
     end type DiagAnemType
 
     type :: DirType

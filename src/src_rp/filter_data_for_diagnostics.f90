@@ -32,24 +32,25 @@
 !              whether to calculate flux or not or to switch to WPL
 !***************************************************************************
 subroutine FilterDatasetForDiagnostics(Set, nrow, ncol, DiagSet, dnrow, dncol, &
-    filter_for_diag_anem, filter_for_diag_irga)
+    lDiagAnemometer, filter_for_diag_irga)
     use m_rp_global_var
     !> in/out variables
     integer, intent(in) :: nrow, ncol
     integer, intent(in) :: dnrow, dncol
     real(kind = dbl), intent(in) :: DiagSet(dnrow, dncol)
     real(kind = dbl), intent(inout) :: Set(nrow, ncol)
-    logical, intent(in) :: filter_for_diag_anem
     logical, intent(in) :: filter_for_diag_irga
+    type(DiagAnemType), intent(in) :: lDiagAnemometer
     !> lcoal variables
     integer :: var
     logical :: mask(nrow)
 
 
-    !> Anemometer diagnostics
     Essentials%m_diag_anem = 0
     Essentials%m_diag_irga = 0
-    if (filter_for_diag_anem) then
+
+    !> Anemometer diagnostics (binary 0/1 flag)
+    if (lDiagAnemometer%binary_flag_present) then
         if (index(MasterSonic%model, 'wm') /= 0 &
             .or. index(MasterSonic%model, 'hs') /= 0) then
             !> Special case for some Gill sonics, for which values of 10 (0A) and
@@ -75,6 +76,17 @@ subroutine FilterDatasetForDiagnostics(Set, nrow, ncol, DiagSet, dnrow, dncol, &
                 Set(1:nrow, ts) = error
             endwhere
         end if
+    end if
+    !> Anemometer diagnostics (StaA for some Gill models)
+    if (lDiagAnemometer%staa_present) then
+        mask = DiagSet(1:nrow, diagStaA) == 0
+        Essentials%m_diag_anem = Essentials%m_diag_anem + count(mask)
+        where (DiagSet(1:nrow, diagStaA) == 0)
+            Set(1:nrow, u) = error
+            Set(1:nrow, v) = error
+            Set(1:nrow, w) = error
+            Set(1:nrow, ts) = error
+        endwhere
     end if
 
     !> IRGA diagnostics

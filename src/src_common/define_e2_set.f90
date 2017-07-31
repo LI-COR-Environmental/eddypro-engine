@@ -180,5 +180,13 @@ subroutine DefineE2Set(LocCol, Raw, nrow, ncol, E2Set, e2nrow, e2ncol, DiagSet, 
             DiagSet(1:dnrow, diagAnem) = Raw(1:dnrow, j)
             cycle
         end if
+        if (LocCol(j)%var(1:len_trim(LocCol(j)%var)) == 'Gill_StaA' .and. LocCol(j)%useit) then
+            DiagSet(1:dnrow, diagStaA) = Raw(1:dnrow, j)
+            cycle
+        end if
+        if (LocCol(j)%var(1:len_trim(LocCol(j)%var)) == 'Gill_StaD' .and. LocCol(j)%useit) then
+            DiagSet(1:dnrow, diagStaD) = Raw(1:dnrow, j)
+            cycle
+        end if
     end do
 end subroutine DefineE2Set

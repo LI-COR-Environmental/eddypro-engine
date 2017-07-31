@@ -543,6 +543,7 @@ program EddyproRP
                     Raw, size(Raw, 1), size(Raw, 2), PeriodRecords, &
                     EmbBiometDataExist, skip_period, LatestRawFileIndx, Col, &
                     .false.)
+
                 if (skip_period) cycle to_periods_loop
 
                 !> Period skip control with message
@@ -635,7 +636,7 @@ program EddyproRP
                     call FilterDatasetForDiagnostics(E2Set, &
                         size(E2Set, 1), size(E2Set, 2), &
                         DiagSet, size(DiagSet, 1), size(DiagSet, 2), &
-                        DiagAnemometer%present, .true.)
+                        DiagAnemometer, .true.)
                 end if
                 if(allocated(DiagSet)) deallocate(DiagSet)
 
@@ -1025,7 +1026,7 @@ program EddyproRP
                     call FilterDatasetForDiagnostics(E2Set, size(E2Set, 1), &
                         size(E2Set, 2), DiagSet, &
                         size(DiagSet, 1), size(DiagSet, 2), &
-                        DiagAnemometer%present, .false.)
+                        DiagAnemometer, .false.)
                 end if
                 if(allocated(DiagSet)) deallocate(DiagSet)
 
@@ -1558,7 +1559,7 @@ program EddyproRP
             MetaIsNeeded, EddyProProj%biomet_data == 'embedded', .true., &
             Raw, size(Raw, 1), size(Raw, 2), PeriodRecords, &
             EmbBiometDataExist, skip_period, LatestRawFileIndx, Col, .true.)
-        
+
         !> If it's running in metadata retriever mode,
         !> create a dummy dataset 1 minute long
         if (EddyProProj%run_mode == 'md_retrieval') then
@@ -1696,7 +1697,7 @@ program EddyproRP
                 call FilterDatasetForDiagnostics(E2Set, size(E2Set, 1), &
                     size(E2Set, 2), DiagSet, &
                     size(DiagSet, 1), size(DiagSet, 2), &
-                    DiagAnemometer%present, .true.)
+                    DiagAnemometer, .true.)
             end if
             if(allocated(DiagSet)) deallocate(DiagSet)
 
