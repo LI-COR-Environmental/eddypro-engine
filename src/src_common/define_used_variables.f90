@@ -81,7 +81,8 @@ subroutine DefineUsedVariables(LocCol)
     Diag7200%present = .false.
     Diag7500%present = .false.
     Diag7700%present = .false.
-    DiagAnemometer%present = .false.
+    DiagAnemometer%binary_flag_present = .false.
+    DiagAnemometer%staa_present = .false.
     if (EddyProProj%Col(E2NumVar + diag72) > 0) then
         LocCol(EddyProProj%Col(E2NumVar + diag72))%useit = .true.
         NumDiag = NumDiag + 1
@@ -100,7 +101,12 @@ subroutine DefineUsedVariables(LocCol)
     if (EddyProProj%Col(E2NumVar + diagAnem) > 0) then
         LocCol(EddyProProj%Col(E2NumVar + diagAnem))%useit = .true.
         NumDiag = NumDiag + 1
-        DiagAnemometer%present = .true.
+        DiagAnemometer%binary_flag_present = .true.
+    end if
+    if (EddyProProj%Col(E2NumVar + diagStaA) > 0) then
+        LocCol(EddyProProj%Col(E2NumVar + diagStaA))%useit = .true.
+        NumDiag = NumDiag + 1
+        DiagAnemometer%staa_present = .true.
     end if
 
     !> Loop on the actual number of columns and determine

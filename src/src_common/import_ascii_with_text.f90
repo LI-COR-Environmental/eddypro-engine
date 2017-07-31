@@ -147,8 +147,10 @@ subroutine ImportAsciiWithText(FirstRecord, LastRecord, LocCol, fRaw, &
                 end if
                 read(datum, *, iostat = io_status) fRaw(N, jj)
                 if (io_status /= 0) then
-                    N = N - 1
-                    cycle record_loop
+                    fRaw(N, jj) = error
+                    cycle il
+                    ! N = N - 1
+                    ! cycle record_loop
                 end if
             end if
         end do il
