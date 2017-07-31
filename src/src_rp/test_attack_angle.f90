@@ -61,6 +61,7 @@ subroutine TestAttackAngle(Set, N)
             if (aoa < aa%min .or. aoa > aa%max) ocnt = ocnt + 1
         end if
     end do
+    Essentials%aa_s = dble(ocnt) / dble(cnt) * 1d2
     IntHF%aa = 0
     if (dble(ocnt) / dble(cnt) * 1d2 >= aa%lim) IntHF%aa = 1
     write(*,'(a)') ' Done.'

@@ -41,6 +41,9 @@ subroutine StatisticalScreening(Set, nrow, ncol, Tests, printout)
 
     if (printout) write(*, '(a)') '  Raw level statistical screening..'
 
+    !> Absolute limits (al)
+    if (Tests%al) call TestAbsoluteLimits(Set, nrow, printout)
+
     !> Spike count/removal (sr)
     if (Tests%sr) then
         if (RPSetup%despike_vickers97) then
@@ -52,9 +55,6 @@ subroutine StatisticalScreening(Set, nrow, ncol, Tests, printout)
 
     !> Amplitude resolution and dropouts (ar, do)
     if (Tests%ar .or. Tests%do) call TestAmpResDropOut(Set, nrow)
-
-    !> Absolute limits (al)
-    if (Tests%al) call TestAbsoluteLimits(Set, nrow, printout)
 
     !> Skewness and kurtosis (sk)
     if (Tests%sk) call TestHigherMoments(Set, nrow)

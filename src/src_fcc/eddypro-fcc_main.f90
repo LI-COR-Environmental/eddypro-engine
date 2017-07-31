@@ -77,7 +77,7 @@ Program EddyproFCC
     type(InstrumentType) :: AuxInstrument(GHGNumVar)
     type(QCType) :: StDiff
     type(QCType) :: DtDiff
-    type(EXType) :: lEx
+    type(ExType) :: lEx
 
     !> Allocatable variabled
     type(DateType), allocatable :: exTimeSeries(:)
@@ -117,6 +117,8 @@ Program EddyproFCC
     !> Preliminarily read essential files and retrieve a few information
     call InitExVars(exStartTimestamp, exEndTimestamp, &
         NumExRecords, NumValidExRecords)
+
+    call ReadEx2Record(AuxFile%ex, udf, 1, lEx, ValidRecord, EndOfFileReached)
 
     !> If no good records are found stop execution
     if (NumValidExRecords <= 0) call ExceptionHandler(61)
@@ -441,7 +443,7 @@ Program EddyproFCC
     ex_loop: do i = 1, NumExRecords
 
         !> Read record from essentials file
-        call ReadExRecord('', uex, -1, lEx, ValidRecord, EndOfFileReached)
+        call ReadEx2Record('', uex, -1, lEx, ValidRecord, EndOfFileReached)
 
         !> Initialize presence of key variables for outputting results
         if (InitializeOuputFiles) &
@@ -485,11 +487,10 @@ Program EddyproFCC
 
         !> Bad pass spectral correction factors
         call BandPassSpectralCorrections(lEx%instr(sonic)%height, &
-            lEx%disp_height, lEx%var_present, lEx%WS, lEx%Ta, lEx%zL, &
+            lEx%disp_height, lEx%var_present, lEx%WS, lEx%Ta, lEx%Flux0%zL, &
             lEx%ac_freq, nint(lEx%avrg_length), lEx%logger_swver, &
             lEx%det_meth, nint(lEx%det_timec), .false., AuxInstrument, &
             size(FullFileList), FullFileList, nrow_full, lEx, FCCsetup)
-
 
         !> Calculate fluxes at Level 1
         call Fluxes1(lEx)
@@ -497,13 +498,9 @@ Program EddyproFCC
         !> Calculate fluxes at Level 2 and Level 3
         call Fluxes23(lEx)
 
-        !> Calculate footprint estimation
-        if (Meth%foot(1:len_trim(Meth%foot)) /= 'none') then
-            call FootprintHandle(lEx%var(w), lEx%ustar, lEx%zL, lEx%WS, lEx%L, &
-                lEx%instr(sonic)%height, lEx%disp_height, lEx%rough_length)
-        else
-            Foot = errFootprint
-        end if
+        !> Calculate footprint estimation   
+        call FootprintHandle(lEx%var(w), lEx%ustar, lEx%zL, lEx%WS, lEx%L, &
+            lEx%instr(sonic)%height, lEx%disp_height, lEx%rough_length)
 
         !> Calculate quality flags
         StDiff%w_u    = nint(lEx%st_w_u)

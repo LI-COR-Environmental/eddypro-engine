@@ -31,7 +31,7 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine PotentialRadiation(latit)
+function PotentialRadiation(latit) result(RP)
     use m_common_global_var
     implicit none
     !> in/out variables
@@ -48,7 +48,7 @@ subroutine PotentialRadiation(latit)
     real(kind = dbl) :: omega       !< solar hour angle
     real(kind = dbl) :: LAS         !< boh
     real(kind = dbl), parameter :: solar_constant = 1376d0
-
+    real(kind = dbl) :: RP(17568)
 
     !> Compute potential radiation, based on lat/long, on a 30 min basis
     do i = 1, 17568
@@ -76,7 +76,7 @@ subroutine PotentialRadiation(latit)
         !> Compute extraterrestrial solar radiation
         rpot = solar_constant * (1.00011d0 + 0.034221d0 * dcos(theta) + 0.00128d0 * dsin(theta) &
              + 0.000719d0 * dcos(2d0 * theta) + 0.000077d0 * dsin(2d0 * theta))
-        PotRad(i) = rpot*dcos(theta_rad)
-        if (PotRad(i) < 0d0) PotRad(i) = 0d0
+        RP(i) = rpot*dcos(theta_rad)
+        if (RP(i) < 0d0) RP(i) = 0d0
     end do
-end subroutine PotentialRadiation
+end function PotentialRadiation

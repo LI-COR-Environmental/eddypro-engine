@@ -209,4 +209,5 @@ subroutine TestSpikeDetectionMauder13(Set, N)
 
     !> Write on output variable
     Essentials%e2spikes(u:pe) = tot_spikes(u:pe)
+    Essentials%m_despiking(u:pe) = tot_spikes_sng(u:pe)
 end subroutine TestSpikeDetectionMauder13

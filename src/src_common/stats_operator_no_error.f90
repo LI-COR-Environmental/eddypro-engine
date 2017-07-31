@@ -367,3 +367,56 @@ double precision function LaggedCovarianceNoError(col1, col2, nrow, rlag, err_fl
         LaggedCovarianceNoError = err_float
     end if
 end function LaggedCovarianceNoError
+
+!***************************************************************************
+!
+! \brief       Calculates quantiles of array (column-wise) ignoring \n
+!              provided error code
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+subroutine QuantileNoError(Set, nrow, ncol, Quantile, qin, err_float)
+    use m_common_global_var
+    implicit none
+    !> in/out variables
+    integer, intent(in) :: nrow, ncol
+    real(kind = dbl), intent(in) :: err_float
+    real(kind = dbl), intent(in) :: qin
+    real(kind = dbl), intent(in) :: Set(nrow, ncol)
+    real(kind = dbl), intent(out) :: Quantile(ncol)
+    !> local variables
+    integer :: i = 0
+    integer :: j = 0
+    integer :: cnt = 0
+    integer :: M = 0
+    logical :: mask(nrow)
+    real(kind = dbl), allocatable :: x(:)
+    real(kind = dbl), external :: quantile_sas5
+
+
+    !> Initializations
+    Quantile = err_float
+
+    !> Sum of squared residuals
+    do j = 1, ncol
+        mask(:) = Set(:, j) /= err_float
+        M = count(mask)
+        if (M > 0) then
+            allocate(x(M))
+            cnt = 0
+            do i = 1, nrow
+                if (Set(i, j) /= err_float) then 
+                    cnt = cnt + 1
+                    x(cnt) = Set(i, j)
+                end if
+            end do
+            Quantile(j) = quantile_sas5(x, size(x), qin)
+            deallocate(x)
+        end if
+    end do
+end subroutine QuantileNoError

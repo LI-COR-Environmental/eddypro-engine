@@ -64,6 +64,7 @@ module m_typedef
     integer, parameter :: MaxGasClasses = 12
     integer, parameter :: toMaxH2OClass = 20
     integer, parameter :: MaxNumWSect = 36
+    integer, parameter :: MaxNumWdfSectors = 8
 
     integer, parameter :: MaxProfNodes = 7
     integer, parameter :: NumStdCustom = 50
@@ -515,6 +516,7 @@ module m_typedef
         logical :: use_extmd_file
         logical :: use_dynmd_file
         logical :: out_full
+        logical :: out_icos
         logical :: out_fluxnet
         logical :: out_fluxnet_eddy
         logical :: out_fluxnet_biomet
@@ -634,6 +636,7 @@ module m_typedef
         real(kind = dbl) :: Hi_gas4
         real(kind = dbl) :: tau
         real(kind = dbl) :: ustar
+        real(kind = dbl) :: L
         real(kind = dbl) :: zL
     end type FluxType
 
@@ -686,18 +689,40 @@ module m_typedef
 
     type :: EssentialsType
         integer :: e2spikes(E2NumVar)
+        integer :: m_custom_flags
+        integer :: m_wdf
+        integer :: m_despiking(E2NumVar)
+        integer :: m_diag_anem
+        integer :: m_diag_irga(E2NumVar)
+        integer :: n_in
+        integer :: n_after_custom_flags
+        integer :: n_after_wdf
+        integer :: n_wcov(E2NumVar)
+        integer :: n(E2NumVar)
         real(kind = dbl) :: yaw
         real(kind = dbl) :: pitch
         real(kind = dbl) :: roll
         real(kind = dbl) :: zL
         real(kind = dbl) :: L
         real(kind = dbl) :: degH(NumDegH + 1)
-        real(kind = dbl) :: timelag(E2NumVar)
+        real(kind = dbl) :: used_timelag(E2NumVar)
+        real(kind = dbl) :: actual_timelag(E2NumVar)
         real(kind = dbl) :: AGC72
         real(kind = dbl) :: AGC75
         real(kind = dbl) :: RSSI77
         real(kind = dbl) :: rand_uncer(E2NumVar)
         real(kind = dbl) :: rand_uncer_LE
+        real(kind = dbl) :: ar_s(GHGNumVar)
+        real(kind = dbl) :: do_s_ctr(GHGNumVar)
+        real(kind = dbl) :: do_s_ext(GHGNumVar)
+        integer :: al_s(GHGNumVar)
+        real(kind = dbl) :: sk_s_skw(GHGNumVar)
+        real(kind = dbl) :: sk_s_kur(GHGNumVar)
+        real(kind = dbl) :: ds_s_haar_avg(6, GHGNumVar)
+        real(kind = dbl) :: ds_s_haar_var(6, GHGNumVar)
+        real(kind = dbl) :: aa_s
+        real(kind = dbl) :: ns_s_rnv(2)
+        real(kind = dbl) :: ns_s_rns
         logical :: def_tlag(E2NumVar)
     end type EssentialsType
 
@@ -842,11 +867,15 @@ module m_typedef
         integer :: Tconst
         integer :: nspec
         integer :: avrg_len
-        real(kind = dbl) :: max_lack
+        integer :: wdf_num_secs
+        real(kind = dbl) :: wdf_start(MaxNumWdfSectors)
+        real(kind = dbl) :: wdf_end(MaxNumWdfSectors)
         real(kind = dbl) :: offset(3)
+        real(kind = dbl) :: max_lack
         character(32) :: tap_win
         character(32) :: bu_corr
         character(32) :: calib_aoa
+        logical :: apply_wdf
         logical :: calib_wboost
         logical :: do_spectral_analysis
         logical :: use_geo_north
@@ -1031,6 +1060,9 @@ module m_typedef
         real(kind = dbl) :: StDev(E2NumVar)
         real(kind = dbl) :: Skw(E2NumVar)
         real(kind = dbl) :: Kur(E2NumVar)
+        real(kind = dbl) :: Median(E2NumVar)
+        real(kind = dbl) :: Q3(E2NumVar)
+        real(kind = dbl) :: Q1(E2NumVar)
         real(kind = dbl) :: d(E2NumVar)
         real(kind = dbl) :: chi(E2NumVar)
         real(kind = dbl) :: r(E2NumVar)
@@ -1136,7 +1168,7 @@ module m_typedef
         real(kind = dbl) :: burba
     end type WPLType
 
-    type :: ExType
+    type Ex2Type
         character(FilenameLen) :: fname
         character(10) :: date
         character(5) :: time
@@ -1208,7 +1240,6 @@ module m_typedef
         real(kind = dbl) :: canopy_height
         real(kind = dbl) :: disp_height
         real(kind = dbl) :: rough_length
-        real(kind = dbl) :: bWS
         real(kind = dbl) :: bzL
         real(kind = dbl) :: agc72
         real(kind = dbl) :: agc75
@@ -1227,5 +1258,117 @@ module m_typedef
         type(InstrumentType) :: instr(ExNumInstruments)
         type(FluxType) :: Flux0
         Type(SwVerType) :: logger_swver
+    end type Ex2Type
+
+    type ExType
+        character(FilenameLen) :: fname
+        character(16) :: timestamp
+        character(10) :: date
+        character(5) :: time
+        character(10) :: vm_flags(12)
+        character(32) :: measure_type(GHGNumVar)
+        character(8) :: det_meth
+        integer :: file_records
+        integer :: used_records
+        integer :: spikes(GHGNumVar)
+        integer :: det_meth_int
+        integer :: measure_type_int(GHGNumVar)
+        integer :: nr_theor
+        integer :: nr_files
+        integer :: nr_after_custom_flags
+        integer :: nr_after_wdf
+        integer :: nr(GHGNumVar)
+        integer :: nr_w(GHGNumVar)
+        integer :: daytime_int
+        real(kind = dbl) :: RP
+        real(kind = dbl) :: file_length
+        real(kind = dbl) :: lat
+        real(kind = dbl) :: lon
+        real(kind = dbl) :: alt
+        real(kind = dbl) :: licor_flags(29)
+        real(kind = dbl) :: det_timec
+        real(kind = dbl) :: unrot_u
+        real(kind = dbl) :: unrot_v
+        real(kind = dbl) :: unrot_w
+        real(kind = dbl) :: rot_u
+        real(kind = dbl) :: rot_v
+        real(kind = dbl) :: rot_w
+        real(kind = dbl) :: MWS
+        real(kind = dbl) :: WS
+        real(kind = dbl) :: WD
+        real(kind = dbl) :: ustar
+        real(kind = dbl) :: TKE
+        real(kind = dbl) :: L
+        real(kind = dbl) :: zL
+        real(kind = dbl) :: Bowen
+        real(kind = dbl) :: Tstar
+        real(kind = dbl) :: d(GHGNumVar)
+        real(kind = dbl) :: r(GHGNumVar)
+        real(kind = dbl) :: chi(GHGNumVar)
+        real(kind = dbl) :: Ts
+        real(kind = dbl) :: Ta
+        real(kind = dbl) :: Pa
+        real(kind = dbl) :: RH
+        real(kind = dbl) :: Va
+        real(kind = dbl) :: RhoCp
+        real(kind = dbl) :: e
+        real(kind = dbl) :: es
+        real(kind = dbl) :: Q
+        real(kind = dbl) :: VPD
+        real(kind = dbl) :: Tdew
+        real(kind = dbl) :: Pd
+        real(kind = dbl) :: Vd
+        real(kind = dbl) :: lambda
+        real(kind = dbl) :: sigma
+        real(kind = dbl) :: Tcell
+        real(kind = dbl) :: Pcell
+        real(kind = dbl) :: Vcell(GHGNumVar)
+        real(kind = dbl) :: Var(E2NumVar)
+        real(kind = dbl) :: Cov_w(E2NumVar)
+        real(kind = dbl) :: tlag(GHGNumVar)
+        real(kind = dbl) :: act_tlag(GHGNumVar)
+        real(kind = dbl) :: used_tlag(GHGNumVar)
+        real(kind = dbl) :: nom_tlag(GHGNumVar)
+        real(kind = dbl) :: min_tlag(GHGNumVar)
+        real(kind = dbl) :: max_tlag(GHGNumVar)
+        real(kind = dbl) :: yaw
+        real(kind = dbl) :: pitch
+        real(kind = dbl) :: roll
+        real(kind = dbl) :: st_w_u
+        real(kind = dbl) :: st_w_ts
+        real(kind = dbl) :: st_w_co2
+        real(kind = dbl) :: st_w_h2o
+        real(kind = dbl) :: st_w_ch4
+        real(kind = dbl) :: st_w_gas4
+        real(kind = dbl) :: dt_u
+        real(kind = dbl) :: dt_w
+        real(kind = dbl) :: dt_ts
+        real(kind = dbl) :: avrg_length
+        real(kind = dbl) :: ac_freq
+        real(kind = dbl) :: canopy_height
+        real(kind = dbl) :: disp_height
+        real(kind = dbl) :: rough_length
+        real(kind = dbl) :: agc72
+        real(kind = dbl) :: agc75
+        real(kind = dbl) :: rssi77
+        real(kind = dbl) :: user_var(MaxUserVar)
+        real(kind = dbl) :: rand_uncer(E2NumVar)
+        real(kind = dbl) :: rand_uncer_LE
+        logical :: daytime
+        logical :: var_present(GHGNumVar)
+        logical :: def_tlag(GHGNumVar)
+        type(StorType) :: Stor
+        type(RhoType) :: RHO
+        type(Mul7700Type) :: Mul7700
+        type(BurbaType) :: Burba
+        type(DegTType) :: degT
+        type(InstrumentType) :: instr(ExNumInstruments)
+        type(FluxType) :: Flux0
+        Type(SwVerType) :: logger_swver
+        type(StatsType) :: stats
     end type ExType
+
+    type icosChunksType
+        character(LongOutstringLen) s(6)
+    end type icosChunksType
 end module m_typedef

@@ -81,7 +81,6 @@ subroutine WriteEddyProMetadataVariables(LocCol, printout)
     integer :: i = 0
     integer :: j = 0
     include 'interfaces.inc'
-    character(32), external :: replace
 
 
     if (len_trim(ACTags(1)%value) > 0) then

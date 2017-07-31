@@ -51,7 +51,10 @@ subroutine tsValidateTemplate(Template)
     if ( index(Template, 'yy') == 0 &
     .or. index(Template, 'dd') == 0 &
     .or. index(Template, 'HH') == 0 &
-    .or. index(Template, 'MM') == 0) call ExceptionHandler(20)
+    .or. index(Template, 'MM') == 0) then
+        write(*, *) ''
+        call ExceptionHandler(20)
+    end if
 end subroutine tsValidateTemplate
 
 !***************************************************************************
@@ -351,13 +354,41 @@ logical function IsDaytime(rad, date, time)
     character(*), intent(in) :: date
     character(*), intent(in) :: time
     !> local variables
-    logical :: isleap
+    integer :: indx
+    integer, external :: DateTimeToHalfHourNumber
+
+    indx = DateTimeToHalfHourNumber(date, time)
+    !> Now indx is known, use relevant radiation value to determine daytime
+    if (rad(indx) > 10d0) then
+        IsDaytime = .true.
+    else
+        IsDaytime = .false.
+    end if
+end function IsDaytime
+
+!***************************************************************************
+!
+! \brief       Calculate passed date/time's half-hour number in the year
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+integer function DateTimeToHalfHourNumber(date, time) result(indx)
+    use m_common_global_Var
+    implicit none
+    !> in/out variables
+    character(*), intent(in) :: date
+    character(*), intent(in) :: time
+    !> local variables
     integer :: int_year
     integer :: int_day
     integer :: int_hour
     integer :: int_min
-    integer :: indx
-
+    logical :: isleap
 
     !> Deterime whether current year is leap
     read(date(1:4), '(i4)') int_year
@@ -422,14 +453,7 @@ logical function IsDaytime(rad, date, time)
             indx = indx + 2
     end select
     if (indx == 0) indx = 1
-
-    !> Now indx is known, use relevant radiation value to determine daytime
-    if (rad(indx) > 10d0) then
-        IsDaytime = .true.
-    else
-        IsDaytime = .false.
-    end if
-end function IsDaytime
+end function DateTimeToHalfHourNumber
 
 !***************************************************************************
 !

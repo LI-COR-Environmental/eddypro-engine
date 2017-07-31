@@ -202,6 +202,7 @@ module m_index_parameters
     integer, parameter ::     uaflx  = 129
     integer, parameter ::     uex    = 130
     integer, parameter ::     ubiomet  = 131
+    integer, parameter ::     uicos  = 132
 
     integer, parameter :: uout  = 142
     integer, parameter :: upf   = 143

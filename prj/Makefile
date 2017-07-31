@@ -75,7 +75,7 @@ FCC_OBJS_f90d1=$(patsubst %.f90, %.o, $(FCC_SRCS_f90d1))
 COMMON_OBJS_f90d1=$(patsubst %.f90, %.o, $(COMMON_SRCS_f90d1))
 
 #CFLAGS = -ffpe-trap=invalid,zero -Wall -pedantic -fall-intrinsics -fbounds-check -Wextra -Wcharacter-truncation -Wunderflow -Wno-compare-reals -std=f2003 -O3 -I $(OBJS_DIR)
-# CFLAGS = -g -fcheck=all -Wall -pedantic -fall-intrinsics -fbounds-check -Wextra -Wcharacter-truncation -Wunderflow -Wno-compare-reals -std=f2003 -O3 -I $(OBJS_DIR)
+#CFLAGS = -g -fcheck=all -Wall -pedantic -fall-intrinsics -fbounds-check -Wextra -Wcharacter-truncation -Wunderflow -Wno-compare-reals -std=f2003 -O3 -I $(OBJS_DIR)
 CFLAGS = -Wall -pedantic -fall-intrinsics -fbounds-check -Wextra -Wcharacter-truncation -Wunderflow -Wno-compare-reals -std=f2003 -O3 -I $(OBJS_DIR)
 
 VPATH = $(RP_SRC_DIR_f90d1):$(RP_SRC_DIR_Fd2):$(FCC_SRC_DIR_f90d1):$(COMMON_SRC_DIR_f90d1):$(OBJS_DIR)
@@ -170,6 +170,9 @@ basic_stats.o: \
 	m_common_global_var.o
 timelag_handle.o: \
 	timelag_handle.f90 \
+	m_rp_global_var.o
+count_records_and_values.o: \
+	count_records_and_values.f90 \
 	m_common_global_var.o
 wind_sector.o: \
 	wind_sector.f90 \
@@ -191,6 +194,12 @@ ts_extract_subperiod_indexes.o: \
 	m_common_global_var.o
 write_out_biomet.o: \
 	write_out_biomet.f90 \
+	m_rp_global_var.o
+write_icos_output_rp.o: \
+	write_icos_output_rp.f90 \
+	m_rp_global_var.o
+write_out_icos_only_biomet.o: \
+	write_out_icos_only_biomet.f90 \
 	m_rp_global_var.o
 out_raw_data.o: \
 	out_raw_data.f90 \
@@ -675,6 +684,9 @@ init_outfiles_rp.o: \
 median.o: \
 	median.f90 \
 	m_common_global_var.o
+sort.o: \
+	sort.f90 \
+	m_common_global_var.o
 despike_user_set.o: \
 	despike_user_set.f90 \
 	m_rp_global_var.o
@@ -728,6 +740,9 @@ fit_cospectral_models.o: \
 	m_levenberg_marquardt.o
 read_ex_record.o: \
 	read_ex_record.f90 \
+	m_common_global_var.o
+read_ex2_record.o: \
+	read_ex2_record.f90 \
 	m_common_global_var.o
 fit_rh_to_cutoff.o: \
 	fit_rh_to_cutoff.f90 \

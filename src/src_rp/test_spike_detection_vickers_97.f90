@@ -294,5 +294,6 @@ subroutine TestSpikeDetectionVickers97(Set, N, printout)
 
     !> Write on output variable
     Essentials%e2spikes(u:pe) = tot_spikes(u:pe)
+    Essentials%m_despiking(u:pe) = tot_spikes_sng(u:pe)
     if (printout) write(*,'(a)') ' Done.'
 end subroutine TestSpikeDetectionVickers97

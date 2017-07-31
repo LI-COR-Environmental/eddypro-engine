@@ -700,4 +700,20 @@ subroutine InitOutFiles()
     !>*********************************************************************************************
     !>*********************************************************************************************
 
+
+    if (EddyProProj%out_icos) then
+        !> Create output directory if it does not exist
+        mkdir_status = CreateDir('"' // Dir%main_out(1:len_trim(Dir%main_out)) // '"')
+
+        Test_Path = Dir%main_out(1:len_trim(Dir%main_out)) &
+                  // EddyProProj%id(1:len_trim(EddyProProj%id)) &
+                  // ICOS_FilePadding // Timestamp_FilePadding // CsvExt
+        dot = index(Test_Path, CsvExt, .true.) - 1
+        ICOS_Path = Test_Path(1:dot) // CsvTmpExt
+        open(uicos, file = ICOS_Path, iostat = open_status, encoding = 'utf-8')
+
+        !> Write on output file
+        write(uicos, '(a)') trim(icos_header)
+    end if
+
 end subroutine InitOutFiles

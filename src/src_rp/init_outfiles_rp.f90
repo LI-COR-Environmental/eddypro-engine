@@ -671,13 +671,155 @@ subroutine InitOutFiles_rp()
             &li77_motor_spinning,li77_pump_on,li77_top_heater_on,li77_bottom_heater_on,li77_calibrating,li77_motor_failure,&
             &li77_bad_aux_tc1,li77_bad_aux_tc2,li77_bad_aux_tc3,li77_box_connected,&
             &li72_AGC,li75_AGC,li77_RSSI,num_user_var,'
-            if (NumUserVar > 0) then
-                do i = 1, NumUserVar
-                    dataline = dataline(1:len_trim(dataline)) &
-                        // usg(i)(1:len_trim(usg(i))) // 'mean' // ','
-                end do
-            end if
-            write(uex, '(a)') dataline(1:len_trim(dataline) - 1)
+        if (NumUserVar > 0) then
+            do i = 1, NumUserVar
+                dataline = dataline(1:len_trim(dataline)) &
+                    // usg(i)(1:len_trim(usg(i))) // 'mean' // ','
+            end do
+        end if
+        write(uex, '(a)') dataline(1:len_trim(dataline) - 1)
+    end if
+
+    !>==========================================================================
+    !>==========================================================================
+    !> ICOS output
+    if (EddyProProj%out_icos) then
+        Test_Path = Dir%main_out(1:len_trim(Dir%main_out)) &
+                  // EddyProProj%id(1:len_trim(EddyProProj%id)) &
+                  // ICOS_FilePadding // Timestamp_FilePadding // CsvExt
+        dot = index(Test_Path, CsvExt, .true.) - 1
+        ICOS_Path = Test_Path(1:dot) // CsvTmpExt
+        open(uicos, file = ICOS_Path, iostat = open_status, encoding = 'utf-8')
+
+        call clearstr(dataline)
+        dataline = 'TIMESTAMP,POTENTIAL_RADIATION,DAYTIME,NR_THEOR,&
+                  &NR_FILES,NR_AFTER_CUSTOM_FLAGS,NR_AFTER_WDF,NR_WIND,NR_TS,NR_CO2,NR_H20,NR_CH4,NR_GS4,&
+                  &NR_W_U,NR_W_TS,NR_W_CO2,NR_W_H2O,NR_W_CH4,NR_W_GS4,&
+                  &TAU,H,LE,FC,FH2O,FCH4,FGS4,TAU_RU,H_RU,LE_RU,FC_RU,FH2O_RU,FCH4_RU,FGS4_RU,&
+                  &H_STOR,LE_STOR,FC_STOR,FH2O_STOR,FCH4_STOR,FGS4_STOR,&
+                  &FC_V_ADV,FH2O_V_ADV,FCH4_V_ADV,FGS4_V_ADV,&
+                  &U_UNROT,V_UNROT,W_UNROT,U_ROT,V_ROT,W_ROT,&
+                  &WS,MWS,WD,USTAR,TKE,L,ZL,BOWEN,TSTAR,&
+                  &T_SONIC,TA,PA,RH,AIR_MV,AIR_DENSITY,AIR_RHO_CP,&
+                  &VAPOR_DENSITY,VAPOR_PARTIAL_PRESSURE,VAPOR_PARTIAL_PRESSURE_SAT,SPECIFIC_HUMIDITY,VPD,TDEW,&
+                  &DRYAIR_PARTIAL_PRESSURE,DRYAIR_DENSITY,DRYAIR_MV,SPECIFIC_HEAT_EVAP,SIGMA,&
+                  &CO2_TYPE,CO2_MOLAR_DENSITY,CO2_MIXING_RATIO,CO2_MOLE_FRACTION,&
+                  &H2O_TYPE,H2O_MOLAR_DENSITY,H2O_MIXING_RATIO,H2O_MOLE_FRACTION,&
+                  &CH4_TYPE,CH4_MOLAR_DENSITY,CH4_MIXING_RATIO,CH4_MOLE_FRACTION,&
+                  &GS4_TYPE,GS4_MOLAR_DENSITY,GS4_MIXING_RATIO,GS4_MOLE_FRACTION,&
+                  &CO2_TLAG_ACTUAL,CO2_TLAG_USED,CO2_TLAG_NOMINAL,CO2_TLAG_MIN,CO2_TLAG_MAX,&
+                  &H2O_TLAG_ACTUAL,H2O_TLAG_USED,H2O_TLAG_NOMINAL,H2O_TLAG_MIN,H2O_TLAG_MAX,&
+                  &CH4_TLAG_ACTUAL,CH4_TLAG_USED,CH4_TLAG_NOMINAL,CH4_TLAG_MIN,CH4_TLAG_MAX,&
+                  &GS4_TLAG_ACTUAL,GS4_TLAG_USED,GS4_TLAG_NOMINAL,GS4_TLAG_MIN,GS4_TLAG_MAX,&
+                  &U_MEAN,V_MEAN,W_MEAN,TS_MEAN,CO2_MEAN,H2O_MEAN,CH4_MEAN,GS4_MEAN,&
+                  &U_MEDIAN,V_MEAN,W_MEDIAN,TS_MEDIAN,CO2_MEDIAN,H2O_MEDIAN,CH4_MEDIAN,GS4_MEDIAN,&
+                  &U_Q1,V_Q1,W_Q1,TS_Q1,CO2_Q1,H2O_Q1,CH4_Q1,GS4_Q1,&
+                  &U_Q3,V_Q3,W_Q3,TS_Q3,CO2_Q3,H2O_Q3,CH4_Q3,GS4_Q3,&
+                  &U_VAR,V_VAR,W_VAR,TS_VAR,CO2_VAR,H2O_VAR,CH4_VAR,GS4_VAR,&
+                  &U_SKW,V_SKW,W_SKW,TS_SKW,CO2_SKW,H2O_SKW,CH4_SKW,GS4_SKW,&
+                  &U_KUR,V_KUR,W_KUR,TS_KUR,CO2_KUR,H2O_KUR,CH4_KUR,GS4_KUR,&
+                  &COV_W_U,COV_W_TS,COV_W_CO2,COV_W_H2O,COV_W_CH4,COV_W_GS4,&
+                  &COV_CO2_H2O,COV_CO2_CH4,COV_CO2_GS4,COV_H2O_CH4,COV_H2O_GS4,COV_CH4_GS4,&
+                  &FOOTPRINT_PEAK,FOOTPRINT_OFFSET,&
+                  &FOOTPRINT_10,FOOTPRINT_30,FOOTPRINT_50,FOOTPRINT_70,FOOTPRINT_90,&
+                  &L_0,zL_0,&
+                  &TAU_0,H_0,LE_0,FC_0,FH2O_0,FCH4_0,FGS4_0,&
+                  &TAU_1,H_1,LE_1,FC_1,FH2O_1,FCH4_1,FGS4_1,&
+                  &TAU_2,H_2,LE_2,FC_2,FH2O_2,FCH4_2,FGS4_2,&
+                  &CELLAIR_T,CELLAIR_P,CELLAIR_MV_CO2,CELLAIR_MV_H2O,CELLAIR_MV_CH4,CELLAIR_MV_GS4,&
+                  &CELL_E_CO2,CELL_E_CH4,CELL_E_GS4,CELL_H_CO2,CELL_H_H2O,CELL_H_CH4,CELL_H_GS4,&
+                  &BU_H_BOT,BU_H_TOP,BU_H_SPAR,LI7700_A,LI7700_B,LI7700_C,&
+                  &TAU_SCF,H_SCF,LE_SCF,FC_SCF,FH2O_SCF,FCH4_SCF,FGS4_SCF,&
+                  &COV_WT,COV_WT_1.626,COV_WT_0.614,COV_WT_0.277,COV_WT_0.133,COV_WT_0.065,&
+                  &COV_WT_0.032,COV_WT_0.016,COV_WT_0.008,COV_WT_0.004,&
+                  &M_CUSTOM_FLAGS,M_WDF,M_SONIC_DIAG,&
+                  &M_IRGA_DIAG_CO2,M_IRGA_DIAG_H2O,M_IRGA_DIAG_CH4,M_IRGA_DIAG_GS4,&
+                  &M_SPIKES_U,M_SPIKES_V,M_SPIKES_W,M_SPIKES_TS,&
+                  &M_SPIKES_CO2,M_SPIKES_H2O,M_SPIKES_CH4,M_SPIKES_GS4,&
+                  &M_ABSLIM_U,M_ABSLIM_V,M_ABSLIM_W,M_ABSLIM_TS,&
+                  &M_ABSLIM_CO2,M_ABSLIM_H2O,M_ABSLIM_CH4,M_ABSLIM_GS4,&
+                  &VM97_SPIKES_U,VM97_SPIKES_V,VM97_SPIKES_W,VM97_SPIKES_TS,&
+                  &VM97_SPIKES_CO2,VM97_SPIKES_H2O,VM97_SPIKES_CH4,VM97_SPIKES_GS4,&
+                  &VM97_AMPRES_U,VM97_AMPRES_V,VM97_AMPRES_W,VM97_AMPRES_TS,&
+                  &VM97_AMPRES_CO2,VM97_AMPRES_H2O,VM97_AMPRES_CH4,VM97_AMPRES_GS4,&
+                  &VM97_DOUT_C_U,VM97_DOUT_C_V,VM97_DOUT_C_W,VM97_DOUT_C_TS,&
+                  &VM97_DOUT_C_CO2,VM97_DOUT_C_H2O,VM97_DOUT_C_CH4,VM97_DOUT_C_GS4,&
+                  &VM97_DOUT_X_U,VM97_DOUT_X_V,VM97_DOUT_X_W,VM97_DOUT_X_TS,&
+                  &VM97_DOUT_X_CO2,VM97_DOUT_X_H2O,VM97_DOUT_X_CH4,VM97_DOUT_X_GS4,&
+                  &VM97_HM_SKW_U,VM97_HM_SKW_V,VM97_HM_SKW_W,VM97_HM_SKW_TS,&
+                  &VM97_HM_SKW_CO2,VM97_HM_SKW_H2O,VM97_HM_SKW_CH4,VM97_HM_SKW_GS4,&
+                  &VM97_HM_KUR_U,VM97_HM_KUR_V,VM97_HM_KUR_W,VM97_HM_KUR_TS,&
+                  &VM97_HM_KUR_CO2,VM97_HM_KUR_H2O,VM97_HM_KUR_CH4,VM97_HM_KUR_GS4,&
+                  &VM97_AOA,VM97_NSW_RNV1,VM97_NSW_RNV2,VM97_NSW_RNS,&
+                  &VM97_SPIKES_HFLAG,VM97_ABSRES_HFLAG,VM97_DRPOUT_HFLAG,&
+                  &VM97_ABSLIM_HFLAG,VM97_HGHMOM_HFLAG,VM97_HGHMOM_SFLAG,&
+                  &VM97_DISCON_HFLAG,VM97_DISCON_SFLAG,&
+                  &VM97_TIMELAG_HFLAG,VM97_TIMELAG_SFLAG,VM97_AOA_HFLAG,VM97_NSW_HFLAG,&
+                  &FK04_ST_W_U,FK04_ST_W_TS,FK04_ST_W_CO2,&
+                  &FK04_ST_W_H2O,FK04_ST_W_CH4,FK04_ST_W_GS4,&
+                  &FK04_ITC_U,FK04_ITC_W,FK04_ITC_TS,&
+                  &FK04_ST_FLAG_W_U,FK04_ST_FLAG_W_TS,FK04_ST_FLAG_W_CO2,&
+                  &FK04_ST_FLAG_W_H2O,FK04_ST_FLAG_W_CH4,FK04_ST_FLAG_W_GS4,&
+                  &FK04_ITC_FLAG_U,FK04_ITC_FLAG_W,FK04_ITC_FLAG_TS,&
+                  &TAU_FK04_FLAG,H_FK04_FLAG,LE_FK04_FLAG,FC_FK04_FLAG,&
+                  &FH2O_FK04_FLAG,FCH4_FK04_FLAG,FGS4_FK04_FLAG,&
+                  &SPIKES_U,SPIKES_V,SPIKES_W,SPIKES_TS,SPIKES_CO2,&
+                  &SPIKES_H2O,SPIKES_CH4,SPIKES_GS4,&
+                  &LI7200_HEAD_DETECT,LI7200_T_OUT,LI7200_T_IN,LI7200_AUX_IN,&
+                  &LI7200_DELTA_P,LI7200_CHOPPER,LI7200_DETECTOR,LI7200_PLL,LI7200_SYNC,&
+                  &LI7500_CHOPPER,LI7500_DETECTOR,LI7500_PLL,LI7500_SYNC,&
+                  &LI7700_NOT_READY,LI7700_NO_SIGNAL,LI7700_RE_UNLOCKED,&
+                  &LI7700_BAD_TEMP,LI7700_LASER_T_UNREG,LI7700_CLOCK_T_UNREG,&
+                  &LI7700_MOTOR_SPINNING,LI7700_PUMP_ON,LI7700_TOP_HEATER_ON,&
+                  &LI7700_BOTTOM_HEATER_ON,LI7700_CALIBRATING,LI7700_MOTOR_FAILURE,&
+                  &LI7700_BAD_AUX_TC1,LI7700_BAD_AUX_TC2,LI7700_BAD_AUX_TC3,LI7700_BOX_CONNECTED,&
+                  &LI7200_AGC_OR_RSSI,LI7500_AGC_OR_RSSI,LI7700_RSSI,&
+                  &WBOOST_APPLIED,AOA_METHOD,&
+                  &AXES_ROTATION_METHOD,ROT_YAW,ROT_PITCH,ROT_ROLL,&
+                  &DETRENDING_METHOD,DENTRENDING_TIME_CONSTANT,&
+                  &TIMELAG_DETECTION_METHOD,WPL_APPLIED,BURBA_METHOD,&
+                  &SPECTRAL_CORRECTION_METHOD,FOOTPRINT_MODEL,&
+                  &LOGGER_SWVER_MAJOR,LOGGER_SWVER_MINOR,LOGGER_SWVER_REVISION,&
+                  &LATITUDE,LONGITUDE,ALTITUDE,CANOPY_HEIGHT,DISPLACEMENT_HEIGHT,ROUGHNESS_LENGTH,&
+                  &FILE_LENGTH,ACQUISITION_FREQUENCY,AVERAGING_INTERVAL,&
+                  &MASTER_SONIC_MANUFACTURER,MASTER_SONIC_MODEL,MASTER_SONIC_HEIGHT,&
+                  &MASTER_SONIC_WFORMAT,MASTER_SONIC_WREF,MASTER_SONIC_NORTH_OFFSET,&
+                  &MASTER_SONIC_HPATH,MASTER_SONIC_VPATH,MASTER_SONIC_TAU,&
+                  &CO2_IRGA_MANUFACTURER,CO2_IRGA_MODEL,&
+                  &CO2_IRGA_NORTHWARD_SEPARATION,CO2_IRGA_EASTWARD_SEPARATION,CO2_IRGA_VERTICAL_SEPARATION,&
+                  &CO2_IRGA_TUBE_LENGTH,CO2_IRGA_TUBE_DIAMETER,CO2_IRGA_TUBE_FLOWRATE,&
+                  &CO2_IRGA_KW,CO2_IRGA_KO,CO2_IRGA_HPATH_LENGTH,CO2_IRGA_VPATH_LENGTH,CO2_IRGA_TAU,&
+                  &H2O_IRGA_MANUFACTURER,H2O_IRGA_MODEL,&
+                  &H2O_IRGA_NORTHWARD_SEPARATION,H2O_IRGA_EASTWARD_SEPARATION,H2O_IRGA_VERTICAL_SEPARATION,&
+                  &H2O_IRGA_TUBE_LENGTH,H2O_IRGA_TUBE_DIAMETER,H2O_IRGA_TUBE_FLOWRATE,&
+                  &H2O_IRGA_KW,H2O_IRGA_KO,H2O_IRGA_HPATH_LENGTH,H2O_IRGA_VPATH_LENGTH,H2O_IRGA_TAU,&
+                  &CH4_IRGA_MANUFACTURER,CH4_IRGA_MODEL,&
+                  &CH4_IRGA_NORTHWARD_SEPARATION,CH4_IRGA_EASTWARD_SEPARATION,CH4_IRGA_VERTICAL_SEPARATION,&
+                  &CH4_IRGA_TUBE_LENGTH,CH4_IRGA_TUBE_DIAMETER,CH4_IRGA_TUBE_FLOWRATE,&
+                  &CH4_IRGA_KW,CH4_IRGA_KO,CH4_IRGA_HPATH_LENGTH,CH4_IRGA_VPATH_LENGTH,CH4_IRGA_TAU,&
+                  &GS4_IRGA_MANUFACTURER,GS4_IRGA_MODEL,&
+                  &GS4_IRGA_NORTHWARD_SEPARATION,GS4_IRGA_EASTWARD_SEPARATION,GS4_IRGA_VERTICAL_SEPARATION,&
+                  &GS4_IRGA_TUBE_LENGTH,GS4_IRGA_TUBE_DIAMETER,GS4_IRGA_TUBE_FLOWRATE,&
+                  &GS4_IRGA_KW,GS4_IRGA_KO,GS4_IRGA_HPATH_LENGTH,GS4_IRGA_VPATH_LENGTH,GS4_IRGA_TAU,'
+
+        !> Add custom variables
+        call AddDatum(dataline, 'NUM_CUSTOM_VARS', separator)
+        if (NumUserVar > 0) then
+            do i = 1, NumUserVar
+                dataline = dataline(1:len_trim(dataline)) &
+                    // usg(i)(1:len_trim(usg(i))) // 'mean' // ','
+            end do
+        end if
+
+        !> Add biomet variables
+        call AddDatum(dataline, 'NUM_BIOMET_VARS', separator)
+        if (nbVars > 0) then
+            do i = 1, nbVars
+                call AddDatum(dataline, trim(bVars(i)%label), separator)
+            end do
+        end if
+
+        write(uicos, '(a)') dataline(1:len_trim(dataline) - 1)
     end if
 
     !>==========================================================================

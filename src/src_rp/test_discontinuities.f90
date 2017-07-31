@@ -55,6 +55,8 @@ subroutine TestDiscontinuities(Set, N)
     real(kind = dbl) :: HaarAvr(GHGNumVar)
     real(kind = dbl) :: HaarVar(GHGNumVar)
     real(kind = dbl), allocatable :: XX(:, :)
+    real(kind = dbl), allocatable :: XX_dw(:, :)
+    real(kind = dbl), allocatable :: XX_up(:, :)
 
 
     write(*, '(a)', advance = 'no') '   Discontinuities test..'
@@ -66,13 +68,23 @@ subroutine TestDiscontinuities(Set, N)
     !> Initializations
     nn = idint((dble(win_len)) * Metadata%ac_freq * 6d1)
     wdw_num = idint(dble(N - nn) / 1d2) + 1
+
     hflags = 0
     sflags = 0
     allocate(XX(nn, GHGNumVar))
+    allocate(XX_dw(nn/2, GHGNumVar))
+    allocate(XX_up(nn/2, GHGNumVar))
+    
     do wdw = 1, wdw_num
         npoints_par = 0
+        !> Full window
         do i = 1, nn
             XX(i, u:GHGNumVar) = Set(i + 100 * (wdw - 1), u:GHGNumVar)
+        end do
+        !> Half windows
+        do i = 1, nn / 2
+            XX_dw(i, :) = XX(i, :)
+            XX_up(i, :) = XX(nn/2 + i, :)
         end do
         !> Convert instantaneous molar densities into mole fractions using standard air molar volume
         do i = 1, nn
@@ -83,35 +95,22 @@ subroutine TestDiscontinuities(Set, N)
         end do
 
         !> Whole window mean values
-        Mean = sum(XX, dim = 1)
-        Mean = Mean / dble(nn)
-        !> half windows mean values
-        Mean_dw = 0.d0
-        Mean_up = 0.d0
-        do i = 1, nn / 2
-            Mean_dw(:) = Mean_dw(:) + XX(i, :)
-            Mean_up(:) = Mean_up(:) + XX(i + idint((dble(nn)) / 2.d0), :)
-        end do
-        Mean_dw = Mean_dw / (dble(nn) / 2.d0)
-        Mean_up = Mean_up / (dble(nn) / 2.d0)
-        !> whole window variance
-        Var = 0.d0
-        do i = 1, nn
-            Var(:) = Var(:) + ((XX(i, :) - Mean(:)) **2)
-        end do
-        Var(:) = Var(:) / dble(nn - 1)
+        call AverageNoError(XX, size(XX, 1), size(XX, 2), Mean, error)
+        !> Half windows mean values
+        call AverageNoError(XX_dw, size(XX_dw, 1), size(XX_dw, 2), Mean_dw, error)
+        call AverageNoError(XX_up, size(XX_up, 1), size(XX_up, 2), Mean_up, error)
+
+        !> Whole window variance
+        call StDevNoError(XX, size(XX, 1), size(XX, 2), Var, error)
+        Var = Var**2
         !> Half windows variances
-        Var_dw = 0.d0
-        Var_up = 0.d0
-        do i = 1, nn / 2
-            Var_dw(:) = Var_dw(:) + (XX(i, :) - Mean_dw(:)) **2
-            Var_up(:) = Var_up(:) + (XX(i +  nn / 2, :) - Mean_up(:)) **2
-        end do
-        Var_dw(:) = Var_dw(:) / ((dble(nn) / 2.d0) -1.d0)
-        Var_up(:) = Var_up(:) / ((dble(nn) / 2.d0) -1.d0)
+        call StDevNoError(XX_dw, size(XX_dw, 1), size(XX_dw, 2), Var_dw, error)
+        call StDevNoError(XX_up, size(XX_up, 1), size(XX_up, 2), Var_up, error)
+
         !> Haar functions
         HaarAvr(:) = Mean_dw(:) - Mean_up(:)
         HaarVar(:) = (Var_dw(:) - Var_up(:)) / Var(:)
+
         !> Hard/soft flags for discontinuities beyond prescribed thresholds
         do j = u, v
             if (HaarAvr(j) > ds%hf_uv)  hflags(j) = 1
@@ -145,8 +144,14 @@ subroutine TestDiscontinuities(Set, N)
         if (HaarVar(gas4) > ds%sf_var)   sflags(gas4) = 1
 
         if((sum(hflags) == GHGNumVar) .and. (sum(sflags) == GHGNumVar)) exit
+
+        ! !> Store details of test results
+        ! Essentials%ds_s_haar_avg(wdw, u:gas4) = HaarAvr(u:gas4)
+        ! Essentials%ds_s_haar_var(wdw, u:gas4) = HaarVar(u:gas4)
     end do
     if(allocated(XX)) deallocate(XX)
+    if(allocated(XX_dw)) deallocate(XX_dw)
+    if(allocated(XX_up)) deallocate(XX_up)
 
     ! creates a 8-digits number containing - in each digit -
     ! the values of the h/s flags:

@@ -103,7 +103,7 @@ module m_common_global_var
     character(13), parameter :: RS_spike_FilePadding    = '_spike_counts'
     character(23), parameter :: Rot2D_FilePadding       = '_double_rotation_angles'
     character(9),  parameter :: Metadata_FilePadding    = '_metadata'
-    character(11),  parameter :: QCdetails_FilePadding  = '_qc_details'
+    character(11), parameter :: QCdetails_FilePadding  = '_qc_details'
     character(16), parameter :: H2OCov_FilePadding      = '_h2o_covariances'
     character(9),  parameter :: Tlag_FilePadding        = '_timelags'
     character(14), parameter :: RH_FilePadding          = '_timelag_vs_rh'
@@ -120,7 +120,8 @@ module m_common_global_var
     character(16), parameter :: FLUXNET_EDDY_FilePadding = '_ghg-europe_eddy'
     character(18), parameter :: FLUXNET_BIOMET_FilePadding = '_ghg-europe_biomet'
     character(11), parameter :: Essentials_FilePadding  = '_essentials'
-    character(7), parameter  :: Biomet_FilePadding      = '_biomet'
+    character(5),  parameter :: ICOS_FilePadding        = '_icos'
+    character(7),  parameter  :: Biomet_FilePadding     = '_biomet'
     character(14), parameter :: Quality_FilePadding     = '_quality_check'
     character(10), parameter :: Ameriflux_FilePadding   = '_ameriflux'
     character(18), parameter :: WPL_FilePadding         = '_wpl_contributions'
@@ -157,6 +158,7 @@ module m_common_global_var
 
     character(PathLen) :: FLUXNET_EDDY_Path
     character(PathLen) :: FLUXNET_BIOMET_Path
+    character(PathLen) :: ICOS_Path
     character(PathLen) :: Ameriflux_Path
     character(PathLen) :: FullOut_Path
     character(PathLen) :: Metadata_Path
@@ -204,6 +206,7 @@ module m_common_global_var
     type(EddyProProjType) :: EddyProProj
     type(SpectralType) :: BPCF
     type(SpectralType) :: ADDCF
+    type(icosChunksType) :: icosChunks
 
     !> Variables to be validate
     real(kind = dbl) :: PFMat(3, 3, MaxNumWSect) = 0.d0
@@ -333,7 +336,7 @@ module m_common_global_var
         NullBiometCol = BiometColType('none', 'none', 'none', 'none', 'none', error, error)
 
     type(fluxtype), parameter :: &
-        errFlux = fluxtype('', '', error, error, error, error, error, error, &
+        errFlux = fluxtype('', '', error, error, error, error, error, error, error, &
             error, error, error, error, error, error, error, error, error, &
             error, error)
 
@@ -470,7 +473,8 @@ module m_common_global_var
          EPPrjCTags(44)%Label / 'bin_sp_avail'     / &
          EPPrjCTags(45)%Label / 'full_sp_avail'    / &
          EPPrjCTags(46)%Label / 'hf_correct_ghg_ba'  / &
-         EPPrjCTags(47)%Label / 'hf_correct_ghg_zoh' /
+         EPPrjCTags(47)%Label / 'hf_correct_ghg_zoh' / &
+         EPPrjCTags(48)%Label / 'out_icos'          / 
 
     !> tags of the metadata file created by GHG software
     integer, parameter :: Nan = 884

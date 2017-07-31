@@ -22,7 +22,7 @@
 !
 ! \brief       Sets nominal timelag and timelag ranges, based on instruments \n
 !              and EC setup (tube, flow rate, sensor separation), but only if
-!              values in the metadata file are inplausible.
+!              values in the metadata file are implausible.
 ! \author      Gerardo Fratini
 ! \note
 ! \sa

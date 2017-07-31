@@ -79,3 +79,81 @@ interface
         real(kind = dbl)  :: asymmetric_linear_transformation(N)
     end function
 end interface
+
+interface
+    function CountRecordsAndValues(Set, nrow, ncol, var1, var2)
+        use m_common_global_var
+        implicit none
+        !> In/out variables
+        integer, intent(in) :: nrow, ncol
+        real(kind = dbl), intent(in) :: Set(nrow, ncol)
+        integer, optional, intent(in) :: var1, var2
+        integer :: CountRecordsAndValues
+    end function
+end interface
+
+interface
+    function PotentialRadiation(latit) result(RP)
+        use m_common_global_var
+        implicit none
+        !> in/out variables
+        real(kind = dbl), intent(in) :: latit
+        real(kind = dbl) :: RP(17568)
+    end function
+end interface
+
+
+interface
+    function DateTimeToHalfHourNumber(date, time) result(indx)
+        character(*), intent(in) :: date
+        character(*), intent(in) :: time
+        integer :: indx
+    end function
+end interface
+
+
+interface
+    function replace(string, what, with, outlen) result(nstring)
+        use m_common_global_var
+        implicit none
+        !> in/out variables
+        integer, intent(in) :: outlen
+        character(*), intent(in) :: string
+        character(*), intent(in) :: what
+        character(*), intent(in) :: with
+        character(outlen) :: nstring
+    end function
+end interface
+
+interface
+    function replace2(string, what, with) result(nstring)
+        use m_common_global_var
+        implicit none
+        !> in/out variables
+        character(*), intent(in) :: string
+        character(*), intent(in) :: what
+        character(*), intent(in) :: with
+        character(:), allocatable :: nstring
+    end function
+end interface
+
+interface 
+    function strCharIndex(s, c, n) result(ix)
+        use m_common_global_var
+        implicit none
+        !> In/out variables
+        character(*),intent(in) :: s
+        character(*),intent(in) :: c
+        integer, intent(in) :: n
+        integer :: ix
+    end function
+end interface
+
+
+interface
+    function strByInt(i) result(res)
+        character(:),allocatable :: res
+        integer,intent(in) :: i
+        character(range(i)+2) :: tmp
+    end function
+end interface

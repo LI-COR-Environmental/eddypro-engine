@@ -43,28 +43,32 @@ subroutine FilterDatasetForDiagnostics(Set, nrow, ncol, DiagSet, dnrow, dncol, &
     logical, intent(in) :: filter_for_diag_irga
     !> lcoal variables
     integer :: var
-!    logical :: mask(nrow)
+    logical :: mask(nrow)
 
 
     !> Anemometer diagnostics
+    Essentials%m_diag_anem = 0
+    Essentials%m_diag_irga = 0
     if (filter_for_diag_anem) then
         if (index(MasterSonic%model, 'wm') /= 0 &
             .or. index(MasterSonic%model, 'hs') /= 0) then
             !> Special case for some Gill sonics, for which values of 10 (0A) and
             !> 11 (0B) indicate good data
-            where (DiagSet(1:nrow, diagAnem) /= error &
-                .and. DiagSet(1:nrow, diagAnem) /= 0 &
-                .and. DiagSet(1:nrow, diagAnem) /= 10 &
-                .and. DiagSet(1:nrow, diagAnem) /= 11)
+            mask = DiagSet(1:nrow, diagAnem) /= error .and. DiagSet(1:nrow, diagAnem) /= 0 .and. &
+                           DiagSet(1:nrow, diagAnem) /= 10 .and. DiagSet(1:nrow, diagAnem) /= 11
+            Essentials%m_diag_anem = count(mask)
+            where (DiagSet(1:nrow, diagAnem) /= error .and. DiagSet(1:nrow, diagAnem) /= 0 .and. &
+                   DiagSet(1:nrow, diagAnem) /= 10 .and. DiagSet(1:nrow, diagAnem) /= 11)
                 Set(1:nrow, u) = error
                 Set(1:nrow, v) = error
                 Set(1:nrow, w) = error
                 Set(1:nrow, ts) = error
             endwhere
         else
+            mask = DiagSet(1:nrow, diagAnem) /= error .and. DiagSet(1:nrow, diagAnem) /= 0
+            Essentials%m_diag_anem = count(mask)
             !> Otherwise filter all data when flag is different from zero.
-            where (DiagSet(1:nrow, diagAnem) /= error &
-                .and. DiagSet(1:nrow, diagAnem) /= 0)
+            where (DiagSet(1:nrow, diagAnem) /= error .and. DiagSet(1:nrow, diagAnem) /= 0)
                 Set(1:nrow, u) = error
                 Set(1:nrow, v) = error
                 Set(1:nrow, w) = error
@@ -84,16 +88,20 @@ subroutine FilterDatasetForDiagnostics(Set, nrow, ncol, DiagSet, dnrow, dncol, &
                         do i = 1, nrow
                             if (DiagSet(i, diag72) /= error .and. &
                                 (ibits(nint(DiagSet(i, diag72)),  5, 4) < 15 .or. &
-                                ibits(nint(DiagSet(i, diag72)), 12, 1)  == 0)) &
+                                ibits(nint(DiagSet(i, diag72)), 12, 1)  == 0)) then
                                 Set(i, var) = error
+                                Essentials%m_diag_irga(var) = Essentials%m_diag_irga(var) + 1
+                            end if
                         end do
                     !> For LI-7500 flag is OK if = 1, so checks that all bits are
                     !> set to 1, which means 7 integer for three bits words and 15 for four bits words
                     elseif (index(E2Col(var)%instr%model, 'li7500') /= 0) then
                         do i = 1, nrow
                             if (DiagSet(i, diag75) /= error .and. &
-                                ibits(nint(DiagSet(i, diag75)),  5, 3) < 7) &
+                                ibits(nint(DiagSet(i, diag75)),  5, 3) < 7) then
                                 Set(i, var) = error
+                                Essentials%m_diag_irga(var) = Essentials%m_diag_irga(var) + 1
+                            end if
                         end do
                     !> For LI-7700 flag is OK if = 0, so checks that all bits are
                     !> set to 0, which means 0 integer for both 3 and 4 bits words
@@ -102,8 +110,10 @@ subroutine FilterDatasetForDiagnostics(Set, nrow, ncol, DiagSet, dnrow, dncol, &
                             if (DiagSet(i, diag77) /= error .and. &
                                 (ibits(nint(DiagSet(i, diag77)), 5, 1) /= 0 .or. &
                                 ibits(nint(DiagSet(i, diag77)),  8, 4) /= 0 .or. &
-                                ibits(nint(DiagSet(i, diag77)), 13, 3) /= 0)) &
+                                ibits(nint(DiagSet(i, diag77)), 13, 3) /= 0)) then
                                 Set(i, var) = error
+                                Essentials%m_diag_irga(var) = Essentials%m_diag_irga(var) + 1
+                            end if
                         end do
                     end if
             end select

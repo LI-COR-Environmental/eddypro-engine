@@ -47,7 +47,7 @@ subroutine BasicStats(Set, nrow, ncol, nfold, printout)
     real(kind = dbl) :: Prime(nrow, ncol)
     real(kind = dbl) :: SumSquare(3)
 
-
+    
     if (printout) then
         if (nfold == 1) then
             write(*, '(a)', advance = 'no') '  Calculating statistics..'
@@ -62,6 +62,10 @@ subroutine BasicStats(Set, nrow, ncol, nfold, printout)
     if (nfold <= 6) then
         !> mean values (only before detrending, after is deleterious)
         call AverageNoError(Set, size(Set, 1), size(Set, 2), Stats%Mean, error)
+        call QuantileNoError(Set, size(Set, 1), size(Set, 2), Stats%Median, 0.5d0, error)
+        call QuantileNoError(Set, size(Set, 1), size(Set, 2), Stats%Q1, 0.25d0, error)
+        call QuantileNoError(Set, size(Set, 1), size(Set, 2), Stats%Q3, 0.75d0, error)
+
         !> fluctuations (only before detrending, after is deleterious)
         do j = u, pe
             if (E2Col(j)%present) then
