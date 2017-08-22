@@ -117,7 +117,7 @@ subroutine WriteVariablesRP()
     Dir%main_in = SCTags(1)%value(1:len_trim(SCTags(1)%value))
     if (len_trim(Dir%main_in) == 0) Dir%main_in = 'none'
 
-    !> Wind directionfilter option and corresponding sectors
+    !> Wind direction filter option and corresponding sectors
     RPSetup%apply_wdf = SCTags(99)%value(1:1) == '1'
     if (RPSetup%apply_wdf) then
         leap_an_wsect = 2

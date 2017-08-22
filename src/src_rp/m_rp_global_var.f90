@@ -148,7 +148,7 @@ module m_rp_global_var
             error, error, error, error, error, error, NullInstrument)
 
     !> Tags of the setup ".ini" file for rawscreening
-    integer, parameter :: Nsn = 400
+    integer, parameter :: Nsn = 450
     integer, parameter :: Nsc = 100
     logical :: SNTagFound(Nsn)
     logical :: SCTagFound(Nsc)
@@ -517,7 +517,23 @@ module m_rp_global_var
          SNTags(386)%Label  / 'wdf_sect_7_end'        / &
          SNTags(387)%Label  / 'wdf_sect_8_start'      / &
          SNTags(388)%Label  / 'wdf_sect_8_end'        / &
-         SNTags(389)%Label  / 'wdf_apply'             /
+         SNTags(389)%Label  / 'wdf_sect_9_start'      / &
+         SNTags(390)%Label  / 'wdf_sect_9_end'        / &
+         SNTags(391)%Label  / 'wdf_sect_10_start'      / &
+         SNTags(392)%Label  / 'wdf_sect_10_end'        / &
+         SNTags(393)%Label  / 'wdf_sect_11_start'      / &
+         SNTags(394)%Label  / 'wdf_sect_11_end'        / &
+         SNTags(395)%Label  / 'wdf_sect_12_start'      / &
+         SNTags(396)%Label  / 'wdf_sect_12_end'        / &
+         SNTags(397)%Label  / 'wdf_sect_13_start'      / &
+         SNTags(398)%Label  / 'wdf_sect_13_end'        / &
+         SNTags(399)%Label  / 'wdf_sect_14_start'      / &
+         SNTags(400)%Label  / 'wdf_sect_14_end'        / &
+         SNTags(401)%Label  / 'wdf_sect_15_start'      / &
+         SNTags(402)%Label  / 'wdf_sect_15_end'        / &
+         SNTags(403)%Label  / 'wdf_sect_16_start'      / &
+         SNTags(404)%Label  / 'wdf_sect_16_end'        / &
+         SNTags(405)%Label  / 'wdf_apply'             /
 
     data SCTags(1)%Label  / 'data_path'    / &
          SCTags(2)%Label  / 'out_path'     / &
