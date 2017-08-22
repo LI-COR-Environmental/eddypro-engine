@@ -64,7 +64,7 @@ module m_typedef
     integer, parameter :: MaxGasClasses = 12
     integer, parameter :: toMaxH2OClass = 20
     integer, parameter :: MaxNumWSect = 36
-    integer, parameter :: MaxNumWdfSectors = 8
+    integer, parameter :: MaxNumWdfSectors = 16
 
     integer, parameter :: MaxProfNodes = 7
     integer, parameter :: NumStdCustom = 50
