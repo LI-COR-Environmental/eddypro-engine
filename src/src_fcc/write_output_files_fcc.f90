@@ -838,7 +838,7 @@ subroutine WriteOutputFiles(lEx)
         call WriteDatumFloat(lEx%Stor%LE, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
         do gas = co2, gas4
-            call WriteDatumFloat(lEx%Stor%of(gas4), datum, EddyProProj%err_label)
+            call WriteDatumFloat(lEx%Stor%of(gas), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         end do
 
