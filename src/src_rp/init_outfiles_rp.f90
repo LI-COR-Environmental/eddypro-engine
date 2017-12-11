@@ -178,9 +178,9 @@ subroutine InitOutFiles_rp()
 
         if (.not. EddyProProj%fix_out_format) then
             !> Initial file and timestamp info
-            call AddDatum(header1,'file_info,,,,,,', separator)
-            call AddDatum(header2,'filename,date,time,DOY,daytime,file_records,used_records', separator)
-            call AddDatum(header3,',[yyyy-mm-dd],[HH:MM],[ddd.ddd],[1=daytime],[#],[#]', separator)
+            call AddDatum(header1,'file_info,,,,,', separator)
+            call AddDatum(header2,'date,time,DOY,daytime,file_records,used_records', separator)
+            call AddDatum(header3,'[yyyy-mm-dd],[HH:MM],[ddd.ddd],[1=daytime],[#],[#]', separator)
 
             !> Corrected fluxes (Level 3) and quality flags
             !> Tau

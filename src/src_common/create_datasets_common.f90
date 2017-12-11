@@ -50,7 +50,7 @@ subroutine CreateDatasetsCommon(TimeSeries, nrow, StartIndx, EndIndx)
         write(*,'(a)', advance = 'no') '  Creating Full Output dataset..'
         call MakeDataset(FullOut_Path(1:len_trim(FullOut_Path)), &
             TimeSeries, size(TimeSeries), &
-            StartIndx, EndIndx, .true., 3)
+            StartIndx, EndIndx, .false., 3)
         write(*,'(a)') ' Done.'
     end if
 
@@ -64,6 +64,19 @@ subroutine CreateDatasetsCommon(TimeSeries, nrow, StartIndx, EndIndx)
             // OutPath(1:len_trim(OutPath)) // '"' &
             // comm_out_redirect // comm_err_redirect)
         write(*,'(a)') ' Done.'
+    end if
+
+    !> ICOS file - NEVER filled. Only renamed.
+    if (EddyProProj%out_icos) then
+        write(*,'(a)', advance = 'no') &
+            '  Closing ICOS output file..'
+        tmp_indx = index(ICOS_Path, TmpExt)
+        OutPath = ICOS_Path(1: tmp_indx - 1)
+        move_status = system(comm_move // '"' &
+            // ICOS_Path(1:len_trim(ICOS_Path)) // '" "' &
+            // OutPath(1:len_trim(OutPath)) // '"' &
+            // comm_out_redirect // comm_err_redirect)
+            write(*,'(a)') ' Done.'
     end if
 
     !> AmeriFlux file
