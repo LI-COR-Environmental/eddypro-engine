@@ -2096,6 +2096,8 @@ program EddyproRP
                 !> Reset stats to Stats7, after the parenthesis
                 !> of spectral analysis
                 Stats = Stats7
+            else
+                Essentials%degH(:) = error
             end if
         end if
         if (allocated(E2Primes)) deallocate(E2Primes)
