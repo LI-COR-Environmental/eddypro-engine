@@ -331,7 +331,7 @@ module m_common_global_var
     type(RawFlagType), parameter :: NullRawFlag = RawFlagType(0, error, .false.)
     type(ColType), parameter :: &
         NullCol = Coltype('none', 'none', 'none', 'none', '', '', '', &
-        0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, NullInstrument, NullRawFlag, .false., .false., 0d0)
+        0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, 0d0, NullInstrument, NullRawFlag, .false., .false., error)
     type(BiometColType), parameter :: &
         NullBiometCol = BiometColType('none', 'none', 'none', 'none', 'none', error, error)
 

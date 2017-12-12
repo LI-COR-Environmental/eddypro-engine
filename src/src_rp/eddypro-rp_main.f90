@@ -2106,7 +2106,6 @@ program EddyproRP
         !**** (CO)SPECTRA CALCULATION FINISHES HERE  ***************************
         !**** NOW STARTS FLUX COMPUTATION/CORRECTION ***************************
         !***********************************************************************
-
         if (EddyProProj%run_mode /= 'md_retrieval') then
 
             !> Average mole fractions in [umol mol_a-1] and [mmol mol_a-1]
@@ -2138,7 +2137,7 @@ program EddyproRP
             !> for using logger version from [Station], simply remove the
             !> following line.
 !            if (E2Col(co2)%instr%sw_ver /= errSwVer) then
-                Metadata%logger_swver = E2Col(co2)%instr%sw_ver
+            Metadata%logger_swver = E2Col(co2)%instr%sw_ver
 !            elseif (E2Col(h2o)%instr%sw_ver /= errSwVer) then
 !                Metadata%logger_swver = E2Col(h2o)%instr%sw_ver
 !            end if

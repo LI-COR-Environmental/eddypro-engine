@@ -208,6 +208,13 @@ subroutine TestSpikeDetectionMauder13(Set, N)
     end do
 
     !> Write on output variable
-    Essentials%e2spikes(u:pe) = tot_spikes(u:pe)
-    Essentials%m_despiking(u:pe) = tot_spikes_sng(u:pe)
+    do i = u, pe
+        if (E2Col(i)%present) then
+            Essentials%e2spikes(u:pe) = tot_spikes(u:pe)
+            Essentials%m_despiking(u:pe) = tot_spikes_sng(u:pe)
+        else
+            Essentials%e2spikes(u:pe) = ierror
+            Essentials%m_despiking(u:pe) = ierror
+        end if
+    end do
 end subroutine TestSpikeDetectionMauder13

@@ -131,6 +131,10 @@ subroutine FilterDatasetForDiagnostics(Set, nrow, ncol, DiagSet, dnrow, dncol, &
             end select
         end do
     end if
+    where (.not. E2Col(co2:gas4)%present)
+        Essentials%m_diag_irga(co2:gas4) = ierror
+    endwhere
+
 !!    > Special case of Tin/Tout for LI-7200
 !!    > Count occurrences of bad flags for either temperature reading
 !    mask = .false.
