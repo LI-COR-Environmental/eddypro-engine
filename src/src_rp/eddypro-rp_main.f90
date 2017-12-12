@@ -2116,8 +2116,8 @@ program EddyproRP
 
             if (E2Col(ch4)%Instr%model(1:len_trim(E2Col(ch4)%Instr%model) - 2) &
                 == 'li7700') then
-                call Multipliers7700(Stats%Pr, Ambient%Ta, Stats%chi(h2o), &
                 !> Calculate multipliers for LI-7700 spectroscopic correction
+                call Multipliers7700(Stats%Pr, Ambient%Ta, Stats%chi(h2o), &
                     Mul7700%A, Mul7700%B, Mul7700%C)
                 !> Modify mole fraction and mixing ratio to account for
                 !> key(T,P), Eq. 6.13 of LI-7700 manual

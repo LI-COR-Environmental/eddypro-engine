@@ -30,11 +30,12 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine TestSpikeDetectionMauder13(Set, N)
+subroutine TestSpikeDetectionMauder13(Set, N, printout)
     use m_rp_global_var
     implicit none
     !> in/out variables
     integer, intent(in) :: N
+    logical, intent(in) :: printout
     real(kind = dbl), intent(inout) :: Set(N, E2NumVar)
     !> local variables
     integer :: max_pass = 10
@@ -59,6 +60,7 @@ subroutine TestSpikeDetectionMauder13(Set, N)
     real(kind = dbl), allocatable :: tmpx(:)
 
 
+    if (printout) write(*, '(a)', advance = 'no') '   Spike detection/removal test..'
     zlim = 7d0
     passes = 0
     nspikes = 0
@@ -208,13 +210,12 @@ subroutine TestSpikeDetectionMauder13(Set, N)
     end do
 
     !> Write on output variable
-    do i = u, pe
-        if (E2Col(i)%present) then
-            Essentials%e2spikes(u:pe) = tot_spikes(u:pe)
-            Essentials%m_despiking(u:pe) = tot_spikes_sng(u:pe)
-        else
-            Essentials%e2spikes(u:pe) = ierror
-            Essentials%m_despiking(u:pe) = ierror
-        end if
-    end do
+    where (E2Col(u:pe)%present) 
+        Essentials%e2spikes(u:pe) = tot_spikes(u:pe)
+        Essentials%m_despiking(u:pe) = tot_spikes_sng(u:pe)
+    elsewhere
+        Essentials%e2spikes(u:pe) = ierror
+        Essentials%m_despiking(u:pe) = ierror
+    endwhere
+    if (printout) write(*,'(a)') ' Done.'
 end subroutine TestSpikeDetectionMauder13
