@@ -158,8 +158,13 @@ subroutine TestDiscontinuities(Set, N)
     IntHF%ds = 900000000
     IntSF%ds = 900000000
     do j = 1, GHGNumVar
-        IntHF%ds = IntHF%ds + hflags(j) * 10 **(GHGNumVar - j)
-        IntSF%ds = IntSF%ds + sflags(j) * 10 **(GHGNumVar - j)
+        if (E2Col(j)%present) then
+            IntHF%ds = IntHF%ds + hflags(j) * 10 **(GHGNumVar - j)
+            IntSF%ds = IntSF%ds + sflags(j) * 10 **(GHGNumVar - j)
+        else
+            IntHF%ds = IntHF%ds + 9 * 10 **(GHGNumVar - j)
+            IntSF%ds = IntSF%ds + 9 * 10 **(GHGNumVar - j)
+        end if
     end do
     write(*,'(a)') ' Done.'
 end subroutine TestDiscontinuities
