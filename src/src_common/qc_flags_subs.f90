@@ -139,7 +139,7 @@ subroutine PartialFlagLF(val, flag)
         case (1001:)
             flag = 9
         case default
-            flag = 9
+            flag = ierror
     end select
 end subroutine PartialFlagLF
 
@@ -200,7 +200,7 @@ subroutine GTK2Flag(STFlg, DTFlg, OAFlag)
     !> itc test  < 30  ==> itc flag  <= 2
     !> stat test < 100 ==> stat flag <= 5
     !> itc test  < 100 ==> itc  flag <= 5
-    if (STFlg == idint(error) .or. DTFlg == idint(error)) then
+    if (STFlg == ierror .or. DTFlg == ierror) then
         OAFlag = 2
         return
     end if
