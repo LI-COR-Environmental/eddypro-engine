@@ -208,7 +208,7 @@ subroutine InitExternalBiomet(bFileList, N)
     write(*, '(a, i6)')    '  Number of variables: ', nbVars
     write(*, '(a, i6)')    '  Number of records:   ', nRec
     write(*, '(a, i6, a)') '  Inferred time-step:  ', &
-        bFileMetadata%time_step, 'min'
+        bFileMetadata%time_step, ' min'
 
     !> Determine nbRecs, the maximum number of biomet data available for
     !> each averaging interval

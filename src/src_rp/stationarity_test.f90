@@ -69,7 +69,7 @@ subroutine StationarityTest(Set, nrow, ncol, StDiff)
     call CovarianceMatrixNoError(LocSet, nrow, GHGNumVar, GlbCov, error)
 
     !> Partial covariances from subsets and their averages
-    subn = idint(dble(nrow/ndiv))
+    subn = int(dble(nrow/ndiv))
     allocate(SubSet(subn, GHGNumVar))
     AvrgCov = 0.d0
     do l = 1, ndiv
@@ -88,28 +88,28 @@ subroutine StationarityTest(Set, nrow, ncol, StDiff)
     !> Differences
     do i = u, GHGNumVar
         do j = u, GHGNumVar
-            if (GlbCov(i, j) /= 0d0 .and. GlbCov(i, j) /= error) then
+            if (GlbCov(i, j) /= 0d0 .and. GlbCov(i, j) /= error .and. AvrgCov(i, j) /= error) then
                 dev = dabs((GlbCov(i, j) - AvrgCov(i, j)) * 1d2 / GlbCov(i, j))
                 if (dabs(dev) < 2147483648.d0) then
-                    IntDiff(i, j) = idint(dev)
+                    IntDiff(i, j) = int(dev)
                 else
-                    IntDiff(i, j) = nint(error)
+                    IntDiff(i, j) = ierror
                 end if
             else
-                IntDiff(i, j) = nint(error)
+                IntDiff(i, j) = ierror
             end if
         end do
     end do
 
-    if (GlbUstar /= 0d0 .and. GlbUstar /= error) then
+    if (GlbUstar /= 0d0 .and. GlbUstar /= error .and. SubUstar /= error) then
         dev = dabs((GlbUstar - SubUstar) * 1d2 / GlbUstar)
         if (dabs(dev) < 2147483648.d0) then
-            IntDiffUstar = idint(dev)
+            IntDiffUstar = int(dev)
         else
-            IntDiffUstar = nint(error)
+            IntDiffUstar = ierror
         end if
     else
-        IntDiffUstar = nint(error)
+        IntDiffUstar = ierror
     end if
 
     StDiff%u = IntDiff(u, u)
@@ -126,6 +126,7 @@ subroutine StationarityTest(Set, nrow, ncol, StDiff)
     StDiff%w_h2o = IntDiff(w, h2o)
     StDiff%w_ch4 = IntDiff(w, ch4)
     StDiff%w_gas4 = IntDiff(w, gas4)
+
     deallocate(SubSet)
     write(*,'(a)') ' Done.'
 end subroutine StationarityTest
