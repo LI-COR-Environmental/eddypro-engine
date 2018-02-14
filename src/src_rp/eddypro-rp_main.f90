@@ -1524,7 +1524,7 @@ program EddyproRP
         if (LatestRawFileIndx > NumRawFiles) then
             if (EddyProProj%run_mode /= 'md_retrieval') then
                 call ExceptionHandler(53)
-                if (EddYProProj%out_icos) call WriteOutIcosOnlyBiomet(suffixOutString)
+                if (EddYProProj%out_icos) call WriteOutIcosOnlyBiomet()
             end if
             call hms_delta_print(PeriodSkipMessage,'')
             cycle periods_loop
@@ -2196,7 +2196,7 @@ program EddyproRP
             StDiff, DtDiff)
 
         if (EddyProProj%out_icos) &
-            call WriteIcosOutputRp(suffixOutString, StDiff, DtDiff, STFlg, DTFlg)
+            call WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
 
         !> Write on Ameriflux style output
         if (EddyProProj%out_amflux) &
