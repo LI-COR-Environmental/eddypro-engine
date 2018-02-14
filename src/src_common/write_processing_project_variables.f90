@@ -323,7 +323,7 @@ subroutine WriteProcessingProjectVariables()
     !> set error string
     EddyProProj%err_label = trim(adjustl(EPPrjCTags(36)%value))
     if (len_trim(EddyProProj%err_label) == 0 .or. EddyProProj%err_label == 'none') &
-        EddyProProj%err_label = '-9999.0'
+        EddyProProj%err_label = '-9999'
 
     !> select footprint method
     select case (EPPrjCTags(34)%value(1:1))
