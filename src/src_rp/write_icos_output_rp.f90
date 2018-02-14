@@ -896,14 +896,15 @@ subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
     !> Footprint model
     select case(trim(adjustl(foot_model_used)))
         case('none')
-        call AddDatum(dataline, '0', separator)
+            call WriteDatumInt(0, datum, EddyProProj%err_label)
         case('kljun_04')
-        call AddDatum(dataline, '1', separator)
+            call WriteDatumInt(1, datum, EddyProProj%err_label)
         case('kormann_meixner_01')
-        call AddDatum(dataline, '2', separator)
+            call WriteDatumInt(2, datum, EddyProProj%err_label)
         case('hsieh_00')
-        call AddDatum(dataline, '3', separator)
+            call WriteDatumInt(3, datum, EddyProProj%err_label)
     end select
+    call AddDatum(dataline, datum, separator)
 
 !> Metadata
     !> Data logger software version

@@ -1112,20 +1112,54 @@ subroutine WriteOutputFiles(lEx)
         call AddDatum(dataline, datum, separator)
 
         !> Spectral correction factors
-        call WriteDatumFloat(BPCF%of(w_u), datum, EddyProProj%err_label)
-        call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(BPCF%of(w_ts), datum, EddyProProj%err_label)
-        call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(BPCF%of(w_h2o), datum, EddyProProj%err_label)
-        call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(BPCF%of(w_co2), datum, EddyProProj%err_label)
-        call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(BPCF%of(w_h2o), datum, EddyProProj%err_label)
-        call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(BPCF%of(w_ch4), datum, EddyProProj%err_label)
-        call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(BPCF%of(w_gas4), datum, EddyProProj%err_label)
-        call AddDatum(dataline, datum, separator)
+        if(fcc_var_present(u)) then
+            call WriteDatumFloat(BPCF%of(w_u), datum, EddyProProj%err_label)
+            call AddDatum(dataline, datum, separator)
+        else
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+        end if
+
+        if(fcc_var_present(ts)) then
+            call WriteDatumFloat(BPCF%of(w_ts), datum, EddyProProj%err_label)
+            call AddDatum(dataline, datum, separator)
+        else
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+        end if
+
+        if(fcc_var_present(h2o)) then
+            call WriteDatumFloat(BPCF%of(w_h2o), datum, EddyProProj%err_label)
+            call AddDatum(dataline, datum, separator)
+        else
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+        end if
+
+        if(fcc_var_present(co2)) then
+            call WriteDatumFloat(BPCF%of(w_co2), datum, EddyProProj%err_label)
+            call AddDatum(dataline, datum, separator)
+        else
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+        end if
+
+        if(fcc_var_present(h2o)) then
+            call WriteDatumFloat(BPCF%of(w_h2o), datum, EddyProProj%err_label)
+            call AddDatum(dataline, datum, separator)
+        else
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+        end if
+
+        if(fcc_var_present(ch4)) then
+            call WriteDatumFloat(BPCF%of(w_ch4), datum, EddyProProj%err_label)
+            call AddDatum(dataline, datum, separator)
+        else
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+        end if
+
+        if(fcc_var_present(gas4)) then
+            call WriteDatumFloat(BPCF%of(w_gas4), datum, EddyProProj%err_label)
+            call AddDatum(dataline, datum, separator)
+        else
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+        end if
 
         !> Degraded covariances
         call WriteDatumFloat(lEx%degT%cov, datum, EddyProProj%err_label)
