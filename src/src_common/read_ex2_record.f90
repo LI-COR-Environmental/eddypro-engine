@@ -221,7 +221,7 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
         lEx2%instr(sonic)%hpath_length, lEx2%instr(sonic)%vpath_length, lEx2%instr(sonic)%tau, &
         lEx2%instr(ico2)%firm, lEx2%instr(ico2)%model, lEx2%instr(ico2)%nsep, lEx2%instr(ico2)%esep, &
         lEx2%instr(ico2)%vsep, lEx2%instr(ico2)%tube_l, lEx2%instr(ico2)%tube_d, &
-        lEx2%instr(ico2)%tube_f, lEx2%instr(ico2)%kw, lEx2%instr(ico2)%ko, &
+        lEx2%instr(ico2)%tube_f, &
         lEx2%instr(ico2)%hpath_length, lEx2%instr(ico2)%vpath_length, lEx2%instr(ico2)%tau, &
         lEx2%instr(ih2o)%firm, lEx2%instr(ih2o)%model, lEx2%instr(ih2o)%nsep, lEx2%instr(ih2o)%esep, &
         lEx2%instr(ih2o)%vsep, lEx2%instr(ih2o)%tube_l, lEx2%instr(ih2o)%tube_d, &
@@ -229,11 +229,11 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
         lEx2%instr(ih2o)%hpath_length, lEx2%instr(ih2o)%vpath_length, lEx2%instr(ih2o)%tau, &
         lEx2%instr(ich4)%firm, lEx2%instr(ich4)%model, lEx2%instr(ich4)%nsep, lEx2%instr(ich4)%esep, &
         lEx2%instr(ich4)%vsep, lEx2%instr(ich4)%tube_l, lEx2%instr(ich4)%tube_d, &
-        lEx2%instr(ich4)%tube_f, lEx2%instr(ich4)%kw, lEx2%instr(ich4)%ko, &
+        lEx2%instr(ich4)%tube_f, &
         lEx2%instr(ich4)%hpath_length, lEx2%instr(ich4)%vpath_length, lEx2%instr(ich4)%tau, &
         lEx2%instr(igas4)%firm, lEx2%instr(igas4)%model, lEx2%instr(igas4)%nsep, lEx2%instr(igas4)%esep, &
         lEx2%instr(igas4)%vsep, lEx2%instr(igas4)%tube_l, lEx2%instr(igas4)%tube_d, &
-        lEx2%instr(igas4)%tube_f, lEx2%instr(igas4)%kw, lEx2%instr(igas4)%ko, &
+        lEx2%instr(igas4)%tube_f, &
         lEx2%instr(igas4)%hpath_length, lEx2%instr(igas4)%vpath_length, lEx2%instr(igas4)%tau
     ix = strCharIndex(dataline, ',', 73)
     dataline = dataline(ix+1: len_trim(dataline))
