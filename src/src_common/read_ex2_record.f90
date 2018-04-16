@@ -127,7 +127,7 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
         lEx2%act_tlag(h2o), lEx2%used_tlag(h2o), lEx2%nom_tlag(h2o), lEx2%min_tlag(h2o), lEx2%max_tlag(h2o),&
         lEx2%act_tlag(ch4), lEx2%used_tlag(ch4), lEx2%nom_tlag(ch4), lEx2%min_tlag(ch4), lEx2%max_tlag(ch4),&
         lEx2%act_tlag(gas4), lEx2%used_tlag(gas4), lEx2%nom_tlag(gas4), lEx2%min_tlag(gas4), lEx2%max_tlag(gas4), &
-        lEx2%stats%mean(u:gas4), lEx2%stats%median(u:gas4), lEx2%stats%Q1(u:gas4), lEx2%stats%Q3(u:gas4), &
+        lEx2%stats%median(u:gas4), lEx2%stats%Q1(u:gas4), lEx2%stats%Q3(u:gas4), &
         (lEx2%stats%Cov(var, var), var=u, gas4), lEx2%stats%Skw(u:gas4), lEx2%stats%Kur(u:gas4), &
         lEx2%stats%Cov(w, u), lEx2%stats%Cov(w, ts:gas4), lEx2%stats%Cov(co2, h2o:gas4), &
         lEx2%stats%Cov(h2o, ch4:gas4), lEx2%stats%Cov(ch4, gas4)
@@ -135,7 +135,7 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> Skip footprint (it's recalculated in FCC)
-    ix = strCharIndex(dataline, ',', 7)
+    ix = strCharIndex(dataline, ',', 8)
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> Read out Flux0 data

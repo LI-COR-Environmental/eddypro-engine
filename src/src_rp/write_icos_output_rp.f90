@@ -321,11 +321,6 @@ subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
     end do
 
 !> Basic stats
-    !> Mean values
-    do var = u, gas4
-        call WriteDatumFloat(Stats6%Mean(var), datum, EddyProProj%err_label)
-        call AddDatum(dataline, datum, separator)
-    end do
     !> 25-50-75%
     do var = u, gas4
         call WriteDatumFloat(Stats6%Median(var), datum, EddyProProj%err_label)
@@ -339,9 +334,9 @@ subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
         call WriteDatumFloat(Stats6%Q3(var), datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
     end do
-    !> Variances 
+    !> Standard deviation
     do var = u, gas4
-        call WriteDatumFloat(Stats7%Cov(var, var), datum, EddyProProj%err_label)
+        call WriteDatumFloat(sqrt(Stats7%Cov(var, var)), datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
     end do
     !> Skwenesses
@@ -381,6 +376,8 @@ subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
     call WriteDatumFloat(Foot%x50, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     call WriteDatumFloat(Foot%x70, datum, EddyProProj%err_label)
+    call AddDatum(dataline, datum, separator)
+    call WriteDatumFloat(Foot%x80, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     call WriteDatumFloat(Foot%x90, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
@@ -538,6 +535,7 @@ subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
     else
         call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
     end if
+
     !> Increasingly filtered w/T covariances (for spectral assessment)
     call WriteDatumFloat(Essentials%degH(NumDegH + 1), datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
@@ -681,7 +679,7 @@ subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
     call AddDatum(dataline, datum, separator)
     call WriteDatumInt(QCFlag%gas4, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    !> Number of calculated spikes per variables       *************************(Eliminare)
+    !> Number of calculated spikes per variables       *************************(Eliminate)
     call WriteDatumInt(Essentials%e2spikes(u), datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     call WriteDatumInt(Essentials%e2spikes(v), datum, EddyProProj%err_label)
