@@ -83,11 +83,13 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
     !> Replace error code with -9999
     dataline = replace2(dataline, trim(EddyProProj%err_label), '-9999')
 
-    !> Read timestamp and eliminate if from dataline
-    lEx2%timestamp = dataline(1:14)
+    !> Read timestamps and eliminate them from dataline
+    lEx2%start_timestamp = dataline(1:12)
+    dataline = dataline(14: len_trim(dataline))
+    lEx2%timestamp = dataline(1:12)
     lEx2%date = lEx2%timestamp(1:4) // '-' // lEx2%timestamp(5:6) // '-' // lEx2%timestamp(7:8) 
     lEx2%time = lEx2%timestamp(9:10) // ':' // lEx2%timestamp(11:12)  
-    dataline = dataline(16: len_trim(dataline))
+    dataline = dataline(14: len_trim(dataline))
 
     !> Extract some data
     read(dataline, *, iostat = read_status) lEx2%RP, lEx2%daytime_int, lEx2%nr_theor, &

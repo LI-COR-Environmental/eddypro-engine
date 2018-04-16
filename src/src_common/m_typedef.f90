@@ -1080,10 +1080,12 @@ module m_typedef
         logical :: daytime
         integer :: nlines
         character(32) :: Filename
+        character(10) :: start_date
         character(10) :: date
-        character(10) :: mdate
+        ! character(10) :: mdate
+        character(5) :: start_time
         character(5) :: time
-        character(5) :: mtime
+        ! character(5) :: mtime
     end type StatsType
 
     type :: UserStatsType
@@ -1263,7 +1265,8 @@ module m_typedef
 
     type ExType
         character(FilenameLen) :: fname
-        character(16) :: timestamp
+        character(12) :: start_timestamp
+        character(12) :: timestamp
         character(10) :: date
         character(5) :: time
         character(10) :: vm_flags(12)

@@ -1488,6 +1488,7 @@ program EddyproRP
 
         !> Associate timestamp of end of the period to current Stats
         call DateTypeToDateTime(tsStart, date, time)
+        call DateTypeToDateTime(tsStart, Stats%start_date, Stats%start_time)
         call DateTypeToDateTime(tsEnd, Stats%date, Stats%time)
 
         !> Some logging
