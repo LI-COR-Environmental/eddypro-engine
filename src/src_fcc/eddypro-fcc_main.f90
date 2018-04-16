@@ -430,6 +430,9 @@ Program EddyproFCC
     !***************************************************************************
     !***************************************************************************
 
+    !> Establish present variables
+    ! call EstablishPresentVariables()
+
     !> Open Ex file to keep it ready for reading
     !> and exit with error in case of problems opening the file
     open(uex, file = AuxFile%ex, status = 'old', iostat = open_status)
@@ -446,8 +449,8 @@ Program EddyproFCC
         call ReadEx2Record('', uex, -1, lEx, ValidRecord, EndOfFileReached)
 
         !> Initialize presence of key variables for outputting results
-        if (InitializeOuputFiles) &
-            fcc_var_present(u:GHGNumVar) = lEx%var_present(u:GHGNumVar)
+        ! if (InitializeOuputFiles) &
+        !     fcc_var_present(u:GHGNumVar) = lEx%var_present(u:GHGNumVar)
 
         !> If end of file was reached, exit loop
         if (EndOfFileReached) exit ex_loop

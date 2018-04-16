@@ -41,6 +41,7 @@ subroutine InitExVars(StartTimestamp, EndTimestamp, NumRecords, NumValidRecords)
     !> local variables
     integer :: open_status
     integer :: j
+    integer :: gas
     logical :: ValidRecord
     logical :: EndOfFileReached
     logical :: InitializationPerformed
@@ -86,12 +87,16 @@ subroutine InitExVars(StartTimestamp, EndTimestamp, NumRecords, NumValidRecords)
     Diag7200%present = .false.
     Diag7500%present = .false.
     Diag7700%present = .false.
+    fcc_var_present = .false.
+    FCCMetadata%ru = .false.
+    FCCMetadata%ac_freq = -1
+    DateStep = DateType(0, 0, 0, 0, ierror)
 
     !> Cycle on all records
     NumRecords = 0
     NumValidRecords = 0
     InitializationPerformed = .false.
-    FCCMetadata%ru = .true.
+
     do
         !> Read essentials record
         call ReadEx2Record('', udf, -1, lEx, ValidRecord, EndOfFileReached)
@@ -107,30 +112,46 @@ subroutine InitExVars(StartTimestamp, EndTimestamp, NumRecords, NumValidRecords)
         if (ValidRecord) &
             call DateTimeToDateType(lEX%date, lEX%time, EndTimestamp)
 
-        !> Some initializations
+        !> Initializations
         if (ValidRecord .and. .not. InitializationPerformed) then
+
+            !> Look for variable presence (u thru GS4)
+            if (lEx%WS /= error) fcc_var_present(u:w) = .true.
+            if (lEx%Ts /= error) fcc_var_present(ts)  = .true.
+            do gas = co2, gas4
+                fcc_var_present(gas) = lEx%measure_type_int(gas) /= ierror .or. fcc_var_present(gas)  
+            end do
+                
             !> Determine whether LI-COR's flags are available
-            do j = 1, 9
-                if (lEx%licor_flags(j) /= error) then
-                    Diag7200%present = .true.
-                    exit
-                end if
-            end do
-            do j = 10, 13
-                if (lEx%licor_flags(j) /= error) then
-                    Diag7500%present = .true.
-                    exit
-                end if
-            end do
-            do j = 14, 29
-                if (lEx%licor_flags(j) /= error) then
-                    Diag7700%present = .true.
-                    exit
-                end if
-            end do
+            if (.not. Diag7200%present) then
+                do j = 1, 9
+                    if (lEx%licor_flags(j) /= error) then
+                        Diag7200%present = .true.
+                        exit
+                    end if
+                end do
+            end if
+
+            if (.not. Diag7500%present) then
+                do j = 10, 13
+                    if (lEx%licor_flags(j) /= error) then
+                        Diag7500%present = .true.
+                        exit
+                    end if
+                end do
+            end if
+
+            if (.not. Diag7700%present) then
+                do j = 14, 29
+                    if (lEx%licor_flags(j) /= error) then
+                        Diag7700%present = .true.
+                        exit
+                    end if
+                end do
+            end if
 
             !> Reads DateStep
-            DateStep = DateType(0, 0, 0, 0, nint(lEx%avrg_length))
+            if (DateStep == DateType(0, 0, 0, 0, ierror)) DateStep = DateType(0, 0, 0, 0, nint(lEx%avrg_length))
 
             !> Define whether random uncertainty was calculated by
             !> looking at only 1 value (if one value is -6999d0, all
@@ -138,9 +159,12 @@ subroutine InitExVars(StartTimestamp, EndTimestamp, NumRecords, NumValidRecords)
             if (lEx%rand_uncer(u) == aflx_error) FCCMetadata%ru = .false.
 
             !> Acquisition frequency and gas analyser path type for H2O
-            FCCMetadata%ac_freq = lEx%ac_freq
+            if (FCCMetadata%ac_freq <= 0) FCCMetadata%ac_freq = lEx%ac_freq
             FCCMetadata%H2oPathType = lEx%instr(ih2o)%path_type
+        end if
 
+        if (all(fcc_var_present) .and. Diag7200%present .and. Diag7500%present .and. Diag7700%present .and. &
+           FCCMetadata%ac_freq > 0 .and. FCCMetadata%ru .and. DateStep /= DateType(0, 0, 0, 0, ierror)) then
             InitializationPerformed = .true.
         end if
     end do
