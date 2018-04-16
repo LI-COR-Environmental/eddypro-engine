@@ -116,9 +116,9 @@ subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
     call AddDatum(dataline, datum, separator)
     call WriteDatumFloat(Flux3%h2o, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    call WriteDatumFloat(Flux3%ch4, datum, EddyProProj%err_label)
+    call WriteDatumFloat(Flux3%ch4 * 1d3, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    call WriteDatumFloat(Flux3%gas4, datum, EddyProProj%err_label)
+    call WriteDatumFloat(Flux3%gas4 * 1d3, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
 
     !> Flux random uncertainties
@@ -160,14 +160,14 @@ subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
     if (Essentials%rand_uncer(ch4) == aflx_error) then
         call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
     else
-        call WriteDatumFloat(Essentials%rand_uncer(ch4), datum, EddyProProj%err_label)
+        call WriteDatumFloat(Essentials%rand_uncer(ch4) * 1d3, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
     end if
 
     if (Essentials%rand_uncer(gas4) == aflx_error) then
         call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
     else
-        call WriteDatumFloat(Essentials%rand_uncer(gas4), datum, EddyProProj%err_label)
+        call WriteDatumFloat(Essentials%rand_uncer(gas4) * 1d3, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
     end if
 
@@ -177,18 +177,25 @@ subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
     call AddDatum(dataline, datum, separator)
     call WriteDatumFloat(Stor%LE, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    do gas = co2, gas4
+    do gas = co2, h2o
         call WriteDatumFloat(Stor%of(gas), datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
+    end do
+    do gas = ch4, gas4
+        call WriteDatumFloat(Stor%of(gas) * 1d3, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
     end do
     !> Advection fluxes
     do gas = co2, gas4
         if (Stats5%Mean(w) /= error .and. Stats%d(gas) >= 0d0) then
-            if (gas /= h2o) then
+            if (gas == co2) then
                 call WriteDatumFloat(Stats5%Mean(w) * Stats%d(gas) * 1d3, datum, EddyProProj%err_label)
                 call AddDatum(dataline, datum, separator)
-            else
+            else if (gas == h2o) then
                 call WriteDatumFloat(Stats5%Mean(w) * Stats%d(gas), datum, EddyProProj%err_label)
+                call AddDatum(dataline, datum, separator)
+            else if (gas == ch4 .or. gas == gas4) then
+                call WriteDatumFloat(Stats5%Mean(w) * Stats%d(gas) * 1d6, datum, EddyProProj%err_label)
                 call AddDatum(dataline, datum, separator)
             end if
         else
@@ -232,11 +239,11 @@ subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
 
     !> Termodynamics 
     !> Temperature, pressure, RH, VPD, e, es, etc.
-    call WriteDatumFloat(Stats7%Mean(ts), datum, EddyProProj%err_label)
+    call WriteDatumFloat(Stats7%Mean(ts) - 273.15d0, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    call WriteDatumFloat(Ambient%Ta, datum, EddyProProj%err_label)
+    call WriteDatumFloat(Ambient%Ta - 273.15d0, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    call WriteDatumFloat(Stats%Pr, datum, EddyProProj%err_label)
+    call WriteDatumFloat(Stats%Pr * 1d-3, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     call WriteDatumFloat(Stats%RH, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
@@ -248,18 +255,18 @@ subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
     call AddDatum(dataline, datum, separator)
     call WriteDatumFloat(RHO%w, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    call WriteDatumFloat(Ambient%e, datum, EddyProProj%err_label)
+    call WriteDatumFloat(Ambient%e * 1d-2, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    call WriteDatumFloat(Ambient%es, datum, EddyProProj%err_label)
+    call WriteDatumFloat(Ambient%es * 1d-2, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     call WriteDatumFloat(Ambient%Q, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    call WriteDatumFloat(Ambient%VPD, datum, EddyProProj%err_label)
+    call WriteDatumFloat(Ambient%VPD * 1d-2, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    call WriteDatumFloat(Ambient%Td, datum, EddyProProj%err_label)
+    call WriteDatumFloat(Ambient%Td - 273.15, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     !> Dry air properties
-    call WriteDatumFloat(Ambient%p_d, datum, EddyProProj%err_label)
+    call WriteDatumFloat(Ambient%p_d * 1d-3, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     call WriteDatumFloat(RHO%d, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
@@ -290,10 +297,17 @@ subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
             end select
             call WriteDatumFloat(Stats%d(gas), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
-            call WriteDatumFloat(Stats%r(gas), datum, EddyProProj%err_label)
-            call AddDatum(dataline, datum, separator)
-            call WriteDatumFloat(Stats%chi(gas), datum, EddyProProj%err_label)
-            call AddDatum(dataline, datum, separator)
+            if (gas == ch4 .or. gas == gs4) then
+                call WriteDatumFloat(Stats%r(gas) * 1d3, datum, EddyProProj%err_label)
+                call AddDatum(dataline, datum, separator)
+                call WriteDatumFloat(Stats%chi(gas) * 1d3, datum, EddyProProj%err_label)
+                call AddDatum(dataline, datum, separator)
+            else
+                call WriteDatumFloat(Stats%r(gas), datum, EddyProProj%err_label)
+                call AddDatum(dataline, datum, separator)
+                call WriteDatumFloat(Stats%chi(gas), datum, EddyProProj%err_label)
+                call AddDatum(dataline, datum, separator)
+            end if
         else
             do i = 1, 4
                 call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
@@ -326,16 +340,31 @@ subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
 !> Basic stats
     !> 25-50-75%
     do var = u, gas4
-        call WriteDatumFloat(Stats6%Median(var), datum, EddyProProj%err_label)
-        call AddDatum(dataline, datum, separator)
+        if (var == ts) then
+            call WriteDatumFloat(Stats6%Median(var) - 273.15, datum, EddyProProj%err_label)
+            call AddDatum(dataline, datum, separator)
+        else
+            call WriteDatumFloat(Stats6%Median(var), datum, EddyProProj%err_label)
+            call AddDatum(dataline, datum, separator)
+        end if
     end do
     do var = u, gas4
-        call WriteDatumFloat(Stats6%Q1(var), datum, EddyProProj%err_label)
-        call AddDatum(dataline, datum, separator)
+        if (var == ts) then
+            call WriteDatumFloat(Stats6%Q1(var) - 273.15, datum, EddyProProj%err_label)
+            call AddDatum(dataline, datum, separator)
+        else
+            call WriteDatumFloat(Stats6%Q1(var), datum, EddyProProj%err_label)
+            call AddDatum(dataline, datum, separator)
+        end if
     end do
     do var = u, gas4
-        call WriteDatumFloat(Stats6%Q3(var), datum, EddyProProj%err_label)
-        call AddDatum(dataline, datum, separator)
+        if (var == ts) then
+            call WriteDatumFloat(Stats6%Q3(var) - 273.15, datum, EddyProProj%err_label)
+            call AddDatum(dataline, datum, separator)
+        else
+            call WriteDatumFloat(Stats6%Q3(var), datum, EddyProProj%err_label)
+            call AddDatum(dataline, datum, separator)
+        end if
     end do
     !> Standard deviation
     do var = u, gas4
@@ -401,9 +430,9 @@ subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
     call AddDatum(dataline, datum, separator)
     call WriteDatumFloat(Flux0%h2o, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    call WriteDatumFloat(Flux0%ch4, datum, EddyProProj%err_label)
+    call WriteDatumFloat(Flux0%ch4 * 1d3, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    call WriteDatumFloat(Flux0%gas4, datum, EddyProProj%err_label)
+    call WriteDatumFloat(Flux0%gas4 * 1d3, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     !> Fluxes level 1
     call WriteDatumFloat(Flux1%tau, datum, EddyProProj%err_label)
@@ -416,9 +445,9 @@ subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
     call AddDatum(dataline, datum, separator)
     call WriteDatumFloat(Flux1%h2o, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    call WriteDatumFloat(Flux1%ch4, datum, EddyProProj%err_label)
+    call WriteDatumFloat(Flux1%ch4 * 1d3, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    call WriteDatumFloat(Flux1%gas4, datum, EddyProProj%err_label)
+    call WriteDatumFloat(Flux1%gas4 * 1d3, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     !> Fluxes level 2
     call WriteDatumFloat(Flux2%tau, datum, EddyProProj%err_label)
@@ -431,18 +460,18 @@ subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
     call AddDatum(dataline, datum, separator)
     call WriteDatumFloat(Flux2%h2o, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    call WriteDatumFloat(Flux2%ch4, datum, EddyProProj%err_label)
+    call WriteDatumFloat(Flux2%ch4 * 1d3, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    call WriteDatumFloat(Flux2%gas4, datum, EddyProProj%err_label)
+    call WriteDatumFloat(Flux2%gas4 * 1d3, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     !> Tin and Tout                 ********************************************
 
     !> Temperature, pressure and molar volume 
     !> in the cell of closed-paths, for all gases
     !> Cell parameters              **************************************** (make it gas specific like molar volume)
-    call WriteDatumFloat(Ambient%Tcell, datum, EddyProProj%err_label)
+    call WriteDatumFloat(Ambient%Tcell - 273.15, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    call WriteDatumFloat(Ambient%Pcell, datum, EddyProProj%err_label)
+    call WriteDatumFloat(Ambient%Pcell * 1d-3, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
 
     !> Molar volume

@@ -65,7 +65,7 @@ subroutine FluxParams(printout)
         else
             Ambient%e = error
         end if
-        !> vapor pressure deficit [hPa]
+        !> vapor pressure deficit [Pa]
         if (Ambient%e /= error) then
             Ambient%VPD = Ambient%es - Ambient%e
         else
