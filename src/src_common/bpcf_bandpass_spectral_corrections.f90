@@ -29,7 +29,7 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine BandPassSpectralCorrections(measuring_height, displ_height,&
+subroutine BandPassSpectralCorrections(measuring_height, displ_height, &
     loc_var_present, wind_speed, t_air, zL, ac_frequency, avrg_length, &
     logger_sw_ver, detrending_method, detrending_time_constant, printout, &
     LocInstr, nfull, LocFileList, nrow_full, lEx, LocSetup)

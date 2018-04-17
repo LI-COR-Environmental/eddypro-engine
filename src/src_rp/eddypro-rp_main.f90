@@ -1505,8 +1505,8 @@ program EddyproRP
 
         !> Define initial part of each output string
         call DateTimeToDOY(Stats%date, Stats%time, int_doy, float_doy)
-
         call WriteDatumFloat(float_doy, char_doy, EddyProProj%err_label)
+
         call ShrinkString(char_doy)
         suffixOutString =  trim(Stats%date) // ',' // trim(Stats%time) &
                    // ',' // char_doy(1: index(char_doy, '.')+ 3)

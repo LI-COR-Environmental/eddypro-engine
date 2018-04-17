@@ -37,20 +37,23 @@ subroutine WriteOutIcosOnlyBiomet()
     integer :: i
     character(LongOutstringLen) :: dataline
     character(DatumLen) :: datum
-    character(14) :: iso_basic
+    character(14) :: tsIso
     include '../src_common/interfaces.inc'
 
     !> write Essentials output file (csv) for communication
     !> with Fluxes
     call clearstr(dataline)
 
-    !> Timestamp
-    iso_basic = Stats%date(1:4) // Stats%date(6:7) // Stats%date(9:10) &
-                // Stats%time(1:2) // Stats%time(4:5) // '00'
-    call AddDatum(dataline, trim(adjustl(iso_basic)), separator)
+    !> Start/end imestamps
+    tsIso = Stats%start_date(1:4) // Stats%start_date(6:7) // Stats%start_date(9:10) &
+                // Stats%start_time(1:2) // Stats%start_time(4:5)
+    call AddDatum(dataline, trim(adjustl(tsIso)), separator)
+    tsIso = Stats%date(1:4) // Stats%date(6:7) // Stats%date(9:10) &
+                // Stats%time(1:2) // Stats%time(4:5)
+    call AddDatum(dataline, trim(adjustl(tsIso)), separator)
 
     !> Write error codes in place of fixed columns
-    do i = 1, 471
+    do i = 1, 470
         call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
     end do
     !> Write error codes in place of custom variables

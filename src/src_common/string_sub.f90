@@ -385,16 +385,24 @@ end subroutine WriteDatumInt
 ! \test
 ! \todo
 !***************************************************************************
-subroutine WriteDatumFloat(float_datum, char_datum, err_label)
+subroutine WriteDatumFloat(float_datum, char_datum, err_label, gain, offset)
     use m_common_global_var
     implicit none
     !> in/out variables
     real(kind = dbl), intent(in) :: float_datum
+    real(kind = dbl), optional, intent(in) :: gain
+    real(kind = dbl), optional, intent(in) :: offset
     character(*), intent(out) :: char_datum
     character(*), intent(in) :: err_label
+    real(kind = dbl) :: val
+
 
     if (float_datum /= error) then
-        write(char_datum, fmt='(G20.6)') float_datum
+        val = float_datum
+        if (present(gain) .and. present(offset)) then
+            val = val * gain + offset
+        end if
+        write(char_datum, fmt='(G20.6)') val
         char_datum = trim(char_datum)
     else
         char_datum = err_label(1:len_trim(err_label))
@@ -463,16 +471,36 @@ end subroutine AddIntDatumToDataline
 ! \test
 ! \todo
 !***************************************************************************
-subroutine AddFloatDatumToDataline(float_datum, dataline, err_label)
+subroutine AddFloatDatumToDataline(float_datum, dataline, err_label, gain, offset)
     use m_common_global_var
     implicit none
     !> in/out variables
     real(kind = dbl), intent(in) :: float_datum
+    real(kind = dbl), optional, intent(in) :: gain
+    real(kind = dbl), optional, intent(in) :: offset
     character(*), intent(in) :: err_label
     character(*), intent(inout) :: dataline
     character(DatumLen) :: char_datum
 
-    call WriteDatumFloat(float_datum, char_datum, err_label)
+    interface 
+        subroutine WriteDatumFloat(float_datum, char_datum, err_label, gain, offset)
+            use m_common_global_var
+            implicit none
+            !> in/out variables
+            real(kind = dbl), intent(in) :: float_datum
+            real(kind = dbl), optional, intent(in) :: gain
+            real(kind = dbl), optional, intent(in) :: offset
+            character(*), intent(out) :: char_datum
+            character(*), intent(in) :: err_label
+            real(kind = dbl) :: val
+        end subroutine
+    end interface
+
+    if (present(gain) .and. present(offset)) then
+        call WriteDatumFloat(float_datum, char_datum, err_label, gain, offset)
+    else
+        call WriteDatumFloat(float_datum, char_datum, err_label)
+    end if    
     call AddDatum(dataline, char_datum, separator)
 end subroutine AddFloatDatumToDataline
 
