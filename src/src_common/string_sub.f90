@@ -496,7 +496,7 @@ subroutine AddCharDatumToDataline(char_in, dataline, err_label)
     character(*), intent(inout) :: dataline
     character(DatumLen) :: char_datum
 
-    call WriteDatumChar(char_in, char_datum, err_label)
+    call WriteDatumChar(trim(char_in), char_datum, err_label)
     call AddDatum(dataline, char_datum, separator)
 end subroutine AddCharDatumToDataline
 
