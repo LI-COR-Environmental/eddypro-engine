@@ -133,10 +133,10 @@ subroutine ImportCurrentPeriod(InitialTimestamp, FinalTimestamp, FileList, &
         !> Some logging
         if (logout) then
             if (CurrentFile > FirstFile)  then
-                write(*, *) '          ..\', &
+                write(*, *) '          ..' // slash, &
                 trim(adjustl(FileList(CurrentFile)%name))
             else
-                write(*, *) ' File(s): ..\', &
+                write(*, *) ' File(s): ..' // slash, &
                 trim(adjustl(FileList(CurrentFile)%name))
             end if
         end if

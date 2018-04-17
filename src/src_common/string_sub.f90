@@ -394,11 +394,111 @@ subroutine WriteDatumFloat(float_datum, char_datum, err_label)
     character(*), intent(in) :: err_label
 
     if (float_datum /= error) then
-        write(char_datum, *) float_datum
+        write(char_datum, fmt='(G20.6)') float_datum
+        char_datum = trim(char_datum)
     else
         char_datum = err_label(1:len_trim(err_label))
     end if
 end subroutine WriteDatumFloat
+
+!***************************************************************************
+!
+! \brief       Write a character datum as a string, \n
+!              or replace it with the user-defined error string if the case
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+subroutine WriteDatumChar(char_in, char_datum, err_label)
+    use m_common_global_var
+    implicit none
+    !> in/out variables
+    character(*), intent(in) :: char_in
+    character(*), intent(out) :: char_datum
+    character(*), intent(in) :: err_label
+
+    if (trim(adjustl(char_in)) /= 'none' .and. trim(adjustl(char_in)) /= 'None') then
+        char_datum = trim(adjustl(char_in))
+    else
+        char_datum = trim(adjustl(err_label))
+    end if
+end subroutine WriteDatumChar
+
+!***************************************************************************
+!
+! \brief       Add integer datum or error code to dataline
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+subroutine AddIntDatumToDataline(int_datum, dataline, err_label)
+    use m_common_global_var
+    implicit none
+    !> in/out variables
+    integer, intent(in) :: int_datum
+    character(*), intent(in) :: err_label
+    character(*), intent(inout) :: dataline
+    character(DatumLen) :: char_datum
+
+    call WriteDatumInt(int_datum, char_datum, err_label)
+    call AddDatum(dataline, char_datum, separator)
+end subroutine AddIntDatumToDataline
+
+!***************************************************************************
+!
+! \brief       Add float datum or error code to dataline
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+subroutine AddFloatDatumToDataline(float_datum, dataline, err_label)
+    use m_common_global_var
+    implicit none
+    !> in/out variables
+    real(kind = dbl), intent(in) :: float_datum
+    character(*), intent(in) :: err_label
+    character(*), intent(inout) :: dataline
+    character(DatumLen) :: char_datum
+
+    call WriteDatumFloat(float_datum, char_datum, err_label)
+    call AddDatum(dataline, char_datum, separator)
+end subroutine AddFloatDatumToDataline
+
+!***************************************************************************
+!
+! \brief       Add char datum or error code to dataline
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+subroutine AddCharDatumToDataline(char_in, dataline, err_label)
+    use m_common_global_var
+    implicit none
+    !> in/out variables
+    character(*), intent(in) :: char_in
+    character(*), intent(in) :: err_label
+    character(*), intent(inout) :: dataline
+    character(DatumLen) :: char_datum
+
+    call WriteDatumChar(char_in, char_datum, err_label)
+    call AddDatum(dataline, char_datum, separator)
+end subroutine AddCharDatumToDataline
 
 !***************************************************************************
 !

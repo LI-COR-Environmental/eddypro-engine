@@ -37,7 +37,6 @@ subroutine WriteOutIcosOnlyBiomet()
     integer :: i
     character(LongOutstringLen) :: dataline
     character(DatumLen) :: datum
-    character(64) :: tmp_init_string
     character(14) :: iso_basic
     include '../src_common/interfaces.inc'
 
@@ -50,17 +49,8 @@ subroutine WriteOutIcosOnlyBiomet()
                 // Stats%time(1:2) // Stats%time(4:5) // '00'
     call AddDatum(dataline, trim(adjustl(iso_basic)), separator)
 
-    ! !> Timestamp
-    ! tmp_init_string = &
-    !     init_string(index(init_string, ',') +1: &
-    !                 index(init_string, ',', .true.) - 1)
-    ! iso_basic = tmp_init_string(1:4) // tmp_init_string(6:7) &
-    !     // tmp_init_string(9:10) // tmp_init_string(12:13)  &
-    !     // tmp_init_string(15:16) // '00'
-    ! call AddDatum(dataline, trim(adjustl(iso_basic)), separator)
-
     !> Write error codes in place of fixed columns
-    do i = 1, 483
+    do i = 1, 471
         call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
     end do
     !> Write error codes in place of custom variables

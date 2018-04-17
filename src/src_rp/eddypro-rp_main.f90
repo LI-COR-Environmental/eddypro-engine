@@ -237,6 +237,8 @@ program EddyproRP
     if (EddyProProj%run_env == 'embedded') call ConfigureForEmbedded()
     if (EddyProProj%run_env == 'embedded') RPsetup%out_st = .false.
 
+    EddyProProj%out_essentials = .false.                 !***********************   Replace this by eliminating essentials file entirely when ICOS format is stable
+
     !> Create output directory if it does not exist, otherwise is silent
     mkdir_status = CreateDir('"' //trim(adjustl(Dir%main_out)) // '"')
 
@@ -799,9 +801,8 @@ program EddyproRP
 
             allocate(toH2On(TOSetup%h2o_nclass))
 
-!> Improve readability of this subroutine interface
-            !> Optimize time-lags
-            call OptimizeTimelags(toSet, size(toSet), tlagn, E2NumVar, toH2On, &
+            !> Optimize time-lags                                        ******* Improve readability of this subroutine interface
+            call OptimizeTimelags(toSet, size(toSet), tlagn, E2NumVar, toH2On, & 
                 TOSetup%h2o_nclass, TOSetup%h2o_class_size)
 
             !> Write time-lag optimization results on output file
