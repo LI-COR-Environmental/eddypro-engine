@@ -807,8 +807,9 @@ subroutine InitOutFiles_rp()
         call AddDatum(dataline, 'NUM_CUSTOM_VARS', separator)
         if (NumUserVar > 0) then
             do i = 1, NumUserVar
+                call uppercase(usg(i)) 
                 dataline = dataline(1:len_trim(dataline)) &
-                    // usg(i)(1:len_trim(usg(i))) // 'mean' // ','
+                    // 'CV_' // usg(i)(1:len_trim(usg(i))) // 'MEAN' // ','
             end do
         end if
 

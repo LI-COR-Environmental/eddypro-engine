@@ -509,6 +509,7 @@ subroutine WriteOutBinnedCoSpectra(String, bnf, bcnt, BinnedSpectrum, BinnedCosp
     character(PathLen) :: BinCospectraPath
     character(LongOutstringLen) :: dataline
     character(DatumLen) :: datum = ''
+    include '../src_common/interfaces.inc'
 
     e2sg(gas4) = SpecCol(gas4)%label(1:len_trim(SpecCol(gas4)%label))
 
@@ -603,6 +604,7 @@ subroutine WriteOutBinnedOgives(String, bnf, bcnt, BinnedOgive, BinnedCoOgive &
     character(PathLen) :: BinOgivesPath
     character(LongOutstringLen) :: dataline
     character(DatumLen) :: datum = ''
+    include '../src_common/interfaces.inc'
 
     e2sg(gas4) = SpecCol(gas4)%label(1:len_trim(SpecCol(gas4)%label))
 
@@ -698,6 +700,7 @@ subroutine WriteOutFullCoSpectra(String, nf, Spectrum, Cospectrum, &
     character(LongOutstringLen) :: dataline3
     character(DatumLen) :: datum = ''
     character(4) :: e2sg(GHGNumVar)
+    include '../src_common/interfaces.inc'
 
     write(*, '(a)', advance = 'no') '   Writing requested full (co)spectra on output file..'
 
