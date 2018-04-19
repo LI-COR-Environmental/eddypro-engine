@@ -821,6 +821,9 @@ subroutine InitOutFiles_rp()
             end do
         end if
 
+        call uppercase(e2sg(gas4)) 
+        dataline = replace2(dataline, 'GS4', e2sg(gas4)(1:len_trim(e2sg(gas4)) - 1)) 
+
         write(uicos, '(a)') dataline(1:len_trim(dataline) - 1)
     end if
 
