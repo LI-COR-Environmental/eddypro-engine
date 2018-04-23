@@ -1056,6 +1056,7 @@ module m_typedef
     type :: StatsType
         real(kind = dbl) :: TKE
         real(kind = dbl) :: wind_dir
+        real(kind = dbl) :: wind_dir_stdev
         real(kind = dbl) :: Mean(E2NumVar)
         real(kind = dbl) :: Cov(E2NumVar, E2NumVar)
         real(kind = dbl) :: StDev(E2NumVar)

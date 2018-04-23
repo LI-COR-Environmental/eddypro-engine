@@ -54,7 +54,7 @@ subroutine SortWindBySector(Wind, nrow, NumElem, WindBySect)
         if (Wind(i, u) /= error .and. Wind(i, v) /= error &
             .and. Wind(i, w) /= error) then
             !> Calculate wind direction from Wind
-            call WindDirection(Wind(i, u:w), &
+            call SingleWindDirection(Wind(i, u:w), &
                 E2Col(u)%instr%north_offset + magnetic_declination, WindDir)
 
             !> Retrieve wind sector

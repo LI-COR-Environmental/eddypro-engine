@@ -21,7 +21,8 @@
 !
 !***************************************************************************
 !
-! \brief       Calculates mean wind direction from mean wind components and offset
+! \brief       Calculates wind direction from single wind components pair and offset
+! \brief       It's essentially a vector direction + offset
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -30,7 +31,7 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine WindDirection(Wind, offset, WindDir)
+subroutine SingleWindDirection(Wind, offset, WindDir)
     use m_common_global_var
     implicit none
     !> in/out variables
@@ -48,4 +49,77 @@ subroutine WindDirection(Wind, offset, WindDir)
     !> wrap within 0 - 360
     if (WindDir >= 360d0) WindDir = WindDir - 360d0
     if (WindDir < 0d0)   WindDir = 360d0 + WindDir
-end subroutine WindDirection
+end subroutine SingleWindDirection
+
+!***************************************************************************
+!
+! \brief       Calculates mean wind direction and compensates offset
+! \author      Gerardo Fratini
+! \note        
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+subroutine AverageWindDirection(Set, nrow, ncol, offset, WindDir, err_float)
+    use m_common_global_var
+    implicit none
+    !> in/out variables
+    integer, intent(in) :: nrow, ncol
+    real(kind = dbl), intent(in) :: err_float
+    real(kind = dbl), intent(in) :: Set(nrow, ncol)
+    real(kind = dbl), intent(in) :: offset
+    real(kind = dbl), intent(out) :: WindDir
+    !> Local variables
+    real(kind = dbl):: wd(nrow)
+    integer :: i
+
+
+    !> Compute raw-level wind-direction
+    do i = 1, nrow
+        call SingleWindDirection(Set(i, u:w), 0d0, wd(i))
+    end do
+    
+    !> Compute mean wind direction
+    call AngularAverageNoError(wd, nrow, 1, WindDir, err_float)
+
+    !> accounts for user-supplied anemometer mis-alignment
+    WindDir = WindDir + offset
+
+end subroutine AverageWindDirection
+
+
+!***************************************************************************
+!
+! \brief       Calculates mean wind direction and compensates offset
+! \author      Gerardo Fratini
+! \note        
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+subroutine WindDirectionStDev(Set, nrow, ncol, WindDirStDev, err_float)
+    use m_common_global_var
+    implicit none
+    !> in/out variables
+    integer, intent(in) :: nrow, ncol
+    real(kind = dbl), intent(in) :: err_float
+    real(kind = dbl), intent(in) :: Set(nrow, ncol)
+    real(kind = dbl), intent(out) :: WindDirStDev
+    !> Local variables
+    real(kind = dbl):: wd(nrow)
+    integer :: i
+
+
+    !> Compute raw-level wind-direction
+    do i = 1, nrow
+        call SingleWindDirection(Set(i, u:w), 0d0, wd(i))
+    end do
+    
+    !> Compute mean wind direction
+    call AngularStDevApproxNoError(wd, nrow, 1, WindDirStDev, err_float)
+
+end subroutine WindDirectionStDev

@@ -136,7 +136,8 @@ end subroutine AverageNoError
 !              Implementation reference:
 !              "Circular Statistics in R"
 !              by A. Pewsey, M. Neuhaeuser and G. D. Ruxton.
-!
+!              Yamartino, 1984:
+!              https://journals.ametsoc.org/doi/pdf/10.1175/1520-0450%281984%29023%3C1362%3AACOSPE%3E2.0.CO%3B2
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -170,8 +171,8 @@ subroutine AngularAverageNoError(Set, nrow, ncol, Mean, err_float)
         do i = 1, nrow
             if (Set(i, j) /= err_float) then
                 Nact = Nact + 1
-                CosSum = CosSum + dcos(Set(i, j)/180d0*p)
-                SinSum = SinSum + dsin(Set(i, j)/180d0*p)
+                CosSum = CosSum - dcos(Set(i, j) / 180d0 * p)
+                SinSum = SinSum - dsin(Set(i, j) / 180d0 * p)
             end if
         end do
         if (Nact /= 0) then
@@ -182,14 +183,73 @@ subroutine AngularAverageNoError(Set, nrow, ncol, Mean, err_float)
             cycle
         end if
 
-        !> Angular average is atan2 of b and a (the expressed in degrees)
-        Mean(j) = datan2(SinSum, CosSum) * 180d0 / p
-
-        !> Take angle form (-180, 180) to (0, 360)
-        if (Mean(j) < 0d0) Mean(j) = 360d0 + Mean(j)
+        !> Angular average is atan2 of b and a
+        !> "+p" adjust quadrant, then express in degrees
+        Mean(j) = (datan2(SinSum, CosSum) + p) * 180d0 / p
     end do
 end subroutine AngularAverageNoError
 
+!***************************************************************************
+!
+! \brief       Calculate column-wise angular stdev on a 2d array \n
+!              ignoring specified error values. In EddyPro, mainly meant for \n
+!              calculation of wind direction standard deviation given a set of wind direction. \n
+!
+!              Implementation reference:
+!              Yamartino, 1984:
+!              https://journals.ametsoc.org/doi/pdf/10.1175/1520-0450%281984%29023%3C1362%3AACOSPE%3E2.0.CO%3B2
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+subroutine AngularStDevApproxNoError(Set, nrow, ncol, AngStDev, err_float)
+    use m_common_global_var
+    implicit none
+    !> in/out variables
+    integer, intent(in) :: nrow, ncol
+    real(kind = dbl), intent(in) :: err_float
+    real(kind = dbl), intent(in) :: Set(nrow, ncol)
+    real(kind = dbl), intent(out) :: AngStDev(ncol)
+    !> local variables
+    integer :: i = 0
+    integer :: j = 0
+    integer :: Nact = 0
+    real(kind = dbl) :: CosSum
+    real(kind = dbl) :: SinSum
+    real(kind = dbl) :: eps
+
+
+    do j = 1, ncol
+
+        !> Calculate a (CosSum) and b (SinSum)
+        CosSum = 0d0
+        SinSum = 0d0
+        Nact = 0
+        do i = 1, nrow
+            if (Set(i, j) /= err_float) then
+                Nact = Nact + 1
+                CosSum = CosSum - dcos(Set(i, j) / 180d0 * p)
+                SinSum = SinSum - dsin(Set(i, j) / 180d0 * p)
+            end if
+        end do
+        if (Nact /= 0) then
+            CosSum = CosSum / dble(Nact)
+            SinSum = SinSum / dble(Nact)
+        else
+            AngStDev(j) = err_float
+            cycle
+        end if
+
+        !> Approximate standard deviation of wind direction (see Yamartino, 1984:
+        !> https://journals.ametsoc.org/doi/pdf/10.1175/1520-0450%281984%29023%3C1362%3AACOSPE%3E2.0.CO%3B2)
+        eps = dsqrt(1. - (CosSum**2 + SinSum**2))
+        AngStDev = (dasin(eps) * (1. + (2 / sqrt(3.) - 1) * eps**3)) * 180d0 / p
+    end do
+end subroutine AngularStDevApproxNoError
 
 !***************************************************************************
 !

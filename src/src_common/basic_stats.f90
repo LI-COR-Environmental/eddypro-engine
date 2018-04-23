@@ -86,9 +86,11 @@ subroutine BasicStats(Set, nrow, ncol, nfold, printout)
     end if
 
     !> wind direction (only before rotation, after makes no sense)
-    if (nfold <= 4) &
-        call WindDirection(Stats%Mean(u:w), &
-            E2Col(u)%instr%north_offset + magnetic_declination, Stats%wind_dir)
+    if (nfold <= 4) then
+        call AverageWindDirection(Set, size(Set, 1), size(Set, 2), &
+            E2Col(u)%instr%north_offset + magnetic_declination, Stats%wind_dir, error)
+        call WindDirectionStDev(Set, size(Set, 1), size(Set, 2), Stats%wind_dir_stdev, error)
+    end if
 
     !> Standard deviations
     do j = u, pe
