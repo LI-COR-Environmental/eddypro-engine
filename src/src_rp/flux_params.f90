@@ -36,7 +36,7 @@ subroutine FluxParams(printout)
     !> in/out variables
     logical, intent(in) :: printout
     !> local variables
-    real(kind = dbl) :: Ma
+    ! real(kind = dbl) :: Ma
     real(kind = dbl) :: Cpd
     real(kind = dbl) :: Cpv
 
@@ -105,12 +105,12 @@ subroutine FluxParams(printout)
         !> Molecular weight of wet air:
         !> Ma = chi(h2o) * MW(h2o) + chi(dry_air) * Md
         !> if chi(dry_air) = 1 - chi(h2o) (assumes chi(h2o) in mmol mol_a-1)
-        if (Stats%chi(h2o) > 0d0) then
-            Ma = (Stats%chi(h2o) * 1d-3) * MW(h2o) &
-               + (1d0 - Stats%chi(h2o) * 1d-3) * Md
-        else
-            Ma = error
-        end if
+        ! if (Stats%chi(h2o) > 0d0) then
+        !     Ma = (Stats%chi(h2o) * 1d-3) * MW(h2o) &
+        !        + (1d0 - Stats%chi(h2o) * 1d-3) * Md
+        ! else
+        !     Ma = error
+        ! end if
 
         !> Water vapour mass density [kg_w m-3]
         !> from mole fraction [mmol_w / mol_a]
@@ -222,10 +222,10 @@ subroutine FluxParams(printout)
             Ambient%Tmap = error
         end if
     elseif (E2Col(ts)%instr%category == 'fast_t_sensor') then
-            !> If Ts was actually from a fast temperature sensor,
-            !> do not apply Q correction
-            Ambient%Ta = Stats%Mean(ts)
-            Ambient%Tmap = 1d0
+        !> If Ts was actually from a fast temperature sensor,
+        !> do not apply Q correction
+        Ambient%Ta = Stats%Mean(ts)
+        Ambient%Tmap = 1d0
     else
         if (Ambient%Q > 0d0 .and. Ambient%alpha /= error &
             .and. Stats%Mean(ts) > 0d0) then
