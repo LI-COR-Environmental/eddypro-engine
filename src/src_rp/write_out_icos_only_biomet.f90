@@ -53,7 +53,7 @@ subroutine WriteOutIcosOnlyBiomet()
     call AddDatum(dataline, trim(adjustl(tsIso)), separator)
 
     !> Write error codes in place of fixed columns
-    do i = 1, 470
+    do i = 1, 471
         call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
     end do
     !> Write error codes in place of custom variables
