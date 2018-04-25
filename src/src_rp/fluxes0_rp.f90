@@ -379,7 +379,7 @@ subroutine Fluxes0_rp(printout)
 
     !> Momentum flux [kg m-1 s-2], after Van Dijk et al. 2004 Eq. 2.44
     if (RHO%a > 0d0 .and. Ambient%us >= 0d0) then
-        Flux0%tau = sign(RHO%a * Ambient%us ** 2d0, cov(u, w))
+        Flux0%tau = sign(RHO%a * Ambient%us ** 2d0, Stats%Cov(u, w))
     else
         Flux0%tau = error
     end if
