@@ -38,11 +38,11 @@ subroutine BiometEnrichVarsDescription()
     integer :: i
     character(32) :: base_name
     character(32) :: qPos
-
     character(32), external :: positionalQualifier
 
+
     do i = 1, nbVars
-        call BiometInterpretPositionalQualifier(bVars(i))
+        ! call BiometInterpretPositionalQualifier(bVars(i))
         base_name = trim(bVars(i)%base_name)
         call uppercase(base_name)
         select case(base_name)
@@ -594,8 +594,8 @@ subroutine BiometEnrichVarsDescription()
 
     !> Complete Fluxnet labels adding positional qualifier to Fluxnet base name
     do i = 1, nbVars
-        qPos = positionalQualifier(bVars(i))
-        bVars(i)%fluxnet_label = trim(bVars(i)%fluxnet_base_name) // trim(qPos)
+        ! qPos = positionalQualifier(bVars(i))
+            bVars(i)%fluxnet_label = trim(bVars(i)%fluxnet_base_name) // trim(bVars(i)%pq_string)
     end do
-end subroutine
+end subroutine BiometEnrichVarsDescription
 

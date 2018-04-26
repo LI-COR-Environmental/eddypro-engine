@@ -36,8 +36,8 @@ subroutine WriteOutIcosOnlyBiomet()
     !> local variables
     integer :: i
     character(LongOutstringLen) :: dataline
-    character(DatumLen) :: datum
     character(14) :: tsIso
+    real(kind = dbl), allocatable :: bAggrOut(:)
     include '../src_common/interfaces.inc'
 
     !> write Essentials output file (csv) for communication
@@ -62,12 +62,19 @@ subroutine WriteOutIcosOnlyBiomet()
     end do
 
     !> write all aggregated biomet values in FLUXNET units
-    write(datum, *) nbVars
-    call AddDatum(dataline, datum, separator)
-    do i = 1, nbVars
-        call WriteDatumFloat(bAggrFluxnet(i), datum, '-9999.')
-        call AddDatum(dataline, datum, separator)
-    end do
+    call AddIntDatumToDataline(nbVars, dataline, EddyProProj%err_label)
+    if (nbVars > 0) then
+        if (.not. allocated(bAggrOut)) allocate(bAggrOut(size(bAggr)))
+        if (EddyProProj%icos_standardize_biomet) then
+            bAggrOut = bAggrFluxnet
+        else
+            bAggrOut = bAggr
+        end if
+
+        do i = 1, nbVars
+            call AddFloatDatumToDataline(bAggrOut(i), dataline, EddyProProj%err_label)
+        end do
+    end if
     write(uicos, '(a)') dataline(1:len_trim(dataline) - 1)
 
 end subroutine WriteOutIcosOnlyBiomet

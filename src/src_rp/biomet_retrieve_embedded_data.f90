@@ -47,17 +47,21 @@ subroutine BiometRetrieveEmbeddedData(proceed, printout)
     !> Initialize biomet data to error
     if (allocated(bAggr)) bAggr = error
     if (allocated(bAggrFluxnet)) bAggrFluxnet = error
+    if (allocated(bAggrEddyPro)) bAggrEddyPro = error
 
     if (proceed) then
         if (printout) write(LogInteger, '(i3)') nbRecs
         if (printout) write(*, '(a)') '   ' // trim(adjustl(LogInteger)) &
             // ' biomet records imported.'
 
+        !> Aggregate biomet variables over the averaging interval
+        call BiometAggregate(bSet, size(bSet, 1), size(bSet, 2), bAggr)
+
         !> Convert data to standard units
         call BiometStandardEddyProUnits()
 
         !> Aggregate biomet variables over the averaging interval
-        call BiometAggregate(bSet, size(bSet, 1), size(bSet, 2), bAggr)
+        call BiometAggregate(bSet, size(bSet, 1), size(bSet, 2), bAggrEddyPro)
 
         !> Convert aggregated values to FLUXNET units
         call BiometStandardFluxnetUnits()
@@ -70,7 +74,7 @@ subroutine BiometRetrieveEmbeddedData(proceed, printout)
     !> are not included in bAggr. The 2 shall eventually be replaced by nbTimestamp
     !> as per read_biomet_meta_file.f90
     do i = bTa, bRg
-        if (bSetup%sel(i) > 0) biomet%val(i) = bAggr(bSetup%sel(i) - 2)
+        if (bSetup%sel(i) > 0) biomet%val(i) = bAggrEddyPro(bSetup%sel(i) - 2)
     end do
 
     !> Deallocate variables no longer used

@@ -279,6 +279,28 @@ end subroutine char2int
 
 !***************************************************************************
 !
+! \brief       Convert string to integer and return error \n
+!              into an integer number
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+elemental subroutine str2int(str,int,stat)
+    implicit none
+    ! Arguments
+    character(len=*),intent(in) :: str
+    integer,intent(out) :: int
+    integer,intent(out) :: stat
+
+    read(str,*,iostat=stat)  int
+end subroutine str2int
+  
+!***************************************************************************
+!
 ! \brief       Convert an integer into a string of max 32 chars
 !              If a 'pad' value is specified, pads with leading zeros
 !              to reach a string length equal to 'pad'.

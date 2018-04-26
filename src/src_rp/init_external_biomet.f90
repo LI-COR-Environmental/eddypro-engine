@@ -158,6 +158,8 @@ subroutine InitExternalBiomet(bFileList, N)
         allocate(bAggr(nbVars))
         if (allocated(bAggrFluxnet)) deallocate(bAggrFluxnet)
         allocate(bAggrFluxnet(nbVars))
+        if (allocated(bAggrEddyPro)) deallocate(bAggrEddyPro)
+        allocate(bAggrEddyPro(nbVars))
 
         !> Retrieve variables and timestamp prototype from
         !> header (labels and units rows)
@@ -165,7 +167,7 @@ subroutine InitExternalBiomet(bFileList, N)
         if (EddyProProj%biomet_data == 'none') return
 
         !> Variables consistency among different biomet files
-        if (nfl == 1) then
+        if (.not. allocated(lbVars)) then
             allocate(lbVars(nbVars))
             lbVars = bVars
         else
@@ -178,6 +180,20 @@ subroutine InitExternalBiomet(bFileList, N)
                 return
             end if
         end if
+
+        ! if (nfl == 1) then          ****************************************** Deprecated. Replaced with the if clause above
+        !     allocate(lbVars(nbVars))
+        !     lbVars = bVars
+        ! else
+        !     if (size(lbVars) /= size(bVars) &
+        !         .or. (any(lbVars(:)%label /= bVars(:)%label) &
+        !         .or. any(lbVars(:)%unit_in /= bVars(:)%unit_in))) then
+        !         write(*,'(a)')
+        !         call ExceptionHandler(79)
+        !         EddyProProj%biomet_data = 'none'
+        !         return
+        !     end if
+        ! end if
 
         !> Start loop on file rows
         cnt = lastcnt
@@ -225,6 +241,10 @@ subroutine InitExternalBiomet(bFileList, N)
 
     !> Fill variables information based on label and other available fields
     call BiometEnrichVarsDescription()
+
+    ! !> Append suffix if variables have not
+    ! if (EddyProProj%icos_standardize_biomet) &
+    !     call BiometAppendDefaultPositionalQualifier()
 
     !> No data label is allowed in external biomet files
     bFileMetadata%data_label = ''

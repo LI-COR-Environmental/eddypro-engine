@@ -226,6 +226,7 @@ module m_typedef
         real(kind = dbl) :: gain
         real(kind = dbl) :: offset
         character(32) :: label
+        character(32) :: pq_string
         character(32) :: fluxnet_label
         character(32) :: id
         character(32) :: base_name
@@ -518,6 +519,7 @@ module m_typedef
         logical :: use_dynmd_file
         logical :: out_full
         logical :: out_icos
+        logical :: icos_standardize_biomet
         logical :: out_fluxnet
         logical :: out_fluxnet_eddy
         logical :: out_fluxnet_biomet

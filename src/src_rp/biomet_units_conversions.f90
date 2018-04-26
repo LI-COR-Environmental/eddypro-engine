@@ -222,39 +222,39 @@ subroutine BiometStandardFluxnetUnits()
 
 
     !> Most variables will have same units..
-    bAggrFluxnet = bAggr
+    bAggrFluxnet = bAggrEddyPro
 
     !> Change units as needed
     do i = 1, nbVars
         !> All temperatures converted to [degC]
-        if (trim(bVars(i)%nature) == 'TEMPERATURE' .and. bAggr(i) /= error) &
-            bAggrFluxnet(i) = bAggr(i) - 273.15d0
+        if (trim(bVars(i)%nature) == 'TEMPERATURE' .and. bAggrEddyPro(i) /= error) &
+            bAggrFluxnet(i) = bAggrEddyPro(i) - 273.15d0
         !> Air pressure is converted to [kPa]
-        if (bVars(i)%fluxnet_base_name == 'PA' .and. bAggr(i) /= error) &
-            bAggrFluxnet(i) = bAggr(i) * 1d-3
+        if (bVars(i)%fluxnet_base_name == 'PA' .and. bAggrEddyPro(i) /= error) &
+            bAggrFluxnet(i) = bAggrEddyPro(i) * 1d-3
         !> VPD is converted to [hPa]
-        if (bVars(i)%fluxnet_base_name == 'VPD' .and. bAggr(i) /= error) &
-            bAggrFluxnet(i) = bAggr(i) * 1d-2
+        if (bVars(i)%fluxnet_base_name == 'VPD' .and. bAggrEddyPro(i) /= error) &
+            bAggrFluxnet(i) = bAggrEddyPro(i) * 1d-2
         !> All precipitations are converted to [mm]
-        if (trim(bVars(i)%nature) == 'PRECIPITATION' .and. bAggr(i) /= error) &
-            bAggrFluxnet(i) = bAggr(i) * 1d3
+        if (trim(bVars(i)%nature) == 'PRECIPITATION' .and. bAggrEddyPro(i) /= error) &
+            bAggrFluxnet(i) = bAggrEddyPro(i) * 1d3
         !> Snow depth is converted to [cm]
-        if (bVars(i)%fluxnet_base_name == 'SNOW_D' .and. bAggr(i) /= error) &
-            bAggrFluxnet(i) = bAggr(i) * 1d2
+        if (bVars(i)%fluxnet_base_name == 'SNOW_D' .and. bAggrEddyPro(i) /= error) &
+            bAggrFluxnet(i) = bAggrEddyPro(i) * 1d2
         !> Water table depth is converted to [cm]
-        if (bVars(i)%fluxnet_base_name == 'WATER_TABLE_DEPTH' .and. bAggr(i) /= error) &
-            bAggrFluxnet(i) = bAggr(i) * 1d2
+        if (bVars(i)%fluxnet_base_name == 'WATER_TABLE_DEPTH' .and. bAggrEddyPro(i) /= error) &
+            bAggrFluxnet(i) = bAggrEddyPro(i) * 1d2
         !> SWC is converted to [%]
-        if (bVars(i)%fluxnet_base_name == 'SWC' .and. bAggr(i) /= error) &
-            bAggrFluxnet(i) = bAggr(i) * 1d2
+        if (bVars(i)%fluxnet_base_name == 'SWC' .and. bAggrEddyPro(i) /= error) &
+            bAggrFluxnet(i) = bAggrEddyPro(i) * 1d2
         !> RUNOFF is converted to [mm]
-        if (bVars(i)%fluxnet_base_name == 'RUNOFF' .and. bAggr(i) /= error) &
-            bAggrFluxnet(i) = bAggr(i) * 1d3
+        if (bVars(i)%fluxnet_base_name == 'RUNOFF' .and. bAggrEddyPro(i) /= error) &
+            bAggrFluxnet(i) = bAggrEddyPro(i) * 1d3
         !> THROUGHFALL is converted to [mm]
-        if (bVars(i)%fluxnet_base_name == 'THROUGHFALL' .and. bAggr(i) /= error) &
-            bAggrFluxnet(i) = bAggr(i) * 1d3
+        if (bVars(i)%fluxnet_base_name == 'THROUGHFALL' .and. bAggrEddyPro(i) /= error) &
+            bAggrFluxnet(i) = bAggrEddyPro(i) * 1d3
         !> DBH is converted to [cm]
-        if (bVars(i)%fluxnet_base_name == 'DBH' .and. bAggr(i) /= error) &
-            bAggrFluxnet(i) = bAggr(i) * 1d2
+        if (bVars(i)%fluxnet_base_name == 'DBH' .and. bAggrEddyPro(i) /= error) &
+            bAggrFluxnet(i) = bAggrEddyPro(i) * 1d2
     end do
 end subroutine BiometStandardFluxnetUnits

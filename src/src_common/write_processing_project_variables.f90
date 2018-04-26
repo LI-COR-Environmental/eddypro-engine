@@ -215,7 +215,6 @@ subroutine WriteProcessingProjectVariables()
 
     !> select whether to output GHG-europe-formatted file
     EddyProProj%out_fluxnet = EPPrjCTags(19)%value(1:1) == '1'
-    EddyProProj%out_icos = EPPrjCTags(48)%value(1:1) == '1'
     EddyProProj%out_fluxnet_eddy   = EddyProProj%out_fluxnet
     EddyProProj%out_fluxnet_biomet = EddyProProj%out_fluxnet
     !> select whether to output AmeriFlux-formatted file
@@ -352,6 +351,9 @@ subroutine WriteProcessingProjectVariables()
         case default
         Meth%qcflag = 'mauder_foken_04'
     end select
+
+    !> Select whether to standardize biomets or not
+    EddyProProj%icos_standardize_biomet = EPPrjCTags(48)%value(1:1) == '1'
 
     !> main output directory, only in Desktop mode
     if (EddyProProj%run_env /= 'embedded') then

@@ -46,7 +46,7 @@ subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
     integer :: j
     integer :: i
     integer :: indx
-!    integer :: prof
+    real(kind = dbl), allocatable :: bAggrOut(:)
     character(16000) :: dataline
     character(14) :: tsIso
     include '../src_common/interfaces.inc'
@@ -770,8 +770,19 @@ subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
 
     !> All aggregated biomet values in FLUXNET units
     call AddIntDatumToDataline(nbVars, dataline, EddyProProj%err_label)
-    do i = 1, nbVars
-        call AddFloatDatumToDataline(bAggrFluxnet(i), dataline, EddyProProj%err_label)
-    end do
+    if (nbVars > 0) then
+        if (.not. allocated(bAggrOut)) allocate(bAggrOut(size(bAggr)))
+        if (EddyProProj%icos_standardize_biomet) then
+            bAggrOut = bAggrFluxnet
+        else
+            bAggrOut = bAggr
+        end if
+
+        do i = 1, nbVars
+            call AddFloatDatumToDataline(bAggrOut(i), dataline, EddyProProj%err_label)
+        end do
+
+        if (allocated(bAggrOut)) deallocate(bAggrOut)
+    end if
     write(uicos, '(a)') dataline(1:len_trim(dataline) - 1)
 end subroutine WriteIcosOutputRp
