@@ -183,6 +183,9 @@ program EddyproRP
     !> Initialize environment
     call InitEnv()
 
+    !> By detault, create ICOS output
+    EddyProProj%out_icos = .true.
+
     !> Read setup file
     call ReadIniRP('RawProcess')
     allocate(bf(Meth%spec%nbins + 1))
