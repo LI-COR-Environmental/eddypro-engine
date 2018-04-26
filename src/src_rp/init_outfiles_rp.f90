@@ -754,7 +754,7 @@ subroutine InitOutFiles_rp()
                   &U_KUR_VM97_NR,V_KUR_VM97_NR,W_KUR_VM97_NR,T_SONIC_KUR_VM97_NR,&
                   &CO2_KUR_VM97_NR,H2O_KUR_VM97_NR,CH4_KUR_VM97_NR,GS4_KUR_VM97_NR,&
                   &AOA_VM97_NR,WS_SS_ALONG_VM97,WS_SS_CROSS_VM97,WS_SS_VM97,&
-                  &VM97_SPIKES_HFLAG,VM97_ABSRES_HFLAG,VM97_DRPOUT_HFLAG,&
+                  &VM97_SPIKES_HFLAG,VM97_AMPRES_HFLAG,VM97_DRPOUT_HFLAG,&
                   &VM97_ABSLIM_HFLAG,VM97_HGHMOM_HFLAG,VM97_HGHMOM_SFLAG,&
                   &VM97_DISCON_HFLAG,VM97_DISCON_SFLAG,&
                   &VM97_TIMELAG_HFLAG,VM97_TIMELAG_SFLAG,VM97_AOA_HFLAG,VM97_NSW_HFLAG,&
@@ -817,9 +817,14 @@ subroutine InitOutFiles_rp()
 
         !> Add biomet variables
         call AddDatum(dataline, 'NUM_BIOMET_VARS', separator)
+
         if (nbVars > 0) then
             do i = 1, nbVars
-                call AddDatum(dataline, trim(bVars(i)%label), separator)
+                if (EddyProProj%icos_standardize_biomet) then
+                    call AddDatum(dataline, trim(bVars(i)%fluxnet_label), separator)
+                else
+                    call AddDatum(dataline, trim(bVars(i)%label), separator)
+                end if
             end do
         end if
 
