@@ -293,12 +293,16 @@ subroutine TestSpikeDetectionVickers97(Set, N, printout)
     end do
 
     !> Write on output variable
-    where (E2Col(u:pe)%present) 
-        Essentials%e2spikes(u:pe) = tot_spikes(u:pe)
-        Essentials%m_despiking(u:pe) = tot_spikes_sng(u:pe)
-    elsewhere
-        Essentials%e2spikes(u:pe) = ierror
-        Essentials%m_despiking(u:pe) = ierror
-    endwhere
+    if (RPsetup%filter_sr) then
+        where (E2Col(u:pe)%present) 
+            Essentials%e2spikes(u:pe) = tot_spikes(u:pe)
+            Essentials%m_despiking(u:pe) = tot_spikes_sng(u:pe)
+        elsewhere
+            Essentials%e2spikes(u:pe) = ierror
+            Essentials%m_despiking(u:pe) = ierror
+        endwhere
+    else
+        Essentials%m_despiking(u:pe) = 0
+    end if
     if (printout) write(*,'(a)') ' Done.'
 end subroutine TestSpikeDetectionVickers97
