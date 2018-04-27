@@ -451,7 +451,8 @@ subroutine WriteDatumChar(char_in, char_datum, err_label)
     character(*), intent(out) :: char_datum
     character(*), intent(in) :: err_label
 
-    if (trim(adjustl(char_in)) /= 'none' .and. trim(adjustl(char_in)) /= 'None') then
+    if (trim(adjustl(char_in)) /= 'none' .and. trim(adjustl(char_in)) /= 'None' &
+        .and. trim(adjustl(char_in)) /= '899999999') then
         char_datum = trim(adjustl(char_in))
     else
         char_datum = trim(adjustl(err_label))

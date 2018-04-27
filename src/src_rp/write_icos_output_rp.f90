@@ -49,6 +49,7 @@ subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
     real(kind = dbl), allocatable :: bAggrOut(:)
     character(16000) :: dataline
     character(14) :: tsIso
+    character(9) :: vm97flags(GHGNumVar)
     include '../src_common/interfaces.inc'
 
     !> write ICOS output file (csv) 
@@ -445,7 +446,7 @@ subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
         call AddFloatDatumToDataline(Essentials%degH(j), dataline, EddyProProj%err_label)
     end do
 
-!> QC details
+!> QC
     !>> Number or records eliminated based on custom flags
     call AddIntDatumToDataline(Essentials%m_custom_flags, dataline, EddyProProj%err_label)
     !>> Number or records eliminated based on wind direction filter
@@ -465,50 +466,60 @@ subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
     do j = u, gas4
         call AddIntDatumToDataline(Essentials%al_s(j), dataline, EddyProProj%err_label)
         end do
-    !> VM97 Stats used to calculate flags
-    !>> Spikes
-    do j = u, gas4
-        call AddIntDatumToDataline(Essentials%e2spikes(j), dataline, EddyProProj%err_label)
-        end do
-    !>> Amplitude resolution
-    do j = u, gas4
-        call AddFloatDatumToDataline(Essentials%ar_s(j), dataline, EddyProProj%err_label)
-        end do
-    !>> Dropouts central
-    do j = u, gas4
-        call AddFloatDatumToDataline(Essentials%do_s_ctr(j), dataline, EddyProProj%err_label)
-        end do
-    !>> Dropouts extremes
-    do j = u, gas4
-        call AddFloatDatumToDataline(Essentials%do_s_ext(j), dataline, EddyProProj%err_label)
-        end do
-    !>> Higher moments Skewness
-    do j = u, gas4
-        call AddFloatDatumToDataline(Essentials%sk_s_skw(j), dataline, EddyProProj%err_label)
-        end do                          
-    !>> Higher moments Kurtosis     
-    do j = u, gas4
-        call AddFloatDatumToDataline(Essentials%sk_s_kur(j), dataline, EddyProProj%err_label)
-        end do
-    !>> AoA
-    call AddFloatDatumToDataline(Essentials%aa_s, dataline, EddyProProj%err_label)
-    !>> Non-steady wind
-    call AddFloatDatumToDataline(Essentials%ns_s_rnv(1), dataline, EddyProProj%err_label)
-    call AddFloatDatumToDataline(Essentials%ns_s_rnv(2), dataline, EddyProProj%err_label)
-    call AddFloatDatumToDataline(Essentials%ns_s_rns, dataline, EddyProProj%err_label)
-    !> VM97 flags
-    call AddDatum(dataline, '8'//CharHF%sr(2:9), separator)
-    call AddDatum(dataline, '8'//CharHF%ar(2:9), separator)
-    call AddDatum(dataline, '8'//CharHF%do(2:9), separator)
-    call AddDatum(dataline, '8'//CharHF%al(2:9), separator)
-    call AddDatum(dataline, '8'//CharHF%sk(2:9), separator)
-    call AddDatum(dataline, '8'//CharSF%sk(2:9), separator)
-    call AddDatum(dataline, '8'//CharHF%ds(2:9), separator)
-    call AddDatum(dataline, '8'//CharSF%ds(2:9), separator)
-    call AddDatum(dataline, '8'//CharHF%tl(6:9), separator)
-    call AddDatum(dataline, '8'//CharSF%tl(6:9), separator)
-    call AddDatum(dataline, '8'//CharHF%aa(9:9), separator)
-    call AddDatum(dataline, '8'//CharHF%ns(9:9), separator)
+
+    !> Uncomment to reintroduce VM details
+    ! !> VM97 Stats used to calculate flags
+    ! !>> Spikes
+    ! do j = u, gas4
+    !     call AddIntDatumToDataline(Essentials%e2spikes(j), dataline, EddyProProj%err_label)
+    !     end do
+    ! !>> Amplitude resolution
+    ! do j = u, gas4
+    !     call AddFloatDatumToDataline(Essentials%ar_s(j), dataline, EddyProProj%err_label)
+    !     end do
+    ! !>> Dropouts central
+    ! do j = u, gas4
+    !     call AddFloatDatumToDataline(Essentials%do_s_ctr(j), dataline, EddyProProj%err_label)
+    !     end do
+    ! !>> Dropouts extremes
+    ! do j = u, gas4
+    !     call AddFloatDatumToDataline(Essentials%do_s_ext(j), dataline, EddyProProj%err_label)
+    !     end do
+    ! !>> Higher moments Skewness
+    ! do j = u, gas4
+    !     call AddFloatDatumToDataline(Essentials%sk_s_skw(j), dataline, EddyProProj%err_label)
+    !     end do                          
+    ! !>> Higher moments Kurtosis     
+    ! do j = u, gas4
+    !     call AddFloatDatumToDataline(Essentials%sk_s_kur(j), dataline, EddyProProj%err_label)
+    !     end do
+    ! !>> AoA
+    ! call AddFloatDatumToDataline(Essentials%aa_s, dataline, EddyProProj%err_label)
+    ! !>> Non-steady wind
+    ! call AddFloatDatumToDataline(Essentials%ns_s_rnv(1), dataline, EddyProProj%err_label)
+    ! call AddFloatDatumToDataline(Essentials%ns_s_rnv(2), dataline, EddyProProj%err_label)
+    ! call AddFloatDatumToDataline(Essentials%ns_s_rns, dataline, EddyProProj%err_label)
+
+
+    !> VM97 flags, here organized per variable instead of per test
+    do var = u, gas4
+        vm97flags(var)(1 : 1) = '8' 
+        vm97flags(var)(2 : 2) = CharHF%sr(var + 1 : var + 1)
+        vm97flags(var)(3 : 3) = CharHF%ar(var + 1 : var + 1)
+        vm97flags(var)(4 : 4) = CharHF%do(var + 1 : var + 1)
+        vm97flags(var)(5 : 5) = CharHF%al(var + 1 : var + 1)
+        vm97flags(var)(6 : 6) = CharHF%sk(var + 1 : var + 1)
+        vm97flags(var)(7 : 7) = CharSF%sk(var + 1 : var + 1)
+        vm97flags(var)(8 : 8) = CharHF%ds(var + 1 : var + 1)
+        vm97flags(var)(9 : 9) = CharSF%ds(var + 1 : var + 1)
+        call AddCharDatumToDataline(vm97flags(var), dataline, EddyProProj%err_label)
+    end do
+
+    !> Uncomment to reintroduce flags for last 3 tests
+    ! call AddDatum(dataline, '8'//CharHF%tl(6:9), separator)
+    ! call AddDatum(dataline, '8'//CharSF%tl(6:9), separator)
+    ! call AddDatum(dataline, '8'//CharHF%aa(9:9), separator)
+    ! call AddDatum(dataline, '8'//CharHF%ns(9:9), separator)
 
     !> Quality test results
     !> Foken stats used to calculate flags
@@ -539,14 +550,6 @@ subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
     call AddIntDatumToDataline(QCFlag%h2o, dataline, EddyProProj%err_label)
     call AddIntDatumToDataline(QCFlag%ch4, dataline, EddyProProj%err_label)
     call AddIntDatumToDataline(QCFlag%gas4, dataline, EddyProProj%err_label)
-    !> Number of calculated spikes per variables       ************************* Evaluate if needed (what if no spike removal selected?)
-    call AddIntDatumToDataline(Essentials%e2spikes(u), dataline, EddyProProj%err_label)
-    call AddIntDatumToDataline(Essentials%e2spikes(v), dataline, EddyProProj%err_label)
-    call AddIntDatumToDataline(Essentials%e2spikes(w), dataline, EddyProProj%err_label)
-    call AddIntDatumToDataline(Essentials%e2spikes(ts), dataline, EddyProProj%err_label)
-    do var = co2, gas4
-        call AddIntDatumToDataline(Essentials%e2spikes(var), dataline, EddyProProj%err_label)
-        end do
 
     !> LI-7x00 diagnostics breakdown
     if (Diag7200%present) then
