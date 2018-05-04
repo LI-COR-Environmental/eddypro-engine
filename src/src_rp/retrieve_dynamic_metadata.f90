@@ -469,7 +469,7 @@ subroutine FixDynamicMetadata()
                 DynamicMetadata%instr(j)%firm = 'metek'
             case('csat3', 'csat3b')
                 DynamicMetadata%instr(j)%firm = 'csi'
-            case('81000')
+            case('81000', '81000v', '81000re', '81000vre')
                 DynamicMetadata%instr(j)%firm = 'young'
             case('generic_sonic')
                 DynamicMetadata%instr(j)%firm = 'other_sonic'
