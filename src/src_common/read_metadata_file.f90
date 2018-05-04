@@ -240,7 +240,7 @@ subroutine WriteEddyProMetadataVariables(LocCol, printout)
                         Instr(i)%firm = 'metek'
                     case('csat3', 'csat3b')
                         Instr(i)%firm = 'csi'
-                    case('81000')
+                    case('81000', '81000v', '81000re', '81000vre')
                         Instr(i)%firm = 'young'
                     case('generic_sonic')
                         Instr(i)%firm = 'other_sonic'

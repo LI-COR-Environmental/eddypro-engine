@@ -82,7 +82,7 @@ subroutine RetrieveSensorParams()
             E2Col(u:ts)%Instr%vpath_length = 0.115d0
             E2Col(u:ts)%Instr%hpath_length = 0.058d0
             E2Col(u:ts)%Instr%tau = 1d0 / 60d0
-        case('81000')
+        case('81000', '81000v', '81000re', '81000vre')
             E2Col(u:ts)%Instr%vpath_length = 0.150d0
             E2Col(u:ts)%Instr%tau = 1d0 / 40d0
     end select

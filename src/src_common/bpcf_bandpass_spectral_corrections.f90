@@ -225,7 +225,7 @@ function DefaultSonicOutputRate(model)
             DefaultSonicOutputRate = 50
         case('csat3', 'csat3b')
             DefaultSonicOutputRate = 60
-        case('81000')
+        case('81000', '81000v', '81000re', '81000vre')
             DefaultSonicOutputRate = 160
         case default
             DefaultSonicOutputRate = 50
