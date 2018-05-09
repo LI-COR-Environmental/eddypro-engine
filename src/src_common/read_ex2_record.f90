@@ -83,11 +83,13 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
     !> Replace error code with -9999
     dataline = replace2(dataline, trim(EddyProProj%err_label), '-9999')
 
-    !> Read timestamp and eliminate if from dataline
-    lEx2%timestamp = dataline(1:14)
+    !> Read timestamps and eliminate them from dataline
+    lEx2%start_timestamp = dataline(1:12)
+    dataline = dataline(14: len_trim(dataline))
+    lEx2%timestamp = dataline(1:12)
     lEx2%date = lEx2%timestamp(1:4) // '-' // lEx2%timestamp(5:6) // '-' // lEx2%timestamp(7:8) 
     lEx2%time = lEx2%timestamp(9:10) // ':' // lEx2%timestamp(11:12)  
-    dataline = dataline(16: len_trim(dataline))
+    dataline = dataline(14: len_trim(dataline))
 
     !> Extract some data
     read(dataline, *, iostat = read_status) lEx2%RP, lEx2%daytime_int, lEx2%nr_theor, &
@@ -127,7 +129,7 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
         lEx2%act_tlag(h2o), lEx2%used_tlag(h2o), lEx2%nom_tlag(h2o), lEx2%min_tlag(h2o), lEx2%max_tlag(h2o),&
         lEx2%act_tlag(ch4), lEx2%used_tlag(ch4), lEx2%nom_tlag(ch4), lEx2%min_tlag(ch4), lEx2%max_tlag(ch4),&
         lEx2%act_tlag(gas4), lEx2%used_tlag(gas4), lEx2%nom_tlag(gas4), lEx2%min_tlag(gas4), lEx2%max_tlag(gas4), &
-        lEx2%stats%mean(u:gas4), lEx2%stats%median(u:gas4), lEx2%stats%Q1(u:gas4), lEx2%stats%Q3(u:gas4), &
+        lEx2%stats%median(u:gas4), lEx2%stats%Q1(u:gas4), lEx2%stats%Q3(u:gas4), &
         (lEx2%stats%Cov(var, var), var=u, gas4), lEx2%stats%Skw(u:gas4), lEx2%stats%Kur(u:gas4), &
         lEx2%stats%Cov(w, u), lEx2%stats%Cov(w, ts:gas4), lEx2%stats%Cov(co2, h2o:gas4), &
         lEx2%stats%Cov(h2o, ch4:gas4), lEx2%stats%Cov(ch4, gas4)
@@ -135,7 +137,7 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> Skip footprint (it's recalculated in FCC)
-    ix = strCharIndex(dataline, ',', 7)
+    ix = strCharIndex(dataline, ',', 8)
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> Read out Flux0 data
@@ -221,7 +223,7 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
         lEx2%instr(sonic)%hpath_length, lEx2%instr(sonic)%vpath_length, lEx2%instr(sonic)%tau, &
         lEx2%instr(ico2)%firm, lEx2%instr(ico2)%model, lEx2%instr(ico2)%nsep, lEx2%instr(ico2)%esep, &
         lEx2%instr(ico2)%vsep, lEx2%instr(ico2)%tube_l, lEx2%instr(ico2)%tube_d, &
-        lEx2%instr(ico2)%tube_f, lEx2%instr(ico2)%kw, lEx2%instr(ico2)%ko, &
+        lEx2%instr(ico2)%tube_f, &
         lEx2%instr(ico2)%hpath_length, lEx2%instr(ico2)%vpath_length, lEx2%instr(ico2)%tau, &
         lEx2%instr(ih2o)%firm, lEx2%instr(ih2o)%model, lEx2%instr(ih2o)%nsep, lEx2%instr(ih2o)%esep, &
         lEx2%instr(ih2o)%vsep, lEx2%instr(ih2o)%tube_l, lEx2%instr(ih2o)%tube_d, &
@@ -229,11 +231,11 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
         lEx2%instr(ih2o)%hpath_length, lEx2%instr(ih2o)%vpath_length, lEx2%instr(ih2o)%tau, &
         lEx2%instr(ich4)%firm, lEx2%instr(ich4)%model, lEx2%instr(ich4)%nsep, lEx2%instr(ich4)%esep, &
         lEx2%instr(ich4)%vsep, lEx2%instr(ich4)%tube_l, lEx2%instr(ich4)%tube_d, &
-        lEx2%instr(ich4)%tube_f, lEx2%instr(ich4)%kw, lEx2%instr(ich4)%ko, &
+        lEx2%instr(ich4)%tube_f, &
         lEx2%instr(ich4)%hpath_length, lEx2%instr(ich4)%vpath_length, lEx2%instr(ich4)%tau, &
         lEx2%instr(igas4)%firm, lEx2%instr(igas4)%model, lEx2%instr(igas4)%nsep, lEx2%instr(igas4)%esep, &
         lEx2%instr(igas4)%vsep, lEx2%instr(igas4)%tube_l, lEx2%instr(igas4)%tube_d, &
-        lEx2%instr(igas4)%tube_f, lEx2%instr(igas4)%kw, lEx2%instr(igas4)%ko, &
+        lEx2%instr(igas4)%tube_f, &
         lEx2%instr(igas4)%hpath_length, lEx2%instr(igas4)%vpath_length, lEx2%instr(igas4)%tau
     ix = strCharIndex(dataline, ',', 73)
     dataline = dataline(ix+1: len_trim(dataline))

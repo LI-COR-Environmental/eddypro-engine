@@ -226,6 +226,7 @@ module m_typedef
         real(kind = dbl) :: gain
         real(kind = dbl) :: offset
         character(32) :: label
+        character(32) :: pq_string
         character(32) :: fluxnet_label
         character(32) :: id
         character(32) :: base_name
@@ -518,6 +519,7 @@ module m_typedef
         logical :: use_dynmd_file
         logical :: out_full
         logical :: out_icos
+        logical :: icos_standardize_biomet
         logical :: out_fluxnet
         logical :: out_fluxnet_eddy
         logical :: out_fluxnet_biomet
@@ -1056,6 +1058,7 @@ module m_typedef
     type :: StatsType
         real(kind = dbl) :: TKE
         real(kind = dbl) :: wind_dir
+        real(kind = dbl) :: wind_dir_stdev
         real(kind = dbl) :: Mean(E2NumVar)
         real(kind = dbl) :: Cov(E2NumVar, E2NumVar)
         real(kind = dbl) :: StDev(E2NumVar)
@@ -1080,10 +1083,12 @@ module m_typedef
         logical :: daytime
         integer :: nlines
         character(32) :: Filename
+        character(10) :: start_date
         character(10) :: date
-        character(10) :: mdate
+        ! character(10) :: mdate
+        character(5) :: start_time
         character(5) :: time
-        character(5) :: mtime
+        ! character(5) :: mtime
     end type StatsType
 
     type :: UserStatsType
@@ -1263,7 +1268,8 @@ module m_typedef
 
     type ExType
         character(FilenameLen) :: fname
-        character(16) :: timestamp
+        character(12) :: start_timestamp
+        character(12) :: timestamp
         character(10) :: date
         character(5) :: time
         character(10) :: vm_flags(12)

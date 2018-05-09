@@ -352,13 +352,16 @@ module m_common_global_var
     type(BiometFileMetadataType) :: bFileMetadata
     type(BiometVarsType), allocatable :: bVars(:)
     real(kind = dbl), allocatable :: fbSet(:, :)
-    real(kind = dbl), allocatable :: bSet(:, :), auxbSet(:, :), bAggr(:)
+    real(kind = dbl), allocatable :: bSet(:, :)
+    real(kind = dbl), allocatable :: auxbSet(:, :)
+    real(kind = dbl), allocatable :: bAggr(:)
     real(kind = dbl), allocatable :: bAggrFluxnet(:)
+    real(kind = dbl), allocatable :: bAggrEddyPro(:)
     type(DateType), allocatable :: fbTs(:), auxbTs(:)
     type(DateType), allocatable :: bTs(:)
     type(BiometVarsType), parameter :: &
         nullbVar = BiometVarsType(nint(error), nint(error), nint(error), &
-            error, error, 'none', 'none', 'none', 'none', 'none', 'none', 'none', &
+            error, error, 'none', 'none', 'none', 'none', 'none', 'none', 'none', 'none', &
             'none', 'none', 'none', 'none','none')
     type(FootType), parameter :: &
         errFootprint = FootType(error, error, error, error, error, &
@@ -476,7 +479,7 @@ module m_common_global_var
          EPPrjCTags(45)%Label / 'full_sp_avail'    / &
          EPPrjCTags(46)%Label / 'hf_correct_ghg_ba'  / &
          EPPrjCTags(47)%Label / 'hf_correct_ghg_zoh' / &
-         EPPrjCTags(48)%Label / 'out_icos'          / 
+         EPPrjCTags(48)%Label / 'icos_standardize_biomet'    / 
 
     !> tags of the metadata file created by GHG software
     integer, parameter :: Nan = 884

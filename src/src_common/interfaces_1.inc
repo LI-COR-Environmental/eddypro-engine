@@ -149,11 +149,38 @@ interface
     end function
 end interface
 
-
 interface
     function strByInt(i) result(res)
         character(:),allocatable :: res
         integer,intent(in) :: i
         character(range(i)+2) :: tmp
     end function
+end interface
+
+interface 
+    subroutine AddFloatDatumToDataline(float_datum, dataline, err_label, gain, offset)
+        use m_common_global_var
+        implicit none
+        !> in/out variables
+        real(kind = dbl), intent(in) :: float_datum
+        real(kind = dbl), optional, intent(in) :: gain
+        real(kind = dbl), optional, intent(in) :: offset
+        character(*), intent(in) :: err_label
+        character(*), intent(inout) :: dataline
+        character(DatumLen) :: char_datum
+    end subroutine
+end interface
+
+interface 
+    subroutine WriteDatumFloat(float_datum, char_datum, err_label, gain, offset)
+        use m_common_global_var
+        implicit none
+        !> in/out variables
+        real(kind = dbl), intent(in) :: float_datum
+        real(kind = dbl), optional, intent(in) :: gain
+        real(kind = dbl), optional, intent(in) :: offset
+        character(*), intent(out) :: char_datum
+        character(*), intent(in) :: err_label
+        real(kind = dbl) :: val
+    end subroutine
 end interface

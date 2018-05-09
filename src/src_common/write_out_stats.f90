@@ -42,6 +42,7 @@ subroutine WriteOutStats(unt, LocStats, string, N)
     integer :: j = 0
     character(LongOutstringLen) :: dataline
     character(DatumLen) :: datum = ''
+    include '../src_common/interfaces.inc'
 
 
     call clearstr(dataline)

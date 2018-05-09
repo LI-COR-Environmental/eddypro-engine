@@ -81,9 +81,8 @@ subroutine WriteBiometMetaVariables(skip_file)
     integer :: ix
     integer :: nbTimestamp
     character(32) :: label
-
     logical, external :: BiometValidateVar
-    character(32), external :: biometBaseName
+
 
     !> File general features
     skip_file = .false.
@@ -138,6 +137,8 @@ subroutine WriteBiometMetaVariables(skip_file)
     allocate(bAggr(nbVars))
     if (allocated(bAggrFluxnet)) deallocate(bAggrFluxnet)
     allocate(bAggrFluxnet(nbVars))
+    if (allocated(bAggrEddyPro)) deallocate(bAggrEddyPro)
+    allocate(bAggrEddyPro(nbVars))
     bVars = nullbVar
 
     !> Variables description
@@ -184,7 +185,9 @@ subroutine WriteBiometMetaVariables(skip_file)
                 if (len_trim(bVars(cnt)%label) == 0) bVars(cnt)%label = 'UNNAMED'
 
                 !> Retrieve variable base name
-                bVars(cnt)%base_name = biometBaseName(bVars(cnt)%label)
+                call biometBaseNameAndPositionalQualifierFromLabel(bVars(cnt)%label, &
+                    bVars(cnt)%base_name, bVars(cnt)%pq_string)
+
            end if
         end if
     end do
@@ -200,9 +203,11 @@ subroutine WriteBiometMetaVariables(skip_file)
     end if
     bFileMetadata%numTsCol = tsCnt
 
-    !> Append suffix if variables have not
-    call BiometAppendReplicateSuffix()
-
     !> Fill variables information based on label and other available fields
     call BiometEnrichVarsDescription()
+
+    ! !> Append suffix if variables have not
+    ! if (EddyProProj%icos_standardize_biomet) &
+    !     call BiometAppendDefaultPositionalQualifier()
+
 end subroutine WriteBiometMetaVariables

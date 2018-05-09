@@ -41,6 +41,7 @@ subroutine WriteOutUserStats(unt, string, N, AddHeader)
     integer :: j = 0
     character(LongOutstringLen) :: dataline
     character(DatumLen) :: datum = ''
+    include '../src_common/interfaces.inc'
 
 
     if (AddHeader) then

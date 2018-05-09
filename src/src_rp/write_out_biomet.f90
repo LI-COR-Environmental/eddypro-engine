@@ -42,7 +42,7 @@ subroutine WriteOutBiomet(init_string, embedded)
     character(len=len(init_string)) :: prefix
     character(64) :: tmp_init_string
     character(14) :: iso_basic
-
+    include '../src_common/interfaces.inc'
 
     !>==========================================================================
     !> EddyPro's BIOMET output
@@ -58,7 +58,7 @@ subroutine WriteOutBiomet(init_string, embedded)
         call AddDatum(dataline, trim(adjustl(prefix)), separator)
 
         do i = 1, nbVars
-            call WriteDatumFloat(bAggr(i), datum, EddyProProj%err_label)
+            call WriteDatumFloat(bAggrEddyPro(i), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         end do
         write(ubiomet, '(a)') dataline(1:len_trim(dataline) - 1)

@@ -202,5 +202,12 @@ subroutine TestAbsoluteLimits(Set, N, printout)
         IntHF%al = IntHF%al + hflags(j) * (10**(gas4 - j))
     end do
 
+
+    if (RPsetup%filter_al) then
+        where (E2Col(u:gas4)%present)
+            Essentials%al_s(u:gas4) = 0
+        end where
+    end if
+
     if (printout) write(*,'(a)') ' Done.'
 end subroutine TestAbsoluteLimits

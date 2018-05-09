@@ -183,6 +183,9 @@ program EddyproRP
     !> Initialize environment
     call InitEnv()
 
+    !> By detault, create ICOS output
+    EddyProProj%out_icos = .true.
+
     !> Read setup file
     call ReadIniRP('RawProcess')
     allocate(bf(Meth%spec%nbins + 1))
@@ -236,6 +239,8 @@ program EddyproRP
     !> If running in embedded mode, override some settings
     if (EddyProProj%run_env == 'embedded') call ConfigureForEmbedded()
     if (EddyProProj%run_env == 'embedded') RPsetup%out_st = .false.
+
+    EddyProProj%out_essentials = .false.                 !***********************   Replace this by eliminating essentials file entirely when ICOS format is stable
 
     !> Create output directory if it does not exist, otherwise is silent
     mkdir_status = CreateDir('"' //trim(adjustl(Dir%main_out)) // '"')
@@ -799,9 +804,8 @@ program EddyproRP
 
             allocate(toH2On(TOSetup%h2o_nclass))
 
-!> Improve readability of this subroutine interface
-            !> Optimize time-lags
-            call OptimizeTimelags(toSet, size(toSet), tlagn, E2NumVar, toH2On, &
+            !> Optimize time-lags                                        ******* Improve readability of this subroutine interface
+            call OptimizeTimelags(toSet, size(toSet), tlagn, E2NumVar, toH2On, & 
                 TOSetup%h2o_nclass, TOSetup%h2o_class_size)
 
             !> Write time-lag optimization results on output file
@@ -1488,6 +1492,7 @@ program EddyproRP
 
         !> Associate timestamp of end of the period to current Stats
         call DateTypeToDateTime(tsStart, date, time)
+        call DateTypeToDateTime(tsStart, Stats%start_date, Stats%start_time)
         call DateTypeToDateTime(tsEnd, Stats%date, Stats%time)
 
         !> Some logging
@@ -1503,8 +1508,8 @@ program EddyproRP
 
         !> Define initial part of each output string
         call DateTimeToDOY(Stats%date, Stats%time, int_doy, float_doy)
-
         call WriteDatumFloat(float_doy, char_doy, EddyProProj%err_label)
+
         call ShrinkString(char_doy)
         suffixOutString =  trim(Stats%date) // ',' // trim(Stats%time) &
                    // ',' // char_doy(1: index(char_doy, '.')+ 3)

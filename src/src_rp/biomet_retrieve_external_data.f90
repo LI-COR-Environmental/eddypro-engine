@@ -146,11 +146,14 @@ subroutine BiometRetrieveExternalData(bFileList, bnFiles, bLastFile, &
         if (printout) write(*, '(a)') '   ' // trim(adjustl(LogInteger )) &
             // ' biomet record(s) imported.'
 
+        !> Calculate mean values of biomet over the averaging interval
+        call BiometAggregate(bSet, size(bSet, 1), size(bSet, 2), bAggr)
+
         !> Convert data to standard units
         call BiometStandardEddyProUnits()
 
         !> Calculate mean values of biomet over the averaging interval
-        call BiometAggregate(bSet, size(bSet, 1), size(bSet, 2), bAggr)
+        call BiometAggregate(bSet, size(bSet, 1), size(bSet, 2), bAggrEddyPro)
 
         !> Convert aggregated values to FLUXNET units
         call BiometStandardFluxnetUnits()
@@ -160,7 +163,7 @@ subroutine BiometRetrieveExternalData(bFileList, bnFiles, bLastFile, &
 
     !> Associate values to variables, as selected by user
     do i = bTa, bRg
-        if (bSetup%sel(i) > 0) biomet%val(i) = bAggr(bSetup%sel(i))
+        if (bSetup%sel(i) > 0) biomet%val(i) = bAggrEddyPro(bSetup%sel(i))
     end do
     if (printout) write(*,'(a)') '  Done.'
 

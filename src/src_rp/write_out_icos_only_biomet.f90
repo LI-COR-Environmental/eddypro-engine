@@ -36,31 +36,24 @@ subroutine WriteOutIcosOnlyBiomet()
     !> local variables
     integer :: i
     character(LongOutstringLen) :: dataline
-    character(DatumLen) :: datum
-    character(64) :: tmp_init_string
-    character(14) :: iso_basic
+    character(14) :: tsIso
+    real(kind = dbl), allocatable :: bAggrOut(:)
     include '../src_common/interfaces.inc'
 
     !> write Essentials output file (csv) for communication
     !> with Fluxes
     call clearstr(dataline)
 
-    !> Timestamp
-    iso_basic = Stats%date(1:4) // Stats%date(6:7) // Stats%date(9:10) &
-                // Stats%time(1:2) // Stats%time(4:5) // '00'
-    call AddDatum(dataline, trim(adjustl(iso_basic)), separator)
-
-    ! !> Timestamp
-    ! tmp_init_string = &
-    !     init_string(index(init_string, ',') +1: &
-    !                 index(init_string, ',', .true.) - 1)
-    ! iso_basic = tmp_init_string(1:4) // tmp_init_string(6:7) &
-    !     // tmp_init_string(9:10) // tmp_init_string(12:13)  &
-    !     // tmp_init_string(15:16) // '00'
-    ! call AddDatum(dataline, trim(adjustl(iso_basic)), separator)
+    !> Start/end imestamps
+    tsIso = Stats%start_date(1:4) // Stats%start_date(6:7) // Stats%start_date(9:10) &
+                // Stats%start_time(1:2) // Stats%start_time(4:5)
+    call AddDatum(dataline, trim(adjustl(tsIso)), separator)
+    tsIso = Stats%date(1:4) // Stats%date(6:7) // Stats%date(9:10) &
+                // Stats%time(1:2) // Stats%time(4:5)
+    call AddDatum(dataline, trim(adjustl(tsIso)), separator)
 
     !> Write error codes in place of fixed columns
-    do i = 1, 483
+    do i = 1, 407
         call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
     end do
     !> Write error codes in place of custom variables
@@ -69,12 +62,19 @@ subroutine WriteOutIcosOnlyBiomet()
     end do
 
     !> write all aggregated biomet values in FLUXNET units
-    write(datum, *) nbVars
-    call AddDatum(dataline, datum, separator)
-    do i = 1, nbVars
-        call WriteDatumFloat(bAggrFluxnet(i), datum, '-9999.')
-        call AddDatum(dataline, datum, separator)
-    end do
+    call AddIntDatumToDataline(nbVars, dataline, EddyProProj%err_label)
+    if (nbVars > 0) then
+        if (.not. allocated(bAggrOut)) allocate(bAggrOut(size(bAggr)))
+        if (EddyProProj%icos_standardize_biomet) then
+            bAggrOut = bAggrFluxnet
+        else
+            bAggrOut = bAggr
+        end if
+
+        do i = 1, nbVars
+            call AddFloatDatumToDataline(bAggrOut(i), dataline, EddyProProj%err_label)
+        end do
+    end if
     write(uicos, '(a)') dataline(1:len_trim(dataline) - 1)
 
 end subroutine WriteOutIcosOnlyBiomet

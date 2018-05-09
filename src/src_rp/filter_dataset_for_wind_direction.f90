@@ -44,7 +44,7 @@ subroutine FilterDatasetForWindDirection(Set, nrow, ncol)
     do i = 1, nrow
         if (any(Set(i, u:w) == error)) cycle
         !> Instantaneous wind direction
-        call WindDirection(Set(i, u:w), &
+        call SingleWindDirection(Set(i, u:w), &
             E2Col(u)%instr%north_offset + magnetic_declination, WD)
 
         !> Set record to error if wind is coming from an excluded sector
