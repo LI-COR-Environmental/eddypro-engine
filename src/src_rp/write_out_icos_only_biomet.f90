@@ -35,6 +35,10 @@ subroutine WriteOutIcosOnlyBiomet()
     implicit none
     !> local variables
     integer :: i
+    integer :: indx
+    integer :: int_doy
+    real(kind = dbl) :: float_doy
+    character(32) :: char_doy
     character(LongOutstringLen) :: dataline
     character(14) :: tsIso
     real(kind = dbl), allocatable :: bAggrOut(:)
@@ -52,8 +56,29 @@ subroutine WriteOutIcosOnlyBiomet()
                 // Stats%time(1:2) // Stats%time(4:5)
     call AddDatum(dataline, trim(adjustl(tsIso)), separator)
 
+    !> DOYs
+    !>  Start
+    call DateTimeToDOY(Stats%start_date, Stats%start_time, int_doy, float_doy)
+    write(char_doy, *) float_doy
+    call AddDatum(dataline, trim(adjustl(char_doy(1: index(char_doy, '.')+ 4))), separator)
+    !>  End
+    call DateTimeToDOY(Stats%date, Stats%time, int_doy, float_doy)
+    write(char_doy, *) float_doy
+    call AddDatum(dataline, trim(adjustl(char_doy(1: index(char_doy, '.')+ 4))), separator)
+
+    !> Potential Radiations
+    indx = DateTimeToHalfHourNumber(Stats%date, Stats%time)
+    call AddFloatDatumToDataline(PotRad(indx), dataline, EddyProProj%err_label)
+
+    !> Daytime
+    if (Stats%daytime) then
+        call AddDatum(dataline, '0', separator)
+    else
+        call AddDatum(dataline, '1', separator)
+    endif
+
     !> Write error codes in place of fixed columns
-    do i = 1, 407
+    do i = 1, 405
         call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
     end do
     !> Write error codes in place of custom variables

@@ -37,7 +37,7 @@ subroutine BiometEnrichVarsDescription()
     !> Local variables
     integer :: i
     character(32) :: base_name
-    character(32) :: qPos
+    ! character(32) :: qPos
     character(32), external :: positionalQualifier
 
 

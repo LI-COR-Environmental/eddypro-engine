@@ -50,7 +50,7 @@ subroutine CreateDatasetsCommon(TimeSeries, nrow, StartIndx, EndIndx)
         write(*,'(a)', advance = 'no') '  Creating Full Output dataset..'
         call MakeDataset(FullOut_Path(1:len_trim(FullOut_Path)), &
             TimeSeries, size(TimeSeries), &
-            StartIndx, EndIndx, .false., 3)
+            StartIndx, EndIndx, .true., 3)
         write(*,'(a)') ' Done.'
     end if
 

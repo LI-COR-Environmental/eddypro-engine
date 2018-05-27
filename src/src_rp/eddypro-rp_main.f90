@@ -1508,11 +1508,10 @@ program EddyproRP
 
         !> Define initial part of each output string
         call DateTimeToDOY(Stats%date, Stats%time, int_doy, float_doy)
-        call WriteDatumFloat(float_doy, char_doy, EddyProProj%err_label)
-
+        write(char_doy, *) float_doy
         call ShrinkString(char_doy)
         suffixOutString =  trim(Stats%date) // ',' // trim(Stats%time) &
-                   // ',' // char_doy(1: index(char_doy, '.')+ 3)
+                   // ',' // char_doy(1: index(char_doy, '.')+ 4)
 
         !> Only for external biomet files: retrieve biomet data for current
         !> period and write on output. Even if current period is skipped,
@@ -1689,7 +1688,7 @@ program EddyproRP
             call OverrideSettings()
 
             !> Determine whether it is day or night-time,
-            call AssessDayTime(date, time)
+            call AssessDayTime(Stats%date, Stats%time)
 
             !*******************************************************************
             !**** DATASET DEFINITION FINISHES HERE. ****************************

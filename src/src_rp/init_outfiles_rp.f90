@@ -178,9 +178,9 @@ subroutine InitOutFiles_rp()
 
         if (.not. EddyProProj%fix_out_format) then
             !> Initial file and timestamp info
-            call AddDatum(header1,'file_info,,,,,', separator)
-            call AddDatum(header2,'date,time,DOY,daytime,file_records,used_records', separator)
-            call AddDatum(header3,'[yyyy-mm-dd],[HH:MM],[ddd.ddd],[1=daytime],[#],[#]', separator)
+            call AddDatum(header1,'file_info,,,,,,', separator)
+            call AddDatum(header2,'filename,date,time,DOY,daytime,file_records,used_records', separator)
+            call AddDatum(header3,',[yyyy-mm-dd],[HH:MM],[ddd.ddd],[1=daytime],[#],[#]', separator)
 
             !> Corrected fluxes (Level 3) and quality flags
             !> Tau
@@ -692,7 +692,7 @@ subroutine InitOutFiles_rp()
         open(uicos, file = ICOS_Path, iostat = open_status, encoding = 'utf-8')
 
         call clearstr(dataline)
-        dataline = 'TIMESTAMP_START,TIMESTAMP_END,SW_IN_POT,NIGHT,EXPECT_NR,&
+        dataline = 'TIMESTAMP_START,TIMESTAMP_END,DOY_START,DOY_END,SW_IN_POT,NIGHT,EXPECT_NR,&
                   &FILE_NR,CUSTOM_FILTER_NR,WD_FILTER_NR,SONIC_NR,T_SONIC_NR,CO2_NR,H2O_NR,CH4_NR,GS4_NR,&
                   &TAU_NR,H_NR,FC_NR,LE_NR,FCH4_NR,FGS4_NR,&
                   &TAU,H,LE,FC,FH2O,FCH4,FGS4,TAU_RANDUNC_HF,H_RANDUNC_HF,LE_RANDUNC_HF,&
