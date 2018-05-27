@@ -203,7 +203,7 @@ subroutine AddErrorString(unt, Timestamp, ErrString, LenErrStr, &
     !> Convert Timestamp to date and time and calculate doy
     call DateTypeToDateTime(Timestamp, date, time)
     call DateTimeToDOY(date, time, int_doy, float_doy)
-    write(char_doy, *) float_doy
+    write(char_doy, '(G20.7)') float_doy
     call ShrinkString(char_doy)
 
     !> Create output string
