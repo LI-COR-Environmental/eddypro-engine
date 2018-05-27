@@ -1688,7 +1688,7 @@ program EddyproRP
             call OverrideSettings()
 
             !> Determine whether it is day or night-time,
-            call AssessDayTime(date, time)
+            call AssessDayTime(Stats%date, Stats%time)
 
             !*******************************************************************
             !**** DATASET DEFINITION FINISHES HERE. ****************************
