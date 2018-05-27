@@ -46,8 +46,11 @@ subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
     integer :: j
     integer :: i
     integer :: indx
+    integer :: int_doy
+    real(kind = dbl) :: float_doy
     real(kind = dbl), allocatable :: bAggrOut(:)
     character(16000) :: dataline
+    character(32) :: char_doy
     character(14) :: tsIso
     character(9) :: vm97flags(GHGNumVar)
     include '../src_common/interfaces.inc'
@@ -62,6 +65,18 @@ subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
     tsIso = Stats%date(1:4) // Stats%date(6:7) // Stats%date(9:10) &
                 // Stats%time(1:2) // Stats%time(4:5)
     call AddDatum(dataline, trim(adjustl(tsIso)), separator)
+
+    !> DOYs
+    !>  Start
+    call DateTimeToDOY(Stats%start_date, Stats%start_time, int_doy, float_doy)
+    write(char_doy, *) float_doy
+    call AddDatum(dataline, trim(adjustl(char_doy(1: index(char_doy, '.')+ 4))), separator)
+    print*, trim(dataline)
+    !>  End
+    call DateTimeToDOY(Stats%date, Stats%time, int_doy, float_doy)
+    write(char_doy, *) float_doy
+    call AddDatum(dataline, trim(adjustl(char_doy(1: index(char_doy, '.')+ 4))), separator)
+    print*, trim(dataline)
 
     !> Potential Radiations
     indx = DateTimeToHalfHourNumber(Stats%date, Stats%time)

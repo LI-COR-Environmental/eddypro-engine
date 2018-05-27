@@ -35,6 +35,9 @@ subroutine WriteOutIcosOnlyBiomet()
     implicit none
     !> local variables
     integer :: i
+    integer :: int_doy
+    real(kind = dbl) :: float_doy
+    character(32) :: char_doy
     character(LongOutstringLen) :: dataline
     character(14) :: tsIso
     real(kind = dbl), allocatable :: bAggrOut(:)
@@ -51,6 +54,16 @@ subroutine WriteOutIcosOnlyBiomet()
     tsIso = Stats%date(1:4) // Stats%date(6:7) // Stats%date(9:10) &
                 // Stats%time(1:2) // Stats%time(4:5)
     call AddDatum(dataline, trim(adjustl(tsIso)), separator)
+
+    !> DOYs
+    !>  Start
+    call DateTimeToDOY(Stats%start_date, Stats%start_time, int_doy, float_doy)
+    write(char_doy, *) float_doy
+    call AddDatum(dataline, trim(adjustl(char_doy(1: index(char_doy, '.')+ 4))), separator)
+    !>  End
+    call DateTimeToDOY(Stats%date, Stats%time, int_doy, float_doy)
+    write(char_doy, *) float_doy
+    call AddDatum(dataline, trim(adjustl(char_doy(1: index(char_doy, '.')+ 4))), separator)
 
     !> Write error codes in place of fixed columns
     do i = 1, 407
