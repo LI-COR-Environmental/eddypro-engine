@@ -566,7 +566,7 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, &
     if (EddyProProj%out_full) then
         !> Preliminary file and timestamp information
         call clearstr(dataline)
-        call AddDatum(dataline, init_string(index(init_string, ',')+1:len_trim(init_string)), separator)
+        call AddDatum(dataline, trim(adjustl(init_string)), separator)
         if (Stats%daytime) then
             call AddDatum(dataline, '1', separator)
         else

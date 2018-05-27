@@ -122,7 +122,6 @@ subroutine MakeDataset(PathIn, MasterTimeSeries, nrow, StartIndx, &
             !> beginning of the averaging period
             call DateTimeToDateType(fdate, ftime, fTimestamp)
             fTimestamp = fTimestamp - DateStep
-
             if (MasterTimeSeries(i) > fTimestamp + DateStep) then
                 call AddErrorString(udf2, MasterTimeSeries(i), &
                     ErrString, len(ErrString), &
@@ -204,7 +203,7 @@ subroutine AddErrorString(unt, Timestamp, ErrString, LenErrStr, &
     !> Convert Timestamp to date and time and calculate doy
     call DateTypeToDateTime(Timestamp, date, time)
     call DateTimeToDOY(date, time, int_doy, float_doy)
-    call WriteDatumFloat(float_doy, char_doy, EddyProProj%err_label)
+    write(char_doy, *) float_doy
     call ShrinkString(char_doy)
 
     !> Create output string
@@ -226,6 +225,5 @@ subroutine AddErrorString(unt, Timestamp, ErrString, LenErrStr, &
 
     !> write on file
     write(unt, '(a)') trim(adjustl(dataline))
-
 
 end subroutine AddErrorString
