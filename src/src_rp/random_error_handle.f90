@@ -55,6 +55,8 @@ subroutine RandomUncertaintyHandle(Set, nrow, ncol)
             call RU_Finkelstein_Sims_01(Set, nrow, ncol)
         case('mann_lenschow_94')
             call RU_Mann_Lenschow_04(nrow)
+        case('mahrt_98')
+            call RU_Mahrt_98(Set, nrow, ncol)
         case('tbd')
             !call RE_Lenschow(Set, nrow, ncol)
         case default
@@ -188,6 +190,76 @@ subroutine RU_Mann_Lenschow_04(N)
         end if
     end do
 end subroutine RU_Mann_Lenschow_04
+
+
+!***************************************************************************
+!
+! \brief       Estimate random error according to \n
+!              Mahrt (1998), Eqs. 8 - 9
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+subroutine RU_Mahrt_98(Set, nrow, ncol)
+    use m_rp_global_var
+    implicit none
+    !> in/out variables
+    integer, intent(in) :: nrow
+    integer, intent(in) :: ncol
+    real(kind = dbl), intent(in) :: Set(nrow, ncol)
+    !> local variables
+    integer :: i
+    integer :: j
+    integer :: Ni
+    integer :: Nj
+    integer, parameter :: nrec = 6
+    integer, parameter :: nsubrec = 6
+    real(kind = dbl) :: cov(GHGNumVar, GHGNumVar)
+    real(kind = dbl)  :: ssCov(nsubrec, GHGNumVar)
+    real(kind = dbl)  :: ssMeanCov(GHGNumVar)
+    real(kind = dbl) :: SumSq(GHGNumVar)
+    real(kind = dbl) :: stdev_wi(nrec, GHGNumVar)
+    real(kind = dbl), allocatable :: sSet(:, :)
+    real(kind = dbl), allocatable :: ssSet(:, :)
+
+
+    Ni = nrow / nrec
+    Nj = Ni / nsubrec
+    if (.not. allocated(sSet)) allocate(sSet(Ni, GHGNumVar))
+    do i = 1, nrec
+        sSet(:, :) = Set(Ni * (i-1) + 1: Ni * i, 1:GHGNumVar)
+        !> Compute covariance matrices on sub-sub-periods
+        do j = 1, nsubrec
+            if (.not. allocated(ssSet)) allocate(ssSet(Nj, GHGNumVar))
+            ssSet(:, :) = sSet(Nj * (j-1) + 1: Nj * j, :)
+            call CovarianceMatrixNoError(ssSet, size(ssSet, 1), size(ssSet, 2), cov, error)
+            ssCov(j, :) = cov(w, :)
+            if (allocated(ssSet)) deallocate(ssSet)
+        end do
+
+        !> Mean of covariances on sub-sub-periods, per variable, per sub-period
+        call AverageNoError(ssCov, nsubrec, GHGNumVar, ssMeanCov, error)
+
+        !> Sum of squares of residuals, per variable, per sub-period
+        do j = 1, nsubrec
+            where (ssCov(j, :) /= error)
+            SumSq(:) = SumSq(:) + (ssCov(j, :) - ssMeanCov(:))**2
+            end where
+        end do
+
+        !> Standard deviation within, per variable, per sub-period
+        stdev_wi(i, :) = dsqrt(SumSq(:) / (Nj - 1))
+    end do
+
+    if (allocated(sSet)) deallocate(sSet)
+
+    stop
+
+end subroutine RU_Mahrt_98    
 
 !***************************************************************************
 !

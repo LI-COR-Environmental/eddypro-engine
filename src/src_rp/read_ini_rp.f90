@@ -560,6 +560,8 @@ subroutine WriteVariablesRP()
         case(2)
             RUsetup%meth = 'mann_lenschow_94'
         case(3)
+            RUsetup%meth = 'mahrt_98'
+        case(4)
             RUsetup%meth = 'tbd'
         case default
             RUsetup%meth = 'none'
