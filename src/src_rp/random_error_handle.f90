@@ -216,13 +216,18 @@ subroutine RU_Mahrt_98(Set, nrow, ncol)
     integer :: j
     integer :: Ni
     integer :: Nj
+    integer :: var
     integer, parameter :: nrec = 6
     integer, parameter :: nsubrec = 6
-    real(kind = dbl) :: cov(GHGNumVar, GHGNumVar)
-    real(kind = dbl)  :: ssCov(nsubrec, GHGNumVar)
-    real(kind = dbl)  :: ssMeanCov(GHGNumVar)
-    real(kind = dbl) :: SumSq(GHGNumVar)
-    real(kind = dbl) :: stdev_wi(nrec, GHGNumVar)
+    real(kind = dbl) :: covmat(GHGNumVar, GHGNumVar)
+    real(kind = dbl)  :: Fij(nsubrec, GHGNumVar)
+    real(kind = dbl)  :: Fijs(nrec * nsubrec, GHGNumVar)
+    real(kind = dbl)  :: Fi_bar(GHGNumVar)
+    real(kind = dbl)  :: Fi_bars(nrec, GHGNumVar)
+    real(kind = dbl)  :: F_bar(GHGNumVar)
+    real(kind = dbl) :: SumSquares(GHGNumVar)
+    real(kind = dbl) :: sigma_wis(nrec, GHGNumVar)
+    real(kind = dbl) :: sigma_btw(GHGNumVar)
     real(kind = dbl), allocatable :: sSet(:, :)
     real(kind = dbl), allocatable :: ssSet(:, :)
 
@@ -236,28 +241,51 @@ subroutine RU_Mahrt_98(Set, nrow, ncol)
         do j = 1, nsubrec
             if (.not. allocated(ssSet)) allocate(ssSet(Nj, GHGNumVar))
             ssSet(:, :) = sSet(Nj * (j-1) + 1: Nj * j, :)
-            call CovarianceMatrixNoError(ssSet, size(ssSet, 1), size(ssSet, 2), cov, error)
-            ssCov(j, :) = cov(w, :)
+            call CovarianceMatrixNoError(ssSet, size(ssSet, 1), size(ssSet, 2), covmat, error)
+            Fij(j, :) = covmat(w, :)
             if (allocated(ssSet)) deallocate(ssSet)
         end do
 
-        !> Mean of covariances on sub-sub-periods, per variable, per sub-period
-        call AverageNoError(ssCov, nsubrec, GHGNumVar, ssMeanCov, error)
+        !> Mean of covariances on sub-sub-periods, per variable, per sub-period, F(i)bar in Eq. 8
+        call AverageNoError(Fij, nsubrec, GHGNumVar, Fi_bar, error)
 
-        !> Sum of squares of residuals, per variable, per sub-period
+        !> Accumulate covariances on sub-sub-records, needed to compute Fbar in Eq. 10
+        Fijs(nsubrec * (i-1) + 1: nsubrec * i, :) = Fij(:, :)
+
+        !> Accumulate mean covariances, per superiod, needed in Eq. 10
+        Fi_bars(i, :) = Fi_bar(:)
+
+        !> Sum of squares of residuals, per variable, per sub-period, Eq. 8
+        SumSquares = 0d0
         do j = 1, nsubrec
-            where (ssCov(j, :) /= error)
-            SumSq(:) = SumSq(:) + (ssCov(j, :) - ssMeanCov(:))**2
-            end where
+            SumSquares(:) = SumSquares(:) + (Fij(j, :) - Fi_bar(:))**2
         end do
 
-        !> Standard deviation within, per variable, per sub-period
-        stdev_wi(i, :) = dsqrt(SumSq(:) / (Nj - 1))
+        !> Standard deviation within, per variable, per sub-period, sig_wi(i) in Eq. 8
+        sigma_wis(i, :) = dsqrt(SumSquares(:) / (nsubrec - 1))
+    end do
+    if (allocated(sSet)) deallocate(sSet)
+    
+    !> Mean of covariances on sub-sub-periods and sub-periods, per variable, Fbar in Eq. 10
+    call AverageNoError(Fijs, nrec * nsubrec, GHGNumVar, F_bar, error)
+
+    !> Random errore RE, Eq. 9
+    do var = u, gas4
+        if (E2Col(var)%present) then
+            Essentials%rand_uncer(var) = sum(sigma_wis(:, var)) / nrec / sqrt(float(nsubrec))
+        else
+            Essentials%rand_uncer(var) = error
+        end if
     end do
 
-    if (allocated(sSet)) deallocate(sSet)
+    !> Sum of squares of residuals, per variable, Eq. 10
+    SumSquares = 0d0
+    do i = 1, nrec
+        SumSquares(:) = SumSquares(:) + (Fi_bars(i, :) - F_bar(:))**2
+    end do
 
-    stop
+    !> Between-records standard deviation, sig_btw in Eq. 10
+    sigma_btw = dsqrt(SumSquares(:) / (nrec - 1))
 
 end subroutine RU_Mahrt_98    
 
