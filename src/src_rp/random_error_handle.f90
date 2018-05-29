@@ -36,33 +36,27 @@ subroutine RandomUncertaintyHandle(Set, nrow, ncol)
     integer, intent(in) :: nrow, ncol
     real(kind = dbl), intent(in) :: Set(nrow, ncol)
 
-    if (RUsetup%meth == 'none') then
-        Essentials%rand_uncer = aflx_error
-        Essentials%rand_uncer_LE = aflx_error
-        return
-    end if
 
     write(*, '(a)') '  Estimating random uncertainty..'
 
-    !> Calculate Integral turbulence scale
-    call IntegralTurbulenceScale(Set, size(Set, 1), size(Set, 2))
-
     !> Calculate random uncertainty
-    Essentials%rand_uncer(u:gas4) = error
-    Essentials%rand_uncer_LE = error
     select case (RUsetup%meth)
         case('finkelstein_sims_01')
+            call IntegralTurbulenceScale(Set, size(Set, 1), size(Set, 2))
             call RU_Finkelstein_Sims_01(Set, nrow, ncol)
         case('mann_lenschow_94')
+            call IntegralTurbulenceScale(Set, size(Set, 1), size(Set, 2))
             call RU_Mann_Lenschow_04(nrow)
+        case('none')
+            Essentials%rand_uncer(u:gas4) = error
+            Essentials%rand_uncer_LE = error
         case('mahrt_98')
-            call RU_Mahrt_98(Set, nrow, ncol)
-        case('tbd')
-            !call RE_Lenschow(Set, nrow, ncol)
+            !> Mahrt has been calculated already, so don't need to do anything
+            continue
         case default
             call ExceptionHandler(42)
-            Essentials%rand_uncer(u:gas4) = aflx_error
-            Essentials%rand_uncer_LE = aflx_error
+            Essentials%rand_uncer(u:gas4) = error
+            Essentials%rand_uncer_LE = error
             return
     end select
     write(*, '(a)') '  Done.'
@@ -228,9 +222,9 @@ subroutine RU_Mahrt_98(Set, nrow, ncol)
     real(kind = dbl) :: SumSquares(GHGNumVar)
     real(kind = dbl) :: sigma_wis(nrec, GHGNumVar)
     real(kind = dbl) :: sigma_btw(GHGNumVar)
+    real(kind = dbl) :: NR(GHGNumVar)
     real(kind = dbl), allocatable :: sSet(:, :)
     real(kind = dbl), allocatable :: ssSet(:, :)
-
 
     Ni = nrow / nrec
     Nj = Ni / nsubrec
@@ -287,6 +281,12 @@ subroutine RU_Mahrt_98(Set, nrow, ncol)
     !> Between-records standard deviation, sig_btw in Eq. 10
     sigma_btw = dsqrt(SumSquares(:) / (nrec - 1))
 
+    !> Non stationarity ratio
+    where (E2Col(u:GHGNumVar)%present)
+        Essentials%mahrt98_NR(:) = sigma_btw(:) / Essentials%rand_uncer(u:gas4)
+    else where
+        Essentials%mahrt98_NR(:) = error
+    end where
 end subroutine RU_Mahrt_98    
 
 !***************************************************************************

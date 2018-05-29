@@ -120,47 +120,13 @@ subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
     call AddFloatDatumToDataline(Flux3%gas4, dataline, EddyProProj%err_label, gain=1d3, offset=0d0)
 
     !> Flux random uncertainties
-    if (Essentials%rand_uncer(u) == aflx_error) then
-        call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
-    else
-        call AddFloatDatumToDataline(Essentials%rand_uncer(u), dataline, EddyProProj%err_label)
-        end if
-
-    if (Essentials%rand_uncer(ts) == aflx_error) then
-        call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
-    else
-        call AddFloatDatumToDataline(Essentials%rand_uncer(ts), dataline, EddyProProj%err_label)
-        end if
-
-    if (Essentials%rand_uncer_LE == aflx_error) then
-        call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
-    else
-        call AddFloatDatumToDataline(Essentials%rand_uncer_LE, dataline, EddyProProj%err_label)
-        end if
-
-    if (Essentials%rand_uncer(co2) == aflx_error) then
-        call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
-    else
-        call AddFloatDatumToDataline(Essentials%rand_uncer(co2), dataline, EddyProProj%err_label)
-        end if
-
-    if (Essentials%rand_uncer(h2o) == aflx_error) then
-        call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
-    else
-        call AddFloatDatumToDataline(Essentials%rand_uncer(h2o), dataline, EddyProProj%err_label)
-        end if
-
-    if (Essentials%rand_uncer(ch4) == aflx_error) then
-        call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
-    else
-        call AddFloatDatumToDataline(Essentials%rand_uncer(ch4) * 1d3, dataline, EddyProProj%err_label)
-        end if
-
-    if (Essentials%rand_uncer(gas4) == aflx_error) then
-        call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
-    else
-        call AddFloatDatumToDataline(Essentials%rand_uncer(gas4) * 1d3, dataline, EddyProProj%err_label)
-        end if
+    call AddFloatDatumToDataline(Essentials%rand_uncer(u), dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Essentials%rand_uncer(ts), dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Essentials%rand_uncer_LE, dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Essentials%rand_uncer(co2), dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Essentials%rand_uncer(h2o), dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Essentials%rand_uncer(ch4), dataline, EddyProProj%err_label, gain=1d3, offset=0d0)
+    call AddFloatDatumToDataline(Essentials%rand_uncer(gas4), dataline, EddyProProj%err_label, gain=1d3, offset=0d0)
 
     !> Additional flux terms (single-point calculation)
     !> Storage fluxes
@@ -536,6 +502,13 @@ subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
     ! call AddDatum(dataline, '8'//CharHF%ns(9:9), separator)
 
     !> Quality test results
+    !> Mahrt 1998 Nonstationarity Ratios
+    call AddFloatDatumToDataline(Essentials%mahrt98_NR(w_u), dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Essentials%mahrt98_NR(w_ts), dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Essentials%mahrt98_NR(w_co2), dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Essentials%mahrt98_NR(w_h2o), dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Essentials%mahrt98_NR(w_ch4), dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Essentials%mahrt98_NR(w_gas4), dataline, EddyProProj%err_label)
     !> Foken stats used to calculate flags
     call AddIntDatumToDataline(STDiff%w_u, dataline, EddyProProj%err_label)
     call AddIntDatumToDataline(STDiff%w_ts, dataline, EddyProProj%err_label)

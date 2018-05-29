@@ -2055,6 +2055,9 @@ program EddyproRP
             end if
             if (allocated(UserPrimes)) deallocate(UserPrimes)
 
+            !> Calculate Mahrt's random error and Nonstationarity ratio anyway.
+            call RU_Mahrt_98(E2Primes, size(E2Primes, 1), size(E2Primes, 2))
+
             !> If requested, estimate random error
             call RandomUncertaintyHandle(E2Primes, &
                 size(E2Primes, 1), size(E2Primes, 2))
