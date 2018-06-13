@@ -587,7 +587,7 @@ module m_rp_global_var
          SCTags(50)%Label / 'pf_end_date' / &
          SCTags(51)%Label / 'out_bin_og'  / &
 !         SCTags(52)%Label / 'out_ghg_eu'  / &      !< no longer used
-         SCTags(53)%Label / 'out_amflux'  / &
+!         SCTags(53)%Label / 'out_amflux'  / &      !< no longer used
 !         SCTags(54)%Label / 'out_rich'    / &      !< no longer used
 !         SCTags(55)%Label / 'to_mixratio' / &      !< no longer used
          SCTags(56)%Label / 'pf_mode'     / &

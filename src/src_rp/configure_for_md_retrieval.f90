@@ -68,7 +68,6 @@ subroutine ConfigureForMdRetrieval()
     !> Output files and other settings
     EddyProProj%out_md         = .true.
     EddyProProj%out_icos    = .false.
-    EddyProProj%out_amflux     = .false.
     EddyProProj%out_full       = .false.
     EddyProProj%out_avrg_cosp  = .false.
     EddyProProj%out_biomet     = .false.

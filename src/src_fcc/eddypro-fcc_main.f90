@@ -526,8 +526,6 @@ Program EddyproFCC
         !> Write results on output file
         call WriteOutputFiles(lEx)
 
-        !> Write AmeriFlux output if requested
-        if (EddyProProj%out_amflux) call WriteAmeriFluxOutput(lEx)
     end do ex_loop
     close(uex)
     close(uflx)

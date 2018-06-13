@@ -67,17 +67,6 @@ subroutine CreateDatasetsCommon(TimeSeries, nrow, StartIndx, EndIndx)
             write(*,'(a)') ' Done.'
     end if
 
-    !> AmeriFlux file
-    if (EddyProProj%out_amflux) then
-        !> Ameriflux_Path
-        tmp_indx = index(Ameriflux_Path, TmpExt)
-        OutPath = Ameriflux_Path(1: tmp_indx - 1)
-        move_status = system(comm_move // '"' &
-            // Ameriflux_Path(1:len_trim(Ameriflux_Path)) // '" "' &
-            // OutPath(1:len_trim(OutPath)) // '"' &
-            // comm_out_redirect // comm_err_redirect)
-    end if
-
     !> Metadata file
     if (EddyProProj%out_md) then
         write(*,'(a)', advance = 'no') '  Creating Metadata dataset..'

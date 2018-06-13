@@ -119,7 +119,6 @@ subroutine ConfigureForExpress
 
     !> Output files and other settings
     EddyProProj%out_icos  = .false.
-    EddyProProj%out_amflux   = .true.
     EddyProProj%out_full     = .true.
     EddyProProj%out_md       = .true.
     RPsetup%out_st        = .true.

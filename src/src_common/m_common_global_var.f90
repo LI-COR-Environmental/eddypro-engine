@@ -121,7 +121,6 @@ module m_common_global_var
     character(5),  parameter :: ICOS_FilePadding        = '_icos'
     character(7),  parameter  :: Biomet_FilePadding     = '_biomet'
     character(14), parameter :: Quality_FilePadding     = '_quality_check'
-    character(10), parameter :: Ameriflux_FilePadding   = '_ameriflux'
     character(18), parameter :: WPL_FilePadding         = '_wpl_contributions'
     character(20), parameter :: BPCF_FilePadding        = '_bandpass_correction'
     character(21), parameter :: H2OAvrg_FilePadding     = '_h2o_ensemble_spectra'
@@ -155,7 +154,6 @@ module m_common_global_var
     character(54), parameter  :: FullFilePrototype      = 'yyyymmdd-HHMM_xxxx_xxxxxxxxx_xxxx-xx-xxTxxxxxx_xxx.csv'
 
     character(PathLen) :: ICOS_Path
-    character(PathLen) :: Ameriflux_Path
     character(PathLen) :: FullOut_Path
     character(PathLen) :: Metadata_Path
 
@@ -446,8 +444,8 @@ module m_common_global_var
          EPPrjCTags(16)%Label / 'run_mode'          / &
          EPPrjCTags(17)%Label / 'use_biom'          / &
          EPPrjCTags(18)%Label / 'biom_file'         / &
-         !EPPrjCTags(19)%Label / 'out_ghg_eu'       / &   !< No longer used
-         EPPrjCTags(20)%Label / 'out_amflux'       / &
+!         EPPrjCTags(19)%Label / 'out_ghg_eu'       / &   !< No longer used
+!         EPPrjCTags(20)%Label / 'out_amflux'       / &   !< No longer used
          EPPrjCTags(21)%Label / 'out_rich'         / &
          EPPrjCTags(22)%Label / 'lf_meth'          / &
          EPPrjCTags(23)%Label / 'hf_meth'          / &

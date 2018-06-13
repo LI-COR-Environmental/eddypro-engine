@@ -226,7 +226,6 @@ program EddyproRP
         EddyProProj%fcc_follows     = .true.
         EddyProProj%out_full        = .false.
         EddyProProj%out_md          = .false.
-        EddyProProj%out_amflux      = .false.
         make_dataset_common         = .false.
     else
         !> in this cases, does what selected by user
@@ -2208,10 +2207,6 @@ program EddyproRP
 
         if (EddyProProj%out_icos) &
             call WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
-
-        !> Write on Ameriflux style output
-        if (EddyProProj%out_amflux) &
-            call WriteOutAmeriFlux_rp(Stats%date, Stats%time)
 
         if (EddyProProj%run_mode /= 'md_retrieval') then
             call hms_delta_print('  Flux averaging period processing time: ','')

@@ -44,7 +44,6 @@ subroutine CreateDatasetsRP(TimeSeries, nrow, StartIndx, EndIndx)
     integer :: tmp_indx
     integer :: move_status = 1
     character(PathLen) :: OutFile
-    character(PathLen) :: OutPath
 
 
     !> L1 statistics

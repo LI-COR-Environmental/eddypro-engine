@@ -213,8 +213,6 @@ subroutine WriteProcessingProjectVariables()
     EddyProProj%binned_spec_avail = EPPrjCTags(44)%value(1:1) == '1'
     EddyProProj%full_spec_avail   = EPPrjCTags(45)%value(1:1) == '1'
 
-    !> select whether to output AmeriFlux-formatted file
-    EddyProProj%out_amflux = EPPrjCTags(20)%value(1:1) == '1'
     !> select whether to output full output file
     EddyProProj%out_full = EPPrjCTags(21)%value(1:1) == '1'
     !> select whether to use fixed or dynamic output format

@@ -546,72 +546,8 @@ subroutine InitOutFiles()
         write(umd, '(a)') header1(1:len_trim(header1) - 1)
     end if
 
-    !************************************************************************************************************************************
-    !************************************************************************************************************************************
-
-    if (EddyProProj%out_amflux) then
-        !> Create AmeriFlux output file name
-        Test_Path = Dir%main_out(1:len_trim(Dir%main_out)) &
-                  // EddyProProj%id(1:len_trim(EddyProProj%id)) &
-                  // AmeriFlux_FilePadding // Timestamp_FilePadding // CsvExt
-        dot = index(Test_Path, CsvExt, .true.) - 1
-        AmeriFlux_Path = Test_Path(1:dot) // CsvTmpExt
-        open(uaflx, file = AmeriFlux_Path)
-        write(uaflx, '(a)') 'Sitename:' // Metadata%sitename(1:len_trim(Metadata%sitename))
-        write(uaflx, '(a, f12.7, a, f12.7, a, f6.0)') 'Location: Latitude: ', Metadata%lat, &
-            ' - Longitude: ', Metadata%lon, ' - Elevation (masl): ', Metadata%alt
-        write(uaflx, '(a)') 'Principal investigator: '
-        write(uaflx, '(a)') 'Ecosystem type: '
-        call idate(today)   ! today(1)=day, (2)=month, (3)=year
-        call itime(now)     ! now(1)=hour, (2)=minute, (3)=second
-        call clearstr(dataline)
-        write(dum_string, '(i4)') today(3)
-        dataline(1:5) = dum_string(1:4) // '-'
-        write(dum_string, '(i2)') today(2)
-        if(dum_string(1:1) == ' ') dum_string(1:1) = '0'
-        dataline(6:8) = dum_string(1:2) // '-'
-        write(dum_string, '(i2)') today(1)
-        if(dum_string(1:1) == ' ') dum_string(1:1) = '0'
-        dataline(9:11) = dum_string(1:2) // 'T'
-        write(dum_string, '(i2)') now(1)
-        if(dum_string(1:1) == ' ') dum_string(1:1) = '0'
-        dataline(12:14) = dum_string(1:2) // ':'
-        write(dum_string, '(i2)') now(2)
-        if(dum_string(1:1) == ' ') dum_string(1:1) = '0'
-        dataline(15:16) = dum_string(1:2)
-        write(uaflx, '(a)') 'File creation date: ' // dataline(1:len_trim(dataline))
-        write(uaflx, '(a)') 'Datapolicy:  -- The AmeriFlux data provided on this site&
-            & are freely available and were furnished by individual AmeriFlux scientists who encourage their use.'
-        write(uaflx, '(a)') 'Please kindly inform in writing (or e-mail) the appropriate AmeriFlux scientist(s)&
-            & of how you intend to use the data and of any publication plans.'
-        write(uaflx, '(a)') 'It is also important to contact the AmeriFlux investigator to assure you are downloading&
-            & the latest revision of the data and to prevent potential misuse or misinterpretation of the data.'
-        write(uaflx, '(a)') 'Please acknowledge the data source as a citation or in the&
-            & acknowledgments if no citation is available.'
-        write(uaflx, '(a)') 'If the AmeriFlux Principal Investigators (PIs) feel that they should be acknowledged&
-            & or offered participation as authors they will let you know.'
-        write(uaflx, '(a)') 'And we assume that an agreement on such matters will be reached&
-            & before publishing and/or use of the data for publication.'
-        write(uaflx, '(a)') 'If your work directly competes with the PIs analysis they may ask that they have the&
-            & opportunity to submit a manuscript before you submit one that uses unpublished data.'
-        write(uaflx, '(a)') 'In addition when publishing please acknowledge the agency that supported the research. --'
-        write(uaflx, '(a)') 'File Origin (4 lines) - To be compiled by AmeriFlux data management group.'
-        write(uaflx, '(a)') 'File Origin (4 lines) - To be compiled by AmeriFlux data management group.'
-        write(uaflx, '(a)') 'File Origin (4 lines) - To be compiled by AmeriFlux data management group.'
-        write(uaflx, '(a)') 'File Origin (4 lines) - To be compiled by AmeriFlux data management group.'
-        write(uaflx, '(a)') 'YEAR,GAP,DTIME,DOY,HRMIN,UST,TA,WD,WS,NEE,FC,SFC,H,SH,LE,SLE,FG,TS1,TSdepth1,TS2,TSdepth2,&
-            &PREC,RH,PRESS,CO2,VPD,SWC1,SWC2,Rn,PAR,Rg,Rgdif,PARout,RgOut,Rgl,RglOut,&
-            &H2O,RE,GPP,CO2top,CO2height,APAR,PARdif,APARpct,ZL'
-        write(uaflx, '(a)') 'YEAR,GAP,DTIME,DOY,HRMIN,m/s,deg C,deg,m/s,umol/m2/s,umol/m2/s,&
-            &umol/m2/s,W/m2,W/m2,W/m2,W/m2,W/m2,&
-            &deg C,cm,deg C,cm,mm,%,kPa,umol/mol,kPa,%,%,W/m2,umol/m2/s,W/m2,W/m2,umol/m2/s,&
-            &W/m2,W/m2,W/m2,mmol/mol,umol/m2/s,&
-            &umol/m2/s,umol/mol,m,umol/m2/s,umol/m2/s,%,unitless'
-    end if
-
-    !>*********************************************************************************************
-    !>*********************************************************************************************
-
+    !***************************************************************************
+    !***************************************************************************
 
     if (EddyProProj%out_icos) then
         !> Create output directory if it does not exist

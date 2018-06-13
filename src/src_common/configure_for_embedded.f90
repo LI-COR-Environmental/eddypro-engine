@@ -99,7 +99,6 @@ subroutine ConfigureForEmbedded()
                 EddyProProj%out_essentials = .false.
             end if
             EddyProProj%out_icos  = .false.
-            EddyProProj%out_amflux  = .false.
             EddyProProj%out_md      = .false.
             if (EddyProProj%biomet_data /= 'none') then
                 EddyProProj%out_biomet = .true.
@@ -157,7 +156,6 @@ subroutine ConfigureForEmbedded()
 
             !> Selection of output files
             EddyProProj%out_icos  = .false.
-            EddyProProj%out_amflux  = .false.
     end select
 
     !> Common settings
