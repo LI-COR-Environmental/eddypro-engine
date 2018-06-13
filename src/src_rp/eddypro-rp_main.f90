@@ -1937,6 +1937,9 @@ program EddyproRP
                     AddUserStatsHeader = .false.
             end if
 
+            !> Calculate Kurtosis Index on differenced variables
+            call KID(E2Set(:, 1:GHGNumVar), size(E2Set, 1), GHGNumVar)
+
             !> ===== 6. TIMELAG COMPENSATION  ==================================
             !> If available, for files others than GHG, replace flow rate
             !> of LI-7200 provided by user with mean value from raw files

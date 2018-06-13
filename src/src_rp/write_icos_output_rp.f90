@@ -503,6 +503,15 @@ subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
 
     !> Quality test results
     !> Mahrt 1998 Nonstationarity Ratios
+    call AddFloatDatumToDataline(Essentials%KID(u), dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Essentials%KID(v), dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Essentials%KID(w), dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Essentials%KID(ts), dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Essentials%KID(co2), dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Essentials%KID(h2o), dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Essentials%KID(ch4), dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Essentials%KID(gas4), dataline, EddyProProj%err_label)
+    !> Mahrt 1998 Nonstationarity Ratios
     call AddFloatDatumToDataline(Essentials%mahrt98_NR(w_u), dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Essentials%mahrt98_NR(w_ts), dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Essentials%mahrt98_NR(w_co2), dataline, EddyProProj%err_label)
