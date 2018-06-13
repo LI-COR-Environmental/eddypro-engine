@@ -519,7 +519,8 @@ module m_typedef
         logical :: use_dynmd_file
         logical :: out_full
         logical :: out_icos
-        logical :: icos_standardize_biomet
+        logical :: fluxnet_standardize_biomet
+        logical :: fluxnet_mode
         logical :: out_fluxnet
         logical :: out_fluxnet_eddy
         logical :: out_fluxnet_biomet
@@ -702,6 +703,7 @@ module m_typedef
         integer :: n_after_wdf
         integer :: n_wcov(E2NumVar)
         integer :: n(E2NumVar)
+        integer :: ZCD(GHGNumVar)
         real(kind = dbl) :: yaw
         real(kind = dbl) :: pitch
         real(kind = dbl) :: roll
@@ -713,6 +715,8 @@ module m_typedef
         real(kind = dbl) :: AGC72
         real(kind = dbl) :: AGC75
         real(kind = dbl) :: RSSI77
+        real(kind = dbl) :: KID(GHGNumVar)
+        real(kind = dbl) :: mahrt98_NR(GHGNumVar)
         real(kind = dbl) :: rand_uncer(E2NumVar)
         real(kind = dbl) :: rand_uncer_LE
         real(kind = dbl) :: ar_s(GHGNumVar)

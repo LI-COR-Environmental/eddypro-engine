@@ -78,7 +78,7 @@ subroutine WriteOutIcosOnlyBiomet()
     endif
 
     !> Write error codes in place of fixed columns
-    do i = 1, 405
+    do i = 1, 427
         call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
     end do
     !> Write error codes in place of custom variables
@@ -90,7 +90,7 @@ subroutine WriteOutIcosOnlyBiomet()
     call AddIntDatumToDataline(nbVars, dataline, EddyProProj%err_label)
     if (nbVars > 0) then
         if (.not. allocated(bAggrOut)) allocate(bAggrOut(size(bAggr)))
-        if (EddyProProj%icos_standardize_biomet) then
+        if (EddyProProj%fluxnet_standardize_biomet) then
             bAggrOut = bAggrFluxnet
         else
             bAggrOut = bAggr

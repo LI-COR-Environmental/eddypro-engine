@@ -353,7 +353,8 @@ subroutine WriteProcessingProjectVariables()
     end select
 
     !> Select whether to standardize biomets or not
-    EddyProProj%icos_standardize_biomet = EPPrjCTags(48)%value(1:1) == '1'
+    EddyProProj%fluxnet_standardize_biomet = EPPrjCTags(48)%value(1:1) == '1'
+    EddyProProj%fluxnet_mode = EPPrjCTags(49)%value(1:1) == '1'
 
     !> main output directory, only in Desktop mode
     if (EddyProProj%run_env /= 'embedded') then

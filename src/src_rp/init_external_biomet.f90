@@ -243,7 +243,7 @@ subroutine InitExternalBiomet(bFileList, N)
     call BiometEnrichVarsDescription()
 
     ! !> Append suffix if variables have not
-    ! if (EddyProProj%icos_standardize_biomet) &
+    ! if (EddyProProj%fluxnet_standardize_biomet) &
     !     call BiometAppendDefaultPositionalQualifier()
 
     !> No data label is allowed in external biomet files

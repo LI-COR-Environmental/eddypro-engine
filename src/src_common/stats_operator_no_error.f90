@@ -430,6 +430,58 @@ end function LaggedCovarianceNoError
 
 !***************************************************************************
 !
+! \brief       Calculates Kurtosis index  of timeserie ignoring \n
+!              provided error code
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+subroutine KurtosisNoError(Set, nrow, ncol, Kur, err_float)
+    use m_common_global_var
+    implicit none
+    !> in/out variables
+    integer, intent(in) :: nrow, ncol
+    real(kind = dbl), intent(in) :: Set(nrow, ncol)
+    real(kind = dbl), intent(in) :: err_float
+    real(kind = dbl), intent(out) :: Kur(ncol)
+    !> Local variables
+    integer :: i
+    integer :: j
+    integer :: Nact
+    real(kind = dbl) :: StDev(ncol)
+
+
+    !> Compute StDev, needed for Kurtosis
+    call StDevNoError(Set, nrow, ncol, StDev, err_float)
+
+    Kur = 0.d0
+    do j = u, ncol
+        if (E2Col(j)%present) then
+            Nact = 0
+            do i = 1, nrow
+                if (Set(i, j) /= error) then
+                    Nact = Nact + 1
+                    Kur(j) = Kur(j) + (Set(i, j))**4
+                end if
+            end do
+            if (Nact /= 0) then
+
+                Kur(j) = Kur(j) / (StDev(j)**4) / dble(Nact - 1)
+            else
+                Kur(j) = error
+            end if
+        else
+            Kur(j) = error
+        end if
+    end do
+end subroutine KurtosisNoError
+
+!***************************************************************************
+!
 ! \brief       Calculates quantiles of array (column-wise) ignoring \n
 !              provided error code
 ! \author      Gerardo Fratini
