@@ -374,6 +374,9 @@ gill_wm_w_boost.o: \
 configure_for_express.o: \
 	configure_for_express.f90 \
 	m_rp_global_var.o
+configure_for_fluxnet.o: \
+	configure_for_fluxnet.f90 \
+	m_rp_global_var.o
 test_attack_angle.o: \
 	test_attack_angle.f90 \
 	m_rp_global_var.o

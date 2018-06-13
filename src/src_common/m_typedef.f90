@@ -519,7 +519,8 @@ module m_typedef
         logical :: use_dynmd_file
         logical :: out_full
         logical :: out_icos
-        logical :: icos_standardize_biomet
+        logical :: fluxnet_standardize_biomet
+        logical :: fluxnet_mode
         logical :: out_fluxnet
         logical :: out_fluxnet_eddy
         logical :: out_fluxnet_biomet

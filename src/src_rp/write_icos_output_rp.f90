@@ -780,7 +780,7 @@ subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
     call AddIntDatumToDataline(nbVars, dataline, EddyProProj%err_label)
     if (nbVars > 0) then
         if (.not. allocated(bAggrOut)) allocate(bAggrOut(size(bAggr)))
-        if (EddyProProj%icos_standardize_biomet) then
+        if (EddyProProj%fluxnet_standardize_biomet) then
             bAggrOut = bAggrFluxnet
         else
             bAggrOut = bAggr

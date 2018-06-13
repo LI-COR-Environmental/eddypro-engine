@@ -403,7 +403,7 @@ module m_common_global_var
     real(kind = dbl) :: UnPar(2) = error
 
     !> tags of the [Project] group of processing.eddypro file
-    integer, parameter :: Npn = 22
+    integer, parameter :: Npn = 25
     integer, parameter :: Npc = 50
     logical :: EPPrjNTagFound(Npn)
     logical :: EPPrjCTagFound(Npc)
@@ -430,7 +430,7 @@ module m_common_global_var
          EPPrjNTags(19)%Label / 'sonic_output_rate' / &
          EPPrjNTags(20)%Label / 'col_diag_anem'   / &
          EPPrjNTags(21)%Label / 'col_diag_staa'   / &
-         EPPrjNTags(22)%Label / 'col_diag_stad'   /
+         EPPrjNTags(22)%Label / 'col_diag_stad'   / 
 
     data EPPrjCTags(1)%Label / 'sw_version'       / &
          EPPrjCTags(2)%Label / 'ini_version'      / &
@@ -479,7 +479,8 @@ module m_common_global_var
          EPPrjCTags(45)%Label / 'full_sp_avail'    / &
          EPPrjCTags(46)%Label / 'hf_correct_ghg_ba'  / &
          EPPrjCTags(47)%Label / 'hf_correct_ghg_zoh' / &
-         EPPrjCTags(48)%Label / 'icos_standardize_biomet'    / 
+         EPPrjCTags(48)%Label / 'fluxnet_standardize_biomet' / & 
+         EPPrjCTags(49)%Label / 'fluxnet_mode' / 
 
     !> tags of the metadata file created by GHG software
     integer, parameter :: Nan = 884

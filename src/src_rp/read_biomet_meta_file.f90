@@ -207,7 +207,7 @@ subroutine WriteBiometMetaVariables(skip_file)
     call BiometEnrichVarsDescription()
 
     ! !> Append suffix if variables have not
-    ! if (EddyProProj%icos_standardize_biomet) &
+    ! if (EddyProProj%fluxnet_standardize_biomet) &
     !     call BiometAppendDefaultPositionalQualifier()
 
 end subroutine WriteBiometMetaVariables

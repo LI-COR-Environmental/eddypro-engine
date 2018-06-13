@@ -829,7 +829,7 @@ subroutine InitOutFiles_rp()
 
         if (nbVars > 0) then
             do i = 1, nbVars
-                if (EddyProProj%icos_standardize_biomet) then
+                if (EddyProProj%fluxnet_standardize_biomet) then
                     call AddDatum(dataline, trim(bVars(i)%fluxnet_label), separator)
                 else
                     call AddDatum(dataline, trim(bVars(i)%label), separator)

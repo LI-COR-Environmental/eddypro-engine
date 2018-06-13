@@ -196,6 +196,7 @@ program EddyproRP
     !> EddyPro Express settings
     if (EddyProProj%run_mode == 'express') call ConfigureForExpress()
     if (EddyProProj%run_mode == 'md_retrieval') call ConfigureForMdRetrieval()
+    if (EddyProProj%fluxnet_mode) call ConfigureForFluxnet()
 
     !> Define message for skipped periods
     if (EddyProProj%run_mode /= 'md_retrieval') then
