@@ -702,6 +702,7 @@ module m_typedef
         integer :: n_after_wdf
         integer :: n_wcov(E2NumVar)
         integer :: n(E2NumVar)
+        integer :: ZCD(GHGNumVar)
         real(kind = dbl) :: yaw
         real(kind = dbl) :: pitch
         real(kind = dbl) :: roll

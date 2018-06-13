@@ -502,7 +502,7 @@ subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
     ! call AddDatum(dataline, '8'//CharHF%ns(9:9), separator)
 
     !> Quality test results
-    !> Mahrt 1998 Nonstationarity Ratios
+    !> Kurtosis Index on Differenced variables (KIDs)
     call AddFloatDatumToDataline(Essentials%KID(u), dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Essentials%KID(v), dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Essentials%KID(w), dataline, EddyProProj%err_label)
@@ -511,6 +511,15 @@ subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
     call AddFloatDatumToDataline(Essentials%KID(h2o), dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Essentials%KID(ch4), dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Essentials%KID(gas4), dataline, EddyProProj%err_label)
+    !> Zero-Counts on Differences variables
+    call AddIntDatumToDataline(Essentials%ZCD(u), dataline, EddyProProj%err_label)
+    call AddIntDatumToDataline(Essentials%ZCD(v), dataline, EddyProProj%err_label)
+    call AddIntDatumToDataline(Essentials%ZCD(w), dataline, EddyProProj%err_label)
+    call AddIntDatumToDataline(Essentials%ZCD(ts), dataline, EddyProProj%err_label)
+    call AddIntDatumToDataline(Essentials%ZCD(co2), dataline, EddyProProj%err_label)
+    call AddIntDatumToDataline(Essentials%ZCD(h2o), dataline, EddyProProj%err_label)
+    call AddIntDatumToDataline(Essentials%ZCD(ch4), dataline, EddyProProj%err_label)
+    call AddIntDatumToDataline(Essentials%ZCD(gas4), dataline, EddyProProj%err_label)
     !> Mahrt 1998 Nonstationarity Ratios
     call AddFloatDatumToDataline(Essentials%mahrt98_NR(w_u), dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Essentials%mahrt98_NR(w_ts), dataline, EddyProProj%err_label)

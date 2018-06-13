@@ -42,5 +42,6 @@ subroutine KID(Set, nrow, ncol)
     do var = u, gas4
         call VariableStochasticDetrending(Set(:, var), Primes(:, var), nrow)
         call KurtosisNoError(Primes(:, var), nrow, 1, Essentials%KID(var), error)
+        Essentials%ZCD(var) = count(abs(Primes(:, var)) < 1d-6)
     end do
 end subroutine KID
