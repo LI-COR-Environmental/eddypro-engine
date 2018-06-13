@@ -117,8 +117,6 @@ module m_common_global_var
     character(12), parameter :: FullOut_FilePadding     = '_full_output'
     character(11), parameter :: PlanarFit_FilePadding   = '_planar_fit'
     character(12), parameter :: TimelagOpt_FilePadding  = '_timelag_opt'
-    character(16), parameter :: FLUXNET_EDDY_FilePadding = '_ghg-europe_eddy'
-    character(18), parameter :: FLUXNET_BIOMET_FilePadding = '_ghg-europe_biomet'
     character(11), parameter :: Essentials_FilePadding  = '_essentials'
     character(5),  parameter :: ICOS_FilePadding        = '_icos'
     character(7),  parameter  :: Biomet_FilePadding     = '_biomet'
@@ -156,8 +154,6 @@ module m_common_global_var
     character(56), parameter  :: BinnedFilePrototype    = 'yyyymmdd-HHMM_xxxxxx_xxxxxxxxx_xxxx-xx-xxTxxxxxx_xxx.csv'
     character(54), parameter  :: FullFilePrototype      = 'yyyymmdd-HHMM_xxxx_xxxxxxxxx_xxxx-xx-xxTxxxxxx_xxx.csv'
 
-    character(PathLen) :: FLUXNET_EDDY_Path
-    character(PathLen) :: FLUXNET_BIOMET_Path
     character(PathLen) :: ICOS_Path
     character(PathLen) :: Ameriflux_Path
     character(PathLen) :: FullOut_Path
@@ -450,7 +446,7 @@ module m_common_global_var
          EPPrjCTags(16)%Label / 'run_mode'          / &
          EPPrjCTags(17)%Label / 'use_biom'          / &
          EPPrjCTags(18)%Label / 'biom_file'         / &
-         EPPrjCTags(19)%Label / 'out_ghg_eu'       / &
+         !EPPrjCTags(19)%Label / 'out_ghg_eu'       / &   !< No longer used
          EPPrjCTags(20)%Label / 'out_amflux'       / &
          EPPrjCTags(21)%Label / 'out_rich'         / &
          EPPrjCTags(22)%Label / 'lf_meth'          / &

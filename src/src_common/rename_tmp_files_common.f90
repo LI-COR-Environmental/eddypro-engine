@@ -59,16 +59,6 @@ subroutine RenameTmpFilesCommon()
             // comm_out_redirect // comm_err_redirect)
     end if
 
-    !> FLUXNET (fluxes) file
-    if (EddyProProj%out_fluxnet_eddy) then
-        tmp_indx = index(FLUXNET_EDDY_Path, TmpExt)
-        OutPath = FLUXNET_EDDY_Path(1: tmp_indx - 1)
-        move_status = system(comm_move // '"' &
-            // FLUXNET_EDDY_Path(1:len_trim(FLUXNET_EDDY_Path)) // '" "' &
-            // OutPath(1:len_trim(OutPath)) // '"' &
-            // comm_out_redirect // comm_err_redirect)
-    end if
-
     !> ICOS file
     if (EddyProProj%out_icos) then
         tmp_indx = index(ICOS_Path, TmpExt)

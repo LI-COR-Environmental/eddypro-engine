@@ -98,10 +98,7 @@ subroutine ConfigureForEmbedded()
             else
                 EddyProProj%out_essentials = .false.
             end if
-            EddyProProj%out_fluxnet  = .false.
-            EddyProProj%out_fluxnet_eddy  = .false.
             EddyProProj%out_icos  = .false.
-            EddyProProj%out_fluxnet_biomet  = .false.
             EddyProProj%out_amflux  = .false.
             EddyProProj%out_md      = .false.
             if (EddyProProj%biomet_data /= 'none') then
@@ -159,10 +156,7 @@ subroutine ConfigureForEmbedded()
                 // '"*.tmp ' // comm_err_redirect)
 
             !> Selection of output files
-            EddyProProj%out_fluxnet  = .false.
-            EddyProProj%out_fluxnet_eddy  = .false.
             EddyProProj%out_icos  = .false.
-            EddyProProj%out_fluxnet_biomet  = .false.
             EddyProProj%out_amflux  = .false.
     end select
 

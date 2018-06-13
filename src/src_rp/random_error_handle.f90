@@ -222,7 +222,6 @@ subroutine RU_Mahrt_98(Set, nrow, ncol)
     real(kind = dbl) :: SumSquares(GHGNumVar)
     real(kind = dbl) :: sigma_wis(nrec, GHGNumVar)
     real(kind = dbl) :: sigma_btw(GHGNumVar)
-    real(kind = dbl) :: NR(GHGNumVar)
     real(kind = dbl), allocatable :: sSet(:, :)
     real(kind = dbl), allocatable :: ssSet(:, :)
 

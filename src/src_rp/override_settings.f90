@@ -37,7 +37,6 @@ subroutine OverrideSettings()
 
     !> If biomet measurements are not to be used, they are also not to be output
     if (EddyProProj%biomet_data == 'none') EddyProProj%out_biomet = .false.
-    if (EddyProProj%biomet_data == 'none') EddyProProj%out_fluxnet_biomet = .false.
 
     !> if there is no LI-7500 among the instruments, Burba terms should not be calculated
     if (index(E2Col(co2)%Instr%model, 'li7500') == 0 &

@@ -521,9 +521,6 @@ module m_typedef
         logical :: out_icos
         logical :: fluxnet_standardize_biomet
         logical :: fluxnet_mode
-        logical :: out_fluxnet
-        logical :: out_fluxnet_eddy
-        logical :: out_fluxnet_biomet
         logical :: out_amflux
         logical :: out_md
         logical :: out_avrg_cosp

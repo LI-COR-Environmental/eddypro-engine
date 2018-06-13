@@ -186,19 +186,6 @@ subroutine CreateDatasetsRP(TimeSeries, nrow, StartIndx, EndIndx)
             // comm_out_redirect // comm_err_redirect)
     end if
 
-    !> FLUXNET (biomet) file - NEVER filled. Only renamed.
-    if (EddyProProj%out_fluxnet_biomet) then
-        write(*,'(a)', advance = 'no') &
-            '  Closing GHG-Europe (biomet) dataset..'
-        tmp_indx = index(FLUXNET_BIOMET_Path, TmpExt)
-        OutPath = FLUXNET_BIOMET_Path(1: tmp_indx - 1)
-        move_status = system(comm_move // '"' &
-            // FLUXNET_BIOMET_Path(1:len_trim(FLUXNET_BIOMET_Path)) // '" "' &
-            // OutPath(1:len_trim(OutPath)) // '"' &
-            // comm_out_redirect // comm_err_redirect)
-            write(*,'(a)') ' Done.'
-    end if
-
     !> QC file
     if(RPsetup%out_qc_details .and. Meth%qcflag /= 'none') then
         write(*,'(a)', advance = 'no') '  Creating QC details dataset..'

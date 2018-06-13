@@ -213,10 +213,6 @@ subroutine WriteProcessingProjectVariables()
     EddyProProj%binned_spec_avail = EPPrjCTags(44)%value(1:1) == '1'
     EddyProProj%full_spec_avail   = EPPrjCTags(45)%value(1:1) == '1'
 
-    !> select whether to output GHG-europe-formatted file
-    EddyProProj%out_fluxnet = EPPrjCTags(19)%value(1:1) == '1'
-    EddyProProj%out_fluxnet_eddy   = EddyProProj%out_fluxnet
-    EddyProProj%out_fluxnet_biomet = EddyProProj%out_fluxnet
     !> select whether to output AmeriFlux-formatted file
     EddyProProj%out_amflux = EPPrjCTags(20)%value(1:1) == '1'
     !> select whether to output full output file
