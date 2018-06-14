@@ -518,13 +518,9 @@ module m_typedef
         logical :: use_extmd_file
         logical :: use_dynmd_file
         logical :: out_full
-        logical :: out_icos
+        logical :: out_fluxnet
         logical :: fluxnet_standardize_biomet
         logical :: fluxnet_mode
-        logical :: out_fluxnet
-        logical :: out_fluxnet_eddy
-        logical :: out_fluxnet_biomet
-        logical :: out_amflux
         logical :: out_md
         logical :: out_avrg_cosp
         logical :: out_avrg_spec
@@ -1379,7 +1375,7 @@ module m_typedef
         type(StatsType) :: stats
     end type ExType
 
-    type icosChunksType
+    type fluxnetChunksType
         character(LongOutstringLen) s(6)
-    end type icosChunksType
+    end type fluxnetChunksType
 end module m_typedef

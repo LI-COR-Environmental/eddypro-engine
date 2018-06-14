@@ -171,7 +171,7 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
 
     !> Copy M_CUSTOM_FLAGS thru VM97_NSW_RNS
     ix = strCharIndex(dataline, ',', 75)
-    icosChunks%s(1) = dataline(1: ix-1)
+    fluxnetChunks%s(1) = dataline(1: ix-1)
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> Read out VM flags and Foken QC details
@@ -183,7 +183,7 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
 
     !> Copy FK04_ST_FLAG_W_U thru ...
     ix = strCharIndex(dataline, ',', 24)
-    icosChunks%s(2) = dataline(1: ix-1)
+    fluxnetChunks%s(2) = dataline(1: ix-1)
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> Read licor IRGA flags
@@ -198,7 +198,7 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
 
     !> Copy WBOOST_APPLIED thru AXES_ROTATION_METHOD
     ix = strCharIndex(dataline, ',', 3)
-    icosChunks%s(3) = dataline(1: ix-1)
+    fluxnetChunks%s(3) = dataline(1: ix-1)
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> Read rotation angles and detrending method/time constant
@@ -209,7 +209,7 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
 
     !> Copy TIMELAG_DETECTION_METHOD thru FOOTPRINT_MODEL
     ix = strCharIndex(dataline, ',', 5)
-    icosChunks%s(4) = dataline(1: ix-1)
+    fluxnetChunks%s(4) = dataline(1: ix-1)
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> Read out metadata
@@ -241,7 +241,7 @@ subroutine ReadEx2Record(FilePath, unt, rec_num, lEx2, ValidRecord, EndOfFileRea
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> Put remaining into last chunk
-    icosChunks%s(5) = dataline(1: len_trim(dataline))
+    fluxnetChunks%s(5) = dataline(1: len_trim(dataline))
 
     ! !> Complete essentials information based on retrieved ones
     call CompleteEssentials2(lEx2)

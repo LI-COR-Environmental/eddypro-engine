@@ -124,10 +124,7 @@ subroutine MakeDataset(PathIn, MasterTimeSeries, nrow, StartIndx, &
             fTimestamp = fTimestamp - DateStep
             if (MasterTimeSeries(i) > fTimestamp + DateStep) then
                 call AddErrorString(udf2, MasterTimeSeries(i), &
-                    ErrString, len(ErrString), &
-                    PathIn == trim(adjustl(FLUXNET_EDDY_Path)) &
-                    .or. PathIn == trim(adjustl(FLUXNET_BIOMET_Path)) , &
-                    AddNoFile)
+                    ErrString, len(ErrString), AddNoFile)
                 cycle periods_loop
             end if
 
@@ -142,10 +139,7 @@ subroutine MakeDataset(PathIn, MasterTimeSeries, nrow, StartIndx, &
                 !> backspaces and cycle periods_loops
                 if (i < EndIndx) then
                     call AddErrorString(udf2, MasterTimeSeries(i+1), &
-                        ErrString, len(ErrString), &
-                        PathIn == trim(adjustl(FLUXNET_EDDY_Path)) &
-                        .or. PathIn == trim(adjustl(FLUXNET_BIOMET_Path)) , &
-                        AddNoFile)
+                        ErrString, len(ErrString), AddNoFile)
                 end if
                 backspace(udf)
                 cycle periods_loop
@@ -155,10 +149,7 @@ subroutine MakeDataset(PathIn, MasterTimeSeries, nrow, StartIndx, &
         !> This takes care of time periods following the end of the raw data period
         if (add_error .and. i < EndIndx) then
             call AddErrorString(udf2, MasterTimeSeries(i+1), &
-                ErrString, len(ErrString), &
-                PathIn == trim(adjustl(FLUXNET_EDDY_Path)) &
-                .or. PathIn == trim(adjustl(FLUXNET_BIOMET_Path)) , &
-                AddNoFile)
+                ErrString, len(ErrString), AddNoFile)
             add_error = .false.
         end if
     end do periods_loop
@@ -181,15 +172,13 @@ end subroutine MakeDataset
 ! \test
 ! \todo
 !***************************************************************************
-subroutine AddErrorString(unt, Timestamp, ErrString, LenErrStr, &
-    IsGhgEuropeFile, AddNoFile)
+subroutine AddErrorString(unt, Timestamp, ErrString, LenErrStr, AddNoFile)
     use m_common_global_Var
     implicit none
     !> in/out variables
     integer, intent(in) :: unt
     integer, intent(in) :: LenErrStr
     character(LenErrStr) :: ErrString
-    logical, intent(in) :: IsGhgEuropeFile
     logical, intent(in) :: AddNoFile
     type (DateType), intent(in) :: Timestamp
     !> local variables
@@ -208,15 +197,9 @@ subroutine AddErrorString(unt, Timestamp, ErrString, LenErrStr, &
 
     !> Create output string
     if (AddNoFile) then
-        if (IsGhgEuropeFile) then
-            dataline = 'not_enough_data,' // date(1:10) // ',' // time // ',' &
-                     // trim(adjustl(EddyProProj%err_label)) &
-                     // ErrString(index(ErrString, ',,') + 1: len_trim(ErrString))
-        else
-            dataline = 'not_enough_data,' // date(1:10) // ',' // time // ',' &
-                     // char_doy(1: index(char_doy, '.')+ 3) &
-                     // ErrString(index(ErrString, ',,') + 1: len_trim(ErrString))
-        end if
+        dataline = 'not_enough_data,' // date(1:10) // ',' // time // ',' &
+                    // char_doy(1: index(char_doy, '.')+ 3) &
+                    // ErrString(index(ErrString, ',,') + 1: len_trim(ErrString))
     else
         dataline = date(1:10) // ',' // time // ',' &
                 // char_doy(1: index(char_doy, '.')+ 3) &

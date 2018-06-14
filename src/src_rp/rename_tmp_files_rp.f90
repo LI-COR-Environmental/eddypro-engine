@@ -166,14 +166,5 @@ subroutine RenameTmpFilesRP()
         end if
     end if
 
-    !> FLUXNET (biomet) file
-    if (EddyProProj%out_fluxnet_biomet) then
-        tmp_indx = index(FLUXNET_BIOMET_Path, TmpExt)
-        OutPath = FLUXNET_BIOMET_Path(1: tmp_indx - 1)
-        move_status = system(comm_move // '"' &
-            // FLUXNET_BIOMET_Path(1:len_trim(FLUXNET_BIOMET_Path)) // '" "' &
-            // OutPath(1:len_trim(OutPath)) // '"' &
-            // comm_out_redirect // comm_err_redirect)
-    end if
     write(*,'(a)') ' Done.'
 end subroutine RenameTmpFilesRP

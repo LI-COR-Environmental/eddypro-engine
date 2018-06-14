@@ -117,13 +117,10 @@ module m_common_global_var
     character(12), parameter :: FullOut_FilePadding     = '_full_output'
     character(11), parameter :: PlanarFit_FilePadding   = '_planar_fit'
     character(12), parameter :: TimelagOpt_FilePadding  = '_timelag_opt'
-    character(16), parameter :: FLUXNET_EDDY_FilePadding = '_ghg-europe_eddy'
-    character(18), parameter :: FLUXNET_BIOMET_FilePadding = '_ghg-europe_biomet'
     character(11), parameter :: Essentials_FilePadding  = '_essentials'
-    character(5),  parameter :: ICOS_FilePadding        = '_icos'
+    character(8),  parameter :: FLUXNET_FilePadding     = '_fluxnet'
     character(7),  parameter  :: Biomet_FilePadding     = '_biomet'
     character(14), parameter :: Quality_FilePadding     = '_quality_check'
-    character(10), parameter :: Ameriflux_FilePadding   = '_ameriflux'
     character(18), parameter :: WPL_FilePadding         = '_wpl_contributions'
     character(20), parameter :: BPCF_FilePadding        = '_bandpass_correction'
     character(21), parameter :: H2OAvrg_FilePadding     = '_h2o_ensemble_spectra'
@@ -156,10 +153,7 @@ module m_common_global_var
     character(56), parameter  :: BinnedFilePrototype    = 'yyyymmdd-HHMM_xxxxxx_xxxxxxxxx_xxxx-xx-xxTxxxxxx_xxx.csv'
     character(54), parameter  :: FullFilePrototype      = 'yyyymmdd-HHMM_xxxx_xxxxxxxxx_xxxx-xx-xxTxxxxxx_xxx.csv'
 
-    character(PathLen) :: FLUXNET_EDDY_Path
-    character(PathLen) :: FLUXNET_BIOMET_Path
-    character(PathLen) :: ICOS_Path
-    character(PathLen) :: Ameriflux_Path
+    character(PathLen) :: FLUXNET_Path
     character(PathLen) :: FullOut_Path
     character(PathLen) :: Metadata_Path
 
@@ -206,7 +200,7 @@ module m_common_global_var
     type(EddyProProjType) :: EddyProProj
     type(SpectralType) :: BPCF
     type(SpectralType) :: ADDCF
-    type(icosChunksType) :: icosChunks
+    type(fluxnetChunksType) :: fluxnetChunks
 
     !> Variables to be validate
     real(kind = dbl) :: PFMat(3, 3, MaxNumWSect) = 0.d0
@@ -450,8 +444,8 @@ module m_common_global_var
          EPPrjCTags(16)%Label / 'run_mode'          / &
          EPPrjCTags(17)%Label / 'use_biom'          / &
          EPPrjCTags(18)%Label / 'biom_file'         / &
-         EPPrjCTags(19)%Label / 'out_ghg_eu'       / &
-         EPPrjCTags(20)%Label / 'out_amflux'       / &
+!         EPPrjCTags(19)%Label / 'out_ghg_eu'       / &   !< No longer used
+!         EPPrjCTags(20)%Label / 'out_amflux'       / &   !< No longer used
          EPPrjCTags(21)%Label / 'out_rich'         / &
          EPPrjCTags(22)%Label / 'lf_meth'          / &
          EPPrjCTags(23)%Label / 'hf_meth'          / &

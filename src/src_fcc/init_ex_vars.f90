@@ -60,7 +60,7 @@ subroutine InitExVars(StartTimestamp, EndTimestamp, NumRecords, NumValidRecords)
     write(*, '(a)') '  File found, importing content..'
 
     !> Store header to string, for writing it on output
-    read(udf, '(a)') icos_header
+    read(udf, '(a)') fluxnet_header
 
     !> Retrieve label of forth gas from header
     ! read(udf, '(a)') dataline

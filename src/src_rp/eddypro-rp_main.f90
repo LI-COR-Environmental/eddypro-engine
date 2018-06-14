@@ -183,8 +183,8 @@ program EddyproRP
     !> Initialize environment
     call InitEnv()
 
-    !> By detault, create ICOS output
-    EddyProProj%out_icos = .true.
+    !> By detault, create FLUXNET output
+    EddyProProj%out_fluxnet = .true.
 
     !> Read setup file
     call ReadIniRP('RawProcess')
@@ -226,7 +226,6 @@ program EddyproRP
         EddyProProj%fcc_follows     = .true.
         EddyProProj%out_full        = .false.
         EddyProProj%out_md          = .false.
-        EddyProProj%out_amflux      = .false.
         make_dataset_common         = .false.
     else
         !> in this cases, does what selected by user
@@ -241,7 +240,7 @@ program EddyproRP
     if (EddyProProj%run_env == 'embedded') call ConfigureForEmbedded()
     if (EddyProProj%run_env == 'embedded') RPsetup%out_st = .false.
 
-    EddyProProj%out_essentials = .false.                 !***********************   Replace this by eliminating essentials file entirely when ICOS format is stable
+    EddyProProj%out_essentials = .false.                 !***********************   Replace this by eliminating essentials file entirely when FLUXNET format is stable
 
     !> Create output directory if it does not exist, otherwise is silent
     mkdir_status = CreateDir('"' //trim(adjustl(Dir%main_out)) // '"')
@@ -1529,7 +1528,7 @@ program EddyproRP
         if (LatestRawFileIndx > NumRawFiles) then
             if (EddyProProj%run_mode /= 'md_retrieval') then
                 call ExceptionHandler(53)
-                if (EddYProProj%out_icos) call WriteOutIcosOnlyBiomet()
+                if (EddYProProj%out_fluxnet) call WriteOutFluxnetOnlyBiomet()
             end if
             call hms_delta_print(PeriodSkipMessage,'')
             cycle periods_loop
@@ -1549,7 +1548,7 @@ program EddyproRP
         if (skip_period) then
             if (EddyProProj%run_mode /= 'md_retrieval') then
                 call ExceptionHandler(53)
-                if (EddYProProj%out_icos) call WriteOutIcosOnlyBiomet(suffixOutString)
+                if (EddYProProj%out_fluxnet) call WriteOutFluxnetOnlyBiomet(suffixOutString)
             end if
             call hms_delta_print(PeriodSkipMessage,'')
             cycle periods_loop
@@ -1591,7 +1590,7 @@ program EddyproRP
 
             !> Period skip control
             if (skip_period) then
-                if (EddYProProj%out_icos) call WriteOutIcosOnlyBiomet(suffixOutString)
+                if (EddYProProj%out_fluxnet) call WriteOutFluxnetOnlyBiomet(suffixOutString)
                 call hms_delta_print(PeriodSkipMessage,'')
                 cycle periods_loop
             end if
@@ -1609,7 +1608,7 @@ program EddyproRP
             MissingRecords = dfloat(MaxPeriodNumRecords - PeriodRecords) &
                 / dfloat(MaxPeriodNumRecords) * 100d0
             if (PeriodRecords > 0 .and. MissingRecords > RPsetup%max_lack) then
-                if (EddYProProj%out_icos) call WriteOutIcosOnlyBiomet(suffixOutString)
+                if (EddYProProj%out_fluxnet) call WriteOutFluxnetOnlyBiomet(suffixOutString)
                 call ExceptionHandler(58)
                 call hms_delta_print(PeriodSkipMessage,'')
                 cycle periods_loop
@@ -1627,7 +1626,7 @@ program EddyproRP
             MissingRecords = dfloat(MaxPeriodNumRecords - Essentials%n_after_custom_flags) &
                 / dfloat(MaxPeriodNumRecords) * 100d0
             if (MissingRecords > RPsetup%max_lack) then
-                if (EddYProProj%out_icos) call WriteOutIcosOnlyBiomet(suffixOutString)
+                if (EddYProProj%out_fluxnet) call WriteOutFluxnetOnlyBiomet(suffixOutString)
                 call ExceptionHandler(58)
                 call hms_delta_print(PeriodSkipMessage,'')
                 cycle periods_loop
@@ -1722,7 +1721,7 @@ program EddyproRP
             MissingRecords = dfloat(MaxPeriodNumRecords - Essentials%n_after_wdf) &
                 / dfloat(MaxPeriodNumRecords) * 100d0
             if (MissingRecords > RPsetup%max_lack) then
-                if (EddYProProj%out_icos) call WriteOutIcosOnlyBiomet(suffixOutString)
+                if (EddYProProj%out_fluxnet) call WriteOutFluxnetOnlyBiomet(suffixOutString)
                 if(allocated(E2Set)) deallocate(E2Set)
                 if(allocated(E2Primes)) deallocate(E2Primes)
                 if(allocated(UserSet)) deallocate(UserSet)
@@ -1795,7 +1794,7 @@ program EddyproRP
             !> If either u, v or w have been eliminated,
             !> stops processing this period
             if (skip_period) then
-                if (EddYProProj%out_icos) call WriteOutIcosOnlyBiomet(suffixOutString)
+                if (EddYProProj%out_fluxnet) call WriteOutFluxnetOnlyBiomet(suffixOutString)
                 if(allocated(E2Set)) deallocate(E2Set)
                 if(allocated(E2Primes)) deallocate(E2Primes)
                 if(allocated(UserSet)) deallocate(UserSet)
@@ -2206,12 +2205,8 @@ program EddyproRP
         call WriteOutFiles(suffixOutString, PeriodRecords, PeriodActualRecords, &
             StDiff, DtDiff)
 
-        if (EddyProProj%out_icos) &
-            call WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
-
-        !> Write on Ameriflux style output
-        if (EddyProProj%out_amflux) &
-            call WriteOutAmeriFlux_rp(Stats%date, Stats%time)
+        if (EddyProProj%out_fluxnet) &
+            call WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
 
         if (EddyProProj%run_mode /= 'md_retrieval') then
             call hms_delta_print('  Flux averaging period processing time: ','')
@@ -2252,7 +2247,7 @@ program EddyproRP
     close(ufnet_b)
     close(uaflx)
     close(uex)
-    close(uicos)
+    close(uflxnt)
     close(ubiomet)
     close(uqc)
 
@@ -2287,13 +2282,13 @@ program EddyproRP
     write(*, '(a)') ' Done.'
 
     !> Edit .eddypro file updating path to ex_file
-    call ForceSlash(ICOS_Path, .false.)
+    call ForceSlash(FLUXNET_Path, .false.)
     call EditIniFile(trim(PrjPath), 'ex_file', &
-        trim(ICOS_Path(1:index(ICOS_Path, '.tmp')-1)))
+        trim(FLUXNET_Path(1:index(FLUXNET_Path, '.tmp')-1)))
 
     if (EddyProProj%run_env /= 'embedded') &
         write(*, '(a)') ' Essentials file path: ' &
-            // trim(ICOS_Path(1:index(ICOS_Path, '.tmp')-1))
+            // trim(FLUXNET_Path(1:index(FLUXNET_Path, '.tmp')-1))
 
     !> Copy ".eddypro" file into output folder
     call CopyFile(trim(adjustl(PrjPath)), &

@@ -198,11 +198,11 @@ ts_extract_subperiod_indexes.o: \
 write_out_biomet.o: \
 	write_out_biomet.f90 \
 	m_rp_global_var.o
-write_icos_output_rp.o: \
-	write_icos_output_rp.f90 \
+write_out_fluxnet.o: \
+	write_out_fluxnet.f90 \
 	m_rp_global_var.o
-write_out_icos_only_biomet.o: \
-	write_out_icos_only_biomet.f90 \
+write_out_fluxnet_only_biomet.o: \
+	write_out_fluxnet_only_biomet.f90 \
 	m_rp_global_var.o
 out_raw_data.o: \
 	out_raw_data.f90 \
@@ -462,9 +462,6 @@ planar_fit_aux_params.o: \
 timestamp.o: \
 	timestamp.f90 \
 	m_numeric_kinds.o
-write_out_ameriflux_rp.o: \
-	write_out_ameriflux_rp.f90 \
-	m_rp_global_var.o
 fourier_transform.o: \
 	fourier_transform.f90 \
 	m_rp_global_var.o
@@ -811,9 +808,6 @@ spectra_sorting_and_averaging.o: \
 	m_fx_global_var_mod.o
 subtract_high_freq_noise.o: \
 	subtract_high_freq_noise.f90 \
-	m_fx_global_var_mod.o
-write_ameriflux_output.o: \
-	write_ameriflux_output.f90 \
 	m_fx_global_var_mod.o
 report_imported_spectra.o: \
 	report_imported_spectra.f90 \

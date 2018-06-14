@@ -54,8 +54,6 @@ subroutine InitOutFiles_rp()
     character(LongOutstringLen) :: head2_utf8
     character(LongOutstringLen) :: head3_utf8
     character(LongOutstringLen) :: dataline
-    integer :: today(3), now(3)
-    character(8) :: dum_string
     logical :: proceed
     include '../src_common/interfaces.inc'
 
@@ -682,14 +680,14 @@ subroutine InitOutFiles_rp()
 
     !>==========================================================================
     !>==========================================================================
-    !> ICOS output
-    if (EddyProProj%out_icos) then
+    !> FLUXNET output
+    if (EddyProProj%out_fluxnet) then
         Test_Path = Dir%main_out(1:len_trim(Dir%main_out)) &
                   // EddyProProj%id(1:len_trim(EddyProProj%id)) &
-                  // ICOS_FilePadding // Timestamp_FilePadding // CsvExt
+                  // FLUXNET_FilePadding // Timestamp_FilePadding // CsvExt
         dot = index(Test_Path, CsvExt, .true.) - 1
-        ICOS_Path = Test_Path(1:dot) // CsvTmpExt
-        open(uicos, file = ICOS_Path, iostat = open_status, encoding = 'utf-8')
+        FLUXNET_Path = Test_Path(1:dot) // CsvTmpExt
+        open(uflxnt, file = FLUXNET_Path, iostat = open_status, encoding = 'utf-8')
 
         call clearstr(dataline)
         dataline = 'TIMESTAMP_START,TIMESTAMP_END,DOY_START,DOY_END,SW_IN_POT,NIGHT,EXPECT_NR,&
@@ -840,163 +838,7 @@ subroutine InitOutFiles_rp()
         call uppercase(e2sg(gas4)) 
         dataline = replace2(dataline, 'GS4', e2sg(gas4)(1:len_trim(e2sg(gas4)) - 1)) 
 
-        write(uicos, '(a)') dataline(1:len_trim(dataline) - 1)
-    end if
-
-    !>==========================================================================
-    !>==========================================================================
-    !> FLUXNET EDDY output
-
-    !> Even if it was selected for output, FLUXNET eddy is not created if
-    !> FCC will run
-    if (EddyProProj%fcc_follows) EddyProProj%out_fluxnet_eddy = .false.
-
-    if (EddyProProj%out_fluxnet_eddy) then
-        Test_Path = Dir%main_out(1:len_trim(Dir%main_out)) &
-                  // EddyProProj%id(1:len_trim(EddyProProj%id)) &
-                  // FLUXNET_EDDY_FilePadding // Timestamp_FilePadding // CsvExt
-        dot = index(Test_Path, CsvExt, .true.) - 1
-        FLUXNET_EDDY_Path = Test_Path(1:dot) // CsvTmpExt
-        open(ufnet_e, file = FLUXNET_EDDY_Path, &
-            iostat = open_status, encoding = 'utf-8')
-
-        !> Initialize header strings to void
-        call Clearstr(header2)
-        call Clearstr(header3)
-        call Clearstr(head2_utf8)
-        call Clearstr(head3_utf8)
-
-        !> Initial common part
-        call AddDatum(header2,'TIMESTAMP', separator)
-        call AddDatum(header3,'[yyyymmddHHMMSS]', separator)
-
-        !>======================================================================
-        !> Variables located at the EC stations
-        !> GASES
-        do gas = co2, gas4
-            if(OutVarPresent(gas)) then
-                select case (gas)
-                    case(co2)
-                        call AddDatum(header2, 'CO2_1_1_1', separator)
-                        call AddDatum(header3, &
-                            '[mmolCO2 mol-1]', separator)
-                    case(h2o)
-                        call AddDatum(header2, 'H2O_1_1_1', separator)
-                        call AddDatum(header3, '[mmolH2O mol-1]', separator)
-                    case(ch4)
-                        call AddDatum(header2, 'CH4_1_1_1', separator)
-                        call AddDatum(header3, '[nmolCH4 mol-1]', separator)
-                    case(gas4)
-                        call AddDatum(header2, &
-                            trim(adjustl(e2sg(gas4))) // '1_1_1', separator)
-                        call AddDatum(header3, '[nmol' &
-                            // trim(adjustl(e2sg(gas4))) //' mol-1]', separator)
-                end select
-            end if
-        end do
-        call AddDatum(header2,&
-            'TAU_1_1_1,TAU_SSITC_TEST_1_1_1,H_1_1_1,H_SSITC_TEST_1_1_1', separator)
-        call AddDatum(header3,'[kg m-1 s-2],[#],[W m-2],[#]', separator)
-        if(OutVarPresent(h2o)) then
-            call AddDatum(header2,'LE_1_1_1,LE_SSITC_TEST_1_1_1', separator)
-            call AddDatum(header3,'[W m-2],[#]', separator)
-        end if
-        if(OutVarPresent(co2)) then
-            call AddDatum(header2,'FC_1_1_1,FC_SSITC_TEST_1_1_1', separator)
-            call AddDatum(header3,'[umolCO2 m-2 s-1],[#]', separator)
-        end if
-        if(OutVarPresent(ch4)) then
-            call AddDatum(header2,'FCH4_1_1_1,FCH4_SSITC_TEST_1_1_1', separator)
-            call AddDatum(header3,'[nmolCH4 m-2 s-1],[#]', separator)
-        end if
-        if(OutVarPresent(gas4)) then
-            call AddDatum(header2,'F' // trim(adjustl(e2sg(gas4))) &
-                // '1_1_1,' // trim(adjustl(e2sg(gas4))) // 'SSITC_TEST_1_1_1', separator)
-            call AddDatum(header3,'[nmol'// trim(adjustl(e2sg(gas4))) &
-                //' m-2 s-1],[#]', separator)
-        end if
-
-        !> MET_WIND and FOOTPRINT
-        call AddDatum(header2,'WD_0_0_1,WS_0_0_1,WS_MAX_0_0_1,U_SIGMA_0_0_1,&
-            &V_SIGMA_0_0_1,W_SIGMA_0_0_1,USTAR_0_0_1,MO_LENGTH_0_0_1,ZL_0_0_1,&
-            &FETCH_MAX_0_0_1,FETCH_70_0_0_1,FETCH_80_0_0_1,FETCH_90_0_0_1', separator)
-        call AddDatum(header3,'[Decimal degrees],[m s-1],[m s-1],[m s-1],&
-            &[m s-1],[m s-1],[m s-1],[m],[#],[m],[m],[m],[m]', separator)
-
-        !> MET_ATM
-        call AddDatum(header2,'PA_0_0_1,RH_0_0_1,TA_0_0_1,VPD_0_0_1,T_SONIC_0_0_1,&
-            &T_SONIC_SIGMA_0_0_1', separator)
-        call AddDatum(header3,'[kPa],[%],[deg C],[hPa],[deg C],[deg C]', separator)
-
-        call latin1_to_utf8(header2, head2_utf8)
-        call latin1_to_utf8(header3, head3_utf8)
-
-        !> Write on output file
-        write(ufnet_e, '(a)') head2_utf8(1:len_trim(head2_utf8) - 1)
-        write(ufnet_e, '(a)') head3_utf8(1:len_trim(head3_utf8) - 1)
-    end if
-
-    !>==========================================================================
-    !>==========================================================================
-    !> AmeriFlux output
-    if (EddyProProj%out_amflux) then
-        Test_Path = Dir%main_out(1:len_trim(Dir%main_out)) &
-                  // EddyProProj%id(1:len_trim(EddyProProj%id)) &
-                  // AmeriFlux_FilePadding // Timestamp_FilePadding // CsvExt
-        dot = index(Test_Path, CsvExt, .true.) - 1
-        AmeriFlux_Path = Test_Path(1:dot) // CsvTmpExt
-        open(uaflx, file = AmeriFlux_Path, iostat = open_status, encoding = 'utf-8')
-
-        write(uaflx, '(a)') 'Sitename:' // Metadata%sitename(1:len_trim(Metadata%sitename))
-        write(uaflx, '(a, f12.7, a, f12.7, a, f6.0)') 'Location: Latitude: ', Metadata%lat, &
-            ' - Longitude: ', Metadata%lon, ' - Elevation (masl): ', Metadata%alt
-        write(uaflx, '(a)') 'Principal investigator: '
-        write(uaflx, '(a)') 'Ecosystem type: '
-        call idate(today)   ! today(1)=day, (2)=month, (3)=year
-        call itime(now)     ! now(1)=hour, (2)=minute, (3)=second
-        call clearstr(dataline)
-        write(dum_string, '(i4)') today(3)
-        dataline(1:5) = dum_string(1:4) // '-'
-        write(dum_string, '(i2)') today(2)
-        if(dum_string(1:1) == ' ') dum_string(1:1) = '0'
-        dataline(6:8) = dum_string(1:2) // '-'
-        write(dum_string, '(i2)') today(1)
-        if(dum_string(1:1) == ' ') dum_string(1:1) = '0'
-        dataline(9:11) = dum_string(1:2) // 'T'
-        write(dum_string, '(i2)') now(1)
-        if(dum_string(1:1) == ' ') dum_string(1:1) = '0'
-        dataline(12:14) = dum_string(1:2) // ':'
-        write(dum_string, '(i2)') now(2)
-        if(dum_string(1:1) == ' ') dum_string(1:1) = '0'
-        dataline(15:16) = dum_string(1:2)
-        write(uaflx, '(a)') 'File creation date: ' // dataline(1:len_trim(dataline))
-        write(uaflx, '(a)') 'Datapolicy:  -- The AmeriFlux data provided on this site&
-            & are freely available and were furnished by individual AmeriFlux scientists who encourage their use.'
-        write(uaflx, '(a)') 'Please kindly inform in writing (or e-mail) the appropriate AmeriFlux scientist(s)&
-            & of how you intend to use the data and of any publication plans.'
-        write(uaflx, '(a)') 'It is also important to contact the AmeriFlux investigator to assure you are downloading&
-            & the latest revision of the data and to prevent potential misuse or misinterpretation of the data.'
-        write(uaflx, '(a)') 'Please acknowledge the data source as a citation or in the&
-            & acknowledgments if no citation is available.'
-        write(uaflx, '(a)') 'If the AmeriFlux Principal Investigators (PIs) feel that they should be acknowledged&
-            & or offered participation as authors they will let you know.'
-        write(uaflx, '(a)') 'And we assume that an agreement on such matters will be reached&
-            & before publishing and/or use of the data for publication.'
-        write(uaflx, '(a)') 'If your work directly competes with the PIs analysis they may ask that they have the&
-            & opportunity to submit a manuscript before you submit one that uses unpublished data.'
-        write(uaflx, '(a)') 'In addition when publishing please acknowledge the agency that supported the research. --'
-        write(uaflx, '(a)') 'File Origin (4 lines) - To be compiled by AmeriFlux data management group.'
-        write(uaflx, '(a)') 'File Origin (4 lines) - To be compiled by AmeriFlux data management group.'
-        write(uaflx, '(a)') 'File Origin (4 lines) - To be compiled by AmeriFlux data management group.'
-        write(uaflx, '(a)') 'File Origin (4 lines) - To be compiled by AmeriFlux data management group.'
-        write(uaflx, '(a)') 'YEAR,GAP,DTIME,DOY,HRMIN,UST,TA,WD,WS,NEE,FC,SFC,H,SH,LE,SLE,FG,TS1,TSdepth1,TS2,TSdepth2,&
-            &PREC,RH,PRESS,CO2,VPD,SWC1,SWC2,Rn,PAR,Rg,Rgdif,PARout,RgOut,Rgl,RglOut,&
-            &H2O,RE,GPP,CO2top,CO2height,APAR,PARdif,APARpct,ZL'
-        write(uaflx, '(a)') 'YEAR,GAP,DTIME,DOY,HRMIN,m/s,deg C,deg,m/s,umol/m2/s,umol/m2/s,&
-            &umol/m2/s,W/m2,W/m2,W/m2,W/m2,W/m2,&
-            &deg C,cm,deg C,cm,mm,%,kPa,umol/mol,kPa,%,%,W/m2,umol/m2/s,W/m2,W/m2,umol/m2/s,&
-            &W/m2,W/m2,W/m2,mmol/mol,umol/m2/s,&
-            &umol/m2/s,umol/mol,m,umol/m2/s,umol/m2/s,%,unitless'
+        write(uflxnt, '(a)') dataline(1:len_trim(dataline) - 1)
     end if
 
     !>==========================================================================

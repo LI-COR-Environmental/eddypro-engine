@@ -43,7 +43,6 @@ subroutine WriteOutputFiles(lEx)
     integer :: gas
     integer :: igas
     character(DatumLen) :: datum
-    character(14) :: iso_basic
     include '../src_common/interfaces_1.inc'
 
     !>***************************************************************
@@ -531,158 +530,6 @@ subroutine WriteOutputFiles(lEx)
 
     !>****************************************************************
     !>****************************************************************
-    !> FLUXNET output
-    if (EddyProProj%out_fluxnet) then
-        call clearstr(dataline)
-
-        !> derive ISO basic format timestamp
-        iso_basic = lEx%date(1:4) // lEx%date(6:7) &
-            // lEx%date(9:10) // lEx%time(1:2) // lEx%time(4:5) // '00'
-
-        call clearstr(dataline)
-        call AddDatum(dataline, trim(adjustl(iso_basic)), separator)
-
-        !> Gas concentrations
-        do gas = co2, h2o
-            if (fcc_var_present(gas)) then
-                call WriteDatumFloat(lEx%chi(gas), datum, '-9999.')
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-        do gas = ch4, gas4
-            if (fcc_var_present(gas)) then
-                call WriteDatumFloat(lEx%chi(gas) * 1d3, datum, '-9999.')
-                call AddDatum(dataline, datum, separator)
-            end if
-        end do
-
-        !> Corrected fluxes (Level 3)
-        !> Tau
-        call WriteDatumFloat(Flux3%tau, datum, '-9999.')
-        call AddDatum(dataline, datum, separator)
-        call WriteDatumInt(QCFlag%tau, datum, '-9999.')
-        call AddDatum(dataline, datum, separator)
-        !> H
-        call WriteDatumFloat(Flux3%H, datum, '-9999.')
-        call AddDatum(dataline, datum, separator)
-        call WriteDatumInt(QCFlag%H, datum, '-9999.')
-        call AddDatum(dataline, datum, separator)
-        !> LE
-        if(fcc_var_present(h2o)) then
-            write(datum, *) Flux3%LE
-            call AddDatum(dataline, datum, separator)
-            call WriteDatumInt(QCFlag%h2o, datum, '-9999.')
-            call AddDatum(dataline, datum, separator)
-        end if
-        !> Gases
-        if(fcc_var_present(co2)) then
-            call WriteDatumFloat(Flux3%co2, datum, '-9999.')
-            call AddDatum(dataline, datum, separator)
-            call WriteDatumInt(QCFlag%co2, datum, '-9999.')
-            call AddDatum(dataline, datum, separator)
-        end if
-        if(fcc_var_present(ch4)) then
-            call WriteDatumFloat(Flux3%ch4 * 1d3, datum, '-9999.')
-            call AddDatum(dataline, datum, separator)
-            call WriteDatumInt(QCFlag%ch4, datum, '-9999.')
-            call AddDatum(dataline, datum, separator)
-        end if
-        if(fcc_var_present(gas4)) then
-            call WriteDatumFloat(Flux3%gas4 * 1d3, datum, '-9999.')
-            call AddDatum(dataline, datum, separator)
-            call WriteDatumInt(QCFlag%gas4, datum, '-9999.')
-            call AddDatum(dataline, datum, separator)
-        end if
-
-        !> Turbulence
-        call WriteDatumFloat(lEx%WD, datum, '-9999.')
-        call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(lEx%WS, datum, '-9999.')
-        call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(lEx%MWS, datum, '-9999.')
-        call AddDatum(dataline, datum, separator)
-        if(lEx%var(u) > 0d0) then
-            call WriteDatumFloat(dsqrt(lEx%var(u)), datum, '-9999.')
-            call AddDatum(dataline, datum, separator)
-        else
-            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
-        end if
-        if(lEx%var(v) > 0d0) then
-            call WriteDatumFloat(dsqrt(lEx%var(v)), datum, '-9999.')
-            call AddDatum(dataline, datum, separator)
-        else
-            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
-        end if
-        if(lEx%var(w) > 0d0) then
-            call WriteDatumFloat(dsqrt(lEx%var(w)), datum, '-9999.')
-            call AddDatum(dataline, datum, separator)
-        else
-            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
-        end if
-        call WriteDatumFloat(lEx%ustar, datum, '-9999.')
-        call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(lEx%L, datum, '-9999.')
-        call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(lEx%zL, datum, '-9999.')
-        call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(Foot%peak, datum, '-9999.')
-        call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(Foot%x70, datum, '-9999.')
-        call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(Foot%x80, datum, '-9999.')
-        call AddDatum(dataline, datum, separator)
-        call WriteDatumFloat(Foot%x90, datum, '-9999.')
-        call AddDatum(dataline, datum, separator)
-
-        !> Ambient pressure in kPa
-        if (lEx%Pa /= error) then
-            call WriteDatumFloat(lEx%Pa * 1d-3, datum, '-9999.')
-            call AddDatum(dataline, datum, separator)
-        else
-            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
-        end if
-
-        !> RH
-        call WriteDatumFloat(lEx%RH, datum, '-9999.')
-        call AddDatum(dataline, datum, separator)
-
-        !> Ambient temperature in degC
-        if (lEx%Ta /= error) then
-            call WriteDatumFloat(lEx%Ta - 273.15d0, datum, '-9999.')
-            call AddDatum(dataline, datum, separator)
-        else
-            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
-        end if
-
-        !> VPD in hPa
-        if (lEx%VPD /= error) then
-            call WriteDatumFloat(lEx%VPD * 1d-2, datum, '-9999.')
-            call AddDatum(dataline, datum, separator)
-        else
-            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
-        end if
-
-        !> Sonic temperature in degC
-        if (lEx%Ts /= error) then
-            call WriteDatumFloat(lEx%Ts - 273.15d0, datum, '-9999.')
-            call AddDatum(dataline, datum, separator)
-        else
-            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
-        end if
-
-        !> Sonic temperature standard deviation
-        if(lEx%var(ts) > 0d0) then
-            call WriteDatumFloat(dsqrt(lEx%var(ts)), datum, '-9999.')
-            call AddDatum(dataline, datum, separator)
-        else
-            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
-        end if
-
-        write(ufnet_e, '(a)') dataline(1:len_trim(dataline) - 1)
-    end if
-
-    !>****************************************************************
-    !>****************************************************************
     !> write to metadata output file
     if (EddyProProj%out_md) then
         call clearstr(dataline)
@@ -771,8 +618,8 @@ subroutine WriteOutputFiles(lEx)
 
     !>****************************************************************
     !>****************************************************************
-    !>Write out ICOS output file
-    if (EddyProProj%out_icos) then
+    !>Write out FLUXNET output file
+    if (EddyProProj%out_fluxnet) then
         call clearstr(dataline)
         !> Timestamp
         call AddDatum(dataline, trim(lEx%timestamp), separator)
@@ -1172,7 +1019,7 @@ subroutine WriteOutputFiles(lEx)
 
         !> Write first string from Chunks
         !> M_CUSTOM_FLAGS thru VM97_NSW_RNS
-        call AddDatum(dataline, trim(icosChunks%s(1)), separator)
+        call AddDatum(dataline, trim(fluxnetChunks%s(1)), separator)
         !> VM97 flags and Foken's QC details
         do i = 1, 12
             call AddDatum(dataline, trim(lEx%vm_flags(i)), separator)
@@ -1198,7 +1045,7 @@ subroutine WriteOutputFiles(lEx)
 
         !> Write second string from Chunks
         !> FK04_ST_FLAG_W_U thru ...
-        call AddDatum(dataline, icosChunks%s(2), separator)
+        call AddDatum(dataline, fluxnetChunks%s(2), separator)
 
         !> LI-COR's IRGAs diagnostics breakdown
         do i = 1, 29
@@ -1216,7 +1063,7 @@ subroutine WriteOutputFiles(lEx)
 
         !> Write third string from Chunks
         !> WBOOST_APPLIED thru AXES_ROTATION_METHOD
-        call AddDatum(dataline, icosChunks%s(3), separator)
+        call AddDatum(dataline, fluxnetChunks%s(3), separator)
 
         !> Rotation angles
         call WriteDatumFloat(lEx%yaw, datum, EddyProProj%err_label)
@@ -1234,7 +1081,7 @@ subroutine WriteOutputFiles(lEx)
 
         !> Write forth string from Chunks
         !> TIMELAG_DETECTION_METHOD thru FOOTPRINT_MODEL
-        call AddDatum(dataline, icosChunks%s(4), separator)
+        call AddDatum(dataline, fluxnetChunks%s(4), separator)
 
         !> Metadata
         call WriteDatumInt(lEx%logger_swver%major, datum, EddyProProj%err_label)
@@ -1309,11 +1156,11 @@ subroutine WriteOutputFiles(lEx)
 
         !> Write fifth string from Chunks
         !> Custom variables and biomet data
-        call AddDatum(dataline, icosChunks%s(5), separator)
+        call AddDatum(dataline, fluxnetChunks%s(5), separator)
 
         !> Replace NaN or -9999 with user-defined error code
         dataline = replace2(dataline, ',-9999,', ',' // trim(EddyProProj%err_label) // ',')
         dataline = replace2(dataline, ',NaN,',   ',' // trim(EddyProProj%err_label) // ',')
     end if
-    write(uicos, '(a)') dataline(1:len_trim(dataline) - 1)
+    write(uflxnt, '(a)') dataline(1:len_trim(dataline) - 1)
 end subroutine WriteOutputFiles
