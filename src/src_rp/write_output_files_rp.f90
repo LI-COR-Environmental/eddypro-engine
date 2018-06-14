@@ -769,7 +769,7 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, &
         call WriteDatumFloat(Ambient%Va, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
         if (Flux3%h2o /= error) then
-            call WriteDatumFloat(Flux3%h2o * 0.0648d0, datum, EddyProProj%err_label)
+            call WriteDatumFloat(Flux3%h2o * h2o_to_ET, datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         else
             call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)

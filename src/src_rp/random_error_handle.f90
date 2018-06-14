@@ -50,6 +50,7 @@ subroutine RandomUncertaintyHandle(Set, nrow, ncol)
         case('none')
             Essentials%rand_uncer(u:gas4) = error
             Essentials%rand_uncer_LE = error
+            Essentials%rand_uncer_ET = error
         case('mahrt_98')
             !> Mahrt has been calculated already, so don't need to do anything
             continue
@@ -57,6 +58,7 @@ subroutine RandomUncertaintyHandle(Set, nrow, ncol)
             call ExceptionHandler(42)
             Essentials%rand_uncer(u:gas4) = error
             Essentials%rand_uncer_LE = error
+            Essentials%rand_uncer_ET = error
             return
     end select
     write(*, '(a)') '  Done.'

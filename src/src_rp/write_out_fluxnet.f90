@@ -114,6 +114,7 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
     call AddFloatDatumToDataline(Flux3%tau, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Flux3%H, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Flux3%LE, dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Flux3%ET, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Flux3%co2, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Flux3%h2o, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Flux3%ch4, dataline, EddyProProj%err_label, gain=1d3, offset=0d0)
@@ -123,6 +124,7 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
     call AddFloatDatumToDataline(Essentials%rand_uncer(u), dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Essentials%rand_uncer(ts), dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Essentials%rand_uncer_LE, dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Essentials%rand_uncer_ET, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Essentials%rand_uncer(co2), dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Essentials%rand_uncer(h2o), dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Essentials%rand_uncer(ch4), dataline, EddyProProj%err_label, gain=1d3, offset=0d0)
@@ -318,6 +320,7 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
     call AddFloatDatumToDataline(Flux0%tau, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Flux0%H, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Flux0%LE, dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Flux0%ET, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Flux0%co2, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Flux0%h2o, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Flux0%ch4, dataline, EddyProProj%err_label, gain=1d3, offset=0d0)
@@ -326,6 +329,7 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
     call AddFloatDatumToDataline(Flux1%tau, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Flux1%H, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Flux1%LE, dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Flux1%ET, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Flux1%co2, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Flux1%h2o, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Flux1%ch4, dataline, EddyProProj%err_label, gain=1d3, offset=0d0)
@@ -334,6 +338,7 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
     call AddFloatDatumToDataline(Flux2%tau, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Flux2%H, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Flux2%LE, dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Flux2%ET, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Flux2%co2, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Flux2%h2o, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Flux2%ch4, dataline, EddyProProj%err_label, gain=1d3, offset=0d0)
@@ -386,37 +391,42 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
     !> Spectral correction factors
     if (E2Col(u)%present) then
         call AddFloatDatumToDataline(BPCF%of(w_u), dataline, EddyProProj%err_label)
-        else
+    else
         call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
     end if
     if (E2Col(ts)%present) then
         call AddFloatDatumToDataline(BPCF%of(w_ts), dataline, EddyProProj%err_label)
-        else
+    else
         call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
     end if
     if (E2Col(h2o)%present) then
         call AddFloatDatumToDataline(BPCF%of(w_h2o), dataline, EddyProProj%err_label)
-        else
+    else
+        call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+    end if
+    if (E2Col(h2o)%present) then
+        call AddFloatDatumToDataline(BPCF%of(w_h2o), dataline, EddyProProj%err_label)
+    else
         call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
     end if
     if (E2Col(co2)%present) then
         call AddFloatDatumToDataline(BPCF%of(w_co2), dataline, EddyProProj%err_label)
-        else
+    else
         call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
     end if
     if (E2Col(h2o)%present) then
         call AddFloatDatumToDataline(BPCF%of(w_h2o), dataline, EddyProProj%err_label)
-        else
+    else
         call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
     end if
     if (E2Col(ch4)%present) then
         call AddFloatDatumToDataline(BPCF%of(w_ch4), dataline, EddyProProj%err_label)
-        else
+    else
         call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
     end if
     if (E2Col(gas4)%present) then
         call AddFloatDatumToDataline(BPCF%of(w_gas4), dataline, EddyProProj%err_label)
-        else
+    else
         call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
     end if
 
@@ -550,9 +560,10 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
     !> Final Foken flags
     call AddIntDatumToDataline(QCFlag%tau, dataline, EddyProProj%err_label)
     call AddIntDatumToDataline(QCFlag%H, dataline, EddyProProj%err_label)
-    call AddIntDatumToDataline(QCFlag%h2o, dataline, EddyProProj%err_label)
+    call AddIntDatumToDataline(QCFlag%h2o, dataline, EddyProProj%err_label)     !< This is for LE
+    call AddIntDatumToDataline(QCFlag%h2o, dataline, EddyProProj%err_label)     !< This is for ET
     call AddIntDatumToDataline(QCFlag%co2, dataline, EddyProProj%err_label)
-    call AddIntDatumToDataline(QCFlag%h2o, dataline, EddyProProj%err_label)
+    call AddIntDatumToDataline(QCFlag%h2o, dataline, EddyProProj%err_label)     !< This is for h2o
     call AddIntDatumToDataline(QCFlag%ch4, dataline, EddyProProj%err_label)
     call AddIntDatumToDataline(QCFlag%gas4, dataline, EddyProProj%err_label)
 

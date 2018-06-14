@@ -88,21 +88,25 @@ subroutine Fluxes1_rp()
     if (E2Col(h2o)%Instr%path_type == 'closed') then
         Flux1%h2o = Flux0%h2o
         Flux1%E   = Flux0%E
+        Flux1%ET  = Flux0%ET
         Flux1%LE  = Flux0%LE
     else
         if (BPCF%of(w_h2o) /= error) then
             Flux1%h2o = Flux0%h2o * BPCF%of(w_h2o)
             Flux1%E   = Flux0%E   * BPCF%of(w_h2o)
+            Flux1%ET  = Flux0%ET  * BPCF%of(w_h2o)
             Flux1%LE  = Flux0%LE  * BPCF%of(w_h2o)
         else
             Flux1%h2o = Flux0%h2o
             Flux1%E   = Flux0%E
+            Flux1%ET  = Flux0%ET
             Flux1%LE  = Flux0%LE
         end if
     end if
     if (Flux0%h2o == error) then
         Flux1%h2o = error
         Flux1%E   = error
+        Flux1%ET  = error
         Flux1%LE  = error
     end if
 

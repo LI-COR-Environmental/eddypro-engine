@@ -163,6 +163,7 @@ module m_common_global_var
     data (Dc(mmm), mmm = co2, gas4) / 0.00001381d0, 0.00002178d0, 0.00001952d0, 0.00001436d0/ !--> Massman (1998, Atm Env, Table 2)
     real(kind = sgl) :: MW(E2NumVar) !< Molecular weights
     data (MW(mmm), mmm = co2, gas4) / 44.01e-3, 18.02e-3, 16.04e-3, 44.01e-3/
+    real(kind = dbl), parameter :: h2o_to_ET =  0.0648d0  !< To convert between H2O flux [mmol m-2 s-1] and ET flux (mm  hour-1)
     real(kind = dbl), parameter :: p = 3.14159265358979323846d0 !< Greek pi
     real(kind = dbl), parameter :: StdVair = 0.02245d0  !< gas molar volume at 25 �C and 101.325 kPa
     real(kind = dbl), parameter :: vk = 0.41d0 !< Von Karman constant
@@ -330,7 +331,7 @@ module m_common_global_var
         NullBiometCol = BiometColType('none', 'none', 'none', 'none', 'none', error, error)
 
     type(fluxtype), parameter :: &
-        errFlux = fluxtype('', '', error, error, error, error, error, error, error, &
+        errFlux = fluxtype('', '', error, error, error, error, error, error, error, error, &
             error, error, error, error, error, error, error, error, error, &
             error, error)
 
