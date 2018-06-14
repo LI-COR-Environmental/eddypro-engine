@@ -54,8 +54,6 @@ subroutine InitOutFiles_rp()
     character(LongOutstringLen) :: head2_utf8
     character(LongOutstringLen) :: head3_utf8
     character(LongOutstringLen) :: dataline
-    integer :: today(3), now(3)
-    character(8) :: dum_string
     logical :: proceed
     include '../src_common/interfaces.inc'
 
@@ -682,14 +680,14 @@ subroutine InitOutFiles_rp()
 
     !>==========================================================================
     !>==========================================================================
-    !> ICOS output
-    if (EddyProProj%out_icos) then
+    !> FLUXNET output
+    if (EddyProProj%out_fluxnet) then
         Test_Path = Dir%main_out(1:len_trim(Dir%main_out)) &
                   // EddyProProj%id(1:len_trim(EddyProProj%id)) &
-                  // ICOS_FilePadding // Timestamp_FilePadding // CsvExt
+                  // FLUXNET_FilePadding // Timestamp_FilePadding // CsvExt
         dot = index(Test_Path, CsvExt, .true.) - 1
-        ICOS_Path = Test_Path(1:dot) // CsvTmpExt
-        open(uicos, file = ICOS_Path, iostat = open_status, encoding = 'utf-8')
+        FLUXNET_Path = Test_Path(1:dot) // CsvTmpExt
+        open(uflxnt, file = FLUXNET_Path, iostat = open_status, encoding = 'utf-8')
 
         call clearstr(dataline)
         dataline = 'TIMESTAMP_START,TIMESTAMP_END,DOY_START,DOY_END,SW_IN_POT,NIGHT,EXPECT_NR,&
@@ -840,7 +838,7 @@ subroutine InitOutFiles_rp()
         call uppercase(e2sg(gas4)) 
         dataline = replace2(dataline, 'GS4', e2sg(gas4)(1:len_trim(e2sg(gas4)) - 1)) 
 
-        write(uicos, '(a)') dataline(1:len_trim(dataline) - 1)
+        write(uflxnt, '(a)') dataline(1:len_trim(dataline) - 1)
     end if
 
     !>==========================================================================

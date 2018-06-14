@@ -39,17 +39,14 @@ subroutine InitOutFiles()
     integer :: dot
     integer :: gas
     integer :: i
-    integer :: today(3), now(3)
     character(PathLen) :: Test_Path
     character(64) :: e2sg(E2NumVar)
-    character(8) :: dum_string
     character(LongOutstringLen) :: header1
     character(LongOutstringLen) :: header2
     character(LongOutstringLen) :: header3
     character(LongOutstringLen) :: head1_utf8
     character(LongOutstringLen) :: head2_utf8
     character(LongOutstringLen) :: head3_utf8
-    character(LongOutstringLen) :: dataline
     integer, external :: CreateDir
 
 
@@ -549,19 +546,19 @@ subroutine InitOutFiles()
     !***************************************************************************
     !***************************************************************************
 
-    if (EddyProProj%out_icos) then
+    if (EddyProProj%out_fluxnet) then
         !> Create output directory if it does not exist
         mkdir_status = CreateDir('"' // Dir%main_out(1:len_trim(Dir%main_out)) // '"')
 
         Test_Path = Dir%main_out(1:len_trim(Dir%main_out)) &
                   // EddyProProj%id(1:len_trim(EddyProProj%id)) &
-                  // ICOS_FilePadding // Timestamp_FilePadding // CsvExt
+                  // FLUXNET_FilePadding // Timestamp_FilePadding // CsvExt
         dot = index(Test_Path, CsvExt, .true.) - 1
-        ICOS_Path = Test_Path(1:dot) // CsvTmpExt
-        open(uicos, file = ICOS_Path, iostat = open_status, encoding = 'utf-8')
+        FLUXNET_Path = Test_Path(1:dot) // CsvTmpExt
+        open(uflxnt, file = FLUXNET_Path, iostat = open_status, encoding = 'utf-8')
 
         !> Write on output file
-        write(uicos, '(a)') trim(icos_header)
+        write(uflxnt, '(a)') trim(fluxnet_header)
     end if
 
 end subroutine InitOutFiles

@@ -54,14 +54,14 @@ subroutine CreateDatasetsCommon(TimeSeries, nrow, StartIndx, EndIndx)
         write(*,'(a)') ' Done.'
     end if
 
-    !> ICOS file - NEVER filled. Only renamed.
-    if (EddyProProj%out_icos) then
+    !> FLUXNET file - NEVER filled. Only renamed.
+    if (EddyProProj%out_fluxnet) then
         write(*,'(a)', advance = 'no') &
-            '  Closing ICOS output file..'
-        tmp_indx = index(ICOS_Path, TmpExt)
-        OutPath = ICOS_Path(1: tmp_indx - 1)
+            '  Closing FLUXNET output file..'
+        tmp_indx = index(FLUXNET_Path, TmpExt)
+        OutPath = FLUXNET_Path(1: tmp_indx - 1)
         move_status = system(comm_move // '"' &
-            // ICOS_Path(1:len_trim(ICOS_Path)) // '" "' &
+            // FLUXNET_Path(1:len_trim(FLUXNET_Path)) // '" "' &
             // OutPath(1:len_trim(OutPath)) // '"' &
             // comm_out_redirect // comm_err_redirect)
             write(*,'(a)') ' Done.'

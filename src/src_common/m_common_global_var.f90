@@ -118,7 +118,7 @@ module m_common_global_var
     character(11), parameter :: PlanarFit_FilePadding   = '_planar_fit'
     character(12), parameter :: TimelagOpt_FilePadding  = '_timelag_opt'
     character(11), parameter :: Essentials_FilePadding  = '_essentials'
-    character(5),  parameter :: ICOS_FilePadding        = '_icos'
+    character(8),  parameter :: FLUXNET_FilePadding     = '_fluxnet'
     character(7),  parameter  :: Biomet_FilePadding     = '_biomet'
     character(14), parameter :: Quality_FilePadding     = '_quality_check'
     character(18), parameter :: WPL_FilePadding         = '_wpl_contributions'
@@ -153,7 +153,7 @@ module m_common_global_var
     character(56), parameter  :: BinnedFilePrototype    = 'yyyymmdd-HHMM_xxxxxx_xxxxxxxxx_xxxx-xx-xxTxxxxxx_xxx.csv'
     character(54), parameter  :: FullFilePrototype      = 'yyyymmdd-HHMM_xxxx_xxxxxxxxx_xxxx-xx-xxTxxxxxx_xxx.csv'
 
-    character(PathLen) :: ICOS_Path
+    character(PathLen) :: FLUXNET_Path
     character(PathLen) :: FullOut_Path
     character(PathLen) :: Metadata_Path
 
@@ -200,7 +200,7 @@ module m_common_global_var
     type(EddyProProjType) :: EddyProProj
     type(SpectralType) :: BPCF
     type(SpectralType) :: ADDCF
-    type(icosChunksType) :: icosChunks
+    type(fluxnetChunksType) :: fluxnetChunks
 
     !> Variables to be validate
     real(kind = dbl) :: PFMat(3, 3, MaxNumWSect) = 0.d0

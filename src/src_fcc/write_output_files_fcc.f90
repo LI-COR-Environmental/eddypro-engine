@@ -618,8 +618,8 @@ subroutine WriteOutputFiles(lEx)
 
     !>****************************************************************
     !>****************************************************************
-    !>Write out ICOS output file
-    if (EddyProProj%out_icos) then
+    !>Write out FLUXNET output file
+    if (EddyProProj%out_fluxnet) then
         call clearstr(dataline)
         !> Timestamp
         call AddDatum(dataline, trim(lEx%timestamp), separator)
@@ -1019,7 +1019,7 @@ subroutine WriteOutputFiles(lEx)
 
         !> Write first string from Chunks
         !> M_CUSTOM_FLAGS thru VM97_NSW_RNS
-        call AddDatum(dataline, trim(icosChunks%s(1)), separator)
+        call AddDatum(dataline, trim(fluxnetChunks%s(1)), separator)
         !> VM97 flags and Foken's QC details
         do i = 1, 12
             call AddDatum(dataline, trim(lEx%vm_flags(i)), separator)
@@ -1045,7 +1045,7 @@ subroutine WriteOutputFiles(lEx)
 
         !> Write second string from Chunks
         !> FK04_ST_FLAG_W_U thru ...
-        call AddDatum(dataline, icosChunks%s(2), separator)
+        call AddDatum(dataline, fluxnetChunks%s(2), separator)
 
         !> LI-COR's IRGAs diagnostics breakdown
         do i = 1, 29
@@ -1063,7 +1063,7 @@ subroutine WriteOutputFiles(lEx)
 
         !> Write third string from Chunks
         !> WBOOST_APPLIED thru AXES_ROTATION_METHOD
-        call AddDatum(dataline, icosChunks%s(3), separator)
+        call AddDatum(dataline, fluxnetChunks%s(3), separator)
 
         !> Rotation angles
         call WriteDatumFloat(lEx%yaw, datum, EddyProProj%err_label)
@@ -1081,7 +1081,7 @@ subroutine WriteOutputFiles(lEx)
 
         !> Write forth string from Chunks
         !> TIMELAG_DETECTION_METHOD thru FOOTPRINT_MODEL
-        call AddDatum(dataline, icosChunks%s(4), separator)
+        call AddDatum(dataline, fluxnetChunks%s(4), separator)
 
         !> Metadata
         call WriteDatumInt(lEx%logger_swver%major, datum, EddyProProj%err_label)
@@ -1156,11 +1156,11 @@ subroutine WriteOutputFiles(lEx)
 
         !> Write fifth string from Chunks
         !> Custom variables and biomet data
-        call AddDatum(dataline, icosChunks%s(5), separator)
+        call AddDatum(dataline, fluxnetChunks%s(5), separator)
 
         !> Replace NaN or -9999 with user-defined error code
         dataline = replace2(dataline, ',-9999,', ',' // trim(EddyProProj%err_label) // ',')
         dataline = replace2(dataline, ',NaN,',   ',' // trim(EddyProProj%err_label) // ',')
     end if
-    write(uicos, '(a)') dataline(1:len_trim(dataline) - 1)
+    write(uflxnt, '(a)') dataline(1:len_trim(dataline) - 1)
 end subroutine WriteOutputFiles

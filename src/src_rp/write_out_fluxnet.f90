@@ -30,7 +30,7 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
+subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
     use m_rp_global_var
     implicit none
     !> in/out variables
@@ -56,7 +56,7 @@ subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
     include '../src_common/interfaces.inc'
 
 
-    !> write ICOS output file (csv) 
+    !> write FLUXNET output file (csv) 
     call clearstr(dataline)
 
     !> Start/end imestamps
@@ -803,5 +803,5 @@ subroutine WriteIcosOutputRp(StDiff, DtDiff, STFlg, DTFlg)
     dataline = replace2(dataline, ',-Infinity,', ',' // trim(EddyProProj%err_label) // ',')
     dataline = replace2(dataline, ',Infinity,', ',' // trim(EddyProProj%err_label) // ',')
 
-    write(uicos, '(a)') dataline(1:len_trim(dataline) - 1)
-end subroutine WriteIcosOutputRp
+    write(uflxnt, '(a)') dataline(1:len_trim(dataline) - 1)
+end subroutine WriteOutFluxnet

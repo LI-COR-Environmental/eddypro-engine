@@ -1,6 +1,6 @@
 !***************************************************************************
-! write_out_icos_only_biomet.f90
-! ------------------------------
+! write_out_fluxnet_only_biomet.f90
+! ---------------------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
 ! Copyright (C) 2011-2015, LI-COR Biosciences
 !
@@ -21,7 +21,7 @@
 !
 !***************************************************************************
 !
-! \brief       Write line to ICOS output with only biomet data, if available
+! \brief       Write line to FLUXNET output with only biomet data, if available
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -30,7 +30,7 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine WriteOutIcosOnlyBiomet()
+subroutine WriteOutFluxnetOnlyBiomet()
     use m_rp_global_var
     implicit none
     !> local variables
@@ -100,6 +100,6 @@ subroutine WriteOutIcosOnlyBiomet()
             call AddFloatDatumToDataline(bAggrOut(i), dataline, EddyProProj%err_label)
         end do
     end if
-    write(uicos, '(a)') dataline(1:len_trim(dataline) - 1)
+    write(uflxnt, '(a)') dataline(1:len_trim(dataline) - 1)
 
-end subroutine WriteOutIcosOnlyBiomet
+end subroutine WriteOutFluxnetOnlyBiomet
