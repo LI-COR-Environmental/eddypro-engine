@@ -48,8 +48,6 @@ subroutine WriteOutFiles(init_string, PeriodRecords, PeriodActualRecords, &
 !    integer :: prof
     character(LongOutstringLen) :: dataline
     character(DatumLen) :: datum
-    character(64) :: tmp_init_string
-    character(14) :: iso_basic
     include '../src_common/interfaces.inc'
 
 
