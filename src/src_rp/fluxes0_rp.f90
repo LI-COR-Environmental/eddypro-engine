@@ -298,16 +298,21 @@ subroutine Fluxes0_rp(printout)
         if (Essentials%rand_uncer(h2o) /= error .and. Ambient%lambda > 0d0) then
             Essentials%rand_uncer_LE = &
                 Essentials%rand_uncer(h2o) * Ambient%lambda * MW(h2o) * 1d-3
+            Essentials%rand_uncer_ET = &
+                Essentials%rand_uncer(h2o) * h2o_to_ET
         else
             Essentials%rand_uncer_LE = error
+            Essentials%rand_uncer_ET = error
         end if
     end if
 
     !> Level 0 evapotranspiration flux [kg m-2 -1]
     if (Flux0%h2o /= error .and. Ambient%lambda > 0d0) then
         Flux0%E = Flux0%h2o * MW(h2o) * 1d-3
+        Flux0%ET = Flux0%h2o * h2o_to_ET
     else
         Flux0%E = error
+        Flux0%ET = error
     end if
 
     !> Level 0 evapotranspiration flux [kg m-2 -1]

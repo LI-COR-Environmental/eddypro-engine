@@ -625,6 +625,7 @@ module m_typedef
         real(kind = dbl) :: ch4
         real(kind = dbl) :: gas4
         real(kind = dbl) :: E
+        real(kind = dbl) :: ET
         real(kind = dbl) :: E_co2
         real(kind = dbl) :: E_ch4
         real(kind = dbl) :: E_gas4
@@ -715,6 +716,7 @@ module m_typedef
         real(kind = dbl) :: mahrt98_NR(GHGNumVar)
         real(kind = dbl) :: rand_uncer(E2NumVar)
         real(kind = dbl) :: rand_uncer_LE
+        real(kind = dbl) :: rand_uncer_ET
         real(kind = dbl) :: ar_s(GHGNumVar)
         real(kind = dbl) :: do_s_ctr(GHGNumVar)
         real(kind = dbl) :: do_s_ext(GHGNumVar)
@@ -1253,6 +1255,7 @@ module m_typedef
         real(kind = dbl) :: user_var(MaxUserVar)
         real(kind = dbl) :: rand_uncer(E2NumVar)
         real(kind = dbl) :: rand_uncer_LE
+        real(kind = dbl) :: rand_uncer_ET
         logical :: daytime
         logical :: var_present(GHGNumVar)
         logical :: def_tlag(GHGNumVar)
@@ -1361,6 +1364,7 @@ module m_typedef
         real(kind = dbl) :: user_var(MaxUserVar)
         real(kind = dbl) :: rand_uncer(E2NumVar)
         real(kind = dbl) :: rand_uncer_LE
+        real(kind = dbl) :: rand_uncer_ET
         logical :: daytime
         logical :: var_present(GHGNumVar)
         logical :: def_tlag(GHGNumVar)

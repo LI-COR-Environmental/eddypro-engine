@@ -675,6 +675,8 @@ subroutine WriteOutputFiles(lEx)
         call AddDatum(dataline, datum, separator)
         call WriteDatumFloat(lEx%rand_uncer_LE, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
+        call WriteDatumFloat(lEx%rand_uncer_ET, datum, EddyProProj%err_label)
+        call AddDatum(dataline, datum, separator)
         do gas = co2, gas4
             call WriteDatumFloat(lEx%rand_uncer(gas), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
