@@ -1,3 +1,19 @@
+!***************************************************************************
+! rfttb.F
+! -------
+! \brief       initialze a work array for RFFTF and RFFTB
+! \author      Paul B. Swarztrauber
+! \note        This routine is part of FFTPACK, which is part of SLATEC
+!              SLATEC is Public Domain Software, see for example:
+!              https://gams.nist.gov/cgi-bin/serve.cgi/Package/SLATEC/
+!              and
+!              https://en.wikipedia.org/wiki/SLATEC#Project_history_and_current_status
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
       SUBROUTINE RFFTI (N,WSAVE)
       DIMENSION       WSAVE(1)
       IF (N .EQ. 1) RETURN
