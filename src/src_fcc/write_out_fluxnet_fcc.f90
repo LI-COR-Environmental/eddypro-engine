@@ -48,12 +48,12 @@ subroutine WriteOutFluxnet(lEx)
 
     call clearstr(dataline)
     !> Timestamp
-    call AddDatum(dataline, trim(lEx%timestamp), separator)
+    call AddDatum(dataline, trim(lEx%end_timestamp), separator)
 
     !> Potential radiation and daytime
     call WriteDatumFloat(lEx%RP, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    call WriteDatumInt(lEx%daytime_int, datum, EddyProProj%err_label)
+    call WriteDatumInt(lEx%nighttime_int, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
 
     !> Number of records
@@ -452,23 +452,23 @@ subroutine WriteOutFluxnet(lEx)
     do i = 1, 12
         call AddDatum(dataline, trim(lEx%vm_flags(i)), separator)
     end do
-    call WriteDatumFloat(lEx%st_w_u, datum, EddyProProj%err_label)
+    call WriteDatumFloat(lEx%tau_ss, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    call WriteDatumFloat(lEx%st_w_ts, datum, EddyProProj%err_label)
+    call WriteDatumFloat(lEx%h_ss, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    call WriteDatumFloat(lEx%st_w_co2, datum, EddyProProj%err_label)
+    call WriteDatumFloat(lEx%fc_ss, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    call WriteDatumFloat(lEx%st_w_h2o, datum, EddyProProj%err_label)
+    call WriteDatumFloat(lEx%fh2o_ss, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    call WriteDatumFloat(lEx%st_w_ch4, datum, EddyProProj%err_label)
+    call WriteDatumFloat(lEx%fch4_ss, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    call WriteDatumFloat(lEx%st_w_gas4, datum, EddyProProj%err_label)
+    call WriteDatumFloat(lEx%fgs4_ss, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    call WriteDatumFloat(lEx%dt_u, datum, EddyProProj%err_label)
+    call WriteDatumFloat(lEx%u_itc, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    call WriteDatumFloat(lEx%dt_w, datum, EddyProProj%err_label)
+    call WriteDatumFloat(lEx%w_itc, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    call WriteDatumFloat(lEx%dt_ts, datum, EddyProProj%err_label)
+    call WriteDatumFloat(lEx%ts_itc, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
 
     !> Write second string from Chunks

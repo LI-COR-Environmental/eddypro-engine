@@ -196,7 +196,7 @@ subroutine RetrieveLPTFpars(lEx, tf_shape, LocSetup)
             end if
             !> select relevant tranfer function parameters
             !> according to the month, for CO2, CH4, GAS4
-            call char2int(lEx%date(6:7), month, 2)
+            call char2int(lEx%end_date(6:7), month, 2)
             if(lEx%var_present(co2))  f_c(co2)  = RegPar(co2,  LocSetup%SA%class(co2,  month))%fc
             if(lEx%var_present(ch4))  f_c(ch4)  = RegPar(ch4,  LocSetup%SA%class(ch4,  month))%fc
             if(lEx%var_present(gas4)) f_c(gas4) = RegPar(gas4, LocSetup%SA%class(gas4, month))%fc
@@ -213,7 +213,7 @@ subroutine RetrieveLPTFpars(lEx, tf_shape, LocSetup)
                     end if
                 end do
             end if
-            call char2int(lEx%date(6:7), month, 2)
+            call char2int(lEx%end_date(6:7), month, 2)
             if(lEx%var_present(co2))  f_2(co2)  = RegPar(co2,  LocSetup%SA%class(co2,  month))%f2
             if(lEx%var_present(ch4))  f_2(ch4)  = RegPar(ch4,  LocSetup%SA%class(ch4,  month))%f2
             if(lEx%var_present(gas4)) f_2(gas4) = RegPar(gas4, LocSetup%SA%class(gas4,  month))%f2

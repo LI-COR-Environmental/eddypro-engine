@@ -38,9 +38,6 @@ subroutine WriteOutMetadata(lEx)
     character(16000) :: dataline
 
     !> local variables
-    integer :: var
-    integer :: i
-    integer :: gas
     integer :: igas
     character(DatumLen) :: datum
     include '../src_common/interfaces_1.inc'
@@ -50,9 +47,9 @@ subroutine WriteOutMetadata(lEx)
     !> Preliminary timestmap information
     ! write(datum, *) lEx%fname(1:len_trim(lEx%fname))
     ! call AddDatum(dataline, datum, separator)
-    write(datum, *) lEx%date(1:10)
+    write(datum, *) lEx%end_date(1:10)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) lEx%time(1:5)
+    write(datum, *) lEx%end_time(1:5)
     call AddDatum(dataline, datum, separator)
 
     !> Site location and characteristics

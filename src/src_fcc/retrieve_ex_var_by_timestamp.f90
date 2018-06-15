@@ -58,7 +58,7 @@ subroutine RetrieveExVarsByTimestamp(unt, Timestamp, lEx, endReached, skip)
         end if
 
         !> If timestamp matches, exit routine (with error flag if the case)
-        call DateTimeToDateType(lEx%date, lEx%time, ExTimestamp)
+        call DateTimeToDateType(lEx%end_date, lEx%end_time, ExTimestamp)
         if (ExTimestamp == Timestamp) then
             if (.not. ValidRecord) skip = .true.
             return

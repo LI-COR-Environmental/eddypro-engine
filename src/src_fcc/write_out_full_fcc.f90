@@ -41,7 +41,6 @@ subroutine WriteOutFull(lEx)
     integer :: var
     integer :: i
     integer :: gas
-    integer :: igas
     character(DatumLen) :: datum
     include '../src_common/interfaces_1.inc'
 
@@ -50,8 +49,8 @@ subroutine WriteOutFull(lEx)
     !> Preliminary file and timestamp information
     ! call AddDatum(dataline, lEx%fname(1:len_trim(lEx%fname)), separator)
     call AddDatum(dataline, trim(lEx%fname), separator)
-    call AddDatum(dataline, lEx%date(1:10), separator)
-    call AddDatum(dataline, lEx%time(1:5), separator)
+    call AddDatum(dataline, lEx%end_date(1:10), separator)
+    call AddDatum(dataline, lEx%end_time(1:5), separator)
     call WriteDatumFloat(float_doy, datum, EddyProProj%err_label)
     call stripstr(datum)  !< Added to fix a strange behaviour
     call AddDatum(dataline, datum(1:index(datum, '.') + 3), separator)

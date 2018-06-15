@@ -364,7 +364,7 @@ Program EddyproFCC
 
                 !> Sort current cospectra in time slot classes
                 call CospectraSortingAndAveraging(BinCosp, size(BinCosp), &
-                    lEx%time, nbins)
+                    lEx%end_time, nbins)
             end if
         end do binned_loop
         close(uex)
@@ -459,7 +459,7 @@ Program EddyproFCC
         if (.not. ValidRecord) cycle ex_loop
 
         !> Retrieve timestamp
-        call DateTimeToDateType(lEx%date, lEx%time, CurrentTimestamp)
+        call DateTimeToDateType(lEx%end_date, lEx%end_time, CurrentTimestamp)
 
         !> If current timestamp is < start selected timestamp, cycle
         if (CurrentTimestamp < MasterTimeSeries(fxStartTimestampIndx)) &
@@ -470,7 +470,7 @@ Program EddyproFCC
             exit ex_loop
 
         !> Show advancement
-        call DateTimetoDOY(lEx%date, lEx%time, int_doy, float_doy)
+        call DateTimetoDOY(lEx%end_date, lEx%end_time, int_doy, float_doy)
         if (day /= CurrentTimestamp%day &
             .or. month /= CurrentTimestamp%month) then
             month = CurrentTimestamp%month
@@ -506,15 +506,15 @@ Program EddyproFCC
             lEx%instr(sonic)%height, lEx%disp_height, lEx%rough_length)
 
         !> Calculate quality flags
-        StDiff%w_u    = nint(lEx%st_w_u)
-        StDiff%w_ts   = nint(lEx%st_w_ts)
-        StDiff%w_co2  = nint(lEx%st_w_co2)
-        StDiff%w_h2o  = nint(lEx%st_w_h2o)
-        StDiff%w_ch4  = nint(lEx%st_w_ch4)
-        StDiff%w_gas4 = nint(lEx%st_w_gas4)
-        DtDiff%u      = nint(lEx%dt_u)
-        DtDiff%w      = nint(lEx%dt_w)
-        DtDiff%ts     = nint(lEx%dt_ts)
+        StDiff%w_u    = nint(lEx%tau_ss)
+        StDiff%w_ts   = nint(lEx%h_ss)
+        StDiff%w_co2  = nint(lEx%fc_ss)
+        StDiff%w_h2o  = nint(lEx%fh2o_ss)
+        StDiff%w_ch4  = nint(lEx%fch4_ss)
+        StDiff%w_gas4 = nint(lEx%fgs4_ss)
+        DtDiff%u      = nint(lEx%u_itc)
+        DtDiff%w      = nint(lEx%w_itc)
+        DtDiff%ts     = nint(lEx%ts_itc)
         call QualityFlags(Flux2, StDiff, DtDiff, STFlg, DTFlg, QCFlag, .false.)
 
         !> Initialize output files

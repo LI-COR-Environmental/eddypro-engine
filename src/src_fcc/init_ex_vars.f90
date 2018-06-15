@@ -108,9 +108,9 @@ subroutine InitExVars(StartTimestamp, EndTimestamp, NumRecords, NumValidRecords)
 
         !> Handles dates
         if (ValidRecord .and. NumValidRecords == 1) &
-            call DateTimeToDateType(lEX%date, lEX%time, StartTimestamp)
+            call DateTimeToDateType(lEx%end_date, lEX%end_time, StartTimestamp)
         if (ValidRecord) &
-            call DateTimeToDateType(lEX%date, lEX%time, EndTimestamp)
+            call DateTimeToDateType(lEx%end_date, lEX%end_time, EndTimestamp)
 
         !> Initializations
         if (ValidRecord .and. .not. InitializationPerformed) then

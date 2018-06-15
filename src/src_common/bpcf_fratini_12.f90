@@ -74,7 +74,7 @@ subroutine BPCF_Fratini12(loc_var_present, LocInstr, wind_speed, t_air, ac_frequ
     !> Detect name of file to be read
     indx = nint(error)
     do i = 1, nfull
-        call DateTimeToDateType(lEx%date, lEx%time, Timestamp)
+        call DateTimeToDateType(lEx%end_date, lEx%end_time, Timestamp)
         if (LocFileList(i)%timestamp == Timestamp) then
             indx = i
             exit
