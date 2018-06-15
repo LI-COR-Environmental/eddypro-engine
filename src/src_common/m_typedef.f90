@@ -514,7 +514,6 @@ module m_typedef
         logical :: make_dataset
         logical :: subperiod
         logical :: wpl
-        logical :: out_essentials
         logical :: use_extmd_file
         logical :: use_dynmd_file
         logical :: out_full

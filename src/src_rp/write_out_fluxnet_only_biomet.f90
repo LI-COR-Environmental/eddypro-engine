@@ -44,8 +44,6 @@ subroutine WriteOutFluxnetOnlyBiomet()
     real(kind = dbl), allocatable :: bAggrOut(:)
     include '../src_common/interfaces.inc'
 
-    !> write Essentials output file (csv) for communication
-    !> with Fluxes
     call clearstr(dataline)
 
     !> Start/end imestamps
@@ -78,7 +76,7 @@ subroutine WriteOutFluxnetOnlyBiomet()
     endif
 
     !> Write error codes in place of fixed columns
-    do i = 1, 427
+    do i = 1, 434
         call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
     end do
     !> Write error codes in place of custom variables

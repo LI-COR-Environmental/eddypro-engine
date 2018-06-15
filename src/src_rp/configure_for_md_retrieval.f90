@@ -74,7 +74,6 @@ subroutine ConfigureForMdRetrieval()
     RPsetup%out_st             = .false.
     RPsetup%filter_sr          = .false.
     RPsetup%filter_al          = .false.
-    EddyProProj%out_essentials = .false.
     RPsetup%out_qc_details     = .false.
     RPsetup%out_raw            = .false.
     RPsetup%out_bin_sp         = .false.

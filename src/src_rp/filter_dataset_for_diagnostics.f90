@@ -1,6 +1,6 @@
 !***************************************************************************
-! filter_data_for_diagnostics.f90
-! -------------------------------
+! filter_dataset_for_diagnostics.f90
+! ----------------------------------
 ! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).

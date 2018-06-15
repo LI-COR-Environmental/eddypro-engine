@@ -804,7 +804,7 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
         if (allocated(bAggrOut)) deallocate(bAggrOut)
     end if
 
-        !> Replace NaN or -9999 with user-defined error code
+    !> Replace error codes with user-defined error code
     dataline = replace2(dataline, ',-9999,', ',' // trim(EddyProProj%err_label) // ',')
     dataline = replace2(dataline, ',NaN,',   ',' // trim(EddyProProj%err_label) // ',')
     dataline = replace2(dataline, ',+Inf,', ',' // trim(EddyProProj%err_label) // ',')

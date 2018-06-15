@@ -41,9 +41,6 @@ subroutine CreateDatasetsRP(TimeSeries, nrow, StartIndx, EndIndx)
     type (DateType), intent(in) :: TimeSeries(nrow)
     !> local variables
     integer :: del_status
-    integer :: tmp_indx
-    integer :: move_status = 1
-    character(PathLen) :: OutFile
 
 
     !> L1 statistics
@@ -173,16 +170,6 @@ subroutine CreateDatasetsRP(TimeSeries, nrow, StartIndx, EndIndx)
                 StartIndx, EndIndx, .true., 2)
             write(*,'(a)') ' Done.'
         end if
-    end if
-
-    !> Essentials file is not filled (useless waste of time)
-    if (EddyProProj%out_essentials) then
-        tmp_indx = index(Essentials_Path, TmpExt)
-        OutFile = Essentials_Path(1: tmp_indx - 1)
-        move_status = system(comm_move // '"' &
-            // Essentials_Path(1:len_trim(Essentials_Path)) // '" "' &
-            // OutFile(1:len_trim(OutFile)) // '"' &
-            // comm_out_redirect // comm_err_redirect)
     end if
 
     !> QC file

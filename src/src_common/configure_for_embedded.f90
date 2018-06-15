@@ -92,12 +92,6 @@ subroutine ConfigureForEmbedded()
             call system(comm_del // '"' // trim(adjustl(TmpDir)) // '"*.tmp ' &
                 // comm_err_redirect)
 
-            !> Selection of output files
-            if (EddyProProj%fcc_follows) then
-                EddyProProj%out_essentials = .true.
-            else
-                EddyProProj%out_essentials = .false.
-            end if
             EddyProProj%out_fluxnet  = .false.
             EddyProProj%out_md      = .false.
             if (EddyProProj%biomet_data /= 'none') then

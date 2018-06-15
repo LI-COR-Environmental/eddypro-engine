@@ -75,7 +75,6 @@ module m_rp_global_var
     character(PathLen) :: UserSt6_Path
     character(PathLen) :: UserSt7_Path
     character(PathLen) :: Biomet_Path
-    character(PathLen) :: Essentials_Path
     character(PathLen) :: PlanarFit_Path
     character(PathLen) :: TimelagOpt_Path
     character(PathLen) :: QCdetails_Path

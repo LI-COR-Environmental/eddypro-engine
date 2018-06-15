@@ -302,8 +302,11 @@ retrieve_dynamic_metadata.o: \
 change_24_into_00.o: \
 	change_24_into_00.f90 \
 	m_common_global_var.o
-filter_data_for_diagnostics.o: \
-	filter_data_for_diagnostics.f90 \
+filter_dataset_for_diagnostics.o: \
+	filter_dataset_for_diagnostics.f90 \
+	m_rp_global_var.o
+filter_dataset_for_wind_direction.o: \
+	filter_dataset_for_wind_direction.f90 \
 	m_rp_global_var.o
 inform_of_metadata_problem.o: \
 	inform_of_metadata_problem.f90 \
@@ -317,8 +320,8 @@ set_licor_diagnostics.o: \
 copy_file.o: \
 	copy_file.f90 \
 	m_common_global_var.o
-filter_raw_data_by_flags.o: \
-	filter_raw_data_by_flags.f90 \
+filter_dataset_for_flags.o: \
+	filter_dataset_for_flags.f90 \
 	m_rp_global_var.o
 init_env.o: \
 	init_env.f90 \
@@ -401,8 +404,7 @@ test_higher_moments.o: \
 	m_rp_global_var.o
 dir_sub.o: \
 	dir_sub.f90 \
-	m_common_global_var.o \
-	m_typedef.o
+	m_common_global_var.o
 init_external_biomet.o: \
 	init_external_biomet.f90 \
 	m_rp_global_var.o
@@ -492,8 +494,11 @@ potential_radiation.o: \
 user_basic_stats.o: \
 	user_basic_stats.f90 \
 	m_common_global_var.o
-write_output_files_rp.o: \
-	write_output_files_rp.f90 \
+write_out_full.o: \
+	write_out_full.f90 \
+	m_rp_global_var.o
+write_out_metadata.o: \
+	write_out_metadata.f90 \
 	m_rp_global_var.o
 power_of_two.o: \
 	power_of_two.f90
@@ -582,8 +587,8 @@ retrieve_sensor_params.o: \
 configure_for_embedded.o: \
 	configure_for_embedded.f90 \
 	m_common_global_var.o
-filter_for_physical_thresholds.o: \
-	filter_for_physical_thresholds.f90 \
+filter_dataset_for_physical_thresholds.o: \
+	filter_dataset_for_physical_thresholds.f90 \
 	m_rp_global_var.o
 init_continuous_dataset.o: \
 	init_continuous_dataset.f90 \
@@ -744,9 +749,6 @@ fit_cospectral_models.o: \
 read_ex_record.o: \
 	read_ex_record.f90 \
 	m_common_global_var.o
-read_ex2_record.o: \
-	read_ex2_record.f90 \
-	m_common_global_var.o
 fit_rh_to_cutoff.o: \
 	fit_rh_to_cutoff.f90 \
 	m_fx_global_var_mod.o \
@@ -814,6 +816,12 @@ report_imported_spectra.o: \
 	m_fx_global_var_mod.o
 m_levenberg_marquardt.o: \
 	m_levenberg_marquardt.f90
-write_output_files_fcc.o: \
-	write_output_files_fcc.f90 \
+write_out_fluxnet_fcc.o: \
+	write_out_fluxnet_fcc.f90 \
+	m_fx_global_var_mod.o
+write_out_full_fcc.o: \
+	write_out_full_fcc.f90 \
+	m_fx_global_var_mod.o
+write_out_metadata_fcc.o: \
+	write_out_metadata_fcc.f90 \
 	m_fx_global_var_mod.o

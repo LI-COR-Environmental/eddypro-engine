@@ -99,7 +99,7 @@ subroutine InitExVars(StartTimestamp, EndTimestamp, NumRecords, NumValidRecords)
 
     do
         !> Read essentials record
-        call ReadEx2Record('', udf, -1, lEx, ValidRecord, EndOfFileReached)
+        call ReadExRecord('', udf, -1, lEx, ValidRecord, EndOfFileReached)
         if (EndOfFileReached) exit
 
         !> Counts
