@@ -232,15 +232,9 @@ program EddyproRP
         EddyProProj%fcc_follows  = .false.
     end if
 
-    !> Essential file is always created, except in metadata retrieving mode
-    if (EddyProProj%run_mode /= 'md_retrieval') &
-        EddyProProj%out_essentials = .true.
-
     !> If running in embedded mode, override some settings
     if (EddyProProj%run_env == 'embedded') call ConfigureForEmbedded()
     if (EddyProProj%run_env == 'embedded') RPsetup%out_st = .false.
-
-    EddyProProj%out_essentials = .false.                 !***********************   Replace this by eliminating essentials file entirely when FLUXNET format is stable
 
     !> Create output directory if it does not exist, otherwise is silent
     mkdir_status = CreateDir('"' //trim(adjustl(Dir%main_out)) // '"')
@@ -559,7 +553,7 @@ program EddyproRP
 
                 !> Filter raw data for user-defined flags
                 if (RPsetup%filter_by_raw_flags) &
-                    call FilterRawDataByFlags(Col, Raw, &
+                    call FilterDatasetForFlags(Col, Raw, &
                         size(Raw, 1), size(Raw, 2))
 
                 !***************************************************************
@@ -742,7 +736,7 @@ program EddyproRP
                 !> Apply filter for absolute limits test, if the case
                 FilterWhat = .false.
                 FilterWhat(co2:gas4) = .true.
-                call FilterForPhysicalThresholds(E2Set, &
+                call FilterDatasetForPhysicalThresholds(E2Set, &
                     size(E2Set, 1), size(E2Set, 2), FilterWhat)
 
                 !> Define as not present, variables for which
@@ -976,7 +970,7 @@ program EddyproRP
 
                 !> Filter raw data for user-defined flags
                 if (RPsetup%filter_by_raw_flags) &
-                    call FilterRawDataByFlags(Col, &
+                    call FilterDatasetForFlags(Col, &
                         Raw, size(Raw, 1), size(Raw, 2))
 
                 !***************************************************************
@@ -1616,7 +1610,7 @@ program EddyproRP
 
             !> Filter raw data for user-defined flags
             if (RPsetup%filter_by_raw_flags) &
-                call FilterRawDataByFlags(Col, Raw, size(Raw, 1), size(Raw, 2))
+                call FilterDatasetForFlags(Col, Raw, size(Raw, 1), size(Raw, 2))
 
             !> Number of valid records after filtering for custom flags
             Essentials%n_after_custom_flags = &
@@ -1999,7 +1993,7 @@ program EddyproRP
                     !> Apply filter for absolute limits test, if the case
                     FilterWhat = .false.
                     FilterWhat(co2:gas4) = .true.
-                    call FilterForPhysicalThresholds(E2Set, &
+                    call FilterDatasetForPhysicalThresholds(E2Set, &
                         size(E2Set, 1), size(E2Set, 2), FilterWhat)
                     !> Define as not present, variables for which &
                     !> too many values are out-ranged
@@ -2201,9 +2195,13 @@ program EddyproRP
             call SetLicorDiagnostics(NumUserVar)
         end if
 
-        !> Write on output file
-        call WriteOutFiles(suffixOutString, PeriodRecords, PeriodActualRecords, &
-            StDiff, DtDiff)
+        !>Write out full output file (main express output)
+        if (EddyProProj%out_full) &
+            call WriteOutFull(suffixOutString, PeriodRecords, PeriodActualRecords)
+
+        !>Write out full output file (main express output)
+        if (EddyProProj%out_md) &
+            call WriteOutMetadata(suffixOutString)
 
         if (EddyProProj%out_fluxnet) &
             call WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)

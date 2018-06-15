@@ -1,5 +1,5 @@
 !***************************************************************************
-! filter_raw_data_by_flags.f90
+! filter_dataset_for_flags.f90
 ! ----------------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
 ! Copyright (C) 2011-2015, LI-COR Biosciences
@@ -30,7 +30,7 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine FilterRawDataByFlags(LocCol, Raw, nrow, ncol)
+subroutine FilterDatasetForFlags(LocCol, Raw, nrow, ncol)
     use m_rp_global_var
     implicit none
     !> in/out variables
@@ -68,4 +68,4 @@ subroutine FilterRawDataByFlags(LocCol, Raw, nrow, ncol)
         end if
     end do
     Essentials%m_custom_flags = count(filtered)
-end subroutine FilterRawDataByFlags
+end subroutine FilterDatasetForFlags

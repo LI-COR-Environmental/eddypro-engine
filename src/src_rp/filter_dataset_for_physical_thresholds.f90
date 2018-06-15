@@ -1,6 +1,6 @@
 !***************************************************************************
-! filter_for_physical_thresholds.f90
-! ----------------------------------
+! filter_dataset_for_physical_thresholds.f90
+! ------------------------------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
 ! Copyright (C) 2011-2015, LI-COR Biosciences
 !
@@ -30,7 +30,7 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine FilterForPhysicalThresholds(Set, N, M, FilterWhat)
+subroutine FilterDatasetForPhysicalThresholds(Set, N, M, FilterWhat)
     use m_rp_global_var
     !> in/out variables
     integer, intent(in) :: N
@@ -84,4 +84,4 @@ subroutine FilterForPhysicalThresholds(Set, N, M, FilterWhat)
             end if
         end if
     end do
-end subroutine FilterForPhysicalThresholds
+end subroutine FilterDatasetForPhysicalThresholds

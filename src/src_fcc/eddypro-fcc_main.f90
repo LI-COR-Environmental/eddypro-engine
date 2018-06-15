@@ -118,7 +118,7 @@ Program EddyproFCC
     call InitExVars(exStartTimestamp, exEndTimestamp, &
         NumExRecords, NumValidExRecords)
 
-    call ReadEx2Record(AuxFile%ex, udf, 1, lEx, ValidRecord, EndOfFileReached)
+    call ReadExRecord(AuxFile%ex, udf, 1, lEx, ValidRecord, EndOfFileReached)
 
     !> If no good records are found stop execution
     if (NumValidExRecords <= 0) call ExceptionHandler(61)
@@ -446,7 +446,7 @@ Program EddyproFCC
     ex_loop: do i = 1, NumExRecords
 
         !> Read record from essentials file
-        call ReadEx2Record('', uex, -1, lEx, ValidRecord, EndOfFileReached)
+        call ReadExRecord('', uex, -1, lEx, ValidRecord, EndOfFileReached)
 
         !> Initialize presence of key variables for outputting results
         ! if (InitializeOuputFiles) &
@@ -523,8 +523,10 @@ Program EddyproFCC
             InitializeOuputFiles = .false.
         end if
 
-        !> Write results on output file
-        call WriteOutputFiles(lEx)
+        !>Write out full output file
+        if (EddyProProj%out_full) call WriteOutFull(lEx)
+        if (EddyProProj%out_md) call WriteOutMetadata(lEx)
+        if (EddyProProj%out_fluxnet) call WriteOutFluxnet(lEx)
 
     end do ex_loop
     close(uex)

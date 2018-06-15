@@ -47,14 +47,6 @@ subroutine RenameTmpFilesRP()
             // OutPath(1:len_trim(OutPath)) // '"' // comm_out_redirect // comm_err_redirect)
     end if
 
-    !> Essentials file
-    if (EddyProProj%out_essentials) then
-        tmp_indx = index(Essentials_Path, TmpExt)
-        OutPath = Essentials_Path(1: tmp_indx - 1)
-        move_status = system(comm_move // '"' // Essentials_Path(1:len_trim(Essentials_Path)) // '" "' &
-            // OutPath(1:len_trim(OutPath)) // '"' // comm_out_redirect // comm_err_redirect)
-    end if
-
     !> Biomet measurements file
     if (EddyProProj%out_biomet) then
         tmp_indx = index(Biomet_Path, TmpExt)

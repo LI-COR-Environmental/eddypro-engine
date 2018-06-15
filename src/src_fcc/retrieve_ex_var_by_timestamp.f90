@@ -48,7 +48,7 @@ subroutine RetrieveExVarsByTimestamp(unt, Timestamp, lEx, endReached, skip)
     skip = .false.
     endReached = .false.
     do
-        call ReadEx2Record('', unt, -1, lEx, ValidRecord, EndOfFileReached)
+        call ReadExRecord('', unt, -1, lEx, ValidRecord, EndOfFileReached)
 
         !> If end of files was reached, exit routine with error flag
         if (EndOfFileReached) then

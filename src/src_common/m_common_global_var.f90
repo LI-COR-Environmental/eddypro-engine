@@ -117,7 +117,6 @@ module m_common_global_var
     character(12), parameter :: FullOut_FilePadding     = '_full_output'
     character(11), parameter :: PlanarFit_FilePadding   = '_planar_fit'
     character(12), parameter :: TimelagOpt_FilePadding  = '_timelag_opt'
-    character(11), parameter :: Essentials_FilePadding  = '_essentials'
     character(8),  parameter :: FLUXNET_FilePadding     = '_fluxnet'
     character(7),  parameter  :: Biomet_FilePadding     = '_biomet'
     character(14), parameter :: Quality_FilePadding     = '_quality_check'

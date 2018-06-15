@@ -122,7 +122,6 @@ subroutine ConfigureForExpress
     EddyProProj%out_full     = .true.
     EddyProProj%out_md       = .true.
     RPsetup%out_st        = .true.
-    EddyProProj%out_essentials = .true.
     RPsetup%out_qc_details = .false.
     RPsetup%out_raw        = .false.
     RPsetup%out_bin_sp     = .false.
