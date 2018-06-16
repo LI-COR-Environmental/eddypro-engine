@@ -183,16 +183,16 @@ subroutine CospectraQAQC(BinSpec, BinCosp, nrow, lEx, &
     if (FCCsetup%SA%foken_lim >= 0) then
         !> Partial flags
         !> Stationarity flags
-        call PartialFlagLF(nint(lEx%fc_ss), STFlg(w_co2))
-        call PartialFlagLF(nint(lEx%fh2o_ss), STFlg(w_h2o))
-        call PartialFlagLF(nint(lEx%fch4_ss), STFlg(w_ch4))
-        call PartialFlagLF(nint(lEx%fgs4_ss), STFlg(w_gas4))
-        call PartialFlagLF(nint(lEx%h_ss),  STFlg(w_ts))
-        call PartialFlagLF(nint(lEx%tau_ss),   STFlg(w_u))
+        call PartialFlagLF(nint(lEx%FC_SS), STFlg(w_co2))
+        call PartialFlagLF(nint(lEx%FH2O_SS), STFlg(w_h2o))
+        call PartialFlagLF(nint(lEx%FCH4_SS), STFlg(w_ch4))
+        call PartialFlagLF(nint(lEx%FGS4_SS), STFlg(w_gas4))
+        call PartialFlagLF(nint(lEx%H_SS),  STFlg(w_ts))
+        call PartialFlagLF(nint(lEx%TAU_SS),   STFlg(w_u))
         !> Developed turbulence flags
-        call PartialFlagLF(nint(lEx%u_itc), DTFlg(u))
-        call PartialFlagLF(nint(lEx%w_itc), DTFlg(w))
-        call PartialFlagLF(nint(lEx%ts_itc), DTFlg(ts))
+        call PartialFlagLF(nint(lEx%U_ITC), DTFlg(u))
+        call PartialFlagLF(nint(lEx%W_ITC), DTFlg(w))
+        call PartialFlagLF(nint(lEx%TS_ITC), DTFlg(ts))
         DTFlg(u)  = max(DTFlg(u),  DTFlg(w))
 
         !> Composite flags

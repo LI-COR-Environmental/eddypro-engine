@@ -506,15 +506,15 @@ Program EddyproFCC
             lEx%instr(sonic)%height, lEx%disp_height, lEx%rough_length)
 
         !> Calculate quality flags
-        StDiff%w_u    = nint(lEx%tau_ss)
-        StDiff%w_ts   = nint(lEx%h_ss)
-        StDiff%w_co2  = nint(lEx%fc_ss)
-        StDiff%w_h2o  = nint(lEx%fh2o_ss)
-        StDiff%w_ch4  = nint(lEx%fch4_ss)
-        StDiff%w_gas4 = nint(lEx%fgs4_ss)
-        DtDiff%u      = nint(lEx%u_itc)
-        DtDiff%w      = nint(lEx%w_itc)
-        DtDiff%ts     = nint(lEx%ts_itc)
+        StDiff%w_u    = nint(lEx%TAU_SS)
+        StDiff%w_ts   = nint(lEx%H_SS)
+        StDiff%w_co2  = nint(lEx%FC_SS)
+        StDiff%w_h2o  = nint(lEx%FH2O_SS)
+        StDiff%w_ch4  = nint(lEx%FCH4_SS)
+        StDiff%w_gas4 = nint(lEx%FGS4_SS)
+        DtDiff%u      = nint(lEx%U_ITC)
+        DtDiff%w      = nint(lEx%W_ITC)
+        DtDiff%ts     = nint(lEx%TS_ITC)
         call QualityFlags(Flux2, StDiff, DtDiff, STFlg, DTFlg, QCFlag, .false.)
 
         !> Initialize output files

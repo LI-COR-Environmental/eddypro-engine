@@ -149,17 +149,14 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
     dataline = dataline(ix+1: len_trim(dataline))
 
     read(dataline, *, iostat = read_status) &
-        lEx%tau_ss, lEx%h_ss, lEx%fc_ss, lEx%fh2o_ss, &
-        lEx%fch4_ss, lEx%fgs4_ss, lEx%u_itc, lEx%w_itc, lEx%ts_itc
+        lEx%TAU_SS, lEx%H_SS, lEx%FC_SS, lEx%FH2O_SS, &
+        lEx%FCH4_SS, lEx%FGS4_SS, lEx%U_ITC, lEx%W_ITC, lEx%TS_ITC
     ix = strCharIndex(dataline, ',', 9)
     dataline = dataline(ix+1: len_trim(dataline))
 
-    print*, dataline(1:50)
-    stop
-        
-    !> Copy FK04_ST_FLAG_W_U thru ...
-    ix = strCharIndex(dataline, ',', 24)
-    fluxnetChunks%s(2) = dataline(1: ix-1)
+    !> Copy .._TEST
+    ix = strCharIndex(dataline, ',', 17)
+    fluxnetChunks%s(3) = dataline(1: ix-1)
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> Read licor IRGA flags
@@ -174,7 +171,7 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
 
     !> Copy WBOOST_APPLIED thru AXES_ROTATION_METHOD
     ix = strCharIndex(dataline, ',', 3)
-    fluxnetChunks%s(3) = dataline(1: ix-1)
+    fluxnetChunks%s(4) = dataline(1: ix-1)
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> Read rotation angles and detrending method/time constant
@@ -213,14 +210,14 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
         lEx%instr(igas4)%vsep, lEx%instr(igas4)%tube_l, lEx%instr(igas4)%tube_d, &
         lEx%instr(igas4)%tube_f, &
         lEx%instr(igas4)%hpath_length, lEx%instr(igas4)%vpath_length, lEx%instr(igas4)%tau
-    ix = strCharIndex(dataline, ',', 73)
+    ix = strCharIndex(dataline, ',', 67)
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> Put remaining into last chunk
-    fluxnetChunks%s(5) = dataline(1: len_trim(dataline))
+    fluxnetChunks%s(6) = dataline(1: len_trim(dataline))
 
     ! !> Complete essentials information based on retrieved ones
-    call CompleteEssentials2(lEx)
+    call CompleteEssentials(lEx)
 
     !> Close file only if it wasn't open on entrance
     if (rec_num > 0) close(unt)
@@ -238,7 +235,7 @@ end subroutine ReadExRecord
 ! \test
 ! \todo
 !***************************************************************************
-subroutine CompleteEssentials2(lEx)
+subroutine CompleteEssentials(lEx)
     use m_common_global_var
     implicit none
     !> in/out variables
@@ -326,4 +323,4 @@ subroutine CompleteEssentials2(lEx)
     end do
     lEx%cov_w(u) = lEx%stats%cov(w, u)
     lEx%cov_w(ts:gas4) = lEx%stats%cov(w, ts:gas4)
-end subroutine CompleteEssentials2
+end subroutine CompleteEssentials
