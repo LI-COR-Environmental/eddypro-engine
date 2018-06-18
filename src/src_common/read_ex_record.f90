@@ -139,7 +139,8 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> Read out VM flags and Foken QC details
-    read(dataline, *, iostat = read_status) lEx%vm_flags(1:8)
+    read(dataline, *, iostat = read_status) lEx%vm_flags(1:8), &
+        lEx%vm_tlag_hf, lEx%vm_tlag_sf, lEx%vm_aoa_hf, lEx%vm_nshw_hf 
     ix = strCharIndex(dataline, ',', 8)
     dataline = dataline(ix+1: len_trim(dataline))
         
@@ -252,6 +253,11 @@ subroutine CompleteEssentials(lEx)
     if (lEx%Flux0%ch4  /= error) lEx%var_present(ch4) = .true.
     if (lEx%Flux0%gas4 /= error) lEx%var_present(gas4) = .true.
 
+    !> Units adjustments
+    if (lEx%Ta /= error) lEx%Ta = lEx%Ta + 273.15d0
+    if (lEx%Pa /= error) lEx%Pa = lEx%Pa * 1d3
+
+
     lEx%instr(ico2:igas4)%category = 'irga'
     lEx%instr(sonic)%category = 'sonic'
     !> Determine whether gas analysers are open or closed path
@@ -262,6 +268,12 @@ subroutine CompleteEssentials(lEx)
                 lEx%instr(gas)%path_type = 'open'
             case default
                 lEx%instr(gas)%path_type = 'closed'
+                if (lEx%instr(gas)%tube_d /= error) &
+                    lEx%instr(gas)%tube_d = lEx%instr(gas)%tube_d * 1d-3
+                if (lEx%instr(gas)%tube_l /= error) &
+                    lEx%instr(gas)%tube_l = lEx%instr(gas)%tube_l * 1d-2
+                if (lEx%instr(gas)%tube_f /= error) &
+                    lEx%instr(gas)%tube_f = lEx%instr(gas)%tube_f / 6d4
         end select
         if (lEx%instr(gas)%nsep /= error .and. lEx%instr(gas)%esep /= error) then
             lEx%instr(gas)%hsep = dsqrt(lEx%instr(gas)%nsep**2 + lEx%instr(gas)%esep**2)

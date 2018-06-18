@@ -524,9 +524,9 @@ Program EddyproFCC
         end if
 
         !>Write out full output file
-        if (EddyProProj%out_full) call WriteOutFull(lEx)
-        if (EddyProProj%out_md) call WriteOutMetadata(lEx)
-        if (EddyProProj%out_fluxnet) call WriteOutFluxnet(lEx)
+        if (EddyProProj%out_full) call WriteOutFullFcc(lEx)
+        if (EddyProProj%out_md) call WriteOutMetadataFcc(lEx)
+        if (EddyProProj%out_fluxnet) call WriteOutFluxnetFcc(lEx)
 
     end do ex_loop
     close(uex)

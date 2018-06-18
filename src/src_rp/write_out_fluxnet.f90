@@ -506,10 +506,10 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
     end do
 
     !> Uncomment to reintroduce flags for last 3 tests
-    ! call AddDatum(dataline, '8'//CharHF%tl(6:9), separator)
-    ! call AddDatum(dataline, '8'//CharSF%tl(6:9), separator)
-    ! call AddDatum(dataline, '8'//CharHF%aa(9:9), separator)
-    ! call AddDatum(dataline, '8'//CharHF%ns(9:9), separator)
+    call AddDatum(dataline, '8'//CharHF%tl(6:9), separator)
+    call AddDatum(dataline, '8'//CharSF%tl(6:9), separator)
+    call AddDatum(dataline, '8'//CharHF%aa(9:9), separator)
+    call AddDatum(dataline, '8'//CharHF%ns(9:9), separator)
 
     !> Quality test results
     !> Kurtosis Index on Differenced variables (KIDs)

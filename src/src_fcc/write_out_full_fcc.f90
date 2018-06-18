@@ -1,6 +1,6 @@
 !***************************************************************************
-! write_out_full.f90
-! ------------------
+! write_out_full_fcc.f90
+! ----------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
 ! Copyright (C) 2011-2015, LI-COR Biosciences
 !
@@ -30,7 +30,7 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine WriteOutFull(lEx)
+subroutine WriteOutFullFcc(lEx)
     use m_fx_global_var
     implicit none
     !> in/out variables
@@ -522,4 +522,4 @@ subroutine WriteOutFull(lEx)
 
     write(uflx, '(a)')   dataline(1:len_trim(dataline) - 1)
 
-end subroutine WriteOutFull
+end subroutine WriteOutFullFcc
