@@ -190,13 +190,14 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
     call AddFloatDatumToDataline(Ambient%Va, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(RHO%a, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Ambient%RhoCp, dataline, EddyProProj%err_label)
+    !> Water
     call AddFloatDatumToDataline(RHO%w, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Ambient%e, dataline, EddyProProj%err_label, gain=1d-2, offset=0d0)
     call AddFloatDatumToDataline(Ambient%es, dataline, EddyProProj%err_label, gain=1d-2, offset=0d0)
     call AddFloatDatumToDataline(Ambient%Q, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Ambient%VPD, dataline, EddyProProj%err_label, gain=1d-2, offset=0d0)
     call AddFloatDatumToDataline(Ambient%Td, dataline, EddyProProj%err_label, gain=1d0, offset=-273.15d0)
-    !> Dry air properties
+    !> Dry air
     call AddFloatDatumToDataline(Ambient%p_d, dataline, EddyProProj%err_label, gain=1d-3, offset=0d0)
     call AddFloatDatumToDataline(RHO%d, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Ambient%Vd, dataline, EddyProProj%err_label)
@@ -240,11 +241,11 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
     do gas = co2, gas4
         if (E2Col(gas)%present) then
             call AddFloatDatumToDataline(Essentials%actual_timelag(gas), dataline, EddyProProj%err_label)
-                    call AddFloatDatumToDataline(Essentials%used_timelag(gas), dataline, EddyProProj%err_label)
-                    call AddFloatDatumToDataline(E2Col(gas)%def_tl, dataline, EddyProProj%err_label)
-                    call AddFloatDatumToDataline(E2Col(gas)%min_tl, dataline, EddyProProj%err_label)
-                    call AddFloatDatumToDataline(E2Col(gas)%max_tl, dataline, EddyProProj%err_label)
-                else
+            call AddFloatDatumToDataline(Essentials%used_timelag(gas), dataline, EddyProProj%err_label)
+            call AddFloatDatumToDataline(E2Col(gas)%def_tl, dataline, EddyProProj%err_label)
+            call AddFloatDatumToDataline(E2Col(gas)%min_tl, dataline, EddyProProj%err_label)
+            call AddFloatDatumToDataline(E2Col(gas)%max_tl, dataline, EddyProProj%err_label)
+        else
             call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
             call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
             call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
@@ -300,7 +301,7 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
     do gas1 = co2, ch4
         do gas2 = gas1 + 1, gas4 
             call AddFloatDatumToDataline(Stats7%Cov(gas1, gas2), dataline, EddyProProj%err_label)
-                end do
+        end do
     end do
 
 !> Footprint
