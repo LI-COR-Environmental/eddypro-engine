@@ -41,11 +41,14 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
     type (ExType), intent(out) :: lEx
     integer, intent(inout) :: unt
     !> Local variables
+    integer :: flag
+    integer :: gas
     integer :: open_status
     integer :: read_status
     integer :: i
     integer :: var
     integer :: ix
+    character(9) :: vm97flags(GHGNumVar)
     character(16000) :: dataline
     real(kind = dbl) :: aux(32)
     include 'interfaces_1.inc'
@@ -139,11 +142,27 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> Read out VM flags and Foken QC details
-    read(dataline, *, iostat = read_status) lEx%vm_flags(1:8), &
+    read(dataline, *, iostat = read_status) vm97flags(u:GHGNumVar), &
         lEx%vm_tlag_hf, lEx%vm_tlag_sf, lEx%vm_aoa_hf, lEx%vm_nshw_hf 
-    ix = strCharIndex(dataline, ',', 8)
+    ix = strCharIndex(dataline, ',', 12)
     dataline = dataline(ix+1: len_trim(dataline))
-        
+
+    !> Rearrage VM flags per test, instead of per variable
+    do flag = 1, 8
+        lEx%vm_flags(flag)(1:1) = '8'
+        lEx%vm_flags(flag)(2:2) = vm97flags(u)(flag + 1: flag + 1)
+        lEx%vm_flags(flag)(3:3) = vm97flags(v)(flag + 1: flag + 1)
+        lEx%vm_flags(flag)(4:4) = vm97flags(w)(flag + 1: flag + 1)
+        lEx%vm_flags(flag)(5:5) = vm97flags(ts)(flag + 1: flag + 1)
+        do gas = co2, gas4
+            if (vm97flags(gas)(1:1) == '8') then
+                lEx%vm_flags(flag)(gas + 1 : gas + 1) = vm97flags(gas)(flag + 1: flag + 1)
+            else
+                lEx%vm_flags(flag)(gas + 1 : gas + 1) = '9'
+            end if
+        end do
+    end do
+
     !> Copy KID/ZCD/NSR chunk
     ix = strCharIndex(dataline, ',', 22)
     fluxnetChunks%s(2) = dataline(1: ix-1)
@@ -183,7 +202,7 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
 
     !> Copy TIMELAG_DETECTION_METHOD thru FOOTPRINT_MODEL
     ix = strCharIndex(dataline, ',', 5)
-    fluxnetChunks%s(4) = dataline(1: ix-1)
+    fluxnetChunks%s(5) = dataline(1: ix-1)
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> Read out metadata
@@ -256,7 +275,6 @@ subroutine CompleteEssentials(lEx)
     !> Units adjustments
     if (lEx%Ta /= error) lEx%Ta = lEx%Ta + 273.15d0
     if (lEx%Pa /= error) lEx%Pa = lEx%Pa * 1d3
-
 
     lEx%instr(ico2:igas4)%category = 'irga'
     lEx%instr(sonic)%category = 'sonic'

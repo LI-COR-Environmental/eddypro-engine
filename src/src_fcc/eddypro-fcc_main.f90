@@ -101,6 +101,9 @@ Program EddyproFCC
     write(*, '(a)')
     call InitEnv()
 
+    !> By detault, create FLUXNET output
+    EddyProProj%out_fluxnet = .true.
+
     write(*, '(a)') 'Starting flux computation and correction session..'
     write(*, '(a)')
 
@@ -113,6 +116,8 @@ Program EddyproFCC
     !> If running in embedded mode, override some settings
     if (EddyProProj%run_env == 'embedded') &
         call ConfigureForEmbedded('EddyPro-FCC')
+
+    if (EddyProProj%fluxnet_mode) call ConfigureForFluxnet()
 
     !> Preliminarily read essential files and retrieve a few information
     call InitExVars(exStartTimestamp, exEndTimestamp, &
@@ -524,7 +529,7 @@ Program EddyproFCC
         end if
 
         !>Write out full output file
-        if (EddyProProj%out_full) call WriteOutFullFcc(lEx)
+        ! if (EddyProProj%out_full) call WriteOutFullFcc(lEx)
         if (EddyProProj%out_md) call WriteOutMetadataFcc(lEx)
         if (EddyProProj%out_fluxnet) call WriteOutFluxnetFcc(lEx)
 

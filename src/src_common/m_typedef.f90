@@ -1183,11 +1183,11 @@ module m_typedef
         character(10) :: end_date
         character(5) :: start_time
         character(5) :: end_time
-        character(10) :: vm_flags(8)
-        character(10) :: vm_tlag_hf
-        character(10) :: vm_tlag_sf
-        character(10) :: vm_aoa_hf
-        character(10) :: vm_nshw_hf
+        character(9) :: vm_flags(8)
+        character(9) :: vm_tlag_hf
+        character(9) :: vm_tlag_sf
+        character(9) :: vm_aoa_hf
+        character(9) :: vm_nshw_hf
         character(32) :: measure_type(GHGNumVar)
         character(8) :: det_meth
         integer :: file_records

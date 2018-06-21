@@ -42,6 +42,7 @@ subroutine WriteOutFluxnetFcc(lEx)
     integer :: i
     integer :: gas
     integer :: igas
+    character(9) :: vm97flags(GHGNumVar)
     include '../src_common/interfaces_1.inc'
 
 
@@ -75,6 +76,7 @@ subroutine WriteOutFluxnetFcc(lEx)
     call AddFloatDatumToDataline(Flux3%Tau, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Flux3%H, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Flux3%LE, dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Flux3%ET, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Flux3%co2, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Flux3%h2o, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Flux3%ch4, dataline, EddyProProj%err_label, gain=1d3, offset=0d0)
@@ -242,6 +244,7 @@ subroutine WriteOutFluxnetFcc(lEx)
     call AddFloatDatumToDataline(Foot%x30, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Foot%x50, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Foot%x70, dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Foot%x80, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Foot%x90, dataline, EddyProProj%err_label)
 
     !> Fluxes Level 0 (uncorrected)
@@ -317,10 +320,31 @@ subroutine WriteOutFluxnetFcc(lEx)
     !> Write first string from Chunks
     !> M_CUSTOM_FLAGS thru VM97_NSW_RNS
     call AddDatum(dataline, trim(fluxnetChunks%s(1)), separator)
-    !> VM97 flags and Foken's QC details
-    do i = 1, 12
-        call AddDatum(dataline, trim(lEx%vm_flags(i)), separator)
+
+    !> VM97 flags, here organized per variable instead of per test
+    do var = u, gas4
+        vm97flags(var)(1 : 1) = '8' 
+        vm97flags(var)(2 : 2) = lEx%vm_flags(1)(var + 1 : var + 1)
+        vm97flags(var)(3 : 3) = lEx%vm_flags(2)(var + 1 : var + 1)
+        vm97flags(var)(4 : 4) = lEx%vm_flags(3)(var + 1 : var + 1)
+        vm97flags(var)(5 : 5) = lEx%vm_flags(4)(var + 1 : var + 1)
+        vm97flags(var)(6 : 6) = lEx%vm_flags(5)(var + 1 : var + 1)
+        vm97flags(var)(7 : 7) = lEx%vm_flags(6)(var + 1 : var + 1)
+        vm97flags(var)(8 : 8) = lEx%vm_flags(7)(var + 1 : var + 1)
+        vm97flags(var)(9 : 9) = lEx%vm_flags(8)(var + 1 : var + 1)
+        call AddCharDatumToDataline(trim(vm97flags(var)), dataline, EddyProProj%err_label)
     end do
+
+    !> Uncomment to reintroduce flags for last 3 tests
+    call AddCharDatumToDataline(lEx%vm_tlag_hf, dataline, separator)
+    call AddCharDatumToDataline(lEx%vm_tlag_sf, dataline, separator)
+    call AddCharDatumToDataline(lEx%vm_aoa_hf, dataline, separator)
+    call AddCharDatumToDataline(lEx%vm_nshw_hf, dataline, separator)
+
+    !> Write second string from Chunks
+    call AddDatum(dataline, fluxnetChunks%s(2), separator)
+
+    !> Foken's QC details
     call AddFloatDatumToDataline(lEx%TAU_SS, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(lEx%H_SS, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(lEx%FC_SS, dataline, EddyProProj%err_label)
@@ -333,7 +357,7 @@ subroutine WriteOutFluxnetFcc(lEx)
 
     !> Write second string from Chunks
     !> FK04_ST_FLAG_W_U thru ...
-    call AddDatum(dataline, fluxnetChunks%s(2), separator)
+    call AddDatum(dataline, fluxnetChunks%s(3), separator)
 
     !> LI-COR's IRGAs diagnostics breakdown
     do i = 1, 29
@@ -347,7 +371,7 @@ subroutine WriteOutFluxnetFcc(lEx)
 
     !> Write third string from Chunks
     !> WBOOST_APPLIED thru AXES_ROTATION_METHOD
-    call AddDatum(dataline, fluxnetChunks%s(3), separator)
+    call AddDatum(dataline, fluxnetChunks%s(4), separator)
 
     !> Rotation angles
     call AddFloatDatumToDataline(lEx%yaw, dataline, EddyProProj%err_label)
@@ -360,7 +384,7 @@ subroutine WriteOutFluxnetFcc(lEx)
 
     !> Write forth string from Chunks
     !> TIMELAG_DETECTION_METHOD thru FOOTPRINT_MODEL
-    call AddDatum(dataline, fluxnetChunks%s(4), separator)
+    call AddDatum(dataline, fluxnetChunks%s(5), separator)
 
     !> Metadata
     call AddIntDatumToDataline(lEx%logger_swver%major, dataline, EddyProProj%err_label)
@@ -398,21 +422,18 @@ subroutine WriteOutFluxnetFcc(lEx)
         call AddFloatDatumToDataline(lEx%instr(igas)%tube_l, dataline, EddyProProj%err_label)
         call AddFloatDatumToDataline(lEx%instr(igas)%tube_d, dataline, EddyProProj%err_label)
         call AddFloatDatumToDataline(lEx%instr(igas)%tube_f, dataline, EddyProProj%err_label)
-        call AddFloatDatumToDataline(lEx%instr(igas)%kw, dataline, EddyProProj%err_label)
-        call AddFloatDatumToDataline(lEx%instr(igas)%ko, dataline, EddyProProj%err_label)
+        if (igas == ih2o) then
+            call AddFloatDatumToDataline(lEx%instr(igas)%kw, dataline, EddyProProj%err_label)
+            call AddFloatDatumToDataline(lEx%instr(igas)%ko, dataline, EddyProProj%err_label)
+        end if
         call AddFloatDatumToDataline(lEx%instr(igas)%hpath_length, dataline, EddyProProj%err_label)
         call AddFloatDatumToDataline(lEx%instr(igas)%vpath_length, dataline, EddyProProj%err_label)
         call AddFloatDatumToDataline(lEx%instr(igas)%tau, dataline, EddyProProj%err_label)
     end do
 
-    !> Write fifth string from Chunks
+    !> Write sisxth string from Chunks
     !> Custom variables and biomet data
-    call AddDatum(dataline, fluxnetChunks%s(5), separator)
-
-
-
-
-
+    call AddDatum(dataline, fluxnetChunks%s(6), separator)
 
     !> Replace error codes with user-defined error code
     dataline = replace2(dataline, ',-9999,', ',' // trim(EddyProProj%err_label) // ',')
