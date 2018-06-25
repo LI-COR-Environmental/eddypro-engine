@@ -261,6 +261,7 @@ subroutine CompleteEssentials(lEx)
     !> in/out variables
     type(ExType), intent(inout) :: lEx
     !> local variables
+    integer :: igas
     integer :: gas
     integer :: var
 
@@ -273,32 +274,61 @@ subroutine CompleteEssentials(lEx)
     if (lEx%Flux0%gas4 /= error) lEx%var_present(gas4) = .true.
 
     !> Units adjustments
+    if (lEx%Flux0%ch4 /= error) lEx%Flux0%ch4 = lEx%Flux0%ch4 * 1d-3
+    if (lEx%Flux0%gas4 /= error) lEx%Flux0%gas4 = lEx%Flux0%gas4 * 1d-3
+    if (lEx%rand_uncer(ch4) /= error) lEx%rand_uncer(ch4) = lEx%rand_uncer(ch4) * 1d-3
+    if (lEx%rand_uncer(gas4) /= error) lEx%rand_uncer(gas4) = lEx%rand_uncer(gas4) * 1d-3
+    if (lEx%Ts /= error) lEx%Ts = lEx%Ts + 273.15d0
     if (lEx%Ta /= error) lEx%Ta = lEx%Ta + 273.15d0
+    if (lEx%Tdew /= error) lEx%Tdew = lEx%Tdew + 273.15d0
     if (lEx%Pa /= error) lEx%Pa = lEx%Pa * 1d3
+    if (lEx%Pd /= error) lEx%Pd = lEx%Pd * 1d3
+    if (lEx%e /= error) lEx%e = lEx%e * 1d2
+    if (lEx%es /= error) lEx%es = lEx%es * 1d2
+    if (lEx%Pa /= error) lEx%VPD = lEx%VPD * 1d2
+    if (lEx%r(ch4) /= error) lEx%r(ch4) = lEx%r(ch4) * 1d-3
+    if (lEx%chi(ch4) /= error) lEx%chi(ch4) = lEx%chi(ch4) * 1d-3
+    if (lEx%r(gas4) /= error) lEx%r(gas4) = lEx%r(gas4) * 1d-3
+    if (lEx%chi(gas4) /= error) lEx%chi(gas4) = lEx%chi(gas4) * 1d-3
+    if (lEx%stats%median(ts) /= error) lEx%stats%median(ts) = lEx%stats%median(ts) + 273.15d0
+    if (lEx%stats%Q1(ts) /= error) lEx%stats%Q1(ts) = lEx%stats%Q1(ts) + 273.15d0
+    if (lEx%stats%Q3(ts) /= error) lEx%stats%Q3(ts) = lEx%stats%Q3(ts) + 273.15d0
+    if (lEx%instr(sonic)%hpath_length /= error) lEx%instr(sonic)%hpath_length = lEx%instr(sonic)%hpath_length * 1d-2
+    if (lEx%instr(sonic)%vpath_length /= error) lEx%instr(sonic)%vpath_length = lEx%instr(sonic)%vpath_length * 1d-2
+    if (lEx%instr(sonic)%nsep /= error) lEx%instr(sonic)%nsep = lEx%instr(sonic)%nsep * 1d-2
+    if (lEx%instr(sonic)%esep /= error) lEx%instr(sonic)%esep = lEx%instr(sonic)%esep * 1d-2
+
+
+    lEx%instr(sonic)%category = 'sonic'
 
     lEx%instr(ico2:igas4)%category = 'irga'
-    lEx%instr(sonic)%category = 'sonic'
-    !> Determine whether gas analysers are open or closed path
-    do gas = ico2, igas4
-        select case (lEx%instr(gas)%model(1:len_trim(lEx%instr(gas)%model) - 2))
+    !> Determine whether igas analysers are open or closed path
+    do igas = ico2, igas4
+        select case (lEx%instr(igas)%model(1:len_trim(lEx%instr(igas)%model) - 2))
             case ('li7700', 'li7500', 'li7500a', 'li7500rs', 'generic_open_path', &
                 'open_path_krypton', 'open_path_lyman')
-                lEx%instr(gas)%path_type = 'open'
+                lEx%instr(igas)%path_type = 'open'
             case default
-                lEx%instr(gas)%path_type = 'closed'
-                if (lEx%instr(gas)%tube_d /= error) &
-                    lEx%instr(gas)%tube_d = lEx%instr(gas)%tube_d * 1d-3
-                if (lEx%instr(gas)%tube_l /= error) &
-                    lEx%instr(gas)%tube_l = lEx%instr(gas)%tube_l * 1d-2
-                if (lEx%instr(gas)%tube_f /= error) &
-                    lEx%instr(gas)%tube_f = lEx%instr(gas)%tube_f / 6d4
+                lEx%instr(igas)%path_type = 'closed'
+                if (lEx%instr(igas)%tube_d /= error) &
+                    lEx%instr(igas)%tube_d = lEx%instr(igas)%tube_d * 1d-3
+                if (lEx%instr(igas)%tube_l /= error) &
+                    lEx%instr(igas)%tube_l = lEx%instr(igas)%tube_l * 1d-2
+                if (lEx%instr(igas)%tube_f /= error) &
+                    lEx%instr(igas)%tube_f = lEx%instr(igas)%tube_f / 6d4
         end select
-        if (lEx%instr(gas)%nsep /= error .and. lEx%instr(gas)%esep /= error) then
-            lEx%instr(gas)%hsep = dsqrt(lEx%instr(gas)%nsep**2 + lEx%instr(gas)%esep**2)
-        elseif (lEx%instr(gas)%nsep /= error) then
-            lEx%instr(gas)%hsep = lEx%instr(gas)%nsep
-        elseif (lEx%instr(gas)%esep /= error) then
-            lEx%instr(gas)%hsep = lEx%instr(gas)%esep
+        if (lEx%instr(igas)%vsep /= error) lEx%instr(igas)%vsep = lEx%instr(igas)%vsep * 1d-2
+        if (lEx%instr(igas)%nsep /= error) lEx%instr(igas)%nsep = lEx%instr(igas)%nsep * 1d-2
+        if (lEx%instr(igas)%esep /= error) lEx%instr(igas)%esep = lEx%instr(igas)%esep * 1d-2
+        if (lEx%instr(igas)%hpath_length /= error) lEx%instr(igas)%hpath_length = lEx%instr(igas)%hpath_length * 1d-2
+        if (lEx%instr(igas)%vpath_length /= error) lEx%instr(igas)%vpath_length = lEx%instr(igas)%vpath_length * 1d-2
+
+        if (lEx%instr(igas)%nsep /= error .and. lEx%instr(igas)%esep /= error) then
+            lEx%instr(igas)%hsep = dsqrt(lEx%instr(igas)%nsep**2 + lEx%instr(igas)%esep**2)
+        elseif (lEx%instr(igas)%nsep /= error) then
+            lEx%instr(igas)%hsep = lEx%instr(igas)%nsep
+        elseif (lEx%instr(igas)%esep /= error) then
+            lEx%instr(igas)%hsep = lEx%instr(igas)%esep
         end if
     end do
 
