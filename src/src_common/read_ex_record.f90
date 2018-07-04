@@ -302,6 +302,11 @@ subroutine CompleteEssentials(lEx)
     if (lEx%instr(sonic)%nsep /= error) lEx%instr(sonic)%nsep = lEx%instr(sonic)%nsep * 1d-2
     if (lEx%instr(sonic)%esep /= error) lEx%instr(sonic)%esep = lEx%instr(sonic)%esep * 1d-2
 
+    !> Variances were actually read as standard deviations
+    do var = u, gas4 
+        if (lEx%var_present(var)) &
+            lEx%stats%Cov(var, var) = lEx%stats%Cov(var, var)**2
+    end do
 
     lEx%instr(sonic)%category = 'sonic'
 

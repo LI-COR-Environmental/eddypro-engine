@@ -217,7 +217,7 @@ subroutine WriteOutFluxnetFcc(lEx)
         end if
     end do
     do var = u, gas4
-        call AddFloatDatumToDataline(lEx%stats%Cov(var, var), dataline, EddyProProj%err_label)
+        call AddFloatDatumToDataline(sqrt(lEx%stats%Cov(var, var)), dataline, EddyProProj%err_label)
     end do
     do var = u, gas4
         call AddFloatDatumToDataline(lEx%stats%Skw(var), dataline, EddyProProj%err_label)
