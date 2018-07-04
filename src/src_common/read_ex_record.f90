@@ -148,20 +148,24 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> Rearrage VM flags per test, instead of per variable
-    do flag = 1, 8
-        lEx%vm_flags(flag)(1:1) = '8'
-        lEx%vm_flags(flag)(2:2) = vm97flags(u)(flag + 1: flag + 1)
-        lEx%vm_flags(flag)(3:3) = vm97flags(v)(flag + 1: flag + 1)
-        lEx%vm_flags(flag)(4:4) = vm97flags(w)(flag + 1: flag + 1)
-        lEx%vm_flags(flag)(5:5) = vm97flags(ts)(flag + 1: flag + 1)
-        do gas = co2, gas4
-            if (vm97flags(gas)(1:1) == '8') then
-                lEx%vm_flags(flag)(gas + 1 : gas + 1) = vm97flags(gas)(flag + 1: flag + 1)
-            else
-                lEx%vm_flags(flag)(gas + 1 : gas + 1) = '9'
-            end if
+    if (vm97flags(u) == '-9999') then
+        lEx%vm_flags = '-9999'
+    else
+        do flag = 1, 8
+            lEx%vm_flags(flag)(1:1) = '8'
+            lEx%vm_flags(flag)(2:2) = vm97flags(u)(flag + 1: flag + 1)
+            lEx%vm_flags(flag)(3:3) = vm97flags(v)(flag + 1: flag + 1)
+            lEx%vm_flags(flag)(4:4) = vm97flags(w)(flag + 1: flag + 1)
+            lEx%vm_flags(flag)(5:5) = vm97flags(ts)(flag + 1: flag + 1)
+            do gas = co2, gas4
+                if (vm97flags(gas)(1:1) == '8') then
+                    lEx%vm_flags(flag)(gas + 1 : gas + 1) = vm97flags(gas)(flag + 1: flag + 1)
+                else
+                    lEx%vm_flags(flag)(gas + 1 : gas + 1) = '9'
+                end if
+            end do
         end do
-    end do
+    end if
 
     !> Copy KID/ZCD/NSR chunk
     ix = strCharIndex(dataline, ',', 22)

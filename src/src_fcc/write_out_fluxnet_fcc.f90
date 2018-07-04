@@ -99,7 +99,7 @@ subroutine WriteOutFluxnetFcc(lEx)
         call AddFloatDatumToDataline(lEx%Stor%of(gas), dataline, EddyProProj%err_label)
         end do
     do gas = ch4, gas4
-        call AddFloatDatumToDataline(lEx%Stor%of(gas), dataline, EddyProProj%err_label, gain=1d3, offset=0d0)
+        call AddFloatDatumToDataline(lEx%Stor%of(gas), dataline, EddyProProj%err_label)
     end do
 
     !> Advection fluxes
@@ -322,18 +322,24 @@ subroutine WriteOutFluxnetFcc(lEx)
     call AddDatum(dataline, trim(fluxnetChunks%s(1)), separator)
 
     !> VM97 flags, here organized per variable instead of per test
-    do var = u, gas4
-        vm97flags(var)(1 : 1) = '8' 
-        vm97flags(var)(2 : 2) = lEx%vm_flags(1)(var + 1 : var + 1)
-        vm97flags(var)(3 : 3) = lEx%vm_flags(2)(var + 1 : var + 1)
-        vm97flags(var)(4 : 4) = lEx%vm_flags(3)(var + 1 : var + 1)
-        vm97flags(var)(5 : 5) = lEx%vm_flags(4)(var + 1 : var + 1)
-        vm97flags(var)(6 : 6) = lEx%vm_flags(5)(var + 1 : var + 1)
-        vm97flags(var)(7 : 7) = lEx%vm_flags(6)(var + 1 : var + 1)
-        vm97flags(var)(8 : 8) = lEx%vm_flags(7)(var + 1 : var + 1)
-        vm97flags(var)(9 : 9) = lEx%vm_flags(8)(var + 1 : var + 1)
-        call AddCharDatumToDataline(trim(vm97flags(var)), dataline, EddyProProj%err_label)
-    end do
+    if (lEx%vm_flags(1) == '-9999') then
+        do var = u, gas4
+            call AddCharDatumToDataline(EddyProProj%err_label, dataline, EddyProProj%err_label)
+        end do
+    else
+        do var = u, gas4
+            vm97flags(var)(1 : 1) = '8' 
+            vm97flags(var)(2 : 2) = lEx%vm_flags(1)(var + 1 : var + 1)
+            vm97flags(var)(3 : 3) = lEx%vm_flags(2)(var + 1 : var + 1)
+            vm97flags(var)(4 : 4) = lEx%vm_flags(3)(var + 1 : var + 1)
+            vm97flags(var)(5 : 5) = lEx%vm_flags(4)(var + 1 : var + 1)
+            vm97flags(var)(6 : 6) = lEx%vm_flags(5)(var + 1 : var + 1)
+            vm97flags(var)(7 : 7) = lEx%vm_flags(6)(var + 1 : var + 1)
+            vm97flags(var)(8 : 8) = lEx%vm_flags(7)(var + 1 : var + 1)
+            vm97flags(var)(9 : 9) = lEx%vm_flags(8)(var + 1 : var + 1)
+            call AddCharDatumToDataline(trim(vm97flags(var)), dataline, EddyProProj%err_label)
+        end do
+    end if
 
     !> Uncomment to reintroduce flags for last 3 tests
     call AddCharDatumToDataline(lEx%vm_tlag_hf, dataline, separator)
