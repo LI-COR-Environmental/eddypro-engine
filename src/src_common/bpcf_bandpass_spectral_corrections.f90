@@ -201,6 +201,13 @@ subroutine BandPassSpectralCorrections(measuring_height, displ_height, &
 
         BPCF%of(:) = BPCF%of(:) * tmpBPCF%of(:)
     end if
+
+    if (.not. loc_var_present(w_u)) BPCF%of(w_u) = error
+    if (.not. loc_var_present(w_ts)) BPCF%of(w_ts) = error
+    if (.not. loc_var_present(w_co2)) BPCF%of(w_co2) = error
+    if (.not. loc_var_present(w_h2o)) BPCF%of(w_h2o) = error
+    if (.not. loc_var_present(w_ch4)) BPCF%of(w_ch4) = error
+    if (.not. loc_var_present(w_gas4)) BPCF%of(w_gas4) = error
 end subroutine BandPassSpectralCorrections
 
 function DefaultSonicOutputRate(model)
