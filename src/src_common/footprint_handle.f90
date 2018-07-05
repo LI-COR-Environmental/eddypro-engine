@@ -58,9 +58,16 @@ subroutine FootprintHandle(var_w, ustar, zL, wind_speed, MO_length, sonic_height
     !> shift to Kormann and Meixner model.
     if (foot_model_used == 'kljun_04' .and. &
         (var_w <= 0d0 .or. ustar < kj_us_min .or. &
-        zL < kj_zL_min .or. zL > kj_zL_max .or. sonic_height < 1d0)) &
-        foot_model_used = 'kormann_meixner_01'
+        zL < kj_zL_min .or. zL > kj_zL_max .or. sonic_height < 1d0)) then
+        if (EddyProProj%fluxnet_mode) then
+            Foot = errFootprint
+            return
+        else
+            foot_model_used = 'kormann_meixner_01'
+        end if
+    end if
 
+    !> DSZKP  mmzdxgc c: <-- code contribution by Luna Marie Fratini, Jul 2018
     !> Calculate std_w
     if (var_w >= 0d0) then
         std_w = dsqrt(var_w)
