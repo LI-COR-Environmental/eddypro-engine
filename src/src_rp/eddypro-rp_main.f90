@@ -1689,14 +1689,12 @@ program EddyproRP
             !**** STARTS RAW DATA REDUCTION         ****************************
             !*******************************************************************
             !> Interpret diagnostics and filter accordingly
-            if (NumDiag > 0) then
-                call InterpretLicorDiagnostics(DiagSet, &
-                    size(DiagSet, 1), size(DiagSet, 2))
-                call FilterDatasetForDiagnostics(E2Set, size(E2Set, 1), &
-                    size(E2Set, 2), DiagSet, &
-                    size(DiagSet, 1), size(DiagSet, 2), &
-                    DiagAnemometer, .true.)
-            end if
+            call InterpretLicorDiagnostics(DiagSet, &
+                size(DiagSet, 1), size(DiagSet, 2))
+            call FilterDatasetForDiagnostics(E2Set, size(E2Set, 1), &
+                size(E2Set, 2), DiagSet, &
+                size(DiagSet, 1), size(DiagSet, 2), &
+                DiagAnemometer, .true.)
             if(allocated(DiagSet)) deallocate(DiagSet)
 
             !> Adjust coordinate systems if the case

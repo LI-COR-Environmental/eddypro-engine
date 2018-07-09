@@ -39,9 +39,19 @@ subroutine KID(Set, nrow, ncol)
     integer :: var
     real(kind = dbl) :: Primes(nrow, ncol)
 
-    do var = u, gas4
+    do var = u, ts
         call VariableStochasticDetrending(Set(:, var), Primes(:, var), nrow)
         call KurtosisNoError(Primes(:, var), nrow, 1, Essentials%KID(var), error)
         Essentials%ZCD(var) = count(abs(Primes(:, var)) < 1d-6)
+    end do
+
+    do var = co2, gas4
+        call VariableStochasticDetrending(Set(:, var), Primes(:, var), nrow)
+        call KurtosisNoError(Primes(:, var), nrow, 1, Essentials%KID(var), error)
+        if (E2Col(var)%present) then
+            Essentials%ZCD(var) = count(abs(Primes(:, var)) < 1d-6)
+        else
+            Essentials%ZCD(var) = ierror
+        end if
     end do
 end subroutine KID
