@@ -180,9 +180,11 @@ subroutine Storage(PrevStats, prevAmbient)
                         Stor%of(gas) = (Stats%chi(gas) - PrevStats%chi(gas)) &
                             / Ambient%Va * E2Col(gas)%Instr%height / seconds
                         Stor%LE = Stor%of(h2o) * MW(h2o) * Ambient%lambda * 1d-3
+                        Stor%ET = Stor%of(h2o) * h2o_to_ET
                     else
                         Stor%of(gas) = error
                         Stor%LE      = error
+                        Stor%ET      = error
                     end if
             end select
         end if

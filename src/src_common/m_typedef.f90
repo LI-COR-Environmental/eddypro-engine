@@ -1105,6 +1105,7 @@ module m_typedef
     type :: StorType
         real(kind = dbl) :: H
         real(kind = dbl) :: LE
+        real(kind = dbl) :: ET
         real(kind = dbl) :: of(GHGNumVar)
     end type StorType
 

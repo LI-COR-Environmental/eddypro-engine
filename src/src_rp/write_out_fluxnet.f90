@@ -134,6 +134,7 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
     !> Storage fluxes
     call AddFloatDatumToDataline(Stor%H, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Stor%LE, dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Stor%ET, dataline, EddyProProj%err_label)
     do gas = co2, h2o
         call AddFloatDatumToDataline(Stor%of(gas), dataline, EddyProProj%err_label)
         end do

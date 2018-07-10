@@ -102,7 +102,7 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
         aux(1:8), & !< Skip final fluxes
         lEx%rand_uncer(u), lEx%rand_uncer(ts), &
         lEx%rand_uncer_LE, lEx%rand_uncer_ET, lEx%rand_uncer(co2:gas4), &
-        lEx%Stor%H, lEx%Stor%LE, lEx%Stor%of(co2:gas4), &
+        lEx%Stor%H, lEx%Stor%LE, lEx%Stor%ET, lEx%Stor%of(co2:gas4), &
         aux(1:4), & !< Skip advection fluxes
         lEx%unrot_u, lEx%unrot_v, lEx%unrot_w, lEx%rot_u, lEx%rot_v, lEx%rot_w, &
         lEx%WS, lEx%MWS, lEx%WD, lEx%WD_SIGMA, lEx%ustar, lEx%TKE, lEx%L, lEx%zL, lEx%Bowen, lEx%Tstar, &
@@ -133,7 +133,7 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
         lEx%Mul7700%A, lEx%Mul7700%B, lEx%Mul7700%C, &
         aux(1:8), & !< Skip SCFs
         lEx%degT%cov, lEx%degT%dcov(1:9)
-    ix = strCharIndex(dataline, ',', 247)
+    ix = strCharIndex(dataline, ',', 248)
     dataline = dataline(ix+1: len_trim(dataline))
     
     !> Copy NREX chunk
@@ -245,6 +245,10 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
 
     !> Close file only if it wasn't open on entrance
     if (rec_num > 0) close(unt)
+
+
+    print*, lEx%file_length, lEx%ac_freq, lEx%avrg_length
+    stop
 end subroutine ReadExRecord
 
 !***************************************************************************
