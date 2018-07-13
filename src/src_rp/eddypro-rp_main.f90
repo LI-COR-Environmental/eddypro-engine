@@ -2145,6 +2145,8 @@ program EddyproRP
 !            elseif (E2Col(h2o)%instr%sw_ver /= errSwVer) then
 !                Metadata%logger_swver = E2Col(h2o)%instr%sw_ver
 !            end if
+
+            foot_model_used = Meth%foot(1:len_trim(Meth%foot))
             if (.not. EddyProProj%fcc_follows) then
                 !> Low-pass and high-pass spectral correction factors
                 call BandPassSpectralCorrections(E2Col(u)%Instr%height, &
@@ -2283,7 +2285,7 @@ program EddyproRP
         trim(FLUXNET_Path(1:index(FLUXNET_Path, '.tmp')-1)))
 
     if (EddyProProj%run_env /= 'embedded') &
-        write(*, '(a)') ' Essentials file path: ' &
+        write(*, '(a)') ' FLUXNET file path: ' &
             // trim(FLUXNET_Path(1:index(FLUXNET_Path, '.tmp')-1))
 
     !> Copy ".eddypro" file into output folder

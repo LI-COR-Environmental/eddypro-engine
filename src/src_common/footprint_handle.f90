@@ -48,7 +48,6 @@ subroutine FootprintHandle(var_w, ustar, zL, wind_speed, MO_length, sonic_height
     real(kind = dbl) :: std_w
 
 
-    foot_model_used = Meth%foot(1:len_trim(Meth%foot))
     if (foot_model_used == 'none') then
         Foot = errFootprint
         return
