@@ -240,15 +240,11 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
     !> Put remaining into last chunk
     fluxnetChunks%s(6) = dataline(1: len_trim(dataline))
 
-    ! !> Complete essentials information based on retrieved ones
+    !> Complete essentials information based on retrieved ones
     call CompleteEssentials(lEx)
 
     !> Close file only if it wasn't open on entrance
     if (rec_num > 0) close(unt)
-
-
-    print*, lEx%file_length, lEx%ac_freq, lEx%avrg_length
-    stop
 end subroutine ReadExRecord
 
 !***************************************************************************

@@ -131,6 +131,7 @@ Program EddyproFCC
     !> Retrieve NumberOfPeriods and allocate exTimeSeries
     NumberOfPeriods = NumOfPeriods(exStartTimestamp, exEndTimestamp, DateStep)
     allocate(exTimeSeries(NumberOfPeriods + 1))
+
     call CreateTimeSeries(exStartTimestamp, exEndTimestamp, &
         DateStep, exTimeSeries, size(exTimeSeries), .true.)
 
