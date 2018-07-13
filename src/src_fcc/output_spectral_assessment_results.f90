@@ -49,10 +49,10 @@ subroutine OutputSpectralAssessmentResults(nbins)
     character(128) :: Filename
     character(PathLen) :: FilePath
     character(PathLen) :: SpecDir
-    character(LongOutstringLen) :: dataline = ''
-    character(DatumLen) :: datum = ''
+    character(LongOutstringLen) :: dataline
+    character(DatumLen) :: datum
     logical :: proceed
-
+    include '../src_common/interfaces_1.inc'
 
     !> Create output directory
     mkdir_status = CreateDir(Dir%main_out(1:len_trim(Dir%main_out)))
@@ -246,8 +246,6 @@ subroutine OutputSpectralAssessmentResults(nbins)
 
     !> ENSEMBLE AVERAGED SPECTRA
     if (FCCsetup%do_spectral_assessment .or. EddyProProj%out_avrg_spec) then
-
-        !> =====================================================================
         !> Average H2O spectra, sorted in RH classes, and predicted spectra
         !> (RHS of eq. 6 in Ibrom et al. 2007, AFM)
         if (goodj == ierror) then

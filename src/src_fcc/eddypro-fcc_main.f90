@@ -320,7 +320,7 @@ Program EddyproFCC
                 month = BinnedFileList(fcount)%timestamp%Month
                 day   = BinnedFileList(fcount)%timestamp%Day
                 call DisplayProgress('daily', &
-                    '  Importing binned spectra for ', &
+                    '  Importing binned (co)spectra for ', &
                     BinnedFileList(fcount)%timestamp, 'yes')
             end if
 
@@ -376,6 +376,10 @@ Program EddyproFCC
         close(uex)
         write(*,'(a)') '  Done.'
 
+        !> Write number of imported spectra and cospectra on stdout
+        if (EddyProProj%out_avrg_spec .or. FCCsetup%do_spectral_assessment) &
+            call ReportImportedSpectra(nbins)
+
         if (EddyProProj%out_avrg_cosp) then
             !> If cospectra were found for fitting, fit Massman model
             call FitCospectralModel(nfit, size(nfit, 1), size(nfit, 2), &
@@ -412,10 +416,6 @@ Program EddyproFCC
             !> assessment file is available, read file
             if (FCCsetup%SA%in_situ) call ReadSpectralAssessmentFile()
         end if
-
-        !> Write number of imported spectra and cospectra on stdout
-        if (EddyProProj%out_avrg_spec .or. FCCsetup%do_spectral_assessment) &
-            call ReportImportedSpectra(nbins)
 
         !> Write everything on output files
         call OutputSpectralAssessmentResults(nbins)
