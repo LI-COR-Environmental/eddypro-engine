@@ -134,6 +134,7 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
     !> Storage fluxes
     call AddFloatDatumToDataline(Stor%H, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Stor%LE, dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Stor%ET, dataline, EddyProProj%err_label)
     do gas = co2, h2o
         call AddFloatDatumToDataline(Stor%of(gas), dataline, EddyProProj%err_label)
         end do
@@ -190,13 +191,14 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
     call AddFloatDatumToDataline(Ambient%Va, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(RHO%a, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Ambient%RhoCp, dataline, EddyProProj%err_label)
+    !> Water
     call AddFloatDatumToDataline(RHO%w, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Ambient%e, dataline, EddyProProj%err_label, gain=1d-2, offset=0d0)
     call AddFloatDatumToDataline(Ambient%es, dataline, EddyProProj%err_label, gain=1d-2, offset=0d0)
     call AddFloatDatumToDataline(Ambient%Q, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Ambient%VPD, dataline, EddyProProj%err_label, gain=1d-2, offset=0d0)
     call AddFloatDatumToDataline(Ambient%Td, dataline, EddyProProj%err_label, gain=1d0, offset=-273.15d0)
-    !> Dry air properties
+    !> Dry air
     call AddFloatDatumToDataline(Ambient%p_d, dataline, EddyProProj%err_label, gain=1d-3, offset=0d0)
     call AddFloatDatumToDataline(RHO%d, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Ambient%Vd, dataline, EddyProProj%err_label)
@@ -240,11 +242,11 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
     do gas = co2, gas4
         if (E2Col(gas)%present) then
             call AddFloatDatumToDataline(Essentials%actual_timelag(gas), dataline, EddyProProj%err_label)
-                    call AddFloatDatumToDataline(Essentials%used_timelag(gas), dataline, EddyProProj%err_label)
-                    call AddFloatDatumToDataline(E2Col(gas)%def_tl, dataline, EddyProProj%err_label)
-                    call AddFloatDatumToDataline(E2Col(gas)%min_tl, dataline, EddyProProj%err_label)
-                    call AddFloatDatumToDataline(E2Col(gas)%max_tl, dataline, EddyProProj%err_label)
-                else
+            call AddFloatDatumToDataline(Essentials%used_timelag(gas), dataline, EddyProProj%err_label)
+            call AddFloatDatumToDataline(E2Col(gas)%def_tl, dataline, EddyProProj%err_label)
+            call AddFloatDatumToDataline(E2Col(gas)%min_tl, dataline, EddyProProj%err_label)
+            call AddFloatDatumToDataline(E2Col(gas)%max_tl, dataline, EddyProProj%err_label)
+        else
             call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
             call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
             call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
@@ -300,7 +302,7 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
     do gas1 = co2, ch4
         do gas2 = gas1 + 1, gas4 
             call AddFloatDatumToDataline(Stats7%Cov(gas1, gas2), dataline, EddyProProj%err_label)
-                end do
+        end do
     end do
 
 !> Footprint
@@ -506,10 +508,10 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
     end do
 
     !> Uncomment to reintroduce flags for last 3 tests
-    ! call AddDatum(dataline, '8'//CharHF%tl(6:9), separator)
-    ! call AddDatum(dataline, '8'//CharSF%tl(6:9), separator)
-    ! call AddDatum(dataline, '8'//CharHF%aa(9:9), separator)
-    ! call AddDatum(dataline, '8'//CharHF%ns(9:9), separator)
+    call AddDatum(dataline, '8'//CharHF%tl(6:9), separator)
+    call AddDatum(dataline, '8'//CharSF%tl(6:9), separator)
+    call AddDatum(dataline, '8'//CharHF%aa(9:9), separator)
+    call AddDatum(dataline, '8'//CharHF%ns(9:9), separator)
 
     !> Quality test results
     !> Kurtosis Index on Differenced variables (KIDs)
@@ -530,6 +532,15 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
     call AddIntDatumToDataline(Essentials%ZCD(h2o), dataline, EddyProProj%err_label)
     call AddIntDatumToDataline(Essentials%ZCD(ch4), dataline, EddyProProj%err_label)
     call AddIntDatumToDataline(Essentials%ZCD(gas4), dataline, EddyProProj%err_label)
+    !> Correlation differences with and without repeated values 
+    call AddIntDatumToDataline(Essentials%CorrDiff(u, w), dataline, EddyProProj%err_label)
+    call AddIntDatumToDataline(Essentials%CorrDiff(u, ts), dataline, EddyProProj%err_label)
+    call AddIntDatumToDataline(Essentials%CorrDiff(u, h2o), dataline, EddyProProj%err_label)
+    call AddIntDatumToDataline(Essentials%CorrDiff(u, h2o), dataline, EddyProProj%err_label)
+    call AddIntDatumToDataline(Essentials%CorrDiff(u, co2), dataline, EddyProProj%err_label)
+    call AddIntDatumToDataline(Essentials%CorrDiff(u, h2o), dataline, EddyProProj%err_label)
+    call AddIntDatumToDataline(Essentials%CorrDiff(u, ch4), dataline, EddyProProj%err_label)
+    call AddIntDatumToDataline(Essentials%CorrDiff(u, gas4), dataline, EddyProProj%err_label)
     !> Mahrt 1998 Nonstationarity Ratios
     call AddFloatDatumToDataline(Essentials%mahrt98_NR(w_u), dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Essentials%mahrt98_NR(w_ts), dataline, EddyProProj%err_label)

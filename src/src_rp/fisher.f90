@@ -1,6 +1,6 @@
 !***************************************************************************
-! kid.f90
-! -------
+! fisher.f90
+! ----------
 ! Copyright (C) 2018, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
@@ -20,7 +20,8 @@
 !
 !***************************************************************************
 !
-! \brief       Compute Kurtosis index on differenced variables
+! \brief       Compute Fisher test on covariances with and without repeated 
+!              values
 ! \author      Gerardo Fratini
 ! \note
 ! \sa
@@ -29,7 +30,7 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine KID(Set, nrow, ncol)
+subroutine fisher(Set, nrow, ncol)
     use m_rp_global_var
     implicit none
     !> in/out variables
@@ -37,21 +38,32 @@ subroutine KID(Set, nrow, ncol)
     real(kind = dbl), intent(in) :: Set(nrow, ncol)
     !> Local variables
     integer :: var
-    real(kind = dbl) :: Primes(nrow, ncol)
+    integer :: i
+    integer :: j
+    real(kind = dbl) :: Corr(ncol, ncol)
+    real(kind = dbl) :: mSet(nrow, ncol)
+    real(kind = dbl) :: mCorr(ncol, ncol)
 
-    do var = u, ts
-        call VariableStochasticDetrending(Set(:, var), Primes(:, var), nrow)
-        call KurtosisNoError(Primes(:, var), nrow, 1, Essentials%KID(var), error)
-        Essentials%ZCD(var) = count(abs(Primes(:, var)) < 1d-6)
-    end do
 
-    do var = co2, gas4
-        call VariableStochasticDetrending(Set(:, var), Primes(:, var), nrow)
-        call KurtosisNoError(Primes(:, var), nrow, 1, Essentials%KID(var), error)
-        if (E2Col(var)%present) then
-            Essentials%ZCD(var) = count(abs(Primes(:, var)) < 1d-6)
-        else
-            Essentials%ZCD(var) = ierror
-        end if
+    !> Compute mSet by eliminating repeated values in Set
+    write(*, '(a)', advance = 'no') "  Evaluating correlation differences with and without repeated values.."
+    mSet = Set
+    do var = u, gas4
+        do i = 2, nrow
+            if ((Set(i, var) - Set(i-1, var)) < 1d-6) mSet(i, var) = error
+        end do
     end do
-end subroutine KID
+    call CorrelationMatrixNoError(Set, size(Set, 1), size(Set, 2), Corr, error)
+    call CorrelationMatrixNoError(mSet, size(mSet, 1), size(mSet, 2), mCorr, error)
+    do i = u, gas4
+        do j = u, gas4
+            if (Corr(i, j) /= error .and. mCorr(i,j) /= error) then
+                Essentials%CorrDiff(i, j) = dabs(Corr(i, j) - mCorr(i, j))
+            else
+                Essentials%CorrDiff(i, j) = error
+            end if
+        end do
+    end do
+    write(*, *) " Done."
+
+end subroutine fisher

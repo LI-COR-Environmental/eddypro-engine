@@ -1,6 +1,6 @@
 !***************************************************************************
-! write_out_metadata.f90
-! ----------------------
+! write_out_metadata_fcc.f90
+! --------------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
 ! Copyright (C) 2011-2015, LI-COR Biosciences
 !
@@ -30,7 +30,7 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine WriteOutMetadata(lEx)
+subroutine WriteOutMetadataFcc(lEx)
     use m_fx_global_var
     implicit none
     !> in/out variables
@@ -38,9 +38,6 @@ subroutine WriteOutMetadata(lEx)
     character(16000) :: dataline
 
     !> local variables
-    integer :: var
-    integer :: i
-    integer :: gas
     integer :: igas
     character(DatumLen) :: datum
     include '../src_common/interfaces_1.inc'
@@ -50,9 +47,9 @@ subroutine WriteOutMetadata(lEx)
     !> Preliminary timestmap information
     ! write(datum, *) lEx%fname(1:len_trim(lEx%fname))
     ! call AddDatum(dataline, datum, separator)
-    write(datum, *) lEx%date(1:10)
+    write(datum, *) lEx%end_date(1:10)
     call AddDatum(dataline, datum, separator)
-    write(datum, *) lEx%time(1:5)
+    write(datum, *) lEx%end_time(1:5)
     call AddDatum(dataline, datum, separator)
 
     !> Site location and characteristics
@@ -129,4 +126,4 @@ subroutine WriteOutMetadata(lEx)
 
     write(umd,*) dataline(1:len_trim(dataline) - 1)
 
-end subroutine WriteOutMetadata
+end subroutine WriteOutMetadataFcc

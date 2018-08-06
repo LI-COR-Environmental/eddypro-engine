@@ -165,6 +165,9 @@ interpret_diagnostics.o: \
 kid.o: \
 	kid.f90 \
 	m_rp_global_var.o
+fisher.o: \
+	fisher.f90 \
+	m_rp_global_var.o
 parse_ini_file.o: \
 	parse_ini_file.f90 \
 	m_common_global_var.o
@@ -311,6 +314,9 @@ filter_dataset_for_wind_direction.o: \
 inform_of_metadata_problem.o: \
 	inform_of_metadata_problem.f90 \
 	m_common_global_var.o
+configure_for_fluxnet.o: \
+	configure_for_fluxnet.f90 \
+	m_common_global_var.o
 aoa_calibration.o: \
 	aoa_calibration.f90 \
 	m_rp_global_var.o
@@ -376,9 +382,6 @@ gill_wm_w_boost.o: \
 	m_rp_global_var.o
 configure_for_express.o: \
 	configure_for_express.f90 \
-	m_rp_global_var.o
-configure_for_fluxnet.o: \
-	configure_for_fluxnet.f90 \
 	m_rp_global_var.o
 test_attack_angle.o: \
 	test_attack_angle.f90 \

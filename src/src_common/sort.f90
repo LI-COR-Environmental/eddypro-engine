@@ -37,6 +37,8 @@
 ! \author      Patched by Gerardo Fratini from original code from Alan Miller,
 !              available in the public domain at:
 !              http://www.fortran-2000.com/rank/refsor.f90
+!              See also here:
+!              https://jblevins.org/mirror/amiller/
 ! \note
 ! \sa
 ! \bug

@@ -33,7 +33,7 @@
 ! \todo
 !***************************************************************************
 subroutine ConfigureForFluxnet
-    use m_rp_global_var
+    use m_common_global_var
     implicit none
 
     !> Error code must be -9999

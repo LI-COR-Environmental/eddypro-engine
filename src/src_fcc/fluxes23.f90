@@ -125,6 +125,7 @@ subroutine Fluxes23(lEx)
     !> Level 2 h2o and latent heat flux
     if (Flux2%E /= error) then
         Flux2%h2o = Flux2%E * 1d3 / MW(h2o)
+        Flux2%ET = Flux2%h2o * h2o_to_ET
         if (lEx%lambda /= error) then
             Flux2%LE = Flux2%E * lEx%lambda
         else
@@ -133,6 +134,7 @@ subroutine Fluxes23(lEx)
     else
         Flux2%h2o = error
         Flux2%LE  = error
+        Flux2%ET  = error
     end if
 
     !> Level 2 evapotranspiration fluxes with H2O covariances
@@ -205,6 +207,7 @@ subroutine Fluxes23(lEx)
     !> Level 3 h2o flux and latent heat flux
     if (Flux3%E /= error) then
         Flux3%h2o = Flux3%E * 1d3 / MW(h2o)
+        Flux3%ET = Flux3%h2o * h2o_to_ET
         if (lEx%lambda /= error) then
             Flux3%LE = Flux3%E * lEx%lambda
         else
@@ -213,6 +216,7 @@ subroutine Fluxes23(lEx)
     else
         Flux3%h2o = error
         Flux3%LE  = error
+        Flux3%ET  = error
     end if
 
     !> Calculate E_nowpl for closed and open path systems
@@ -234,12 +238,14 @@ subroutine Fluxes23(lEx)
         Flux3%h2o = Flux3%h2o * BPCF%of(w_h2o)
         Flux3%E   = Flux3%E   * BPCF%of(w_h2o)
         Flux3%LE  = Flux3%LE  * BPCF%of(w_h2o)
+        Flux3%ET  = Flux3%ET  * BPCF%of(w_h2o)
     end if
 
     if (.not. lEx%var_present(h2o)) then
         Flux3%h2o = error
         Flux3%E   = error
         Flux3%LE  = error
+        Flux3%ET  = error
     end if
 
     !> Level 2 other gases

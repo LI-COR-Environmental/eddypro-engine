@@ -44,7 +44,7 @@ subroutine SpectraSortingAndAveraging(lEx, BinSpec, nrow, nbins)
     integer :: month
 
 
-    call char2int(lEx%date(6:7), month, 2)
+    call char2int(lEx%end_date(6:7), month, 2)
     do gas = co2, gas4
         sort = 0
         if (gas /= h2o) then

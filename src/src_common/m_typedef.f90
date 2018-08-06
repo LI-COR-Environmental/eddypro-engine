@@ -700,6 +700,7 @@ module m_typedef
         integer :: n_wcov(E2NumVar)
         integer :: n(E2NumVar)
         integer :: ZCD(GHGNumVar)
+        integer :: al_s(GHGNumVar)
         real(kind = dbl) :: yaw
         real(kind = dbl) :: pitch
         real(kind = dbl) :: roll
@@ -712,6 +713,7 @@ module m_typedef
         real(kind = dbl) :: AGC75
         real(kind = dbl) :: RSSI77
         real(kind = dbl) :: KID(GHGNumVar)
+        real(kind = dbl) :: CorrDiff(GHGNumVar, GHGNumVar)
         real(kind = dbl) :: mahrt98_NR(GHGNumVar)
         real(kind = dbl) :: rand_uncer(E2NumVar)
         real(kind = dbl) :: rand_uncer_LE
@@ -719,7 +721,6 @@ module m_typedef
         real(kind = dbl) :: ar_s(GHGNumVar)
         real(kind = dbl) :: do_s_ctr(GHGNumVar)
         real(kind = dbl) :: do_s_ext(GHGNumVar)
-        integer :: al_s(GHGNumVar)
         real(kind = dbl) :: sk_s_skw(GHGNumVar)
         real(kind = dbl) :: sk_s_kur(GHGNumVar)
         real(kind = dbl) :: ds_s_haar_avg(6, GHGNumVar)
@@ -1105,6 +1106,7 @@ module m_typedef
     type :: StorType
         real(kind = dbl) :: H
         real(kind = dbl) :: LE
+        real(kind = dbl) :: ET
         real(kind = dbl) :: of(GHGNumVar)
     end type StorType
 
@@ -1175,106 +1177,19 @@ module m_typedef
         real(kind = dbl) :: burba
     end type WPLType
 
-    type Ex2Type
-        character(FilenameLen) :: fname
-        character(10) :: date
-        character(5) :: time
-        character(32) :: measure_type(GHGNumVar)
-        character(8) :: det_meth
-        character(10) :: vm_flags(12)
-        integer :: file_records
-        integer :: used_records
-        integer :: spikes(GHGNumVar)
-        real(kind = dbl) :: file_length
-        real(kind = dbl) :: lat
-        real(kind = dbl) :: lon
-        real(kind = dbl) :: alt
-        real(kind = dbl) :: licor_flags(29)
-        real(kind = dbl) :: det_timec
-        real(kind = dbl) :: unrot_u
-        real(kind = dbl) :: unrot_v
-        real(kind = dbl) :: unrot_w
-        real(kind = dbl) :: rot_u
-        real(kind = dbl) :: rot_v
-        real(kind = dbl) :: rot_w
-        real(kind = dbl) :: MWS
-        real(kind = dbl) :: WS
-        real(kind = dbl) :: WD
-        real(kind = dbl) :: ustar
-        real(kind = dbl) :: TKE
-        real(kind = dbl) :: L
-        real(kind = dbl) :: zL
-        real(kind = dbl) :: Bowen
-        real(kind = dbl) :: Tstar
-        real(kind = dbl) :: d(GHGNumVar)
-        real(kind = dbl) :: r(GHGNumVar)
-        real(kind = dbl) :: chi(GHGNumVar)
-        real(kind = dbl) :: Ts
-        real(kind = dbl) :: Ta
-        real(kind = dbl) :: Pa
-        real(kind = dbl) :: RH
-        real(kind = dbl) :: Va
-        real(kind = dbl) :: RhoCp
-        real(kind = dbl) :: e
-        real(kind = dbl) :: es
-        real(kind = dbl) :: Q
-        real(kind = dbl) :: VPD
-        real(kind = dbl) :: Tdew
-        real(kind = dbl) :: Pd
-        real(kind = dbl) :: Vd
-        real(kind = dbl) :: lambda
-        real(kind = dbl) :: sigma
-        real(kind = dbl) :: Tcell
-        real(kind = dbl) :: Pcell
-        real(kind = dbl) :: Vcell(GHGNumVar)
-        real(kind = dbl) :: Var(E2NumVar)
-        real(kind = dbl) :: Cov_w(E2NumVar)
-        real(kind = dbl) :: tlag(GHGNumVar)
-        real(kind = dbl) :: yaw
-        real(kind = dbl) :: pitch
-        real(kind = dbl) :: roll
-        real(kind = dbl) :: st_w_u
-        real(kind = dbl) :: st_w_ts
-        real(kind = dbl) :: st_w_co2
-        real(kind = dbl) :: st_w_h2o
-        real(kind = dbl) :: st_w_ch4
-        real(kind = dbl) :: st_w_gas4
-        real(kind = dbl) :: dt_u
-        real(kind = dbl) :: dt_w
-        real(kind = dbl) :: dt_ts
-        real(kind = dbl) :: avrg_length
-        real(kind = dbl) :: ac_freq
-        real(kind = dbl) :: canopy_height
-        real(kind = dbl) :: disp_height
-        real(kind = dbl) :: rough_length
-        real(kind = dbl) :: bzL
-        real(kind = dbl) :: agc72
-        real(kind = dbl) :: agc75
-        real(kind = dbl) :: rssi77
-        real(kind = dbl) :: user_var(MaxUserVar)
-        real(kind = dbl) :: rand_uncer(E2NumVar)
-        real(kind = dbl) :: rand_uncer_LE
-        real(kind = dbl) :: rand_uncer_ET
-        logical :: daytime
-        logical :: var_present(GHGNumVar)
-        logical :: def_tlag(GHGNumVar)
-        type(StorType) :: Stor
-        type(RhoType) :: RHO
-        type(Mul7700Type) :: Mul7700
-        type(BurbaType) :: Burba
-        type(DegTType) :: degT
-        type(InstrumentType) :: instr(ExNumInstruments)
-        type(FluxType) :: Flux0
-        Type(SwVerType) :: logger_swver
-    end type Ex2Type
-
     type ExType
         character(FilenameLen) :: fname
         character(12) :: start_timestamp
-        character(12) :: timestamp
-        character(10) :: date
-        character(5) :: time
-        character(10) :: vm_flags(12)
+        character(12) :: end_timestamp
+        character(10) :: start_date
+        character(10) :: end_date
+        character(5) :: start_time
+        character(5) :: end_time
+        character(9) :: vm_flags(8)
+        character(9) :: vm_tlag_hf
+        character(9) :: vm_tlag_sf
+        character(9) :: vm_aoa_hf
+        character(9) :: vm_nshw_hf
         character(32) :: measure_type(GHGNumVar)
         character(8) :: det_meth
         integer :: file_records
@@ -1288,7 +1203,9 @@ module m_typedef
         integer :: nr_after_wdf
         integer :: nr(GHGNumVar)
         integer :: nr_w(GHGNumVar)
-        integer :: daytime_int
+        integer :: nighttime_int
+        real(kind = dbl) :: DOY_start
+        real(kind = dbl) :: DOY_end
         real(kind = dbl) :: RP
         real(kind = dbl) :: file_length
         real(kind = dbl) :: lat
@@ -1305,6 +1222,7 @@ module m_typedef
         real(kind = dbl) :: MWS
         real(kind = dbl) :: WS
         real(kind = dbl) :: WD
+        real(kind = dbl) :: WD_SIGMA
         real(kind = dbl) :: ustar
         real(kind = dbl) :: TKE
         real(kind = dbl) :: L
@@ -1343,15 +1261,15 @@ module m_typedef
         real(kind = dbl) :: yaw
         real(kind = dbl) :: pitch
         real(kind = dbl) :: roll
-        real(kind = dbl) :: st_w_u
-        real(kind = dbl) :: st_w_ts
-        real(kind = dbl) :: st_w_co2
-        real(kind = dbl) :: st_w_h2o
-        real(kind = dbl) :: st_w_ch4
-        real(kind = dbl) :: st_w_gas4
-        real(kind = dbl) :: dt_u
-        real(kind = dbl) :: dt_w
-        real(kind = dbl) :: dt_ts
+        real(kind = dbl) :: TAU_SS
+        real(kind = dbl) :: H_SS
+        real(kind = dbl) :: FC_SS
+        real(kind = dbl) :: FH2O_SS
+        real(kind = dbl) :: FCH4_SS
+        real(kind = dbl) :: FGS4_SS
+        real(kind = dbl) :: U_ITC
+        real(kind = dbl) :: W_ITC
+        real(kind = dbl) :: TS_ITC
         real(kind = dbl) :: avrg_length
         real(kind = dbl) :: ac_freq
         real(kind = dbl) :: canopy_height

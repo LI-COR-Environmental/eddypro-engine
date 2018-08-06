@@ -1,42 +1,24 @@
+!***************************************************************************
+! m_libdate.f90
+! -------------
+!
+! \brief       Introduces a new variable type: DateType and an operator + to add two of such variables.
+! \author      Dr. Arjan van Dijk (Arjan.van.Dijk@rivm.nl, http://www.rivm.nl/) for:
+!              LSO   Laboratory for Radiation Research
+!              RIVM - National Institute for Public Health and the Environment
+!              PO Box 1,
+!              NL - 3720 BA Bilthoven
+!              The Netherlands
+! \note        Version: 12 september 2008
+!              License:
+!              Use, copy and modify this source code freely and at your own risk!
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
 MODULE LibDate
-!
-! Introduces a new variable type: DateType
-! and an operator + to add two of such variables.
-! This library gives the opportunity to make statements
-! of the following kind:
-!
-! PROGRAM Test
-!    USE LibDate
-!    TYPE(DateType) :: ThisDate = DateType(2007,1,29,17,0),&
-!                    & TimeStep = DateType(   0,0, 1, 0,0),&
-!                    & NewDate
-!    NewDate = ThisDate + TimeStep ! The only program statement
-! END PROGRAM Test
-!
-! ____________________________________________________
-!
-! Version: 12 september 2008
-!
-! Developed by:
-!
-! Dr. Arjan van Dijk
-!
-! For:
-!
-! LSO   Laboratory for Radiation Research
-! RIVM - National Institute for Public Health and the Environment
-!
-! PO Box 1,
-! NL - 3720 BA Bilthoven
-! The Netherlands
-!
-! E-mail:  Arjan.van.Dijk@rivm.nl
-! Website: http://www.rivm.nl/
-!
-! Use, copy and modify this source code freely and at your own risk!
-! Improvements, suggestions and compliments always welcome!
-! ____________________________________________________
-!
 IMPLICIT NONE
 
 INTEGER,PARAMETER :: Float = kind(1.0)

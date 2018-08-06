@@ -101,6 +101,9 @@ Program EddyproFCC
     write(*, '(a)')
     call InitEnv()
 
+    !> By detault, create FLUXNET output
+    EddyProProj%out_fluxnet = .true.
+
     write(*, '(a)') 'Starting flux computation and correction session..'
     write(*, '(a)')
 
@@ -114,6 +117,8 @@ Program EddyproFCC
     if (EddyProProj%run_env == 'embedded') &
         call ConfigureForEmbedded('EddyPro-FCC')
 
+    if (EddyProProj%fluxnet_mode) call ConfigureForFluxnet()
+
     !> Preliminarily read essential files and retrieve a few information
     call InitExVars(exStartTimestamp, exEndTimestamp, &
         NumExRecords, NumValidExRecords)
@@ -126,6 +131,7 @@ Program EddyproFCC
     !> Retrieve NumberOfPeriods and allocate exTimeSeries
     NumberOfPeriods = NumOfPeriods(exStartTimestamp, exEndTimestamp, DateStep)
     allocate(exTimeSeries(NumberOfPeriods + 1))
+
     call CreateTimeSeries(exStartTimestamp, exEndTimestamp, &
         DateStep, exTimeSeries, size(exTimeSeries), .true.)
 
@@ -314,7 +320,7 @@ Program EddyproFCC
                 month = BinnedFileList(fcount)%timestamp%Month
                 day   = BinnedFileList(fcount)%timestamp%Day
                 call DisplayProgress('daily', &
-                    '  Importing binned spectra for ', &
+                    '  Importing binned (co)spectra for ', &
                     BinnedFileList(fcount)%timestamp, 'yes')
             end if
 
@@ -364,11 +370,15 @@ Program EddyproFCC
 
                 !> Sort current cospectra in time slot classes
                 call CospectraSortingAndAveraging(BinCosp, size(BinCosp), &
-                    lEx%time, nbins)
+                    lEx%end_time, nbins)
             end if
         end do binned_loop
         close(uex)
         write(*,'(a)') '  Done.'
+
+        !> Write number of imported spectra and cospectra on stdout
+        if (EddyProProj%out_avrg_spec .or. FCCsetup%do_spectral_assessment) &
+            call ReportImportedSpectra(nbins)
 
         if (EddyProProj%out_avrg_cosp) then
             !> If cospectra were found for fitting, fit Massman model
@@ -406,10 +416,6 @@ Program EddyproFCC
             !> assessment file is available, read file
             if (FCCsetup%SA%in_situ) call ReadSpectralAssessmentFile()
         end if
-
-        !> Write number of imported spectra and cospectra on stdout
-        if (EddyProProj%out_avrg_spec .or. FCCsetup%do_spectral_assessment) &
-            call ReportImportedSpectra(nbins)
 
         !> Write everything on output files
         call OutputSpectralAssessmentResults(nbins)
@@ -459,7 +465,7 @@ Program EddyproFCC
         if (.not. ValidRecord) cycle ex_loop
 
         !> Retrieve timestamp
-        call DateTimeToDateType(lEx%date, lEx%time, CurrentTimestamp)
+        call DateTimeToDateType(lEx%end_date, lEx%end_time, CurrentTimestamp)
 
         !> If current timestamp is < start selected timestamp, cycle
         if (CurrentTimestamp < MasterTimeSeries(fxStartTimestampIndx)) &
@@ -470,7 +476,7 @@ Program EddyproFCC
             exit ex_loop
 
         !> Show advancement
-        call DateTimetoDOY(lEx%date, lEx%time, int_doy, float_doy)
+        call DateTimetoDOY(lEx%end_date, lEx%end_time, int_doy, float_doy)
         if (day /= CurrentTimestamp%day &
             .or. month /= CurrentTimestamp%month) then
             month = CurrentTimestamp%month
@@ -502,19 +508,20 @@ Program EddyproFCC
         call Fluxes23(lEx)
 
         !> Calculate footprint estimation   
+        foot_model_used = Meth%foot(1:len_trim(Meth%foot))
         call FootprintHandle(lEx%var(w), lEx%ustar, lEx%zL, lEx%WS, lEx%L, &
             lEx%instr(sonic)%height, lEx%disp_height, lEx%rough_length)
 
         !> Calculate quality flags
-        StDiff%w_u    = nint(lEx%st_w_u)
-        StDiff%w_ts   = nint(lEx%st_w_ts)
-        StDiff%w_co2  = nint(lEx%st_w_co2)
-        StDiff%w_h2o  = nint(lEx%st_w_h2o)
-        StDiff%w_ch4  = nint(lEx%st_w_ch4)
-        StDiff%w_gas4 = nint(lEx%st_w_gas4)
-        DtDiff%u      = nint(lEx%dt_u)
-        DtDiff%w      = nint(lEx%dt_w)
-        DtDiff%ts     = nint(lEx%dt_ts)
+        StDiff%w_u    = nint(lEx%TAU_SS)
+        StDiff%w_ts   = nint(lEx%H_SS)
+        StDiff%w_co2  = nint(lEx%FC_SS)
+        StDiff%w_h2o  = nint(lEx%FH2O_SS)
+        StDiff%w_ch4  = nint(lEx%FCH4_SS)
+        StDiff%w_gas4 = nint(lEx%FGS4_SS)
+        DtDiff%u      = nint(lEx%U_ITC)
+        DtDiff%w      = nint(lEx%W_ITC)
+        DtDiff%ts     = nint(lEx%TS_ITC)
         call QualityFlags(Flux2, StDiff, DtDiff, STFlg, DTFlg, QCFlag, .false.)
 
         !> Initialize output files
@@ -524,9 +531,9 @@ Program EddyproFCC
         end if
 
         !>Write out full output file
-        if (EddyProProj%out_full) call WriteOutFull(lEx)
-        if (EddyProProj%out_md) call WriteOutMetadata(lEx)
-        if (EddyProProj%out_fluxnet) call WriteOutFluxnet(lEx)
+        ! if (EddyProProj%out_full) call WriteOutFullFcc(lEx)
+        if (EddyProProj%out_md) call WriteOutMetadataFcc(lEx)
+        if (EddyProProj%out_fluxnet) call WriteOutFluxnetFcc(lEx)
 
     end do ex_loop
     close(uex)

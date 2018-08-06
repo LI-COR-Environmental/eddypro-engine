@@ -102,19 +102,21 @@ subroutine bpcf_Massman00(measuring_height, displ_height, loc_var_present, LocIn
 
     lambda = error
     do var = co2, gas4
-        if (LocInstr(var)%path_type == 'closed') then
-            TubeVel     = LocInstr(var)%tube_f / (p * (LocInstr(var)%tube_d / 2d0)**2)
-            Re          = TubeVel * LocInstr(var)%tube_d / AirVisc
-            lambda(var) = LUT_delta(Re, var)
-            !lambda(var) = 0.5d0 * dabs(alpha_1) * delta_d**(-1) * Re**1.8  !< ****** Massman and Ibrom (2008, Eq. 8 and subsequent text), not used though
-            if (lambda(var) /= error) then
-                t_tube(var) = dsqrt(lambda(var) * LocInstr(var)%tube_d / 2d0 * LocInstr(var)%tube_l) / (0.83d0 * TubeVel)
+        if (loc_var_present(var)) then
+            if (LocInstr(var)%path_type == 'closed') then
+                TubeVel     = LocInstr(var)%tube_f / (p * (LocInstr(var)%tube_d / 2d0)**2)
+                Re          = TubeVel * LocInstr(var)%tube_d / AirVisc
+                lambda(var) = LUT_delta(Re, var)
+                !lambda(var) = 0.5d0 * dabs(alpha_1) * delta_d**(-1) * Re**1.8  !< ****** Massman and Ibrom (2008, Eq. 8 and subsequent text), not used though
+                if (lambda(var) /= error) then
+                    t_tube(var) = dsqrt(lambda(var) * LocInstr(var)%tube_d / 2d0 * LocInstr(var)%tube_l) / (0.83d0 * TubeVel)
+                else
+                    call ExceptionHandler(51)
+                    t_tube(var) = 1d-10 !< a very small value.
+                end if
             else
-                call ExceptionHandler(51)
-                t_tube(var) = 1d-10 !< a very small value.
+                t_tube(var) = 1d-10 !< a very small value, open path case
             end if
-        else
-            t_tube(var) = 1d-10 !< a very small value, open path case
         end if
     end do
 
