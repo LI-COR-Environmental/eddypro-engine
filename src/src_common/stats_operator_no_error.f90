@@ -360,6 +360,52 @@ subroutine CovarianceMatrixNoError(Set, nrow, ncol, Cov, err_float)
     end do
 end subroutine CovarianceMatrixNoError
 
+
+!***************************************************************************
+!
+! \brief       Calculates correlation matrix of given array, ignoring \n
+!              provided error code
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+subroutine CorrelationMatrixNoError(Set, nrow, ncol, Corr, err_float)
+    use m_common_global_var
+    implicit none
+    !> in/out variables
+    integer, intent(in) :: nrow, ncol
+    real(kind = dbl), intent(in) :: err_float
+    real(kind = dbl), intent(in) :: Set(nrow, ncol)
+    real(kind = dbl), intent(out) :: Corr(ncol, ncol)
+    !> local variables
+    real(kind = dbl) :: Cov(ncol, ncol)
+    real(kind = dbl) :: StDev(ncol)
+    integer :: i
+    integer :: j
+    integer :: var
+
+    
+    call CovarianceMatrixNoError(Set, size(Set, 1), size(Set, 2), Cov, err_float)
+
+    do var = u, gas4
+        call StDevNoError(Set, size(Set, 1), size(Set, 2), StDev, err_float)
+    end do
+
+    do i = u, gas4
+        do j = u, gas4
+            if (Cov(i, j) /= err_float .and. StDev(i) > 0d0 .and. StDev(j) > 0d0) then
+                Corr(i, j) = Cov(i, j) / (StDev(i) * StDev(j))
+            else
+                Corr(i, j) = err_float
+            end if
+        end do 
+    end do
+end subroutine CorrelationMatrixNoError
+
 !***************************************************************************
 !
 ! \brief       Calculates covariance matrix of given arrays applying \n

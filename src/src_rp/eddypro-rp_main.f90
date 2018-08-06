@@ -2050,6 +2050,9 @@ program EddyproRP
             end if
             if (allocated(UserPrimes)) deallocate(UserPrimes)
 
+            !> Fisher's test
+            call Fisher(E2Primes(:, 1:GHGNumVar), size(E2Primes, 1), size(E2Primes, 2))
+
             !> Calculate Mahrt's random error and Nonstationarity ratio anyway.
             call RU_Mahrt_98(E2Primes, size(E2Primes, 1), size(E2Primes, 2))
 
@@ -2146,7 +2149,6 @@ program EddyproRP
 !                Metadata%logger_swver = E2Col(h2o)%instr%sw_ver
 !            end if
 
-            foot_model_used = Meth%foot(1:len_trim(Meth%foot))
             if (.not. EddyProProj%fcc_follows) then
                 !> Low-pass and high-pass spectral correction factors
                 call BandPassSpectralCorrections(E2Col(u)%Instr%height, &
@@ -2162,6 +2164,7 @@ program EddyproRP
                 call Fluxes23_rp()
 
                 !> Footprint estimation
+                foot_model_used = Meth%foot(1:len_trim(Meth%foot))
                 call FootprintHandle(Stats%Cov(w, w), Ambient%us, &
                     Ambient%zL, Ambient%WS, Ambient%L, &
                     E2Col(u)%Instr%height, Metadata%d, Metadata%z0)

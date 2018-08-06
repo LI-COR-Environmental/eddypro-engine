@@ -700,6 +700,7 @@ module m_typedef
         integer :: n_wcov(E2NumVar)
         integer :: n(E2NumVar)
         integer :: ZCD(GHGNumVar)
+        integer :: al_s(GHGNumVar)
         real(kind = dbl) :: yaw
         real(kind = dbl) :: pitch
         real(kind = dbl) :: roll
@@ -712,6 +713,7 @@ module m_typedef
         real(kind = dbl) :: AGC75
         real(kind = dbl) :: RSSI77
         real(kind = dbl) :: KID(GHGNumVar)
+        real(kind = dbl) :: CorrDiff(GHGNumVar, GHGNumVar)
         real(kind = dbl) :: mahrt98_NR(GHGNumVar)
         real(kind = dbl) :: rand_uncer(E2NumVar)
         real(kind = dbl) :: rand_uncer_LE
@@ -719,7 +721,6 @@ module m_typedef
         real(kind = dbl) :: ar_s(GHGNumVar)
         real(kind = dbl) :: do_s_ctr(GHGNumVar)
         real(kind = dbl) :: do_s_ext(GHGNumVar)
-        integer :: al_s(GHGNumVar)
         real(kind = dbl) :: sk_s_skw(GHGNumVar)
         real(kind = dbl) :: sk_s_kur(GHGNumVar)
         real(kind = dbl) :: ds_s_haar_avg(6, GHGNumVar)

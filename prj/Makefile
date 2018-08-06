@@ -165,6 +165,9 @@ interpret_diagnostics.o: \
 kid.o: \
 	kid.f90 \
 	m_rp_global_var.o
+fisher.o: \
+	fisher.f90 \
+	m_rp_global_var.o
 parse_ini_file.o: \
 	parse_ini_file.f90 \
 	m_common_global_var.o
