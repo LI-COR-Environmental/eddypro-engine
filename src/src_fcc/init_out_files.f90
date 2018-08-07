@@ -165,7 +165,7 @@ subroutine InitOutFiles(lEx)
                 call AddDatum(header3, '[' // char(181) // 'mol+1s-1m-2],[#]', separator)
                 if (RUsetup%meth /= 'none') then
                     call AddDatum(header1, '', separator)
-                    call AddDatum(header2, 'rand_err' // e2sg(gas4)(1:len_trim(e2sg(gas4))) // 'flux', separator)
+                    call AddDatum(header2, 'rand_err_' // e2sg(gas4)(1:len_trim(e2sg(gas4))) // 'flux', separator)
                     call AddDatum(header3, '[' // char(181) // 'mol+1s-1m-2]', separator)
                 end if
             end if

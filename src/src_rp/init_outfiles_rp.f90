@@ -74,8 +74,11 @@ subroutine InitOutFiles_rp()
     e2sg(te)  = 'air_t_'
     e2sg(pe)  = 'air_p_'
 
+    call lowercase(e2sg(gas4))
+    
     do j = 1, NumUserVar
         usg(j)  = UserCol(j)%label(1:len_trim(UserCol(j)%label)) // '_'
+        call lowercase(usg(j))
     end do
 
     !> Create sub-directory
@@ -257,7 +260,7 @@ subroutine InitOutFiles_rp()
                 call AddDatum(header3, '[' // char(181) // 'mol+1s-1m-2],[#]', separator)
                 if (RUsetup%meth /= 'none') then
                     call AddDatum(header1, '', separator)
-                    call AddDatum(header2, 'rand_err' // e2sg(gas4)(1:len_trim(e2sg(gas4))) // 'flux', separator)
+                    call AddDatum(header2, 'rand_err_' // e2sg(gas4)(1:len_trim(e2sg(gas4))) // 'flux', separator)
                     call AddDatum(header3, '[' // char(181) // 'mol+1s-1m-2]', separator)
                 end if
             end if
