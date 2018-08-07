@@ -688,6 +688,7 @@ module m_typedef
     end type HeaderType
 
     type :: EssentialsType
+        character(FilenameLen) :: fname
         integer :: e2spikes(E2NumVar)
         integer :: m_custom_flags
         integer :: m_wdf
@@ -861,7 +862,6 @@ module m_typedef
     end type PFSetupType
 
    type :: RUsetupType
-        integer :: its_sec_fact
         integer :: tlag_max
         character(32) :: meth
         character(32) :: its_meth

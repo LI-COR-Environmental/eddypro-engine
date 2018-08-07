@@ -561,8 +561,6 @@ subroutine WriteVariablesRP()
             RUsetup%meth = 'mann_lenschow_94'
         case(3)
             RUsetup%meth = 'mahrt_98'
-        case(4)
-            RUsetup%meth = 'tbd'
         case default
             RUsetup%meth = 'none'
     end select
@@ -575,7 +573,6 @@ subroutine WriteVariablesRP()
             case default
                 RUsetup%its_meth = 'cross_e'
         end select
-        RUsetup%its_sec_fact = nint(SNTags(283)%value)
         RUsetup%tlag_max = nint(SNTags(284)%value)
     end if
 

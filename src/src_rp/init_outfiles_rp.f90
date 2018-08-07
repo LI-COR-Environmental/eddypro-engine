@@ -600,7 +600,7 @@ subroutine InitOutFiles_rp()
         open(uflxnt, file = FLUXNET_Path, iostat = open_status, encoding = 'utf-8')
 
         call clearstr(dataline)
-        dataline = 'TIMESTAMP_START,TIMESTAMP_END,DOY_START,DOY_END,SW_IN_POT,NIGHT,EXPECT_NR,&
+        dataline = 'TIMESTAMP_START,TIMESTAMP_END,DOY_START,DOY_END,FILENAME_HF,SW_IN_POT,NIGHT,EXPECT_NR,&
                   &FILE_NR,CUSTOM_FILTER_NR,WD_FILTER_NR,SONIC_NR,T_SONIC_NR,CO2_NR,H2O_NR,CH4_NR,GS4_NR,&
                   &TAU_NR,H_NR,FC_NR,LE_NR,FCH4_NR,FGS4_NR,&
                   &TAU,H,LE,ET,FC,FH2O,FCH4,FGS4,TAU_RANDUNC_HF,H_RANDUNC_HF,LE_RANDUNC_HF,ET_RANDUNC_HF,&

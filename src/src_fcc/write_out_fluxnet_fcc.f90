@@ -54,6 +54,9 @@ subroutine WriteOutFluxnetFcc(lEx)
     call AddFloatDatumToDataline(lEx%DOY_start, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(lEx%DOY_end, dataline, EddyProProj%err_label)
 
+    !> Filename
+    call AddCharDatumToDataline(lEx%fname, dataline, EddyProProj%err_label)
+
     !> Potential radiation and daytime
     call AddFloatDatumToDataline(lEx%RP, dataline, EddyProProj%err_label)
     call AddIntDatumToDataline(lEx%nighttime_int, dataline, EddyProProj%err_label)

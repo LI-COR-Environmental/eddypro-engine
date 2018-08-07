@@ -95,7 +95,7 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
     lEx%end_time = lEx%end_timestamp(9:10) // ':' // lEx%end_timestamp(11:12)  
 
     !> Extract some data
-    read(dataline, *, iostat = read_status) lEx%DOY_start, lEx%DOY_end, lEx%RP, &
+    read(dataline, *, iostat = read_status) lEx%DOY_start, lEx%DOY_end, lEx%fname, lEx%RP, &
         lEx%nighttime_int, lEx%nr_theor, &
         lEx%nr_files, lEx%nr_after_custom_flags, lEx%nr_after_wdf, &
         lEx%nr(u), lEx%nr(ts:gas4), lEx%nr_w(u), lEx%nr_w(ts:gas4), &
@@ -133,7 +133,7 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
         lEx%Mul7700%A, lEx%Mul7700%B, lEx%Mul7700%C, &
         aux(1:8), & !< Skip SCFs
         lEx%degT%cov, lEx%degT%dcov(1:9)
-    ix = strCharIndex(dataline, ',', 248)
+    ix = strCharIndex(dataline, ',', 249)
     dataline = dataline(ix+1: len_trim(dataline))
     
     !> Copy NREX chunk

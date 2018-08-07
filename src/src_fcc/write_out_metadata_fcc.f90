@@ -45,7 +45,7 @@ subroutine WriteOutMetadataFcc(lEx)
 
     call clearstr(dataline)
     !> Preliminary timestmap information
-    ! write(datum, *) lEx%fname(1:len_trim(lEx%fname))
+    write(datum, *) lEx%fname(1:len_trim(lEx%fname))
     ! call AddDatum(dataline, datum, separator)
     write(datum, *) lEx%end_date(1:10)
     call AddDatum(dataline, datum, separator)

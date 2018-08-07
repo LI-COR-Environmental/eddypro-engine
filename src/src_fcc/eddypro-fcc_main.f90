@@ -108,7 +108,7 @@ Program EddyproFCC
     write(*, '(a)')
 
     !> Read ".eddypro" file for both spectral analysis and flux correction
-    call ReadIniFX('FluxCorrection')
+    call ReadIniFCC('FluxCorrection')
 
     !> Add run-mode tag to Timestamp_FilePadding
     call TagRunMode()
@@ -530,8 +530,7 @@ Program EddyproFCC
             InitializeOuputFiles = .false.
         end if
 
-        !>Write out full output file
-        ! if (EddyProProj%out_full) call WriteOutFullFcc(lEx)
+        if (EddyProProj%out_full) call WriteOutFullFcc(lEx)
         if (EddyProProj%out_md) call WriteOutMetadataFcc(lEx)
         if (EddyProProj%out_fluxnet) call WriteOutFluxnetFcc(lEx)
 

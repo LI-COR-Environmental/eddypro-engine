@@ -360,6 +360,29 @@ subroutine WriteProcessingProjectVariables()
         call AdjDir(Dir%main_out, slash)
     end if
 
+    !> Random error estimation settings
+    select case (nint(EPPrjNTags(24)%value))
+        case(1)
+            RUsetup%meth = 'finkelstein_sims_01'
+        case(2)
+            RUsetup%meth = 'mann_lenschow_94'
+        case(3)
+            RUsetup%meth = 'mahrt_98'
+        case default
+            RUsetup%meth = 'none'
+    end select
+    if (RUsetup%meth /= 'none') then
+        select case (nint(EPPrjNTags(23)%value))
+            case(1)
+                RUsetup%its_meth = 'cross_0'
+            case(2)
+                RUsetup%its_meth = 'full_integral'
+            case default
+                RUsetup%its_meth = 'cross_e'
+        end select
+        RUsetup%tlag_max = nint(EPPrjNTags(25)%value)
+    end if
+
     !> Adjust paths
     call AdjFilePath(AuxFile%metadata, slash)
     call AdjFilePath(AuxFile%biomet, slash)

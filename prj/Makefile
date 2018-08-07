@@ -796,8 +796,8 @@ read_binned_file.o: \
 ts_extract_subperiod_indexes_from_filelist.o: \
 	ts_extract_subperiod_indexes_from_filelist.f90 \
 	m_common_global_var.o
-read_fx_ini.o: \
-	read_fx_ini.f90 \
+read_ini_fcc.o: \
+	read_ini_fcc.f90 \
 	m_fx_global_var_mod.o
 kaimal_models.o: \
 	kaimal_models.f90 \
