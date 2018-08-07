@@ -502,8 +502,8 @@ subroutine WriteOutFullFcc(lEx)
     enddo
 
     !> Mean values of user variables
-    if (NumUserVar > 0) then
-        do var = 1, NumUserVar
+    if (lEx%ncustom > 0) then
+        do var = 1, lEx%ncustom
             call WriteDatumFloat(lEx%user_var(var), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         end do

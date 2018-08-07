@@ -1204,6 +1204,7 @@ module m_typedef
         integer :: nr(GHGNumVar)
         integer :: nr_w(GHGNumVar)
         integer :: nighttime_int
+        integer :: ncustom
         real(kind = dbl) :: DOY_start
         real(kind = dbl) :: DOY_end
         real(kind = dbl) :: RP
@@ -1282,6 +1283,7 @@ module m_typedef
         real(kind = dbl) :: rand_uncer(E2NumVar)
         real(kind = dbl) :: rand_uncer_LE
         real(kind = dbl) :: rand_uncer_ET
+        logical :: not_enough_data
         logical :: daytime
         logical :: var_present(GHGNumVar)
         logical :: def_tlag(GHGNumVar)

@@ -233,9 +233,19 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
         lEx%instr(igas4)%firm, lEx%instr(igas4)%model, lEx%instr(igas4)%nsep, lEx%instr(igas4)%esep, &
         lEx%instr(igas4)%vsep, lEx%instr(igas4)%tube_l, lEx%instr(igas4)%tube_d, &
         lEx%instr(igas4)%tube_f, &
-        lEx%instr(igas4)%hpath_length, lEx%instr(igas4)%vpath_length, lEx%instr(igas4)%tau
-    ix = strCharIndex(dataline, ',', 67)
+        lEx%instr(igas4)%hpath_length, lEx%instr(igas4)%vpath_length, lEx%instr(igas4)%tau, &
+        lEx%ncustom
+    ix = strCharIndex(dataline, ',', 68)
     dataline = dataline(ix+1: len_trim(dataline))
+
+    !> Read custom variables
+    if (lEx%ncustom > 0) then
+        do i = 1, lEx%ncustom
+            read(dataline, *, iostat = read_status) lEx%user_var(i)
+            ix = strCharIndex(dataline, ',', 1)
+            dataline = dataline(ix+1: len_trim(dataline))
+        end do
+    end if
 
     !> Put remaining into last chunk
     fluxnetChunks%s(6) = dataline(1: len_trim(dataline))
@@ -268,6 +278,12 @@ subroutine CompleteEssentials(lEx)
     integer :: igas
     integer :: gas
     integer :: var
+
+    if (lEx%fname == 'not_enough_data') then
+        lEx%not_enough_data = .True.
+    else
+        lEx%not_enough_data = .False.
+    end if
 
     lEx%var_present = .false.
     if (lEx%WS /= error) lEx%var_present(u:w) = .true.

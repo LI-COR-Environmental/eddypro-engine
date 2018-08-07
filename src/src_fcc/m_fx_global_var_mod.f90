@@ -45,6 +45,7 @@ module m_fx_global_var
 
     real(kind = dbl) :: float_doy
     real(kind = dbl) :: dkf(ndkf + 1)
+    real(kind = dbl), allocatable :: custVars(:)
 
     character(11), parameter :: fcc_app = 'EddyPro-FCC'
     character(32) :: g4lab

@@ -30,9 +30,11 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine InitOutFiles()
+subroutine InitOutFiles(lEx)
     use m_fx_global_var
     implicit none
+    !> in/out variables
+    Type(ExType), intent(in) :: lEx
     !> local variables
     integer :: mkdir_status
     integer :: open_status
@@ -367,10 +369,10 @@ subroutine InitOutFiles()
             end do
 
             !> Mean values of user variables
-            if (NumUserVar > 0) then
+            if (lEx%ncustom > 0) then
                 call AddDatum(header1, 'custom_variables', separator)
-                call AddDatum(header2, UserVarHeader, separator)
-                do i = 1, NumUserVar
+                call AddDatum(header2, UserVarHeader(1:len_trim(UserVarHeader)), separator)
+                do i = 1, lEx%ncustom
                     call AddDatum(header3, '--', separator)
                 end do
             end if
@@ -472,11 +474,15 @@ subroutine InitOutFiles()
                 &[#_flagged_recs],[#_flagged_recs],[#_flagged_recs],[#_flagged_recs],[#_flagged_recs],&
                 &[#_flagged_recs],[#_flagged_recs],[#_flagged_recs],[#_flagged_recs],[#_flagged_recs],[#_flagged_recs],&
                 &[#],[#],[m+2s-2],[m+2s-2],[m+2s-2],[K+2],--,--,--,--,[m+1s-1K+1],--,--,--,--,'
+
+
+            print*, lEx%ncustom
+            stop
             !> Mean values of user variables
-            if (NumUserVar > 0) then
+            if (lEx%ncustom > 0) then
                 call AddDatum(header1, 'custom_variables', separator)
                 call AddDatum(header2, UserVarHeader(1:len_trim(UserVarHeader)), separator)
-                do i = 1, NumUserVar
+                do i = 1, lEx%ncustom
                     call AddDatum(header3, '--', separator)
                 end do
             end if

@@ -530,8 +530,8 @@ Program EddyproFCC
             InitializeOuputFiles = .false.
         end if
 
-        if (EddyProProj%out_full) call WriteOutFullFcc(lEx)
-        if (EddyProProj%out_md) call WriteOutMetadataFcc(lEx)
+        if (EddyProProj%out_full .and. .not. lEx%not_enough_data) call WriteOutFullFcc(lEx)
+        if (EddyProProj%out_md .and. .not. lEx%not_enough_data) call WriteOutMetadataFcc(lEx)
         if (EddyProProj%out_fluxnet) call WriteOutFluxnetFcc(lEx)
 
     end do ex_loop

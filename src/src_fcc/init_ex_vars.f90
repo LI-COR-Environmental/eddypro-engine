@@ -40,12 +40,15 @@ subroutine InitExVars(StartTimestamp, EndTimestamp, NumRecords, NumValidRecords)
     type(DateType), intent(out) :: EndTimestamp
     !> local variables
     integer :: open_status
+    integer :: st
+    integer :: en
     integer :: j
     integer :: gas
     logical :: ValidRecord
     logical :: EndOfFileReached
     logical :: InitializationPerformed
     type (ExType) :: lEX
+    include '../src_common/interfaces_1.inc'
 
     write(*,'(a)') &
         ' Initializing retrieval of EddyPro-RP results from file: '
@@ -62,25 +65,18 @@ subroutine InitExVars(StartTimestamp, EndTimestamp, NumRecords, NumValidRecords)
     !> Store header to string, for writing it on output
     read(udf, '(a)') fluxnet_header
 
-    !> Retrieve label of forth gas from header
-    ! read(udf, '(a)') dataline
-    ! substr = dataline(index(dataline, 'ru_ch4'):index(dataline, 'ru_ch4') + 30)
-    ! g4lab = substr(8: index(substr, '_flux') - 1)
-    ! g4l = len_trim(g4lab)
-    ! !> Retrieve names of user variables from header
-    ! if (len_trim(dataline) >= index(dataline, 'num_user_var') + 13) then
-    !     UserVarHeader = &
-    !         dataline(index(dataline, 'num_user_var') + 13: len_trim(dataline))
-    ! else
-    !     UserVarHeader = ''
-    ! end if
-
-
-                                !*********************************************** Extract UserVarHeader
-                                !*********************************************** Determine how to handle g4lab
-    g4lab = 'GS4'               !*********************************************** Temporary
+    st = index(fluxnet_header, ',FCH4,') + 6
+    en = st + index(fluxnet_header(st:), ',') - 2
+    g4lab = fluxnet_header(st+1:en)
+    call lowercase(g4lab)
     g4l = len_trim(g4lab)
-    UserVarHeader = 'XXXXXX'
+    
+
+    st = index(fluxnet_header, 'NUM_CUSTOM_VARS') + 16
+    en = index(fluxnet_header, 'NUM_BIOMET_VARS') - 2
+    UserVarHeader = fluxnet_header(st:en)
+    UserVarHeader = replace2(UserVarHeader, 'CUSTOM_', '')
+    call lowercase(UserVarHeader)
 
     !> Initialize variables that are determined for the whole
     !> dataset (presence of certain variables)

@@ -441,8 +441,17 @@ subroutine WriteOutFluxnetFcc(lEx)
         call AddFloatDatumToDataline(lEx%instr(igas)%tau, dataline, EddyProProj%err_label)
     end do
 
+    !> Custom variables
+
+    call AddIntDatumToDataline(lEx%ncustom, dataline, EddyProProj%err_label)
+    if (lEx%ncustom > 0) then
+        do i = 1, lEx%ncustom
+            call AddFloatDatumToDataline(lEx%user_var(i), dataline, EddyProProj%err_label)
+        end do        
+    end if
+
     !> Write sisxth string from Chunks
-    !> Custom variables and biomet data
+    !> Biomet data
     call AddDatum(dataline, fluxnetChunks%s(6), separator)
 
     !> Replace error codes with user-defined error code
