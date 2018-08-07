@@ -95,7 +95,7 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
     lEx%end_time = lEx%end_timestamp(9:10) // ':' // lEx%end_timestamp(11:12)  
 
     !> Extract some data
-    read(dataline, *, iostat = read_status) lEx%DOY_start, lEx%DOY_end, lEx%RP, &
+    read(dataline, *, iostat = read_status) lEx%DOY_start, lEx%DOY_end, lEx%fname, lEx%RP, &
         lEx%nighttime_int, lEx%nr_theor, &
         lEx%nr_files, lEx%nr_after_custom_flags, lEx%nr_after_wdf, &
         lEx%nr(u), lEx%nr(ts:gas4), lEx%nr_w(u), lEx%nr_w(ts:gas4), &
@@ -133,7 +133,7 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
         lEx%Mul7700%A, lEx%Mul7700%B, lEx%Mul7700%C, &
         aux(1:8), & !< Skip SCFs
         lEx%degT%cov, lEx%degT%dcov(1:9)
-    ix = strCharIndex(dataline, ',', 248)
+    ix = strCharIndex(dataline, ',', 249)
     dataline = dataline(ix+1: len_trim(dataline))
     
     !> Copy NREX chunk
@@ -233,9 +233,19 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
         lEx%instr(igas4)%firm, lEx%instr(igas4)%model, lEx%instr(igas4)%nsep, lEx%instr(igas4)%esep, &
         lEx%instr(igas4)%vsep, lEx%instr(igas4)%tube_l, lEx%instr(igas4)%tube_d, &
         lEx%instr(igas4)%tube_f, &
-        lEx%instr(igas4)%hpath_length, lEx%instr(igas4)%vpath_length, lEx%instr(igas4)%tau
-    ix = strCharIndex(dataline, ',', 67)
+        lEx%instr(igas4)%hpath_length, lEx%instr(igas4)%vpath_length, lEx%instr(igas4)%tau, &
+        lEx%ncustom
+    ix = strCharIndex(dataline, ',', 68)
     dataline = dataline(ix+1: len_trim(dataline))
+
+    !> Read custom variables
+    if (lEx%ncustom > 0) then
+        do i = 1, lEx%ncustom
+            read(dataline, *, iostat = read_status) lEx%user_var(i)
+            ix = strCharIndex(dataline, ',', 1)
+            dataline = dataline(ix+1: len_trim(dataline))
+        end do
+    end if
 
     !> Put remaining into last chunk
     fluxnetChunks%s(6) = dataline(1: len_trim(dataline))
@@ -268,6 +278,12 @@ subroutine CompleteEssentials(lEx)
     integer :: igas
     integer :: gas
     integer :: var
+
+    if (lEx%fname == 'not_enough_data') then
+        lEx%not_enough_data = .True.
+    else
+        lEx%not_enough_data = .False.
+    end if
 
     lEx%var_present = .false.
     if (lEx%WS /= error) lEx%var_present(u:w) = .true.

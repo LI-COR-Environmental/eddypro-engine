@@ -86,7 +86,6 @@ module m_rp_global_var
     type(RPsetupType) :: RPsetup
     type(PFSetupType) :: PFSetup
     type(TOSetupType) :: TOSetup
-    type(RUsetupType) :: RUsetup
     type(TimeLagType) :: toPasGas(E2NumVar)
     type(TimeLagType) :: toH2O(toMaxH2OClass)
     type(StatsType) :: Stats1

@@ -1,6 +1,6 @@
 !***************************************************************************
-! read_fx_ini.f90
-! ---------------
+! read_ini_fcc.f90
+! ----------------
 ! Copyright (C) 2011-2015, LI-COR Biosciences
 !
 ! This file is part of EddyPro (TM).
@@ -29,7 +29,7 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine ReadIniFX(key)
+subroutine ReadIniFCC(key)
     use m_fx_global_var
     implicit none
     ! in/out variables
@@ -56,10 +56,10 @@ subroutine ReadIniFX(key)
     if (IniFileNotFound) call ExceptionHandler(21)
     !> selects only tags needed in this software, and store
     !> them in relevant variables
-    call WriteVariablesFX()
+    call WriteVariablesFCC()
 
     write(*,'(a)')   ' Done.'
-end subroutine ReadIniFX
+end subroutine ReadIniFCC
 
 !***************************************************************************
 !
@@ -73,7 +73,7 @@ end subroutine ReadIniFX
 ! \test
 ! \todo
 !***************************************************************************
-subroutine WriteVariablesFX()
+subroutine WriteVariablesFCC()
     use m_fx_global_var
     implicit none
     !> local variables
@@ -346,4 +346,4 @@ subroutine WriteVariablesFX()
     call AdjDir(Dir%full, slash)
     call AdjFilePath(AuxFile%ex, slash)
     call AdjFilePath(AuxFile%sa, slash)
-end subroutine WriteVariablesFX
+end subroutine WriteVariablesFCC

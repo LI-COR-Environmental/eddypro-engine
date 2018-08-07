@@ -30,9 +30,11 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine InitOutFiles()
+subroutine InitOutFiles(lEx)
     use m_fx_global_var
     implicit none
+    !> in/out variables
+    Type(ExType), intent(in) :: lEx
     !> local variables
     integer :: mkdir_status
     integer :: open_status
@@ -91,7 +93,7 @@ subroutine InitOutFiles()
             call AddDatum(header1, 'corrected_fluxes_and_quality_flags,', separator)
             call AddDatum(header2,'Tau,qc_Tau', separator)
             call AddDatum(header3,'[kg+1m-1s-2],[#]', separator)
-            if (FCCMetadata%ru) then
+            if (RUsetup%meth /= 'none') then
                 call AddDatum(header1, '', separator)
                 call AddDatum(header2,'rand_err_Tau', separator)
                 call AddDatum(header3,'[kg+1m-1s-2]', separator)
@@ -101,7 +103,7 @@ subroutine InitOutFiles()
             call AddDatum(header1, ',', separator)
             call AddDatum(header2, 'H,qc_H', separator)
             call AddDatum(header3, '[W+1m-2],[#]', separator)
-            if (FCCMetadata%ru) then
+            if (RUsetup%meth /= 'none') then
                 call AddDatum(header1, '', separator)
                 call AddDatum(header2, 'rand_err_H', separator)
                 call AddDatum(header3, '[W+1m-2]', separator)
@@ -112,7 +114,7 @@ subroutine InitOutFiles()
                 call AddDatum(header1, ',', separator)
                 call AddDatum(header2, 'LE,qc_LE', separator)
                 call AddDatum(header3, '[W+1m-2],[#]', separator)
-                if (FCCMetadata%ru) then
+                if (RUsetup%meth /= 'none') then
                     call AddDatum(header1, '', separator)
                     call AddDatum(header2, 'rand_err_LE', separator)
                     call AddDatum(header3, '[W+1m-2]', separator)
@@ -124,7 +126,7 @@ subroutine InitOutFiles()
                 call AddDatum(header1, ',', separator)
                 call AddDatum(header2, 'co2_flux,qc_co2_flux', separator)
                 call AddDatum(header3, '[' // char(181) // 'mol+1s-1m-2],[#]', separator)
-                if (FCCMetadata%ru) then
+                if (RUsetup%meth /= 'none') then
                     call AddDatum(header1, '', separator)
                     call AddDatum(header2, 'rand_err_co2_flux', separator)
                     call AddDatum(header3, '[' // char(181) // 'mol+1s-1m-2]', separator)
@@ -136,7 +138,7 @@ subroutine InitOutFiles()
                 call AddDatum(header1, ',', separator)
                 call AddDatum(header2,'h2o_flux,qc_h2o_flux', separator)
                 call AddDatum(header3,'[mmol+1s-1m-2],[#]', separator)
-                if (FCCMetadata%ru) then
+                if (RUsetup%meth /= 'none') then
                     call AddDatum(header1, '', separator)
                     call AddDatum(header2, 'rand_err_h2o_flux', separator)
                     call AddDatum(header3, '[mmol+1s-1m-2]', separator)
@@ -148,7 +150,7 @@ subroutine InitOutFiles()
                 call AddDatum(header1, ',', separator)
                 call AddDatum(header2,'ch4_flux,qc_ch4_flux', separator)
                 call AddDatum(header3, '[' // char(181) // 'mol+1s-1m-2],[#]', separator)
-                if (FCCMetadata%ru) then
+                if (RUsetup%meth /= 'none') then
                     call AddDatum(header1, '', separator)
                     call AddDatum(header2, 'rand_err_ch4_flux', separator)
                     call AddDatum(header3, '[' // char(181) // 'mol+1s-1m-2]', separator)
@@ -161,7 +163,7 @@ subroutine InitOutFiles()
                 call AddDatum(header2, e2sg(gas4)(1:len_trim(e2sg(gas4))) &
                     // 'flux,qc_' // e2sg(gas4)(1:len_trim(e2sg(gas4))) // 'flux', separator)
                 call AddDatum(header3, '[' // char(181) // 'mol+1s-1m-2],[#]', separator)
-                if (FCCMetadata%ru) then
+                if (RUsetup%meth /= 'none') then
                     call AddDatum(header1, '', separator)
                     call AddDatum(header2, 'rand_err' // e2sg(gas4)(1:len_trim(e2sg(gas4))) // 'flux', separator)
                     call AddDatum(header3, '[' // char(181) // 'mol+1s-1m-2]', separator)
@@ -367,10 +369,10 @@ subroutine InitOutFiles()
             end do
 
             !> Mean values of user variables
-            if (NumUserVar > 0) then
+            if (lEx%ncustom > 0) then
                 call AddDatum(header1, 'custom_variables', separator)
-                call AddDatum(header2, UserVarHeader, separator)
-                do i = 1, NumUserVar
+                call AddDatum(header2, UserVarHeader(1:len_trim(UserVarHeader)), separator)
+                do i = 1, lEx%ncustom
                     call AddDatum(header3, '--', separator)
                 end do
             end if
@@ -472,11 +474,15 @@ subroutine InitOutFiles()
                 &[#_flagged_recs],[#_flagged_recs],[#_flagged_recs],[#_flagged_recs],[#_flagged_recs],&
                 &[#_flagged_recs],[#_flagged_recs],[#_flagged_recs],[#_flagged_recs],[#_flagged_recs],[#_flagged_recs],&
                 &[#],[#],[m+2s-2],[m+2s-2],[m+2s-2],[K+2],--,--,--,--,[m+1s-1K+1],--,--,--,--,'
+
+
+            print*, lEx%ncustom
+            stop
             !> Mean values of user variables
-            if (NumUserVar > 0) then
+            if (lEx%ncustom > 0) then
                 call AddDatum(header1, 'custom_variables', separator)
                 call AddDatum(header2, UserVarHeader(1:len_trim(UserVarHeader)), separator)
-                do i = 1, NumUserVar
+                do i = 1, lEx%ncustom
                     call AddDatum(header3, '--', separator)
                 end do
             end if

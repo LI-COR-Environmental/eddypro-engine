@@ -1535,6 +1535,8 @@ program EddyproRP
             RawFileList, NumRawFiles, LatestRawFileIndx, &
             NextRawFileIndx, skip_period)
 
+        Essentials%fname = trim(adjustl(RawFileList(NextRawFileIndx)%name))
+
         suffixOutString =  trim(adjustl(RawFileList(NextRawFileIndx)%name)) &
             // ',' // suffixOutString
 

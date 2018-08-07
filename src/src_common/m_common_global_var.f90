@@ -195,6 +195,7 @@ module m_common_global_var
     real(kind = dbl) , allocatable :: zzFit(:)
     real(kind = dbl) , allocatable :: ddum(:)
 
+    type(RUsetupType) :: RUsetup
     type(FootType) :: Foot
     type(EddyProLogType)   :: EddyProLog
     type(EddyProProjType) :: EddyProProj
@@ -424,7 +425,10 @@ module m_common_global_var
          EPPrjNTags(19)%Label / 'sonic_output_rate' / &
          EPPrjNTags(20)%Label / 'col_diag_anem'   / &
          EPPrjNTags(21)%Label / 'col_diag_staa'   / &
-         EPPrjNTags(22)%Label / 'col_diag_stad'   / 
+         EPPrjNTags(22)%Label / 'col_diag_stad'   / &
+         EPPrjNTags(23)%Label / 'ru_its_meth'     / & 
+         EPPrjNTags(24)%Label / 'ru_meth'         / & 
+         EPPrjNTags(25)%Label / 'ru_tlag_max'     / 
 
     data EPPrjCTags(1)%Label / 'sw_version'       / &
          EPPrjCTags(2)%Label / 'ini_version'      / &

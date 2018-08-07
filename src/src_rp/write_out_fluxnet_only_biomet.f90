@@ -64,6 +64,9 @@ subroutine WriteOutFluxnetOnlyBiomet()
     write(char_doy, *) float_doy
     call AddDatum(dataline, trim(adjustl(char_doy(1: index(char_doy, '.')+ 4))), separator)
 
+    !> Not enough data
+    call AddDatum(dataline, 'not_enough_data', separator)
+
     !> Potential Radiations
     indx = DateTimeToHalfHourNumber(Stats%date, Stats%time)
     call AddFloatDatumToDataline(PotRad(indx), dataline, EddyProProj%err_label)

@@ -54,6 +54,9 @@ subroutine WriteOutFluxnetFcc(lEx)
     call AddFloatDatumToDataline(lEx%DOY_start, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(lEx%DOY_end, dataline, EddyProProj%err_label)
 
+    !> Filename
+    call AddCharDatumToDataline(lEx%fname, dataline, EddyProProj%err_label)
+
     !> Potential radiation and daytime
     call AddFloatDatumToDataline(lEx%RP, dataline, EddyProProj%err_label)
     call AddIntDatumToDataline(lEx%nighttime_int, dataline, EddyProProj%err_label)
@@ -438,8 +441,17 @@ subroutine WriteOutFluxnetFcc(lEx)
         call AddFloatDatumToDataline(lEx%instr(igas)%tau, dataline, EddyProProj%err_label)
     end do
 
+    !> Custom variables
+
+    call AddIntDatumToDataline(lEx%ncustom, dataline, EddyProProj%err_label)
+    if (lEx%ncustom > 0) then
+        do i = 1, lEx%ncustom
+            call AddFloatDatumToDataline(lEx%user_var(i), dataline, EddyProProj%err_label)
+        end do        
+    end if
+
     !> Write sisxth string from Chunks
-    !> Custom variables and biomet data
+    !> Biomet data
     call AddDatum(dataline, fluxnetChunks%s(6), separator)
 
     !> Replace error codes with user-defined error code
