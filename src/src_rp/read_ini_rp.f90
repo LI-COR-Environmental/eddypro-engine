@@ -553,29 +553,6 @@ subroutine WriteVariablesRP()
         end if
     end if
 
-    !> Random error estimation settings
-    select case (nint(SNTags(281)%value))
-        case(1)
-            RUsetup%meth = 'finkelstein_sims_01'
-        case(2)
-            RUsetup%meth = 'mann_lenschow_94'
-        case(3)
-            RUsetup%meth = 'mahrt_98'
-        case default
-            RUsetup%meth = 'none'
-    end select
-    if (RUsetup%meth /= 'none') then
-        select case (nint(SNTags(282)%value))
-            case(1)
-                RUsetup%its_meth = 'cross_0'
-            case(2)
-                RUsetup%its_meth = 'full_integral'
-            case default
-                RUsetup%its_meth = 'cross_e'
-        end select
-        RUsetup%tlag_max = nint(SNTags(284)%value)
-    end if
-
     !> Biomet measurements
     select case (SCTags(61)%value(1:len_trim(SCTags(61)%value)))
         case('comma')

@@ -433,10 +433,10 @@ module m_rp_global_var
          SNTags(278)%Label  / 'pf_sect_35_exclude' / &
          SNTags(279)%Label  / 'pf_sect_36_width'     / &
          SNTags(280)%Label  / 'pf_sect_36_exclude' / &
-         SNTags(281)%Label  / 'ru_meth'            / &
-         SNTags(282)%Label  / 'ru_its_meth'        / &
-         SNTags(283)%Label  / 'ru_its_sec_factor'  / &
-         SNTags(284)%Label  / 'ru_tlag_max'        / &
+         SNTags(281)%Label  / 'ru_meth'            / &   !> No longer used
+         SNTags(282)%Label  / 'ru_its_meth'        / &   !> No longer used
+         SNTags(283)%Label  / 'ru_its_sec_factor'  / &   !> No longer used
+         SNTags(284)%Label  / 'ru_tlag_max'        / &   !> No longer used
          SNTags(290)%Label  / 'flow_distortion'    /
 
     data SNTags(300)%Label  / 'drift_method'           / &
