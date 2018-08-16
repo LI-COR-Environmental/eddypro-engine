@@ -109,7 +109,7 @@ end function
 ! \todo
 !***************************************************************************
 function asymmetric_linear_transformation(x, N, pgain, poffset, ngain, noffset)
-    use m_numeric_kinds
+    use m_common_global_var
     implicit none
     !> In/out variables
     integer, intent(in) :: N
@@ -120,10 +120,13 @@ function asymmetric_linear_transformation(x, N, pgain, poffset, ngain, noffset)
     real(kind = dbl) , intent(in) :: noffset
     real(kind = dbl)  :: asymmetric_linear_transformation(N)
 
-    where (x(:) >= 0d0)
-        asymmetric_linear_transformation(:) = x(:) * pgain + poffset
+    where (x(:) /= error)
+        where (x(:) >= 0d0)
+            asymmetric_linear_transformation(:) = x(:) * pgain + poffset
+        elsewhere
+            asymmetric_linear_transformation(:) = x(:) * ngain + noffset
+        end where
     elsewhere
-        asymmetric_linear_transformation(:) = x(:) * ngain + noffset
+        asymmetric_linear_transformation(:) = error
     end where
-
 end function

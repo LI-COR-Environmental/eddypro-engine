@@ -475,9 +475,6 @@ subroutine InitOutFiles(lEx)
                 &[#_flagged_recs],[#_flagged_recs],[#_flagged_recs],[#_flagged_recs],[#_flagged_recs],[#_flagged_recs],&
                 &[#],[#],[m+2s-2],[m+2s-2],[m+2s-2],[K+2],--,--,--,--,[m+1s-1K+1],--,--,--,--,'
 
-
-            print*, lEx%ncustom
-            stop
             !> Mean values of user variables
             if (lEx%ncustom > 0) then
                 call AddDatum(header1, 'custom_variables', separator)
