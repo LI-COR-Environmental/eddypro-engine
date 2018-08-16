@@ -478,7 +478,7 @@ module m_common_global_var
          EPPrjCTags(46)%Label / 'hf_correct_ghg_ba'  / &
          EPPrjCTags(47)%Label / 'hf_correct_ghg_zoh' / &
          EPPrjCTags(48)%Label / 'fluxnet_standardize_biomet' / & 
-         EPPrjCTags(49)%Label / 'fluxnet_mode' / 
+         EPPrjCTags(49)%Label / 'fluxnet_err_label' / 
 
     !> tags of the metadata file created by GHG software
     integer, parameter :: Nan = 884
