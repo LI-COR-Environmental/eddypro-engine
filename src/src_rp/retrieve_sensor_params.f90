@@ -70,13 +70,21 @@ subroutine RetrieveSensorParams()
             E2Col(u:ts)%Instr%vpath_length = 0.125d0
             E2Col(u:ts)%Instr%hpath_length = 0.110d0
             E2Col(u:ts)%Instr%tau = 1d0 / 40d0
+        case('usoni3_cage_mp')
+            E2Col(u:ts)%Instr%vpath_length = 0.131d0    
+            E2Col(u:ts)%Instr%hpath_length = 0.099d0    
+            E2Col(u:ts)%Instr%tau = 1d0 / 30d0
+        case('usoni3_classa_mp')
+            E2Col(u:ts)%Instr%vpath_length = 0.131d0    
+            E2Col(u:ts)%Instr%hpath_length = 0.099d0    
+            E2Col(u:ts)%Instr%tau = 1d0 / 30d0
         case('usa1_standard')
-            E2Col(u:ts)%Instr%vpath_length = 0.175d0    !< to be adjusted
-            E2Col(u:ts)%Instr%hpath_length = 0.175d0    !< to be adjusted
+            E2Col(u:ts)%Instr%vpath_length = 0.131d0    !< to be verified
+            E2Col(u:ts)%Instr%hpath_length = 0.099d0    !< to be verified
             E2Col(u:ts)%Instr%tau = 1d0 / 25d0
         case('usa1_fast')
-            E2Col(u:ts)%Instr%vpath_length = 0.175d0    !< to be adjusted
-            E2Col(u:ts)%Instr%hpath_length = 0.175d0    !< to be adjusted
+            E2Col(u:ts)%Instr%vpath_length = 0.131d0    !< to be verified
+            E2Col(u:ts)%Instr%hpath_length = 0.099d0    !< to be verified
             E2Col(u:ts)%Instr%tau = 1d0 / 50d0
         case('csat3', 'csat3b')
             E2Col(u:ts)%Instr%vpath_length = 0.115d0
