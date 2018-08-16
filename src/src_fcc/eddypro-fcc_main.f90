@@ -558,7 +558,13 @@ Program EddyproFCC
         del_status = system(trim(comm_rmdir) // ' "' &
         // trim(adjustl(TmpDir)) // '"')
 
-    write(*, '(a)') ''
+    !> Copy ".eddypro" file into output folder
+        call CopyFile(trim(adjustl(PrjPath)), &
+        trim(adjustl(Dir%main_out)) // 'processing' &
+        // Timestamp_FilePadding // '.eddypro')
+
+
+        write(*, '(a)') ''
     write(*, '(a)') ' ****************************************************'
     write(*, '(a)') ' Program EddyPro executed gracefully.'
     write(*, '(a)') ' Check results in the selected output directory.     '
