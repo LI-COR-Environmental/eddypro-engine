@@ -246,6 +246,7 @@ subroutine WriteVariablesRP()
     RPsetup%recurse = SCTags(19)%value(1:1) == '1'
     !> select whether to output binned (co)spectra
     RPsetup%out_bin_sp = SCTags(26)%value(1:1) == '1'
+
     !> select whether to output binned ogives
     RPsetup%out_bin_og = SCTags(51)%value(1:1) == '1'
 
