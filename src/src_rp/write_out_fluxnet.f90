@@ -536,14 +536,14 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
     call AddIntDatumToDataline(Essentials%ZCD(ch4), dataline, EddyProProj%err_label)
     call AddIntDatumToDataline(Essentials%ZCD(gas4), dataline, EddyProProj%err_label)
     !> Correlation differences with and without repeated values 
-    call AddIntDatumToDataline(Essentials%CorrDiff(u, w), dataline, EddyProProj%err_label)
-    call AddIntDatumToDataline(Essentials%CorrDiff(u, ts), dataline, EddyProProj%err_label)
-    call AddIntDatumToDataline(Essentials%CorrDiff(u, h2o), dataline, EddyProProj%err_label)
-    call AddIntDatumToDataline(Essentials%CorrDiff(u, h2o), dataline, EddyProProj%err_label)
-    call AddIntDatumToDataline(Essentials%CorrDiff(u, co2), dataline, EddyProProj%err_label)
-    call AddIntDatumToDataline(Essentials%CorrDiff(u, h2o), dataline, EddyProProj%err_label)
-    call AddIntDatumToDataline(Essentials%CorrDiff(u, ch4), dataline, EddyProProj%err_label)
-    call AddIntDatumToDataline(Essentials%CorrDiff(u, gas4), dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Essentials%CorrDiff(u, w), dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Essentials%CorrDiff(u, ts), dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Essentials%CorrDiff(u, h2o), dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Essentials%CorrDiff(u, h2o), dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Essentials%CorrDiff(u, co2), dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Essentials%CorrDiff(u, h2o), dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Essentials%CorrDiff(u, ch4), dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Essentials%CorrDiff(u, gas4), dataline, EddyProProj%err_label)
     !> Mahrt 1998 Nonstationarity Ratios
     call AddFloatDatumToDataline(Essentials%mahrt98_NR(w_u), dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Essentials%mahrt98_NR(w_ts), dataline, EddyProProj%err_label)
@@ -630,6 +630,11 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
         end do
     end if
     !> AGC/RSSI                         **************************************** May need to adapt header to whether it's AGC or RSSI for 7200/7500
+
+    print*, E2Col(co2)%instr%sw_ver
+    print*, CompareSwVer(E2Col(co2)%instr%sw_ver, SwVerFromString('6.0.0'))
+    stop
+
     if(CompareSwVer(E2Col(co2)%instr%sw_ver, SwVerFromString('6.0.0'))) then
         call AddIntDatumToDataline(nint(Essentials%AGC72), dataline, EddyProProj%err_label)
     else

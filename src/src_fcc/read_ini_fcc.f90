@@ -341,6 +341,9 @@ subroutine WriteVariablesFCC()
     end do
     FCCsetup%SA%nclass(gas4) = 12 - skipped_classes
 
+    !> Whether to keep or delete parent fluxnet file
+    FCCsetup%keep_parent = SCTags(26)%value(1:1) == '1'
+    
     !> adjust Dirs
     call AdjDir(Dir%binned, slash)
     call AdjDir(Dir%full, slash)
