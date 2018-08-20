@@ -558,6 +558,11 @@ Program EddyproFCC
         del_status = system(trim(comm_rmdir) // ' "' &
         // trim(adjustl(TmpDir)) // '"')
 
+    !> Delete parent fluxnet file
+    if (.not. FCCsetup%keep_parent) then
+        call system(comm_del // '"' // trim(adjustl(AuxFile%ex)) // '"' // comm_err_redirect)
+    end if
+
     !> Copy ".eddypro" file into output folder
         call CopyFile(trim(adjustl(PrjPath)), &
         trim(adjustl(Dir%main_out)) // 'processing' &
