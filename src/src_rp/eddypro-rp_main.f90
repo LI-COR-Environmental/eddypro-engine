@@ -2170,6 +2170,13 @@ program EddyproRP
                 call FootprintHandle(Stats%Cov(w, w), Ambient%us, &
                     Ambient%zL, Ambient%WS, Ambient%L, &
                     E2Col(u)%Instr%height, Metadata%d, Metadata%z0)
+            else
+                Foot = errFootprint
+                Flux1 = errFlux
+                Flux2 = errFlux
+                Flux3 = errFlux
+                BPCF = errBPCF
+                foot_model_used = 'none'
             end if
 
             !> Calculate storage terms
@@ -2207,9 +2214,8 @@ program EddyproRP
         !>Write out full output file (main express output)
         if (EddyProProj%out_md) &
             call WriteOutMetadata(suffixOutString)
-
-        if (EddyProProj%out_fluxnet) &
-            call WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
+            if (EddyProProj%out_fluxnet) &
+                call WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
 
         if (EddyProProj%run_mode /= 'md_retrieval') then
             call hms_delta_print('  Flux averaging period processing time: ','')
@@ -2294,9 +2300,11 @@ program EddyproRP
             // trim(FLUXNET_Path(1:index(FLUXNET_Path, '.tmp')-1))
 
     !> Copy ".eddypro" file into output folder
-    call CopyFile(trim(adjustl(PrjPath)), &
+    if (.not. EddyProProj%fcc_follows) then
+        call CopyFile(trim(adjustl(PrjPath)), &
         trim(adjustl(Dir%main_out)) // 'processing' &
         // Timestamp_FilePadding // '.eddypro')
+    end if
 
     !> Delete tmp folder if running in embedded mode
     if(EddyProProj%run_env == 'desktop') &

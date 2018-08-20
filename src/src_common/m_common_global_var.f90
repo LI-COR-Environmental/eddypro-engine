@@ -200,6 +200,8 @@ module m_common_global_var
     type(EddyProLogType)   :: EddyProLog
     type(EddyProProjType) :: EddyProProj
     type(SpectralType) :: BPCF
+    type(SpectralType), parameter :: &
+        errBPCF = spectraltype(error)
     type(SpectralType) :: ADDCF
     type(fluxnetChunksType) :: fluxnetChunks
 
