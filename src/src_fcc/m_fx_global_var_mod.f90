@@ -76,7 +76,7 @@ module m_fx_global_var
 
     !> tags of the setup ".ini" file for eccoce
     integer, parameter :: Nsn = 109
-    integer, parameter :: Nsc = 25
+    integer, parameter :: Nsc = 30
     logical            :: SNTagFound(Nsn)
     logical            :: SCTagFound(Nsc)
     type (Numerical)   :: SNTags(Nsn)
@@ -215,5 +215,6 @@ module m_fx_global_var
          SCTags(22)%Label / 'sa_subset'         / &
          SCTags(23)%Label / 'sa_use_vm_flags'   / &
          SCTags(24)%Label / 'sa_use_foken_low'  / &
-         SCTags(25)%Label / 'sa_use_foken_mid'  /
+         SCTags(25)%Label / 'sa_use_foken_mid'  / &
+         SCTags(26)%Label / 'keep_parent_fluxnet_file'  /
 end module m_fx_global_var
