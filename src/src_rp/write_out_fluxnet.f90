@@ -630,11 +630,6 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
         end do
     end if
     !> AGC/RSSI                         **************************************** May need to adapt header to whether it's AGC or RSSI for 7200/7500
-
-    print*, E2Col(co2)%instr%sw_ver
-    print*, CompareSwVer(E2Col(co2)%instr%sw_ver, SwVerFromString('6.0.0'))
-    stop
-
     if(CompareSwVer(E2Col(co2)%instr%sw_ver, SwVerFromString('6.0.0'))) then
         call AddIntDatumToDataline(nint(Essentials%AGC72), dataline, EddyProProj%err_label)
     else
