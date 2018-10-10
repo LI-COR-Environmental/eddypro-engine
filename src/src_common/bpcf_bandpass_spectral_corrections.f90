@@ -222,6 +222,8 @@ function DefaultSonicOutputRate(model)
             DefaultSonicOutputRate = 50
         case('r3_100','r3a_100', 'hs_100')
             DefaultSonicOutputRate = 100
+        case('usoni3_classa_mp', 'usoni3_cage_mp')
+            DefaultSonicOutputRate = 30
         case('usa1_standard')
             DefaultSonicOutputRate = 40
         case('usa1_fast')

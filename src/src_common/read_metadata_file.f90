@@ -235,7 +235,7 @@ subroutine WriteEddyProMetadataVariables(LocCol, printout)
                         Instr(i)%firm = 'other_irga'
                     case('hs_50', 'hs_100', 'r2', 'r3_50', 'r3_100', 'r3a_100', 'wm', 'wmpro')
                         Instr(i)%firm = 'gill'
-                    case('usa1_standard', 'usa1_fast')
+                    case('usa1_standard', 'usa1_fast', 'usoni3_classa_mp', 'usoni3_cage_mp')
                         Instr(i)%firm = 'metek'
                     case('csat3', 'csat3b')
                         Instr(i)%firm = 'csi'
