@@ -92,7 +92,7 @@ subroutine ConfigureForEmbedded()
             call system(comm_del // '"' // trim(adjustl(TmpDir)) // '"*.tmp ' &
                 // comm_err_redirect)
 
-            EddyProProj%out_fluxnet  = .false.
+            ! EddyProProj%out_fluxnet  = .false.
             EddyProProj%out_md      = .false.
             if (EddyProProj%biomet_data /= 'none') then
                 EddyProProj%out_biomet = .true.
@@ -103,9 +103,9 @@ subroutine ConfigureForEmbedded()
 
         !> EddyPro-FCC
         case ('EddyPro-FCC')
-            !> Retrieve essentials file name from /output folder
+            !> Retrieve FLUXNET file name from /output folder
             comm = 'find "' // trim(homedir) // 'output' // slash // &
-                '" -iname *_essentials_*' // ' > ' // trim(adjustl(TmpDir)) &
+                '" -iname *_fluxnet_*' // ' > ' // trim(adjustl(TmpDir)) &
                 // 'ex_flist.tmp ' // comm_err_redirect
             dir_status = system(comm)
             open(udf, file = trim(adjustl(TmpDir)) &
