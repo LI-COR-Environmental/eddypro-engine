@@ -73,8 +73,8 @@ subroutine MetadataFileValidation(LocCol, passed, faulty_col)
                 .and. LocCol(i)%instr%category == 'fast_t_sensor') then
                 select case &
                     (LocCol(i)%instr%model(1:len_trim(LocCol(i)%instr%model)-2))
-                    case ('li7500', 'li7500a', 'li7500rs', 'li7200', 'li7200rs', &
-                        'li7700', 'li6262', 'li7000')
+                    case ('li7500', 'li7500a', 'li7500rs', 'li7500ds', 'li7200', &
+                        'li7200rs', 'li7700', 'li6262', 'li7000')
                         passed(1) = .false.
                         passed(25) = .false.
                         faulty_col = i
@@ -206,11 +206,11 @@ subroutine InstrumentValidation(LocInstr, LocCol, passed)
             end select
             !> check model
             select case (LocInstr%model(1:len_trim(LocInstr%model)-2))
-                case ('hs_50', 'hs_100', 'r2', 'r3_50', 'r3_100', 'r3a_100', &
-                    'wm', 'wmpro', 'usa1_standard', 'usa1_fast', &
-                    'usoni3_classa_mp', 'usoni3_cage_mp', &
-                    'csat3', 'csat3b', '81000')
-                    continue
+                case ('hs_50', 'hs_100', 'r2', 'r3_50', 'r3_100', 'r3a_100', 'wm', 'wmpro', &
+                      'usa1_standard', 'usa1_fast', 'csat3', 'csat3b', &
+                      'usoni3_classa_mp', 'usoni3_cage_mp', &
+                      '81000', '81000v', '81000re', '81000vre')
+                      continue
                 case ('generic_sonic')
                     if (LocInstr%hpath_length * LocInstr%vpath_length * LocInstr%tau == 0) then
                         passed(1) = .false.
@@ -235,8 +235,8 @@ subroutine InstrumentValidation(LocInstr, LocCol, passed)
             end select
             !> check model
             select case (LocInstr%model(1:len_trim(LocInstr%model)-2))
-                case ('li7500', 'li7500a', 'li7500rs', 'li7200', 'li7200rs', &
-                    'li7700', 'li6262', 'li7000')
+                case ('li7500', 'li7500a', 'li7500rs', 'li7500ds', 'li7200', &
+                    'li7200rs', 'li7700', 'li6262', 'li7000')
                     continue
                 case ('generic_open_path', 'generic_closed_path')
                     if (LocInstr%hpath_length * LocInstr%vpath_length * LocInstr%tau == 0) then

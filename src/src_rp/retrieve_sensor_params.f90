@@ -103,7 +103,7 @@ subroutine RetrieveSensorParams()
                     E2Col(gas)%Instr%vpath_length = 0.127d0
                     E2Col(gas)%Instr%hpath_length = 0.0095d0
                     E2Col(gas)%Instr%tau = 1d-1
-                case('li7500a','li7500rs')
+                case('li7500a','li7500rs','li7500ds')
                     E2Col(gas)%Instr%vpath_length = 0.127d0
                     E2Col(gas)%Instr%hpath_length = 0.0095d0
                     E2Col(gas)%Instr%tau = 1d-1
