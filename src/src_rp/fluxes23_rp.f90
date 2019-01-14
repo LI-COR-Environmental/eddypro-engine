@@ -884,7 +884,7 @@ subroutine Fluxes23_rp()
     !> scale temperature(T*)
     !> If condition fails, previous value (from Fluxes0) holds
     if (Ambient%us > 0d0 .and. Flux3%H /= error .and. Ambient%RhoCp > 0d0) &
-        Ambient%Ts = Flux3%H / (Ambient%RhoCp * Ambient%us)
+        Ambient%Ts = - Flux3%H / (Ambient%RhoCp * Ambient%us)
 
     !> Bowen ration (Bowen, 1926, Phyis Rev)
     if (Flux3%LE /= 0d0 .and. Flux3%LE /= error .and. Flux3%H /= error) then
