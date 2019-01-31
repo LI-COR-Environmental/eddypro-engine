@@ -63,6 +63,7 @@ subroutine MakeDataset(PathIn, MasterTimeSeries, nrow, StartIndx, &
 
     !> Initialize ErrString by reading one valid line from the file
     ErrString = ''
+
     call InitContinuousDataset(PathIn, ErrString, hnrow)
 
     !> Open input file

@@ -47,7 +47,7 @@ subroutine CreateDatasetsCommon(TimeSeries, nrow, StartIndx, EndIndx)
 
     !> Full out file
     if (EddyProProj%out_full) then
-        write(*,'(a)', advance = 'no') '  Creating Full Output dataset..'
+        write(*,'(a)', advance = 'no') '  Closing Full Output file..'
         call MakeDataset(FullOut_Path(1:len_trim(FullOut_Path)), &
             TimeSeries, size(TimeSeries), &
             StartIndx, EndIndx, .true., 3)
@@ -69,7 +69,8 @@ subroutine CreateDatasetsCommon(TimeSeries, nrow, StartIndx, EndIndx)
 
     !> Metadata file
     if (EddyProProj%out_md) then
-        write(*,'(a)', advance = 'no') '  Creating Metadata dataset..'
+        write(*,'(a)', advance = 'no') &
+            '  Closing Metadata file..'
         call MakeDataset(Metadata_Path(1:len_trim(Metadata_Path)), &
             TimeSeries, size(TimeSeries), &
             StartIndx, EndIndx, .true., 1)
