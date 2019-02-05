@@ -78,21 +78,18 @@ subroutine AverageWindDirection(Set, nrow, ncol, offset, WindDir, err_float)
 
     !> Compute raw-level wind-direction
     do i = 1, nrow
-        call SingleWindDirection(Set(i, u:w), 0d0, wd(i))
+        call SingleWindDirection(Set(i, u:w), offset, wd(i))
     end do
     
     !> Compute mean wind direction
     call AngularAverageNoError(wd, nrow, 1, WindDir, err_float)
-
-    !> accounts for user-supplied anemometer mis-alignment
-    WindDir = WindDir + offset
 
 end subroutine AverageWindDirection
 
 
 !***************************************************************************
 !
-! \brief       Calculates mean wind direction and compensates offset
+! \brief       Calculates standard deviation of wind direction
 ! \author      Gerardo Fratini
 ! \note        
 ! \sa
