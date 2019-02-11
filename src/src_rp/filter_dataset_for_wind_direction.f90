@@ -40,9 +40,11 @@ subroutine FilterDatasetForWindDirection(Set, nrow, ncol)
     real(kind = dbl) :: WD
 
 
+    write(*,'(a)', advance='no') '  Applying wind direction filter..'
     Essentials%m_wdf = Essentials%m_wdf + 1
     do i = 1, nrow
         if (any(Set(i, u:w) == error)) cycle
+
         !> Instantaneous wind direction
         call SingleWindDirection(Set(i, u:w), &
             E2Col(u)%instr%north_offset + magnetic_declination, WD)
@@ -56,4 +58,5 @@ subroutine FilterDatasetForWindDirection(Set, nrow, ncol)
             end if 
         end do sec_loop
     end do
+    write(*, '(a)') ' Done.'
 end subroutine FilterDatasetForWindDirection

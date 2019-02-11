@@ -40,15 +40,19 @@ subroutine SingleWindDirection(Wind, offset, WindDir)
     real(kind = dbl), intent(out) :: WindDir
 
 
-    !> Calculate raw wind direction from wind vector
-    WindDir = 180 - (datan2(Wind(V), Wind(U)) * 180d0 / p)
+    if (Wind(U) /= error .and. Wind(V) /= error)  then 
+        !> Calculate raw wind direction from wind vector
+        WindDir = 180 - (datan2(Wind(V), Wind(U)) * 180d0 / p)
 
-    !> accounts for user-supplied anemometer mis-alignment
-    WindDir = WindDir + offset
+        !> accounts for user-supplied anemometer mis-alignment
+        WindDir = WindDir + offset
 
-    !> wrap within 0 - 360
-    if (WindDir >= 360d0) WindDir = WindDir - 360d0
-    if (WindDir < 0d0)   WindDir = 360d0 + WindDir
+        !> wrap within 0 - 360
+        if (WindDir >= 360d0) WindDir = WindDir - 360d0
+        if (WindDir < 0d0)   WindDir = 360d0 + WindDir
+    else
+        WindDir = error
+    end if
 end subroutine SingleWindDirection
 
 !***************************************************************************
