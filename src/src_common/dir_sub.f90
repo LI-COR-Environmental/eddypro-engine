@@ -212,13 +212,13 @@ subroutine NumberOfFilesInDir(DirIn, ext, MatchTemplate, Template, N, rN)
                 // trim(adjustl(TmpDir)) // 'flist.tmp" ' // comm_err_redirect
         case('linux')
             comm = 'find "' // DirIn(1:len_trim(DirIn)) &
-                // '" -iname *' &
-                // Ext(1:len_trim(Ext)) // ' > ' // '"' &
+                // '" -iname "*' &
+                // Ext(1:len_trim(Ext)) // '" > ' // '"' &
                 // trim(adjustl(TmpDir)) // 'flist.tmp" ' // comm_err_redirect
         case('mac')
             comm = 'find "' // DirIn(1:len_trim(DirIn)-1) &
-                // '" -iname *' &
-                // Ext(1:len_trim(Ext)) // ' > ' // '"' &
+                // '" -iname "*' &
+                // Ext(1:len_trim(Ext)) // '" > ' // '"' &
                 // trim(adjustl(TmpDir)) // 'flist.tmp" ' // comm_err_redirect
     end select
     dir_status = system(comm)
