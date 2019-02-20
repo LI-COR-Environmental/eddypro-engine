@@ -101,7 +101,7 @@ subroutine RetrieveDynamicMetadata(FinalTimestamp, LocCol, ncol)
 
             !> Check suitability of Metadata for current period
             !> Normal case
-            if (mdCurrentTimestamp < FinalTimestamp) then
+            if (mdCurrentTimestamp <= FinalTimestamp) then
                 cnt = cnt + 1
                 mdCurrentStringVars = mdStringVars
                 cycle record_loop
@@ -109,7 +109,7 @@ subroutine RetrieveDynamicMetadata(FinalTimestamp, LocCol, ncol)
             if (cnt == 0) exit record_loop
         end if
 
-        !> If it gets here, means that it's time to
+        !> If it gets here, it means that it's time to
         !> retrieve Dynamic Metadata from previous dataline
         call ReadMetadataFromTextVars(mdCurrentStringVars, size(mdStringVars))
 
@@ -572,18 +572,20 @@ subroutine ExtractUsableMetadataFromDynamic(LocCol, ncol)
         .and. DynamicMetadata%alt <= 8850d0) Metadata%alt = DynamicMetadata%alt
 
     !> Canopy height
-    if (DynamicMetadata%canopy_height >= 0d0) &
+    if (DynamicMetadata%canopy_height > 0d0) &
         Metadata%canopy_height = DynamicMetadata%canopy_height
     !> Displacement height
+    if (DynamicMetadata%canopy_height == 0d0) &
+        Metadata%z0 = 0.001
     if (DynamicMetadata%d /= error &
         .and. DynamicMetadata%d <= Metadata%canopy_height) &
             Metadata%d = DynamicMetadata%d
     !> Roughness length
-    if (DynamicMetadata%z0 /= error &
-        .and. DynamicMetadata%z0 <= Metadata%canopy_height &
-        .and. DynamicMetadata%z0 > 0d0) Metadata%z0 = DynamicMetadata%z0
+    if (DynamicMetadata%z0 <= Metadata%canopy_height &
+        .and. DynamicMetadata%z0 > 0d0) &
+            Metadata%z0 = DynamicMetadata%z0
 
-    !> File props
+            !> File props
     if (DynamicMetadata%ac_freq > 0d0) &
         Metadata%ac_freq = DynamicMetadata%ac_freq
     if (DynamicMetadata%file_length > 0d0) &
