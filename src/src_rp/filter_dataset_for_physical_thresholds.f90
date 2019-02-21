@@ -38,50 +38,65 @@ subroutine FilterDatasetForPhysicalThresholds(Set, N, M, FilterWhat)
     logical, intent(in) :: FilterWhat(M)
     real(kind = dbl), intent(inout) :: Set(N, M)
 
+
     !> Eliminate for values out of bounds in the whole dataset
-    do i = 1, N
-        !> co2, expressed as [mmol m-3] if molar_density, [umol mol-1] otherwise
-        if (E2Col(co2)%present .and. FilterWhat(co2)) then
-            if(E2Col(co2)%measure_type == 'molar_density') then
+    !> co2, expressed as [mmol m-3] if molar_density, [umol mol-1] otherwise
+    if (E2Col(co2)%present .and. FilterWhat(co2)) then
+        if(E2Col(co2)%measure_type == 'molar_density') then
+            do i = 1, N
                 if( (Set(i, co2) * Ambient%Va * 1d3 < al%co2_min) .or. &
                     (Set(i, co2) * Ambient%Va * 1d3 > al%co2_max)) Set(i, co2) = error
-            else
+            end do
+        else
+            do i = 1, N
                 if( (Set(i, co2) < al%co2_min) .or. &
-                    (Set(i, co2) > al%co2_max)) Set(i, co2) = error
-            end if
+                (Set(i, co2) > al%co2_max)) Set(i, co2) = error
+            end do
         end if
+    end if
 
-        !> h2o, expressed as [mmol m-3] if molar_density, [mmol mol-1] otherwise
-        if (E2Col(h2o)%present .and. FilterWhat(h2o)) then
-            if(E2Col(h2o)%measure_type == 'molar_density') then
+    !> h2o, expressed as [mmol m-3] if molar_density, [mmol mol-1] otherwise
+    if (E2Col(h2o)%present .and. FilterWhat(h2o)) then
+        if(E2Col(h2o)%measure_type == 'molar_density') then
+            do i = 1, N
                 if( (Set(i, h2o) * Ambient%Va < al%h2o_min) .or. &
-                    (Set(i, h2o) * Ambient%Va > al%h2o_max)) Set(i, h2o) = error
-            else
+                (Set(i, h2o) * Ambient%Va > al%h2o_max)) Set(i, h2o) = error
+            end do
+        else
+            do i = 1, N
                 if( (Set(i, h2o) < al%h2o_min) .or. &
-                    (Set(i, h2o) > al%h2o_max)) Set(i, h2o) = error
-            end if
+                (Set(i, h2o) > al%h2o_max)) Set(i, h2o) = error
+            end do
         end if
+    end if
 
-        !> ch4, expressed as [mmol m-3] if molar_density, [umol mol-1] otherwise
-        if (E2Col(ch4)%present .and. FilterWhat(ch4)) then
-            if(E2Col(ch4)%measure_type == 'molar_density') then
+    !> ch4, expressed as [mmol m-3] if molar_density, [umol mol-1] otherwise
+    if (E2Col(ch4)%present .and. FilterWhat(ch4)) then
+        if(E2Col(ch4)%measure_type == 'molar_density') then
+            do i = 1, N
                 if( (Set(i, ch4) * Ambient%Va * 1d3 < al%ch4_min) .or. &
-                    (Set(i, ch4) * Ambient%Va * 1d3 > al%ch4_max)) Set(i, ch4) = error
-            else
+                (Set(i, ch4) * Ambient%Va * 1d3 > al%ch4_max)) Set(i, ch4) = error
+            end do
+        else
+            do i = 1, N
                 if( (Set(i, ch4) < al%ch4_min) .or. &
-                    (Set(i, ch4) > al%ch4_max)) Set(i, ch4) = error
-            end if
+                (Set(i, ch4) > al%ch4_max)) Set(i, ch4) = error
+            end do
         end if
+    end if
 
-        !> gas4, expressed as [mmol m-3] if molar_density, [umol mol-1] otherwise
-        if (E2Col(gas4)%present .and. FilterWhat(gas4)) then
-            if(E2Col(gas4)%measure_type == 'molar_density') then
+    !> gas4, expressed as [mmol m-3] if molar_density, [umol mol-1] otherwise
+    if (E2Col(gas4)%present .and. FilterWhat(gas4)) then
+        if(E2Col(gas4)%measure_type == 'molar_density') then
+            do i = 1, N
                 if( (Set(i, gas4) * Ambient%Va * 1d3 < al%gas4_min) .or. &
-                    (Set(i, gas4) * Ambient%Va * 1d3 > al%gas4_max)) Set(i, gas4) = error
-            else
+                (Set(i, gas4) * Ambient%Va * 1d3 > al%gas4_max)) Set(i, gas4) = error
+            end do
+        else
+            do i = 1, N
                 if( (Set(i, gas4) < al%gas4_min) .or. &
-                    (Set(i, gas4) > al%gas4_max)) Set(i, gas4) = error
-            end if
+                (Set(i, gas4) > al%gas4_max)) Set(i, gas4) = error
+            end do
         end if
-    end do
+    end if
 end subroutine FilterDatasetForPhysicalThresholds

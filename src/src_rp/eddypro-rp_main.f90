@@ -1967,23 +1967,6 @@ program EddyproRP
                 Essentials%used_timelag, Essentials%def_tlag, .false.)
             if (TimeLagOptSelected) Meth%tlag = 'tlag_opt'
 
-            !> Output raw dataset sixth level
-            if (RPsetup%out_raw(6)) call OutRawData(Stats%date, Stats%time, &
-                E2Set, size(E2Set, 1), size(E2Set, 2), 6)
-            !> Calculate basic stats and output them as requested
-            call BasicStats(E2Set, size(E2Set, 1), size(E2Set, 2), 6, .true.)
-            Stats6 = Stats
-            if (RPsetup%out_st(6)) &
-                call WriteOutStats(ust6, Stats6, suffixOutString, PeriodRecords)
-            if (NumUserVar > 0) then
-                call UserBasicStats(UserSet, &
-                    size(UserSet, 1), size(UserSet, 2), 6)
-                if (RPsetup%out_st(6)) &
-                    call WriteOutUserStats(u_user_st6, suffixOutString, &
-                        PeriodRecords, AddUserStatsHeader)
-                    AddUserStatsHeader = .false.
-            end if
-
             !> ===== 6.1 FILTERING MOLAR DENSITY DATA FOR ABSOLUTE LIMITS TEST  ====================
             if (EddyProProj%run_mode /= 'md_retrieval') then
                 !> Estimate temperatures, pressures and relevant
@@ -2000,6 +1983,23 @@ program EddyproRP
                     call EliminateCorruptedVariables(E2Set, &
                         size(E2Set, 1), size(E2Set, 2), skip_period, .true.)
                 end if
+            end if
+
+            !> Output raw dataset sixth level
+            if (RPsetup%out_raw(6)) call OutRawData(Stats%date, Stats%time, &
+                E2Set, size(E2Set, 1), size(E2Set, 2), 6)
+            !> Calculate basic stats and output them as requested
+            call BasicStats(E2Set, size(E2Set, 1), size(E2Set, 2), 6, .true.)
+            Stats6 = Stats
+            if (RPsetup%out_st(6)) &
+                call WriteOutStats(ust6, Stats6, suffixOutString, PeriodRecords)
+            if (NumUserVar > 0) then
+                call UserBasicStats(UserSet, &
+                    size(UserSet, 1), size(UserSet, 2), 6)
+                if (RPsetup%out_st(6)) &
+                    call WriteOutUserStats(u_user_st6, suffixOutString, &
+                        PeriodRecords, AddUserStatsHeader)
+                    AddUserStatsHeader = .false.
             end if
 
             !> Quality check test for stationarity
