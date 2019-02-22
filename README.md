@@ -2,7 +2,7 @@
 
 EddyPro® is a powerful open source software application for processing eddy covariance data. It computes fluxes of water vapor (evapotranspiration), carbon dioxide, methane, other trace gases, and energy with the Eddy Covariance method.
 
-EddyPro is developed, maintained and supported by [LI‑COR Biosciences](www.licor.com). It originates from <a href="http://gaia.agraria.unitus.it/eco2s">ECO<sub>2</sub>S</a>, the Eddy COvariance COmmunity Software project, which was developed as part of the Infrastructure for Measurement of the European Carbon Cycle (IMECC-EU) research project. We gratefully acknowledge the [IMECC](http://imecc.ipsl.jussieu.fr/index.html) consortium, the ECO<sub>2</sub>S development team, the [University of Tuscia](www.unitus.it) (Italy) and scientists around the world who assisted with development and testing of the original version of this software.
+EddyPro is developed, maintained and supported by [LI‑COR Biosciences](http://www.licor.com). It originates from <a href="http://gaia.agraria.unitus.it/eco2s">ECO<sub>2</sub>S</a>, the Eddy COvariance COmmunity Software project, which was developed as part of the Infrastructure for Measurement of the European Carbon Cycle (IMECC-EU) research project. We gratefully acknowledge the [IMECC](http://imecc.ipsl.jussieu.fr/index.html) consortium, the ECO<sub>2</sub>S development team, the [University of Tuscia](https://www.unitus.it) (Italy) and scientists around the world who assisted with development and testing of the original version of this software.
 
 ![EddyPro](img/app-logo-small.png)
 
