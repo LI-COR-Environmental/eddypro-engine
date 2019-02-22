@@ -38,22 +38,13 @@ subroutine TestHigherMoments(Set, N)
     integer, intent(in) :: N
     real(kind = dbl), intent(inout) :: Set(N, E2NumVar)
     !> local variables
-    integer :: i = 0
     integer :: j = 0
-    integer :: hflags(GHGNumVar)
-    integer :: sflags(GHGNumVar)
-    real(kind = dbl) :: LocSet(N, GHGNumVar)
-    real(kind = dbl) :: Trend(N, GHGNumVar)
-    real(kind = dbl) :: Primes(N, GHGNumVar)
-    real(kind = dbl) :: Mean(GHGNumVar)
-    real(kind = dbl) :: Var(GHGNumVar)
-    real(kind = dbl) :: Skw(GHGNumVar)
-    real(kind = dbl) :: Kur(GHGNumVar)
-    real(kind = dbl) :: sumx1(GHGNumVar)
-    real(kind = dbl) :: sumx2(GHGNumVar)
-    real(kind = dbl) :: sumtime
-    real(kind = dbl) :: sumtime2
-    real(kind = dbl) :: b(GHGNumVar)
+    integer :: hflags(E2NumVar)
+    integer :: sflags(E2NumVar)
+    real(kind = dbl) :: LocSet(N, E2NumVar)
+    real(kind = dbl) :: Primes(N, E2NumVar)
+    real(kind = dbl) :: Skw(E2NumVar)
+    real(kind = dbl) :: Kur(E2NumVar)
 
     write(*, '(a)', advance = 'no') '   Skewness & kurtosis test..'
 
@@ -62,49 +53,14 @@ subroutine TestHigherMoments(Set, N)
     sflags = 9
 
     !> Define LocSet, limited to variables u to gas4
-    LocSet(1:N, u:GHGNumVar) = Set(1:N, u:GHGNumVar)
+    LocSet(1:N, u:E2NumVar) = Set(1:N, u:E2NumVar)
 
     !> Linear detrending
-    !> mean values
-    Mean(:) = sum(LocSet(1:N, :), dim = 1)
-    Mean(:) = Mean(:) / dfloat(N)
-    sumx1 = 0.d0
-    sumx2 = 0.d0
-    sumtime = 0.d0
-    sumtime2 = 0.d0
-    do i = 1, N
-        sumx1(:) = sumx1(:) + (LocSet(i, :)*(dble(i - 1)))
-        sumx2(:) = sumx2(:) + LocSet(i, :)
-        sumtime = sumtime + (dble(i - 1))
-        sumtime2 = sumtime2 + (dble(i - 1))**2
-    end do
-    b(:) = (sumx1(:) - (sumx2(:)*sumtime) / dble(N)) / &
-          (sumtime2 - (sumtime*sumtime) / dble(N))
-    !> Trend
-    do i = 1, N
-        Trend(i, :) = Mean(:) + b(:) * (dble(i - 1) - sumtime / dble(N))
-    end do
-    !> Fluctuations
-    do i = 1, N
-        Primes(i, :) = LocSet(i, :) - Trend(i, :)
-    end do
+    call LinDetrend(LocSet, Primes, RPsetup%avrg_len * 60, E2Col, N, E2NumVar)
 
-    !> Standard deviations
-    Var = 0.d0
-    do i = 1, N
-        Var(:) = Var(:) + Primes(i, :) **2
-    end do
-    Var = Var / dble(N - 1)
-
-    !> Skewness & Kurtosis
-    Skw = 0.d0
-    Kur = 0.d0
-    do i = 1, N
-        Skw(:) = Skw(:) + (Primes(i, :) / dsqrt(Var(:))) **3
-        Kur(:) = Kur(:) + (Primes(i, :) / dsqrt(Var(:))) **4
-    end do
-    Skw(:) = Skw(:) / dble(N)
-    Kur(:) = Kur(:) / dble(N)
+    !> Hihgher moments 
+    call KurtosisNoError(Primes, N, E2NumVar, Kur, error)
+    call SkewnessNoError(Primes, N, E2NumVar, Skw, error)
 
     !> Hard/soft flags for skewness or kurtorsis out of bounds
     do j = u, GHGNumVar

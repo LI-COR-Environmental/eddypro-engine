@@ -476,6 +476,57 @@ end function LaggedCovarianceNoError
 
 !***************************************************************************
 !
+! \brief       Calculates Skewness of timeserie ignoring \n
+!              provided error code
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+subroutine SkewnessNoError(Set, nrow, ncol, Skw, err_float)
+    use m_common_global_var
+    implicit none
+    !> in/out variables
+    integer, intent(in) :: nrow, ncol
+    real(kind = dbl), intent(in) :: Set(nrow, ncol)
+    real(kind = dbl), intent(in) :: err_float
+    real(kind = dbl), intent(out) :: Skw(ncol)
+    !> Local variables
+    integer :: i
+    integer :: j
+    integer :: Nact
+    real(kind = dbl) :: StDev(ncol)
+
+
+    !> Compute StDev, needed for Skewness
+    call StDevNoError(Set, nrow, ncol, StDev, err_float)
+
+    Skw = 0.d0
+    do j = u, ncol
+        if (E2Col(j)%present) then
+            Nact = 0
+            do i = 1, nrow
+                if (Set(i, j) /= error) then
+                    Nact = Nact + 1
+                    Skw(j) = Skw(j) + (Set(i, j))**3
+                end if
+            end do
+            if (Nact /= 0) then
+                Skw(j) = Skw(j) / (StDev(j)**3) / dble(Nact - 1)
+            else
+                Skw(j) = error
+            end if
+        else
+            Skw(j) = error
+        end if
+    end do
+end subroutine SkewnessNoError
+
+!***************************************************************************
+!
 ! \brief       Calculates Kurtosis index  of timeserie ignoring \n
 !              provided error code
 ! \author      Gerardo Fratini
@@ -515,7 +566,6 @@ subroutine KurtosisNoError(Set, nrow, ncol, Kur, err_float)
                 end if
             end do
             if (Nact /= 0) then
-
                 Kur(j) = Kur(j) / (StDev(j)**4) / dble(Nact - 1)
             else
                 Kur(j) = error

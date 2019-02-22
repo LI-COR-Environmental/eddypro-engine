@@ -98,6 +98,15 @@ subroutine TestAbsoluteLimits(Set, N, printout)
             Essentials%al_s(co2) = count(Set(:, co2) /= error .and. &
                                          (Set(:, co2) * StdVair * 1d3 < al%co2_min .or. &
                                           Set(:, co2) * StdVair * 1d3 > al%co2_max))
+            !> Actual filtering of molar density gas data is deferred to a later time
+            !> when mean T and P are computed. However, some rough filtering is necesasry
+            !> to eliminate strong outliers which mess up things if present. It's a very 
+            !> generous filter, retaining co2 in the range [0: 2000] ppm
+            where (Set(:, co2) /= error .and. &
+                (Set(:, co2) * StdVair * 1d3 < 0 .or. &
+                Set(:, co2) * StdVair * 1d3 > 2000)) 
+                Set(:, co2) = error
+            end where
         else
             Essentials%al_s(co2) = count(Set(:, co2) /= error .and. &
                                          (Set(:, co2) < al%co2_min .or. &
@@ -124,6 +133,15 @@ subroutine TestAbsoluteLimits(Set, N, printout)
             Essentials%al_s(h2o) = count(Set(:, h2o) /= error .and. &
                                          (Set(:, h2o) * StdVair < al%h2o_min .or. &
                                           Set(:, h2o) * StdVair > al%h2o_max))
+            !> Actual filtering of molar density gas data is deferred to a later time
+            !> when mean T and P are computed. However, some rough filtering is necesasry
+            !> to eliminate strong outliers which mess up things if present. It's a very 
+            !> generous filter, retaining h2o in the range [0: 50] ppt
+            where (Set(:, h2o) /= error .and. &
+                (Set(:, h2o) * StdVair < 0 .or. &
+                Set(:, h2o) * StdVair > 80)) 
+                Set(:, h2o) = error
+            end where
         else
             Essentials%al_s(h2o) = count(Set(:, h2o) /= error .and. &
                                          (Set(:, h2o) < al%h2o_min .or. &
@@ -150,6 +168,15 @@ subroutine TestAbsoluteLimits(Set, N, printout)
             Essentials%al_s(ch4) = count(Set(:, ch4) /= error .and. &
                                          (Set(:, ch4) * StdVair * 1d3 < al%ch4_min .or. &
                                           Set(:, ch4) * StdVair * 1d3 > al%ch4_max))
+            !> Actual filtering of molar density gas data is deferred to a later time
+            !> when mean T and P are computed. However, some rough filtering is necesasry
+            !> to eliminate strong outliers which mess up things if present. It's a very 
+            !> generous filter, retaining ch4 in the range [0: 2000] ppm
+            where (Set(:, ch4) /= error .and. &
+                (Set(:, ch4) * StdVair * 1d3< 0 .or. &
+                Set(:, ch4) * StdVair * 1d3 > 2000)) 
+                Set(:, ch4) = error
+            end where
         else
             Essentials%al_s(ch4) = count(Set(:, ch4) /= error .and. &
                                          (Set(:, ch4) < al%ch4_min .or. &
@@ -176,6 +203,15 @@ subroutine TestAbsoluteLimits(Set, N, printout)
             Essentials%al_s(gas4) = count(Set(:, gas4) /= error .and. &
                                          (Set(:, gas4) * StdVair * 1d3 < al%gas4_min .or. &
                                           Set(:, gas4) * StdVair * 1d3 > al%gas4_max))
+            !> Actual filtering of molar density gas data is deferred to a later time
+            !> when mean T and P are computed. However, some rough filtering is necesasry
+            !> to eliminate strong outliers which mess up things if present. It's a very 
+            !> generous filter, retaining gas4 in the range [0: 2000] ppm
+            where (Set(:, gas4) /= error .and. &
+                (Set(:, gas4) * StdVair * 1d3< 0 .or. &
+                Set(:, gas4) * StdVair * 1d3 > 2000)) 
+                Set(:, gas4) = error
+            end where
         else
             Essentials%al_s(gas4) = count(Set(:, gas4) /= error .and. &
                                          (Set(:, gas4) < al%gas4_min .or. &
