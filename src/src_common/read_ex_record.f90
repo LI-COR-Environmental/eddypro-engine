@@ -317,6 +317,9 @@ subroutine CompleteEssentials(lEx)
     if (lEx%instr(sonic)%vpath_length /= error) lEx%instr(sonic)%vpath_length = lEx%instr(sonic)%vpath_length * 1d-2
     if (lEx%instr(sonic)%nsep /= error) lEx%instr(sonic)%nsep = lEx%instr(sonic)%nsep * 1d-2
     if (lEx%instr(sonic)%esep /= error) lEx%instr(sonic)%esep = lEx%instr(sonic)%esep * 1d-2
+    if (lEx%Burba%h_bot == error) lEx%Burba%h_bot = 0d0
+    if (lEx%Burba%h_top == error) lEx%Burba%h_top = 0d0
+    if (lEx%Burba%h_spar == error) lEx%Burba%h_spar = 0d0    
 
     !> Variances were actually read as standard deviations
     do var = u, gas4 
