@@ -344,7 +344,7 @@ subroutine BiometEnrichVarsDescription()
                 bVars(i)%fluxnet_unit_out = '[#]'
 
             case('PPFD', 'PPFD_IN')
-                bVars(i)%fluxnet_base_name = 'PPFD'
+                bVars(i)%fluxnet_base_name = 'PPFD_IN'
                 bVars(i)%nature = 'PHOTON_FLUX'
                 bVars(i)%accumul_type = 'AVERAGING'
                 bVars(i)%unit_out = 'UMOL+1M-2S-1'
