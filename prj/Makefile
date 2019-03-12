@@ -3,18 +3,20 @@
 # Author: Gerardo Fratini, LI-COR Biosciences
 #
 
-#Portability
-ifdef ComSpec
+#Portabilityn
+#ifdef ComSpec
+ifeq ($(OS), Windows_NT)
 	#Windows
+	INFO = Compiling for Windows 64bit
 	RM = if exist FILE del /F /Q FILE
 	MV = if exist FILE move FILE DESTINATION
 	RP_EXE = eddypro_rp.exe
 	FCC_EXE = eddypro_fcc.exe
 	OS_DIR = win
-	FC = mingw32-gfortran.exe
+	FC = gfortran.exe
 	MAKE_DIR = if not exist DIR mkdir DIR
 	PATHSEP2 = \\
-	LFLAGS = -static
+	LDFLAGS = -shared-libgcc
 else
 	#Unix
 	RM = rm -f FILE
@@ -27,11 +29,14 @@ else
 	platform=$(shell uname)
 	ifeq ($(platform), Linux)
 		OS_DIR = linux
+		INFO = Compiling for Linux
 	else
 		OS_DIR = mac
+		INFO = Compiling for Mac OS
 	endif
-	LFLAGS =
+	LDLAGS = -shared-libgcc
 endif
+
 PATHSEP=$(strip $(PATHSEP2))
 
 #Dirs as seen by Make
@@ -82,17 +87,19 @@ VPATH = $(RP_SRC_DIR_f90d1):$(RP_SRC_DIR_Fd2):$(FCC_SRC_DIR_f90d1):$(COMMON_SRC_
 RP_OBJS = $(addprefix $(OBJS_DIR), $(RP_OBJS_f90d1) $(RP_OBJS_Fd2)$(COMMON_OBJS_f90d1))
 FCC_OBJS = $(addprefix $(OBJS_DIR), $(FCC_OBJS_f90d1) $(COMMON_OBJS_f90d1))
 
+$(info $(INFO))
+
 #Targets
 all : rp fcc
 
 rp : $(RP_OBJS_f90d1) $(RP_OBJS_Fd2) $(COMMON_OBJS_f90d1)
 	@$(subst DIR,$(OS_EXE_DIR),$(MAKE_DIR))
-	$(FC) $(LFLAGS) -o $(EXE_DIR)$(RP_EXE) $(RP_OBJS)
+	$(FC) $(LDFLAGS) -o $(EXE_DIR)$(RP_EXE) $(RP_OBJS)
 	@$(subst DESTINATION, $(OS_OBJS_DIR), $(subst FILE, *.mod, $(MV)))
 
 fcc : $(FCC_OBJS_f90d1) $(COMMON_OBJS_f90d1)
 	@$(subst DIR,$(OS_EXE_DIR),$(MAKE_DIR))
-	$(FC) $(LFLAGS) -o $(EXE_DIR)$(FCC_EXE) $(FCC_OBJS)
+	$(FC) $(LDFLAGS) -o $(EXE_DIR)$(FCC_EXE) $(FCC_OBJS)
 	@$(subst DESTINATION, $(OS_OBJS_DIR), $(subst FILE, *.mod, $(MV)))
 
 #Compilation
