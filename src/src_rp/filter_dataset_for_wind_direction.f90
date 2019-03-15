@@ -40,7 +40,7 @@ subroutine FilterDatasetForWindDirection(Set, nrow, ncol)
     real(kind = dbl) :: WD
 
 
-    write(*,'(a)', advance='no') '  Applying wind direction filter..'
+    write(*,'(a)', advance='no') '  Filtering raw data for wind direction filter..'
     Essentials%m_wdf = Essentials%m_wdf + 1
     do i = 1, nrow
         if (any(Set(i, u:w) == error)) cycle
@@ -59,4 +59,6 @@ subroutine FilterDatasetForWindDirection(Set, nrow, ncol)
         end do sec_loop
     end do
     write(*, '(a)') ' Done.'
+    write(*, '(a, i6)') '   Number of records eliminated for wind direction filter: ',  Essentials%m_wdf
+
 end subroutine FilterDatasetForWindDirection

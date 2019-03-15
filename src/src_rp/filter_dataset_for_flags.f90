@@ -44,6 +44,7 @@ subroutine FilterDatasetForFlags(LocCol, Raw, nrow, ncol)
     logical :: filtered(nrow)
 
 
+    write(*, '(a)', advance='no') '  Filtering raw data for custom flags..'
     filtered = .false.
     !> External cycle on all columns
     do j = 1, ncol
@@ -68,4 +69,7 @@ subroutine FilterDatasetForFlags(LocCol, Raw, nrow, ncol)
         end if
     end do
     Essentials%m_custom_flags = count(filtered)
+    write(*, '(a)') '  Done.'
+    write(*, '(a, i6)') '   Number of records eliminated for custom flags: ',  Essentials%m_custom_flags
+
 end subroutine FilterDatasetForFlags
