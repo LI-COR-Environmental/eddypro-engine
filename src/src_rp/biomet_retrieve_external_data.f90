@@ -60,6 +60,7 @@ subroutine BiometRetrieveExternalData(bFileList, bnFiles, bLastFile, &
     !> Initialize biomet data to error
     bSet = error
     bAggr = error
+    bAggrEddyPro = error
     bAggrFluxnet = error
 
     !> exit right away, if biomet files are finished
