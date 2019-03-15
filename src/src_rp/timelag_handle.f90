@@ -73,6 +73,7 @@ subroutine TimeLagHandle(TlagMeth, Set, nrow, ncol, ActTLag, TLag, &
         max_rl(ts:pe) = nint(E2Col(ts:pe)%max_tl * Metadata%ac_freq)
     end where
 
+    DefTlagUsed = .false.
     !> calculate actual time-lags according to the chosen method
     select case(TlagMeth)
         case ('constant')
