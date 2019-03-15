@@ -696,6 +696,9 @@ test_non_steady_wind.o: \
 edit_ini_file.o: \
 	edit_ini_file.f90 \
 	m_common_global_var.o
+init_fluxnet_file_rp.o: \
+	init_fluxnet_file_rp.f90 \
+	m_rp_global_var.o
 init_outfiles_rp.o: \
 	init_outfiles_rp.f90 \
 	m_rp_global_var.o
