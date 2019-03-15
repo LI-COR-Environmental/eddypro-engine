@@ -126,6 +126,7 @@ program EddyproRP
     logical :: IniFileNotFound
     logical :: initialize
     logical :: initializeBiometOut
+    logical :: initializeFluxnetOut
     logical :: InitializeStorage
     logical :: InitOutVarPresence
     logical :: SingMat
@@ -1431,6 +1432,7 @@ program EddyproRP
     bLastRec = 0
     initialize = .true.
     initializeBiometOut = .true.
+    initializeFluxnetOut = .true.
     InitializeStorage = .true.
     InitOutVarPresence = .true.
     DynamicMetadata = ErrDynamicMetadata
@@ -1584,26 +1586,29 @@ program EddyproRP
                 call WriteOutBiomet(suffixOutString, .true.)
             end if
 
+            if (initializeFluxnetOut .and. EddyProProj%out_fluxnet) then
+                call InitFluxnetFile_rp()
+                initializeFluxnetOut  = .false.
+            end if
+
             !> Period skip control
             if (skip_period) then
-                if (EddYProProj%out_fluxnet) call WriteOutFluxnetOnlyBiomet(suffixOutString)
+                if (EddyProProj%out_fluxnet) call WriteOutFluxnetOnlyBiomet(suffixOutString)
                 call hms_delta_print(PeriodSkipMessage,'')
                 cycle periods_loop
             end if
 
-            !> Some logging
-            write(TmpString1, '(i7)') PeriodRecords
-            call ShrinkString(TmpString1)
-            write(*, '(a)') '  Number of samples available for this period: ' &
-                //  TmpString1(1:len_trim(TmpString1))
-
             !> Number of valid records imported from raw files
-            Essentials%n_in = PeriodRecords
+            Essentials%n_in = &
+                CountRecordsAndValues(dble(Raw), size(Raw, 1), size(Raw, 2))
+
+            !> Some logging
+            write(*, '(a, i6)') '  Number of valid records available for this period: ', Essentials%n_in
 
             !> Period skip control
-            MissingRecords = dfloat(MaxPeriodNumRecords - PeriodRecords) &
+            MissingRecords = dfloat(MaxPeriodNumRecords - Essentials%n_in) &
                 / dfloat(MaxPeriodNumRecords) * 100d0
-            if (PeriodRecords > 0 .and. MissingRecords > RPsetup%max_lack) then
+            if (Essentials%n_in > 0 .and. MissingRecords > RPsetup%max_lack) then
                 if (EddYProProj%out_fluxnet) call WriteOutFluxnetOnlyBiomet(suffixOutString)
                 call ExceptionHandler(58)
                 call hms_delta_print(PeriodSkipMessage,'')
@@ -1787,7 +1792,7 @@ program EddyproRP
 
             !> If either u, v or w have been eliminated,
             !> stops processing this period
-            if (skip_period) then
+                if (skip_period) then
                 if (EddYProProj%out_fluxnet) call WriteOutFluxnetOnlyBiomet(suffixOutString)
                 if(allocated(E2Set)) deallocate(E2Set)
                 if(allocated(E2Primes)) deallocate(E2Primes)
