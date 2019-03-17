@@ -41,9 +41,11 @@ subroutine FixDatasetForSpectra(Set, nrow, ncol, nrow2)
     integer :: tnrow
 
 
-    !> Check that each variable doesn't have too many error codes
+    !> If more than 30% of the data is missing, don't compute spectra
+    !> because linear interpolation probably too severly affect spectral shape
+    !> This filter is totally arbitrary, only based on anecdotal evidence
     do j = 1, ncol
-        if (count(Set(1:nrow, j) == error) > nrow / 100) SpecCol(j)%present = .false.
+        if (count(Set(1:nrow, j) == error) > nrow / 3) SpecCol(j)%present = .false.
     end do
 
     !> nrow2 is the smallest nrow of all columns

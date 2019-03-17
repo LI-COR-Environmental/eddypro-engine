@@ -2073,6 +2073,7 @@ program EddyproRP
             !*******************************************************************
             if (RPsetup%do_spectral_analysis) then
                 SpecCol = E2Col
+
                 !> Replace gaps with linear interpolation of neighbouring data
                 call FixDatasetForSpectra(E2Primes, &
                     size(E2Primes, 1), size(E2Primes, 2), N2)
