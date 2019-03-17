@@ -403,8 +403,8 @@ subroutine CompleteEssentials(lEx)
     !> Legacy values to be later replaced with newer (left-hand sides) *********
     lEx%file_records = lEx%nr(1)
     lEx%used_records = lEx%nr(3)
-    lEx%tlag = lEx%act_tlag
-    lEx%def_tlag = lEx%act_tlag == lEx%nom_tlag
+    lEx%tlag = lEx%used_tlag
+    lEx%def_tlag = lEx%used_tlag == lEx%nom_tlag
     do var = u, gas4
         lEx%var(var) = lEx%stats%Cov(var, var)
     end do
