@@ -39,12 +39,36 @@ subroutine InitFluxnetFile_rp()
     integer :: open_status = 1      ! initializing to false
     integer :: dot
     integer :: i
+    integer :: j
     character(PathLen) :: Test_Path
     character(64) :: e2sg(E2NumVar)
     character(32) :: usg(NumUserVar)
     character(LongOutstringLen) :: dataline
     include '../src_common/interfaces.inc'
 
+
+    !> Convenient strings
+    e2sg(u)   = 'u_'
+    e2sg(v)   = 'v_'
+    e2sg(w)   = 'w_'
+    e2sg(ts)  = 'ts_'
+    e2sg(co2) = 'co2_'
+    e2sg(h2o) = 'h2o_'
+    e2sg(ch4) = 'ch4_'
+    e2sg(gas4) = E2Col(gas4)%label(1:len_trim(E2Col(gas4)%label)) // '_'
+    e2sg(tc)  = 'cell_t_'
+    e2sg(ti1) = 'inlet_t_'
+    e2sg(ti2) = 'outlet_t_'
+    e2sg(pi)  = 'cell_p_'
+    e2sg(te)  = 'air_t_'
+    e2sg(pe)  = 'air_p_'
+
+    call lowercase(e2sg(gas4))
+    
+    do j = 1, NumUserVar
+        usg(j)  = UserCol(j)%label(1:len_trim(UserCol(j)%label)) // '_'
+        call lowercase(usg(j))
+    end do
 
     Test_Path = Dir%main_out(1:len_trim(Dir%main_out)) &
                 // EddyProProj%id(1:len_trim(EddyProProj%id)) &
@@ -207,4 +231,4 @@ subroutine InitFluxnetFile_rp()
 
     write(uflxnt, '(a)') dataline(1:len_trim(dataline) - 1)
 
-end subroutine
+end subroutine InitFluxnetFile_rp

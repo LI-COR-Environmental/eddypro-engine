@@ -140,7 +140,7 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
     call AddFloatDatumToDataline(Stor%ET, dataline, EddyProProj%err_label)
     do gas = co2, h2o
         call AddFloatDatumToDataline(Stor%of(gas), dataline, EddyProProj%err_label)
-        end do
+    end do
     do gas = ch4, gas4
         call AddFloatDatumToDataline(Stor%of(gas), dataline, EddyProProj%err_label, gain=1d3, offset=0d0)
     end do

@@ -1586,6 +1586,10 @@ program EddyproRP
                 call WriteOutBiomet(suffixOutString, .true.)
             end if
 
+            if (.not. allocated(UserCol)) &
+                allocate(UserCol(NumUserVar))
+            call DefineVars(Col, size(Raw, 2), NumUserVar)
+
             if (initializeFluxnetOut .and. EddyProProj%out_fluxnet) then
                 call InitFluxnetFile_rp()
                 initializeFluxnetOut  = .false.
@@ -1618,8 +1622,6 @@ program EddyproRP
             !> Filter raw data for user-defined flags
             if (RPsetup%filter_by_raw_flags) &
                 call FilterDatasetForFlags(Col, Raw, size(Raw, 1), size(Raw, 2))
-
-            !> Number of valid records after filtering for custom flags
             Essentials%n_after_custom_flags = &
                 CountRecordsAndValues(dble(Raw), size(Raw, 1), size(Raw, 2))
 
