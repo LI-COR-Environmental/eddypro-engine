@@ -170,9 +170,17 @@ subroutine WriteOutFullFcc(lEx)
     elseif(EddyProProj%fix_out_format) then
         call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
     end if
-    do gas = co2, n2o
+    do gas = co2, h2o
         if(fcc_var_present(gas)) then
             call WriteDatumFloat(lEx%Stor%of(gas), datum, EddyProProj%err_label)
+            call AddDatum(dataline, datum, separator)
+        elseif(EddyProProj%fix_out_format) then
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+        end if
+    end do
+    do gas = ch4, gas4
+        if(fcc_var_present(gas)) then
+            call WriteDatumFloat(lEx%Stor%of(gas) * 1d-3, datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         elseif(EddyProProj%fix_out_format) then
             call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
