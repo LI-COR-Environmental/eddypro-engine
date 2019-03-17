@@ -690,6 +690,9 @@ default_vars_selection.o: \
 set_os_environment.o: \
 	set_os_environment.f90 \
 	m_common_global_var.o
+define_vars.o: \
+	define_vars.f90 \
+	m_rp_global_var.o
 test_non_steady_wind.o: \
 	test_non_steady_wind.f90 \
 	m_rp_global_var.o
