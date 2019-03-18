@@ -706,6 +706,7 @@ module m_typedef
         real(kind = dbl) :: yaw
         real(kind = dbl) :: pitch
         real(kind = dbl) :: roll
+        real(kind = dbl) :: ustar
         real(kind = dbl) :: zL
         real(kind = dbl) :: L
         real(kind = dbl) :: degH(NumDegH + 1)

@@ -297,7 +297,7 @@ subroutine WriteOutFullFcc(lEx)
     call AddDatum(dataline, datum, separator)
 
     !> turbulence
-    call WriteDatumFloat(lEx%ustar, datum, EddyProProj%err_label)
+    call WriteDatumFloat(Flux3%ustar, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
     call WriteDatumFloat(lEx%TKE, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)

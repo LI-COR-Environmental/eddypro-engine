@@ -381,6 +381,8 @@ subroutine Fluxes0_rp(printout)
     else
         Ambient%us = error
     end if
+    Flux0%ustar = Ambient%us
+    Essentials%ustar = Ambient%us
 
     !> Momentum flux [kg m-1 s-2], after Van Dijk et al. 2004 Eq. 2.44
     if (RHO%a > 0d0 .and. Ambient%us >= 0d0) then

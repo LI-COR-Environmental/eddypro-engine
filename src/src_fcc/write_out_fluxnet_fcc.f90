@@ -141,7 +141,7 @@ subroutine WriteOutFluxnetFcc(lEx)
     call AddFloatDatumToDataline(lEx%WD_SIGMA, dataline, EddyProProj%err_label)
 
     !> Turbulence
-    call AddFloatDatumToDataline(lEx%ustar, dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Flux3%ustar, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(lEx%TKE, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(lEx%L, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(lEx%zL, dataline, EddyProProj%err_label)
@@ -252,6 +252,7 @@ subroutine WriteOutFluxnetFcc(lEx)
     call AddFloatDatumToDataline(Foot%x90, dataline, EddyProProj%err_label)
 
     !> Fluxes Level 0 (uncorrected)
+    call AddFloatDatumToDataline(lEx%Flux0%ustar, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(lEx%Flux0%L, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(lEx%Flux0%zL, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(lEx%Flux0%Tau, dataline, EddyProProj%err_label)

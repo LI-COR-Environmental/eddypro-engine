@@ -869,10 +869,16 @@ subroutine Fluxes23(lEx)
         Tp = error
     end if
 
+    !> Momentum flux and friction velocity
+    Flux2%tau = Flux1%tau
+    Flux3%tau = Flux1%tau
+    Flux2%ustar = Flux1%ustar
+    Flux3%ustar = Flux1%ustar
+
     !> Monin-Obukhov length (L = - (Tp^ /(k*g))*(ustar**3/(w'Tp')^ in m)
     if (Flux3%H /= 0d0 .and. Flux3%H /= error .and. &
-        lEx%RhoCp > 0d0 .and. lEx%ustar >= 0d0 .and. Tp > 0d0) then
-        lEx%L = -Tp * (lEx%ustar**3) / (vk * g * Flux3%H / lEx%RhoCp)
+        lEx%RhoCp > 0d0 .and. Flux3%ustar >= 0d0 .and. Tp > 0d0) then
+        lEx%L = -Tp * (Flux3%ustar**3) / (vk * g * Flux3%H / lEx%RhoCp)
     else
         lEx%L = error
     end if
@@ -884,8 +890,8 @@ subroutine Fluxes23(lEx)
 
     !> scale temperature(T*)
     !> If condition fails, previous value (from Fluxes0) holds
-    if (lEx%ustar > 0d0 .and. Flux3%H /= error .and. lEx%RhoCp > 0d0) &
-        lEx%Tstar = Flux3%H / (lEx%RhoCp * lEx%ustar)
+    if (Flux3%ustar > 0d0 .and. Flux3%H /= error .and. lEx%RhoCp > 0d0) &
+        lEx%Tstar = Flux3%H / (lEx%RhoCp * Flux3%ustar)
 
     !> Bowen ration (Bowen, 1926, Phyis Rev)
     if (Flux3%LE /= 0d0 .and. Flux3%LE /= error .and. Flux3%H /= error) then
@@ -893,8 +899,4 @@ subroutine Fluxes23(lEx)
     else
         lEx%Bowen = error
     end if
-
-    !> Momentum flux
-    Flux2%tau = Flux1%tau
-    Flux3%tau = Flux1%tau
 end subroutine Fluxes23

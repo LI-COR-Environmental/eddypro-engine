@@ -896,6 +896,8 @@ subroutine Fluxes23_rp()
     !> Momentum flux
     Flux2%tau = Flux1%tau
     Flux3%tau = Flux1%tau
+    Flux2%ustar = Flux1%ustar
+    Flux3%ustar = Flux1%ustar
 
     !> If fluxes are error, set also time-lags to error, just for clarity
     if (Flux2%co2  == error) Essentials%used_timelag(co2)  = error

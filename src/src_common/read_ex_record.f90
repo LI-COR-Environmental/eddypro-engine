@@ -122,7 +122,7 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
         lEx%stats%Cov(w, u), lEx%stats%Cov(w, ts:gas4), lEx%stats%Cov(co2, h2o:gas4), &
         lEx%stats%Cov(h2o, ch4:gas4), lEx%stats%Cov(ch4, gas4), &
         aux(1:8), & !< Skip footprint
-        lEx%Flux0%L, lEx%Flux0%zL, &
+        lEx%Flux0%ustar, lEx%Flux0%L, lEx%Flux0%zL, &
         lEx%Flux0%Tau, lEx%Flux0%H, lEx%Flux0%LE, lEx%Flux0%ET, &
         lEx%Flux0%co2, lEx%Flux0%h2o, lEx%Flux0%ch4, lEx%Flux0%gas4, &
         aux(1:16), & !< Skip fluxes level 1 and 2
@@ -133,7 +133,7 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
         lEx%Mul7700%A, lEx%Mul7700%B, lEx%Mul7700%C, &
         aux(1:8), & !< Skip SCFs
         lEx%degT%cov, lEx%degT%dcov(1:9)
-    ix = strCharIndex(dataline, ',', 249)
+    ix = strCharIndex(dataline, ',', 250)
     dataline = dataline(ix+1: len_trim(dataline))
     
     !> Copy NREX chunk

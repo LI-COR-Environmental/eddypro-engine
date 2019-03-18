@@ -149,6 +149,7 @@ subroutine Fluxes1_rp()
         Flux1%tau = Flux0%tau
     end if
     if (Flux0%tau == error) Flux1%tau = error
+    Flux1%ustar = Ambient%us
 
     write(*,'(a)')   ' Done.'
 end subroutine Fluxes1_rp

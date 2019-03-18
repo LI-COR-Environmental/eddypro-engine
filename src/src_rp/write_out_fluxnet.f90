@@ -320,6 +320,7 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
 
 !> Intermediate results
     !> Fluxes level 0 (uncorrected fluxes)
+    call AddFloatDatumToDataline(Essentials%ustar, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Essentials%L, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Essentials%zL, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Flux0%tau, dataline, EddyProProj%err_label)
