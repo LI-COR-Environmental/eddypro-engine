@@ -119,13 +119,13 @@ $(COMMON_OBJS_f90d1):
 	@$(subst DIR,$(OS_OBJS_DIR),$(MAKE_DIR))
 	$(FC) $(CFLAGS) -c $(COMMON_SRC_DIR_f90d1)$(@:.o=.f90) -o $(OBJS_DIR)$@
 
-clean_all: clean_rp clean_fcc
+clean_all : clean_rp clean_fcc
 
-clean_rp:
+clean_rp :
 	@$(subst FILE, $(OS_OBJS_DIR)*, $(RM))
 	@$(subst FILE, $(OS_EXE_DIR)$(RP_EXE), $(RM))
 
-clean_fcc:
+clean_fcc :
 	@$(subst FILE, $(OS_OBJS_DIR)*, $(RM))
 	@$(subst FILE, $(OS_EXE_DIR)$(FCC_EXE), $(RM))
 
