@@ -321,6 +321,9 @@ subroutine WriteOutFluxnetFcc(lEx)
     do i = 1, 9
         call AddFloatDatumToDataline(lEx%degT%dcov(i), dataline, EddyProProj%err_label)
     end do
+    do var = u, gas4
+        call AddIntDatumToDataline(lEx%spikes(var), dataline, EddyProProj%err_label)
+    end do
 
     !> Write first string from Chunks
     !> M_CUSTOM_FLAGS thru VM97_NSW_RNS
@@ -448,7 +451,7 @@ subroutine WriteOutFluxnetFcc(lEx)
     if (lEx%ncustom > 0) then
         do i = 1, lEx%ncustom
             call AddFloatDatumToDataline(lEx%user_var(i), dataline, EddyProProj%err_label)
-        end do        
+        end do
     end if
 
     !> Write sisxth string from Chunks

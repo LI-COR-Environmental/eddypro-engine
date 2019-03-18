@@ -441,7 +441,10 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
     do j = 1, NumDegH
         call AddFloatDatumToDataline(Essentials%degH(j), dataline, EddyProProj%err_label)
     end do
-
+    !>> Number of spikes per variable
+    do var = u, gas4
+        call AddIntDatumToDataline(Essentials%e2spikes(var), dataline, EddyProProj%err_label)
+    end do
 !> QC
     !>> Number or records eliminated based on custom flags
     call AddIntDatumToDataline(Essentials%m_custom_flags, dataline, EddyProProj%err_label)
@@ -457,18 +460,14 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
     !>> Number of values eliminated by the Spike test
     do var = u, gas4
         call AddIntDatumToDataline(Essentials%m_despiking(var), dataline, EddyProProj%err_label)
-        end do
+    end do
     !>> Number of values eliminated by the Absolute Limits test
     do j = u, gas4
         call AddIntDatumToDataline(Essentials%al_s(j), dataline, EddyProProj%err_label)
-        end do
+    end do
 
     !> Uncomment to reintroduce VM details
     ! !> VM97 Stats used to calculate flags
-    ! !>> Spikes
-    ! do j = u, gas4
-    !     call AddIntDatumToDataline(Essentials%e2spikes(j), dataline, EddyProProj%err_label)
-    !     end do
     ! !>> Amplitude resolution
     ! do j = u, gas4
     !     call AddFloatDatumToDataline(Essentials%ar_s(j), dataline, EddyProProj%err_label)

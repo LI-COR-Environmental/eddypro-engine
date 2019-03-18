@@ -132,8 +132,9 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
         lEx%Burba%h_bot, lEx%Burba%h_top, lEx%Burba%h_spar, &
         lEx%Mul7700%A, lEx%Mul7700%B, lEx%Mul7700%C, &
         aux(1:8), & !< Skip SCFs
-        lEx%degT%cov, lEx%degT%dcov(1:9)
-    ix = strCharIndex(dataline, ',', 250)
+        lEx%degT%cov, lEx%degT%dcov(1:9), &
+        lEx%spikes(u:gas4)
+    ix = strCharIndex(dataline, ',', 258)
     dataline = dataline(ix+1: len_trim(dataline))
     
     !> Copy NREX chunk
