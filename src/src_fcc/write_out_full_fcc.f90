@@ -180,8 +180,12 @@ subroutine WriteOutFullFcc(lEx)
     end do
     do gas = ch4, gas4
         if(fcc_var_present(gas)) then
-            call WriteDatumFloat(lEx%Stor%of(gas) * 1d-3, datum, EddyProProj%err_label)
-            call AddDatum(dataline, datum, separator)
+            if (lEx%Stor%of(gas) /= error) then
+                call WriteDatumFloat(lEx%Stor%of(gas) * 1d-3, datum, EddyProProj%err_label)
+                call AddDatum(dataline, datum, separator)
+            else
+                call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+            end if 
         elseif(EddyProProj%fix_out_format) then
             call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
         end if
