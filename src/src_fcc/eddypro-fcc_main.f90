@@ -540,6 +540,7 @@ Program EddyproFCC
     close(ufnet_e)
     close(uaflx)
     close(umd)
+    close(uflxnt)
 
     write(*,*)
     write(*,*)
@@ -564,12 +565,12 @@ Program EddyproFCC
     end if
 
     !> Copy ".eddypro" file into output folder
-        call CopyFile(trim(adjustl(PrjPath)), &
-        trim(adjustl(Dir%main_out)) // 'processing' &
-        // Timestamp_FilePadding // '.eddypro')
+    call CopyFile(trim(adjustl(PrjPath)), &
+    trim(adjustl(Dir%main_out)) // 'processing' &
+    // Timestamp_FilePadding // '.eddypro')
 
 
-        write(*, '(a)') ''
+    write(*, '(a)') ''
     write(*, '(a)') ' ****************************************************'
     write(*, '(a)') ' Program EddyPro executed gracefully.'
     write(*, '(a)') ' Check results in the selected output directory.     '
