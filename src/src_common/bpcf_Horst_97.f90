@@ -22,7 +22,7 @@
 !***************************************************************************
 !
 ! \brief       Calculates spectral correction factors based on the procedure \n
-!              described in Horst, 1997, Boundary-Layer Meteorology 82: 219–233, 1997. \n
+!              described in Horst, 1997, Boundary-Layer Meteorology 82: 219-233, 1997. \n
 !              Based on  analytical cospectra and \n
 !              analytical transfer functions, parameterized in-situ.
 ! \author      Gerardo Fratini
