@@ -1,7 +1,6 @@
 !***************************************************************************
 ! m_levenberg_marquardt.f90
 ! -------------------------
-!
 ! \brief       MINPACK routines which are used by both LMDIF & LMDER
 ! \author      A. Miller (amiller@bigpond.net.au)
 ! \note        MINPACK License: 

@@ -1,7 +1,6 @@
 !***************************************************************************
 ! m_libdate.f90
 ! -------------
-!
 ! \brief       Introduces a new variable type: DateType and an operator + to add two of such variables.
 ! \author      Dr. Arjan van Dijk (Arjan.van.Dijk@rivm.nl, http://www.rivm.nl/) for:
 !              LSO   Laboratory for Radiation Research
