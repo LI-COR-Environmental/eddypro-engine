@@ -183,21 +183,17 @@ end subroutine median
 ! End User License Agreement). The licenses and/or notices for the 
 ! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
 !
-!
-!
 ! EddyPro® is distributed in the hope that it will be useful,
 ! but WITHOUT ANY WARRANTY; without even the implied warranty of
 ! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 !
-!
-!
 !***************************************************************************
 !
-! \brief       Find the median of vec(1), ... , vec(n), using as much of the
-!              quicksort algorithm as is needed to isolate it.
 ! \ brief      Calculate Quartiles using SAS Method 5
-!              This method is the default method of SAS and is based on the empirical distribution function. 
-!              Based on discussion in this paper http://www.haiweb.org/medicineprices/manual/quartiles_iTSS.pdf
+!              This method is the default method of SAS and is based on the 
+!              empirical distribution function. 
+!              Based on discussion in this paper 
+!              http://www.haiweb.org/medicineprices/manual/quartiles_iTSS.pdf
 ! \author      Patched by Gerardo Fratini from original code
 !              available in the public domain at:
 !              http://fortranwiki.org/fortran/show/Quartiles
@@ -214,7 +210,8 @@ double precision function quantile_sas5(x, N, qin)
     implicit none
     integer, intent(in) :: N
     !> In/out variables
-    real(kind = dbl), intent(in) :: x(N)
+    ! real(kind = dbl), intent(in) :: x(N)
+    real(kind = dbl), intent(inout) :: x(N)
     real(kind = dbl), intent(in) :: qin
     !> Local variables
     real(kind = dbl) :: xx(N)
@@ -229,7 +226,14 @@ double precision function quantile_sas5(x, N, qin)
     c = a - b
 
     !> Sort array
-    call sort(x, size(x), xx)
+
+    !> This works on Mac but not Win (gfortran issue?)
+    ! call sort(x, size(x), xx)
+
+    !> This works on Mac and Win
+    call HPSORT(size(x), x)
+    xx = x
+
     !> Find quantile qin
     ib = int(c)
     diff = b - 0d0
