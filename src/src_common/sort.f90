@@ -175,10 +175,11 @@ subroutine HPSORT(N, RA)
     implicit none
 
     !> In/out variables
+    integer, intent(in) :: N
     real(kind=dbl), intent(inout) :: RA(N)
     !> Local variables
     real(kind=dbl)  :: RRA
-    integer :: L
+    integer :: I, J, L
     integer :: IR
 
 
