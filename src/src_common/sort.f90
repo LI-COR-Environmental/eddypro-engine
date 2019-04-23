@@ -170,49 +170,50 @@ end subroutine D_inssor
 
 
 
-SUBROUTINE HPSORT(N, RA)
-
+subroutine HPSORT(N, RA)
     use m_numeric_kinds
+    implicit none
+
     !> In/out variables
     real(kind=dbl), intent(inout) :: RA(N)
     !> Local variables
     real(kind=dbl)  :: RRA
-    integer :: L, IR
+    integer :: L
+    integer :: IR
 
 
-    L=N/2+1
-    IR=N
-    !The index L will be decremented from its initial value during the
-    !"hiring" (heap creation) phase. Once it reaches 1, the index IR 
-    !will be decremented from its initial value down to 1 during the
-    !"retirement-and-promotion" (heap selection) phase.
+    L = N/2 + 1
+    IR = N
+
   10 continue
-    if(L > 1)then
-      L=L-1
-      RRA=RA(L)
+    if (L > 1) then
+      L = L - 1
+      RRA = RA(L)
     else
-      RRA=RA(IR)
-      RA(IR)=RA(1)
-      IR=IR-1
-      if(IR.eq.1)then
-        RA(1)=RRA
+      RRA = RA(IR)
+      RA(IR) = RA(1)
+      IR = IR - 1
+      if (IR .eq. 1) then
+        RA(1) = RRA
         return
       end if
     end if
-    I=L
-    J=L+L
-  20 if(J.le.IR)then
-    if(J < IR)then
-      if(RA(J) < RA(J+1))  J=J+1
+    I = L
+    J = L + L
+
+  20 if (J .le. IR) then
+    if (J < IR) then
+      if (RA(J) < RA(J+1)) J = J + 1
     end if
-    if(RRA < RA(J))then
-      RA(I)=RA(J)
-      I=J; J=J+J
+    if (RRA < RA(J)) then
+      RA(I) = RA(J)
+      I = J
+      J = J + J
     else
-      J=IR+1
+      J = IR + 1
     end if
     goto 20
-    end if
-    RA(I)=RRA
-    goto 10
-  END
+  end if
+  RA(I) = RRA
+  goto 10
+end subroutine HPSORT
