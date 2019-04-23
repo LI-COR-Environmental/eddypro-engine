@@ -631,7 +631,9 @@ subroutine QuantileNoError(Set, nrow, ncol, Quantile, qin, err_float)
                     x(cnt) = Set(i, j)
                 end if
             end do
-            Quantile(j) = quantile_sas5(x, size(x), qin)
+            if (size(x) > 0) then
+                Quantile(j) = quantile_sas5(x, size(x), qin)
+            end if
             deallocate(x)
         end if
     end do
