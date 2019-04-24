@@ -410,8 +410,8 @@ subroutine CompleteEssentials(lEx)
     lEx%daytime = lEx%nighttime_int == 0
 
     !> Legacy values to be later replaced with newer (left-hand sides) *********
-    lEx%file_records = lEx%nr(1)
-    lEx%used_records = lEx%nr(3)
+    lEx%file_records = lEx%nr_files
+    lEx%used_records = lEx%nr_after_wdf
     lEx%tlag = lEx%used_tlag
     lEx%def_tlag = lEx%used_tlag == lEx%nom_tlag
     do var = u, gas4
