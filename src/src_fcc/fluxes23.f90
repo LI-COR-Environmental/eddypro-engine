@@ -417,46 +417,25 @@ subroutine Fluxes23(lEx)
         end select
     else
         !> Level 2, WPL for open path implemented after e.g. Burba et al. (2008, GCB, eq. 1)
-        if(lEx%instr(ico2)%model(1:len_trim(lEx%instr(ico2)%model) - 2)  == 'li7500') then
-            if (Flux1%co2 /= error .and. Flux3%H /= error .and. Flux3%E /= error &
-                .and. lEx%RHO%d > 0d0 .and. lEx%RhoCp > 0d0 .and. lEx%Ta > 0d0 .and. lEx%sigma /= error) then
-                Flux2%co2 = Flux1%co2 + mu * Flux3%E * lEx%d(co2) * 1d3 &
-                    / ((1d0 + mu * lEx%sigma) * lEx%RHO%d) &
-                    + (Flux3%H + lEx%Burba%h_top + lEx%Burba%h_bot + lEx%Burba%h_spar) * lEx%d(co2) * 1d3 &
-                    / (lEx%RhoCp * lEx%Ta)
-            elseif(Flux1%co2 /= error .and. Flux3%H /= error &
-                .and. lEx%RhoCp > 0d0 .and. lEx%Ta > 0d0) then
-                Flux2%co2 = Flux1%co2 &
-                    + (Flux3%H + lEx%Burba%h_top + lEx%Burba%h_bot + lEx%Burba%h_spar) * lEx%d(co2) * 1d3 &
-                    / (lEx%RhoCp * lEx%Ta)
-            elseif(Flux1%co2 /= error .and. Flux3%E /= error &
-                .and. lEx%RHO%d > 0d0 .and. lEx%sigma /= error) then
-                Flux2%co2 = Flux1%co2 &
-                    + mu * Flux3%E * lEx%d(co2) * 1d3 / ((1d0 + mu * lEx%sigma) * lEx%RHO%d)
-            elseif(Flux1%co2 /= error) then
-                Flux2%co2 = Flux1%co2
-            else
-                Flux2%co2 = error
-            end if
+        if (Flux1%co2 /= error .and. Flux3%H /= error .and. Flux3%E /= error &
+            .and. lEx%RHO%d > 0d0 .and. lEx%RhoCp > 0d0 .and. lEx%Ta > 0d0 .and. lEx%sigma /= error) then
+            Flux2%co2 = Flux1%co2 + mu * Flux3%E * lEx%d(co2) * 1d3 &
+                / ((1d0 + mu * lEx%sigma) * lEx%RHO%d) &
+                + (Flux3%H + lEx%Burba%h_top + lEx%Burba%h_bot + lEx%Burba%h_spar) * lEx%d(co2) * 1d3 &
+                / (lEx%RhoCp * lEx%Ta)
+        elseif(Flux1%co2 /= error .and. Flux3%H /= error &
+            .and. lEx%RhoCp > 0d0 .and. lEx%Ta > 0d0) then
+            Flux2%co2 = Flux1%co2 &
+                + (Flux3%H + lEx%Burba%h_top + lEx%Burba%h_bot + lEx%Burba%h_spar) * lEx%d(co2) * 1d3 &
+                / (lEx%RhoCp * lEx%Ta)
+        elseif(Flux1%co2 /= error .and. Flux3%E /= error &
+            .and. lEx%RHO%d > 0d0 .and. lEx%sigma /= error) then
+            Flux2%co2 = Flux1%co2 &
+                + mu * Flux3%E * lEx%d(co2) * 1d3 / ((1d0 + mu * lEx%sigma) * lEx%RHO%d)
+        elseif(Flux1%co2 /= error) then
+            Flux2%co2 = Flux1%co2
         else
-            if (Flux1%co2 /= error .and. Flux3%H /= error .and. Flux3%E /= error &
-                .and. lEx%RHO%d > 0d0 .and. lEx%RhoCp > 0d0 .and. lEx%Ta > 0d0 .and. lEx%sigma /= error) then
-                Flux2%co2 = Flux1%co2 &
-                    + mu * Flux3%E * lEx%d(co2) * 1d3 / ((1d0 + mu * lEx%sigma) * lEx%RHO%d) &
-                    + Flux3%H * lEx%d(co2) * 1d3 / (lEx%RhoCp * lEx%Ta)
-            elseif(Flux1%co2 /= error .and. Flux3%H /= error &
-                .and. lEx%RhoCp > 0d0 .and. lEx%Ta > 0d0) then
-                Flux2%co2 = Flux1%co2 &
-                    + Flux3%H * lEx%d(co2) * 1d3 / (lEx%RhoCp * lEx%Ta)
-            elseif(Flux1%co2 /= error .and. Flux3%E /= error &
-                .and. lEx%RHO%d > 0d0 .and. lEx%sigma /= error) then
-                Flux2%co2 = Flux1%co2 &
-                    + mu * Flux3%E * lEx%d(co2) * 1d3 / ((1d0 + mu * lEx%sigma) * lEx%RHO%d)
-            elseif(Flux1%co2 /= error) then
-                Flux2%co2 = Flux1%co2
-            else
-                Flux2%co2 = error
-            end if
+            Flux2%co2 = error
         end if
     end if
     if (.not. lEx%var_present(co2)) Flux2%co2 = error

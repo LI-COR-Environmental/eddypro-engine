@@ -417,46 +417,25 @@ subroutine Fluxes23_rp()
         end select
     else
         !> Level 2, WPL for open path implemented after e.g. Burba et al. (2008, GCB, eq. 1)
-        if(index(E2Col(co2)%Instr%model, 'li7500') /= 0) then
-            if (Flux1%co2 /= error .and. Flux3%H /= error .and. Flux3%E /= error &
-                .and. RHO%d > 0 .and. Ambient%RhoCp > 0 .and. Ambient%Ta > 0d0 .and. Ambient%sigma /= error) then
-                Flux2%co2 = Flux1%co2 + mu * Flux3%E * Stats%d(co2) * 1d3 &
-                    / ((1d0 + mu * Ambient%sigma) * RHO%d) &
-                    + (Flux3%H + Burba%h_top + Burba%h_bot + Burba%h_spar) * Stats%d(co2) * 1d3 &
-                    / (Ambient%RhoCp * Ambient%Ta)
-            elseif(Flux1%co2 /= error .and. Flux3%H /= error &
-                .and. Ambient%RhoCp >0 .and. Ambient%Ta > 0d0) then
-                Flux2%co2 = Flux1%co2 &
-                    + (Flux3%H + Burba%h_top + Burba%h_bot + Burba%h_spar) * Stats%d(co2) * 1d3 &
-                    / (Ambient%RhoCp * Ambient%Ta)
-            elseif(Flux1%co2 /= error .and. Flux3%E /= error &
-                .and. RHO%d > 0d0 .and. Ambient%sigma /= error) then
-                Flux2%co2 = Flux1%co2 &
-                    + mu * Flux3%E * Stats%d(co2) * 1d3 / ((1d0 + mu * Ambient%sigma) * RHO%d)
-            elseif(Flux1%co2 /= error) then
-                Flux2%co2 = Flux1%co2
-            else
-                Flux2%co2 = error
-            end if
+        if (Flux1%co2 /= error .and. Flux3%H /= error .and. Flux3%E /= error &
+            .and. RHO%d > 0 .and. Ambient%RhoCp > 0 .and. Ambient%Ta > 0d0 .and. Ambient%sigma /= error) then
+            Flux2%co2 = Flux1%co2 + mu * Flux3%E * Stats%d(co2) * 1d3 &
+                / ((1d0 + mu * Ambient%sigma) * RHO%d) &
+                + (Flux3%H + Burba%h_top + Burba%h_bot + Burba%h_spar) * Stats%d(co2) * 1d3 &
+                / (Ambient%RhoCp * Ambient%Ta)
+        elseif(Flux1%co2 /= error .and. Flux3%H /= error &
+            .and. Ambient%RhoCp >0 .and. Ambient%Ta > 0d0) then
+            Flux2%co2 = Flux1%co2 &
+                + (Flux3%H + Burba%h_top + Burba%h_bot + Burba%h_spar) * Stats%d(co2) * 1d3 &
+                / (Ambient%RhoCp * Ambient%Ta)
+        elseif(Flux1%co2 /= error .and. Flux3%E /= error &
+            .and. RHO%d > 0d0 .and. Ambient%sigma /= error) then
+            Flux2%co2 = Flux1%co2 &
+                + mu * Flux3%E * Stats%d(co2) * 1d3 / ((1d0 + mu * Ambient%sigma) * RHO%d)
+        elseif(Flux1%co2 /= error) then
+            Flux2%co2 = Flux1%co2
         else
-            if (Flux1%co2 /= error .and. Flux3%H /= error .and. Flux3%E /= error &
-                .and. RHO%d > 0d0 .and. Ambient%RhoCp > 0d0 .and. Ambient%Ta > 0d0 .and. Ambient%sigma /= error) then
-                Flux2%co2 = Flux1%co2 &
-                    + mu * Flux3%E * Stats%d(co2) * 1d3 / ((1d0 + mu * Ambient%sigma) * RHO%d) &
-                    + Flux3%H * Stats%d(co2) * 1d3 / (Ambient%RhoCp * Ambient%Ta)
-            elseif(Flux1%co2 /= error .and. Flux3%H /= error &
-                .and. Ambient%RhoCp > 0d0 .and. Ambient%Ta > 0d0) then
-                Flux2%co2 = Flux1%co2 &
-                    + Flux3%H * Stats%d(co2) * 1d3 / (Ambient%RhoCp * Ambient%Ta)
-            elseif(Flux1%co2 /= error .and. Flux3%E /= error &
-                .and. RHO%d > 0d0 .and. Ambient%sigma /= error) then
-                Flux2%co2 = Flux1%co2 &
-                    + mu * Flux3%E * Stats%d(co2) * 1d3 / ((1d0 + mu * Ambient%sigma) * RHO%d)
-            elseif(Flux1%co2 /= error) then
-                Flux2%co2 = Flux1%co2
-            else
-                Flux2%co2 = error
-            end if
+            Flux2%co2 = error
         end if
     end if
     if (.not. E2Col(co2)%present) Flux2%co2 = error
