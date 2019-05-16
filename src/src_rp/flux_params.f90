@@ -54,8 +54,10 @@ subroutine FluxParams(printout)
     Ambient%alpha = 0.51d0
 
     !> Water vapour partial pressure at saturation [Pa]
-    !> (this formula gives same results as that in Buck (1981),
-    !> cited in Campbell and Norman (1998) - Environmental Biophysics
+    !> (this formula gives same results as that in Buck (1986)
+    !> Buck (1996), Buck Research CR-1A User's Manual, Appendix 1
+    !> Ambient%es = 611.21 * np.exp( (18.678 - T / 234.5) * (T / (257.14 + T)) )
+    !> Where T is in Celsius!
     if (Stats%T > 0d0) then
         Ambient%es = (dexp(77.345d0 + 0.0057d0 * Stats%T &
                       - 7235.d0 / Stats%T)) / Stats%T**(8.2d0)
