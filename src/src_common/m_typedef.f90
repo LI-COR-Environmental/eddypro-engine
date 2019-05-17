@@ -64,7 +64,7 @@ module m_typedef
     integer, parameter :: FilenameLen = 256
     integer, parameter :: LongInstringLen = 8192
     integer, parameter :: ShortInstringLen = 1024
-    integer, parameter :: LongOutstringLen = 8192
+    integer, parameter :: LongOutstringLen = 16348
 
     integer, parameter :: iniLabelLen = 64
     integer, parameter :: iniValueLen = PathLen
