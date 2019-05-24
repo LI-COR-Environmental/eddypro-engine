@@ -552,7 +552,7 @@ subroutine BiometParseRow(row, tstamp, vals, ncol, skip_row)
     logical, intent(out) :: skip_row
     character(*), intent(inout) :: row
     !> Local variables
-    integer :: jj, cnt
+    integer :: jj, cnt, io_status
     character(64) :: tsString
     character(32) :: item
     character(1)  :: sepa
@@ -606,7 +606,8 @@ subroutine BiometParseRow(row, tstamp, vals, ncol, skip_row)
             tsString = trim(tsString) // trim(item)
         else
             cnt = cnt + 1
-            read(item, *) vals(cnt)
+            read(item, *, iostat=io_status) vals(cnt)
+            if (io_status /= 0) vals(cnt) = error
         end if
     end do
 
