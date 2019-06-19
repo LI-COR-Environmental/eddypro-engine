@@ -3,18 +3,20 @@
 # Author: Gerardo Fratini, LI-COR Biosciences
 #
 
-#Portability
-ifdef ComSpec
+#Portabilityn
+#ifdef ComSpec
+ifeq ($(OS), Windows_NT)
 	#Windows
+	INFO = Compiling for Windows 64bit
 	RM = if exist FILE del /F /Q FILE
 	MV = if exist FILE move FILE DESTINATION
 	RP_EXE = eddypro_rp.exe
 	FCC_EXE = eddypro_fcc.exe
 	OS_DIR = win
-	FC = mingw32-gfortran.exe
+	FC = gfortran.exe
 	MAKE_DIR = if not exist DIR mkdir DIR
 	PATHSEP2 = \\
-	LFLAGS = -static
+	LDFLAGS = -shared-libgcc
 else
 	#Unix
 	RM = rm -f FILE
@@ -27,11 +29,14 @@ else
 	platform=$(shell uname)
 	ifeq ($(platform), Linux)
 		OS_DIR = linux
+		INFO = Compiling for Linux
 	else
 		OS_DIR = mac
+		INFO = Compiling for Mac OS
 	endif
-	LFLAGS =
+	LDLAGS = -shared-libgcc
 endif
+
 PATHSEP=$(strip $(PATHSEP2))
 
 #Dirs as seen by Make
@@ -75,24 +80,26 @@ FCC_OBJS_f90d1=$(patsubst %.f90, %.o, $(FCC_SRCS_f90d1))
 COMMON_OBJS_f90d1=$(patsubst %.f90, %.o, $(COMMON_SRCS_f90d1))
 
 #CFLAGS = -ffpe-trap=invalid,zero -Wall -pedantic -fall-intrinsics -fbounds-check -Wextra -Wcharacter-truncation -Wunderflow -Wno-compare-reals -std=f2003 -O3 -I $(OBJS_DIR)
-# CFLAGS = -g -fcheck=all -Wall -pedantic -fall-intrinsics -fbounds-check -Wextra -Wcharacter-truncation -Wunderflow -Wno-compare-reals -std=f2003 -O3 -I $(OBJS_DIR)
-CFLAGS = -Wall -pedantic -fall-intrinsics -fbounds-check -Wextra -Wcharacter-truncation -Wunderflow -Wno-compare-reals -std=f2003 -O3 -I $(OBJS_DIR)
+#CFLAGS = -g -fcheck=all -Wall -pedantic -fall-intrinsics -fbounds-check -Wextra -Wcharacter-truncation -Wunderflow -Wno-compare-reals -std=f2003 -O3 -I $(OBJS_DIR)
+CFLAGS = -Wall -pedantic -fall-intrinsics -fbounds-check -Wextra -Wcharacter-truncation -Wunderflow -Wno-compare-reals -std=f2008 -O3 -I $(OBJS_DIR)
 
 VPATH = $(RP_SRC_DIR_f90d1):$(RP_SRC_DIR_Fd2):$(FCC_SRC_DIR_f90d1):$(COMMON_SRC_DIR_f90d1):$(OBJS_DIR)
 RP_OBJS = $(addprefix $(OBJS_DIR), $(RP_OBJS_f90d1) $(RP_OBJS_Fd2)$(COMMON_OBJS_f90d1))
 FCC_OBJS = $(addprefix $(OBJS_DIR), $(FCC_OBJS_f90d1) $(COMMON_OBJS_f90d1))
+
+$(info $(INFO))
 
 #Targets
 all : rp fcc
 
 rp : $(RP_OBJS_f90d1) $(RP_OBJS_Fd2) $(COMMON_OBJS_f90d1)
 	@$(subst DIR,$(OS_EXE_DIR),$(MAKE_DIR))
-	$(FC) $(LFLAGS) -o $(EXE_DIR)$(RP_EXE) $(RP_OBJS)
+	$(FC) $(LDFLAGS) -o $(EXE_DIR)$(RP_EXE) $(RP_OBJS)
 	@$(subst DESTINATION, $(OS_OBJS_DIR), $(subst FILE, *.mod, $(MV)))
 
 fcc : $(FCC_OBJS_f90d1) $(COMMON_OBJS_f90d1)
 	@$(subst DIR,$(OS_EXE_DIR),$(MAKE_DIR))
-	$(FC) $(LFLAGS) -o $(EXE_DIR)$(FCC_EXE) $(FCC_OBJS)
+	$(FC) $(LDFLAGS) -o $(EXE_DIR)$(FCC_EXE) $(FCC_OBJS)
 	@$(subst DESTINATION, $(OS_OBJS_DIR), $(subst FILE, *.mod, $(MV)))
 
 #Compilation
@@ -112,13 +119,13 @@ $(COMMON_OBJS_f90d1):
 	@$(subst DIR,$(OS_OBJS_DIR),$(MAKE_DIR))
 	$(FC) $(CFLAGS) -c $(COMMON_SRC_DIR_f90d1)$(@:.o=.f90) -o $(OBJS_DIR)$@
 
-clean_all: clean_rp clean_fcc
+clean_all : clean_rp clean_fcc
 
-clean_rp:
+clean_rp :
 	@$(subst FILE, $(OS_OBJS_DIR)*, $(RM))
 	@$(subst FILE, $(OS_EXE_DIR)$(RP_EXE), $(RM))
 
-clean_fcc:
+clean_fcc :
 	@$(subst FILE, $(OS_OBJS_DIR)*, $(RM))
 	@$(subst FILE, $(OS_EXE_DIR)$(FCC_EXE), $(RM))
 
@@ -162,6 +169,12 @@ first_file_of_current_period.o: \
 interpret_diagnostics.o: \
 	interpret_diagnostics.f90 \
 	m_rp_global_var.o
+kid.o: \
+	kid.f90 \
+	m_rp_global_var.o
+fisher.o: \
+	fisher.f90 \
+	m_rp_global_var.o
 parse_ini_file.o: \
 	parse_ini_file.f90 \
 	m_common_global_var.o
@@ -170,6 +183,9 @@ basic_stats.o: \
 	m_common_global_var.o
 timelag_handle.o: \
 	timelag_handle.f90 \
+	m_rp_global_var.o
+count_records_and_values.o: \
+	count_records_and_values.f90 \
 	m_common_global_var.o
 wind_sector.o: \
 	wind_sector.f90 \
@@ -191,6 +207,12 @@ ts_extract_subperiod_indexes.o: \
 	m_common_global_var.o
 write_out_biomet.o: \
 	write_out_biomet.f90 \
+	m_rp_global_var.o
+write_out_fluxnet.o: \
+	write_out_fluxnet.f90 \
+	m_rp_global_var.o
+write_out_fluxnet_only_biomet.o: \
+	write_out_fluxnet_only_biomet.f90 \
 	m_rp_global_var.o
 out_raw_data.o: \
 	out_raw_data.f90 \
@@ -290,11 +312,17 @@ retrieve_dynamic_metadata.o: \
 change_24_into_00.o: \
 	change_24_into_00.f90 \
 	m_common_global_var.o
-filter_data_for_diagnostics.o: \
-	filter_data_for_diagnostics.f90 \
+filter_dataset_for_diagnostics.o: \
+	filter_dataset_for_diagnostics.f90 \
+	m_rp_global_var.o
+filter_dataset_for_wind_direction.o: \
+	filter_dataset_for_wind_direction.f90 \
 	m_rp_global_var.o
 inform_of_metadata_problem.o: \
 	inform_of_metadata_problem.f90 \
+	m_common_global_var.o
+configure_for_fluxnet.o: \
+	configure_for_fluxnet.f90 \
 	m_common_global_var.o
 aoa_calibration.o: \
 	aoa_calibration.f90 \
@@ -305,8 +333,8 @@ set_licor_diagnostics.o: \
 copy_file.o: \
 	copy_file.f90 \
 	m_common_global_var.o
-filter_raw_data_by_flags.o: \
-	filter_raw_data_by_flags.f90 \
+filter_dataset_for_flags.o: \
+	filter_dataset_for_flags.f90 \
 	m_rp_global_var.o
 init_env.o: \
 	init_env.f90 \
@@ -386,8 +414,7 @@ test_higher_moments.o: \
 	m_rp_global_var.o
 dir_sub.o: \
 	dir_sub.f90 \
-	m_common_global_var.o \
-	m_typedef.o
+	m_common_global_var.o
 init_external_biomet.o: \
 	init_external_biomet.f90 \
 	m_rp_global_var.o
@@ -447,9 +474,6 @@ planar_fit_aux_params.o: \
 timestamp.o: \
 	timestamp.f90 \
 	m_numeric_kinds.o
-write_out_ameriflux_rp.o: \
-	write_out_ameriflux_rp.f90 \
-	m_rp_global_var.o
 fourier_transform.o: \
 	fourier_transform.f90 \
 	m_rp_global_var.o
@@ -480,8 +504,11 @@ potential_radiation.o: \
 user_basic_stats.o: \
 	user_basic_stats.f90 \
 	m_common_global_var.o
-write_output_files_rp.o: \
-	write_output_files_rp.f90 \
+write_out_full.o: \
+	write_out_full.f90 \
+	m_rp_global_var.o
+write_out_metadata.o: \
+	write_out_metadata.f90 \
 	m_rp_global_var.o
 power_of_two.o: \
 	power_of_two.f90
@@ -570,8 +597,8 @@ retrieve_sensor_params.o: \
 configure_for_embedded.o: \
 	configure_for_embedded.f90 \
 	m_common_global_var.o
-filter_for_physical_thresholds.o: \
-	filter_for_physical_thresholds.f90 \
+filter_dataset_for_physical_thresholds.o: \
+	filter_dataset_for_physical_thresholds.f90 \
 	m_rp_global_var.o
 init_continuous_dataset.o: \
 	init_continuous_dataset.f90 \
@@ -663,17 +690,26 @@ default_vars_selection.o: \
 set_os_environment.o: \
 	set_os_environment.f90 \
 	m_common_global_var.o
+define_vars.o: \
+	define_vars.f90 \
+	m_rp_global_var.o
 test_non_steady_wind.o: \
 	test_non_steady_wind.f90 \
 	m_rp_global_var.o
 edit_ini_file.o: \
 	edit_ini_file.f90 \
 	m_common_global_var.o
+init_fluxnet_file_rp.o: \
+	init_fluxnet_file_rp.f90 \
+	m_rp_global_var.o
 init_outfiles_rp.o: \
 	init_outfiles_rp.f90 \
 	m_rp_global_var.o
 median.o: \
 	median.f90 \
+	m_common_global_var.o
+sort.o: \
+	sort.f90 \
 	m_common_global_var.o
 despike_user_set.o: \
 	despike_user_set.f90 \
@@ -773,8 +809,8 @@ read_binned_file.o: \
 ts_extract_subperiod_indexes_from_filelist.o: \
 	ts_extract_subperiod_indexes_from_filelist.f90 \
 	m_common_global_var.o
-read_fx_ini.o: \
-	read_fx_ini.f90 \
+read_ini_fcc.o: \
+	read_ini_fcc.f90 \
 	m_fx_global_var_mod.o
 kaimal_models.o: \
 	kaimal_models.f90 \
@@ -791,14 +827,17 @@ spectra_sorting_and_averaging.o: \
 subtract_high_freq_noise.o: \
 	subtract_high_freq_noise.f90 \
 	m_fx_global_var_mod.o
-write_ameriflux_output.o: \
-	write_ameriflux_output.f90 \
-	m_fx_global_var_mod.o
 report_imported_spectra.o: \
 	report_imported_spectra.f90 \
 	m_fx_global_var_mod.o
 m_levenberg_marquardt.o: \
 	m_levenberg_marquardt.f90
-write_output_files_fcc.o: \
-	write_output_files_fcc.f90 \
+write_out_fluxnet_fcc.o: \
+	write_out_fluxnet_fcc.f90 \
+	m_fx_global_var_mod.o
+write_out_full_fcc.o: \
+	write_out_full_fcc.f90 \
+	m_fx_global_var_mod.o
+write_out_metadata_fcc.o: \
+	write_out_metadata_fcc.f90 \
 	m_fx_global_var_mod.o

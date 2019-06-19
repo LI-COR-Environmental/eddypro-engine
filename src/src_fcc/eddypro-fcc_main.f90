@@ -2,22 +2,30 @@
 ! eddypro-fcc_main.f90
 ! --------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2015, LI-COR Biosciences
+! Copyright (C) 2011-2019, LI-COR Biosciences, Inc.  All Rights Reserved.
+! Author: Gerardo Fratini
 !
-! This file is part of EddyPro (TM).
+! This file is part of EddyPro®.
 !
-! EddyPro (TM) is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
+! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for 
+! non-commercial academic and government research purposes only, 
+! as provided in the EDDYPRO® End User License Agreement. 
+! EDDYPRO® may only be used as provided in the End User License Agreement
+! and may not be used or accessed for any commercial purposes.
+! You may view a copy of the End User License Agreement in the file
+! EULA_NON_COMMERCIAL.rtf.
 !
-! EddyPro (TM) is distributed in the hope that it will be useful,
+! Commercial companies that are LI-COR flux system customers 
+! are encouraged to contact LI-COR directly for our commercial 
+! EDDYPRO® End User License Agreement.
+!
+! EDDYPRO® contains Open Source Components (as defined in the 
+! End User License Agreement). The licenses and/or notices for the 
+! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
+!
+! EddyPro® is distributed in the hope that it will be useful,
 ! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 !
 !***************************************************************************
 Program EddyproFCC
@@ -77,7 +85,7 @@ Program EddyproFCC
     type(InstrumentType) :: AuxInstrument(GHGNumVar)
     type(QCType) :: StDiff
     type(QCType) :: DtDiff
-    type(EXType) :: lEx
+    type(ExType) :: lEx
 
     !> Allocatable variabled
     type(DateType), allocatable :: exTimeSeries(:)
@@ -101,11 +109,14 @@ Program EddyproFCC
     write(*, '(a)')
     call InitEnv()
 
+    !> By detault, create FLUXNET output
+    EddyProProj%out_fluxnet = .true.
+
     write(*, '(a)') 'Starting flux computation and correction session..'
     write(*, '(a)')
 
     !> Read ".eddypro" file for both spectral analysis and flux correction
-    call ReadIniFX('FluxCorrection')
+    call ReadIniFCC('FluxCorrection')
 
     !> Add run-mode tag to Timestamp_FilePadding
     call TagRunMode()
@@ -114,9 +125,13 @@ Program EddyproFCC
     if (EddyProProj%run_env == 'embedded') &
         call ConfigureForEmbedded('EddyPro-FCC')
 
+    if (EddyProProj%fluxnet_mode) call ConfigureForFluxnet()
+
     !> Preliminarily read essential files and retrieve a few information
     call InitExVars(exStartTimestamp, exEndTimestamp, &
         NumExRecords, NumValidExRecords)
+
+    call ReadExRecord(AuxFile%ex, udf, 1, lEx, ValidRecord, EndOfFileReached)
 
     !> If no good records are found stop execution
     if (NumValidExRecords <= 0) call ExceptionHandler(61)
@@ -124,6 +139,7 @@ Program EddyproFCC
     !> Retrieve NumberOfPeriods and allocate exTimeSeries
     NumberOfPeriods = NumOfPeriods(exStartTimestamp, exEndTimestamp, DateStep)
     allocate(exTimeSeries(NumberOfPeriods + 1))
+
     call CreateTimeSeries(exStartTimestamp, exEndTimestamp, &
         DateStep, exTimeSeries, size(exTimeSeries), .true.)
 
@@ -312,7 +328,7 @@ Program EddyproFCC
                 month = BinnedFileList(fcount)%timestamp%Month
                 day   = BinnedFileList(fcount)%timestamp%Day
                 call DisplayProgress('daily', &
-                    '  Importing binned spectra for ', &
+                    '  Importing binned (co)spectra for ', &
                     BinnedFileList(fcount)%timestamp, 'yes')
             end if
 
@@ -362,11 +378,15 @@ Program EddyproFCC
 
                 !> Sort current cospectra in time slot classes
                 call CospectraSortingAndAveraging(BinCosp, size(BinCosp), &
-                    lEx%time, nbins)
+                    lEx%end_time, nbins)
             end if
         end do binned_loop
         close(uex)
         write(*,'(a)') '  Done.'
+
+        !> Write number of imported spectra and cospectra on stdout
+        if (EddyProProj%out_avrg_spec .or. FCCsetup%do_spectral_assessment) &
+            call ReportImportedSpectra(nbins)
 
         if (EddyProProj%out_avrg_cosp) then
             !> If cospectra were found for fitting, fit Massman model
@@ -405,10 +425,6 @@ Program EddyproFCC
             if (FCCsetup%SA%in_situ) call ReadSpectralAssessmentFile()
         end if
 
-        !> Write number of imported spectra and cospectra on stdout
-        if (EddyProProj%out_avrg_spec .or. FCCsetup%do_spectral_assessment) &
-            call ReportImportedSpectra(nbins)
-
         !> Write everything on output files
         call OutputSpectralAssessmentResults(nbins)
         write(*,'(a)')
@@ -428,6 +444,9 @@ Program EddyproFCC
     !***************************************************************************
     !***************************************************************************
 
+    !> Establish present variables
+    ! call EstablishPresentVariables()
+
     !> Open Ex file to keep it ready for reading
     !> and exit with error in case of problems opening the file
     open(uex, file = AuxFile%ex, status = 'old', iostat = open_status)
@@ -444,8 +463,8 @@ Program EddyproFCC
         call ReadExRecord('', uex, -1, lEx, ValidRecord, EndOfFileReached)
 
         !> Initialize presence of key variables for outputting results
-        if (InitializeOuputFiles) &
-            fcc_var_present(u:GHGNumVar) = lEx%var_present(u:GHGNumVar)
+        ! if (InitializeOuputFiles) &
+        !     fcc_var_present(u:GHGNumVar) = lEx%var_present(u:GHGNumVar)
 
         !> If end of file was reached, exit loop
         if (EndOfFileReached) exit ex_loop
@@ -454,7 +473,7 @@ Program EddyproFCC
         if (.not. ValidRecord) cycle ex_loop
 
         !> Retrieve timestamp
-        call DateTimeToDateType(lEx%date, lEx%time, CurrentTimestamp)
+        call DateTimeToDateType(lEx%end_date, lEx%end_time, CurrentTimestamp)
 
         !> If current timestamp is < start selected timestamp, cycle
         if (CurrentTimestamp < MasterTimeSeries(fxStartTimestampIndx)) &
@@ -465,7 +484,7 @@ Program EddyproFCC
             exit ex_loop
 
         !> Show advancement
-        call DateTimetoDOY(lEx%date, lEx%time, int_doy, float_doy)
+        call DateTimetoDOY(lEx%end_date, lEx%end_time, int_doy, float_doy)
         if (day /= CurrentTimestamp%day &
             .or. month /= CurrentTimestamp%month) then
             month = CurrentTimestamp%month
@@ -485,11 +504,10 @@ Program EddyproFCC
 
         !> Bad pass spectral correction factors
         call BandPassSpectralCorrections(lEx%instr(sonic)%height, &
-            lEx%disp_height, lEx%var_present, lEx%WS, lEx%Ta, lEx%zL, &
+            lEx%disp_height, lEx%var_present, lEx%WS, lEx%Ta, lEx%Flux0%zL, &
             lEx%ac_freq, nint(lEx%avrg_length), lEx%logger_swver, &
             lEx%det_meth, nint(lEx%det_timec), .false., AuxInstrument, &
             size(FullFileList), FullFileList, nrow_full, lEx, FCCsetup)
-
 
         !> Calculate fluxes at Level 1
         call Fluxes1(lEx)
@@ -497,24 +515,21 @@ Program EddyproFCC
         !> Calculate fluxes at Level 2 and Level 3
         call Fluxes23(lEx)
 
-        !> Calculate footprint estimation
-        if (Meth%foot(1:len_trim(Meth%foot)) /= 'none') then
-            call FootprintHandle(lEx%var(w), lEx%ustar, lEx%zL, lEx%WS, lEx%L, &
-                lEx%instr(sonic)%height, lEx%disp_height, lEx%rough_length)
-        else
-            Foot = errFootprint
-        end if
+        !> Calculate footprint estimation   
+        foot_model_used = Meth%foot(1:len_trim(Meth%foot))
+        call FootprintHandle(lEx%var(w), lEx%ustar, lEx%zL, lEx%WS, lEx%L, &
+            lEx%instr(sonic)%height, lEx%disp_height, lEx%rough_length)
 
         !> Calculate quality flags
-        StDiff%w_u    = nint(lEx%st_w_u)
-        StDiff%w_ts   = nint(lEx%st_w_ts)
-        StDiff%w_co2  = nint(lEx%st_w_co2)
-        StDiff%w_h2o  = nint(lEx%st_w_h2o)
-        StDiff%w_ch4  = nint(lEx%st_w_ch4)
-        StDiff%w_gas4 = nint(lEx%st_w_gas4)
-        DtDiff%u      = nint(lEx%dt_u)
-        DtDiff%w      = nint(lEx%dt_w)
-        DtDiff%ts     = nint(lEx%dt_ts)
+        StDiff%w_u    = nint(lEx%TAU_SS)
+        StDiff%w_ts   = nint(lEx%H_SS)
+        StDiff%w_co2  = nint(lEx%FC_SS)
+        StDiff%w_h2o  = nint(lEx%FH2O_SS)
+        StDiff%w_ch4  = nint(lEx%FCH4_SS)
+        StDiff%w_gas4 = nint(lEx%FGS4_SS)
+        DtDiff%u      = nint(lEx%U_ITC)
+        DtDiff%w      = nint(lEx%W_ITC)
+        DtDiff%ts     = nint(lEx%TS_ITC)
         call QualityFlags(Flux2, StDiff, DtDiff, STFlg, DTFlg, QCFlag, .false.)
 
         !> Initialize output files
@@ -523,17 +538,17 @@ Program EddyproFCC
             InitializeOuputFiles = .false.
         end if
 
-        !> Write results on output file
-        call WriteOutputFiles(lEx)
+        if (EddyProProj%out_full .and. .not. lEx%not_enough_data) call WriteOutFullFcc(lEx)
+        if (EddyProProj%out_md .and. .not. lEx%not_enough_data) call WriteOutMetadataFcc(lEx)
+        if (EddyProProj%out_fluxnet) call WriteOutFluxnetFcc(lEx)
 
-        !> Write AmeriFlux output if requested
-        if (EddyProProj%out_amflux) call WriteAmeriFluxOutput(lEx)
     end do ex_loop
     close(uex)
     close(uflx)
     close(ufnet_e)
     close(uaflx)
     close(umd)
+    close(uflxnt)
 
     write(*,*)
     write(*,*)
@@ -551,6 +566,17 @@ Program EddyproFCC
     if(EddyProProj%run_env == 'desktop') &
         del_status = system(trim(comm_rmdir) // ' "' &
         // trim(adjustl(TmpDir)) // '"')
+
+    !> Delete parent fluxnet file
+    if (.not. FCCsetup%keep_parent) then
+        call system(comm_del // '"' // trim(adjustl(AuxFile%ex)) // '"' // comm_err_redirect)
+    end if
+
+    !> Copy ".eddypro" file into output folder
+    call CopyFile(trim(adjustl(PrjPath)), &
+    trim(adjustl(Dir%main_out)) // 'processing' &
+    // Timestamp_FilePadding // '.eddypro')
+
 
     write(*, '(a)') ''
     write(*, '(a)') ' ****************************************************'

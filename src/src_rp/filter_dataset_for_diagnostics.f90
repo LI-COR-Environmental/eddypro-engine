@@ -1,22 +1,30 @@
 !***************************************************************************
-! filter_data_for_diagnostics.f90
-! -------------------------------
-! Copyright (C) 2011-2015, LI-COR Biosciences
+! filter_dataset_for_diagnostics.f90
+! ----------------------------------
+! Copyright (C) 2011-2019, LI-COR Biosciences, Inc.  All Rights Reserved.
+! Author: Gerardo Fratini
 !
-! This file is part of EddyPro (TM).
+! This file is part of EddyPro®.
 !
-! EddyPro (TM) is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
+! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for 
+! non-commercial academic and government research purposes only, 
+! as provided in the EDDYPRO® End User License Agreement. 
+! EDDYPRO® may only be used as provided in the End User License Agreement
+! and may not be used or accessed for any commercial purposes.
+! You may view a copy of the End User License Agreement in the file
+! EULA_NON_COMMERCIAL.rtf.
 !
-! EddyPro (TM) is distributed in the hope that it will be useful,
+! Commercial companies that are LI-COR flux system customers 
+! are encouraged to contact LI-COR directly for our commercial 
+! EDDYPRO® End User License Agreement.
+!
+! EDDYPRO® contains Open Source Components (as defined in the 
+! End User License Agreement). The licenses and/or notices for the 
+! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
+!
+! EddyPro® is distributed in the hope that it will be useful,
 ! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 !
 !***************************************************************************
 !
@@ -32,45 +40,61 @@
 !              whether to calculate flux or not or to switch to WPL
 !***************************************************************************
 subroutine FilterDatasetForDiagnostics(Set, nrow, ncol, DiagSet, dnrow, dncol, &
-    filter_for_diag_anem, filter_for_diag_irga)
+    lDiagAnemometer, filter_for_diag_irga)
     use m_rp_global_var
     !> in/out variables
     integer, intent(in) :: nrow, ncol
     integer, intent(in) :: dnrow, dncol
     real(kind = dbl), intent(in) :: DiagSet(dnrow, dncol)
     real(kind = dbl), intent(inout) :: Set(nrow, ncol)
-    logical, intent(in) :: filter_for_diag_anem
     logical, intent(in) :: filter_for_diag_irga
+    type(DiagAnemType), intent(in) :: lDiagAnemometer
     !> lcoal variables
     integer :: var
-!    logical :: mask(nrow)
+    logical :: mask(nrow)
 
 
-    !> Anemometer diagnostics
-    if (filter_for_diag_anem) then
+    Essentials%m_diag_anem = 0
+    Essentials%m_diag_irga = 0
+
+    !> Anemometer diagnostics (binary 0/1 flag)
+    if (lDiagAnemometer%binary_flag_present) then
         if (index(MasterSonic%model, 'wm') /= 0 &
             .or. index(MasterSonic%model, 'hs') /= 0) then
             !> Special case for some Gill sonics, for which values of 10 (0A) and
             !> 11 (0B) indicate good data
-            where (DiagSet(1:nrow, diagAnem) /= error &
-                .and. DiagSet(1:nrow, diagAnem) /= 0 &
-                .and. DiagSet(1:nrow, diagAnem) /= 10 &
-                .and. DiagSet(1:nrow, diagAnem) /= 11)
+            mask = DiagSet(1:nrow, diagAnem) /= error .and. DiagSet(1:nrow, diagAnem) /= 0 .and. &
+                           DiagSet(1:nrow, diagAnem) /= 10 .and. DiagSet(1:nrow, diagAnem) /= 11
+            Essentials%m_diag_anem = count(mask)
+            where (DiagSet(1:nrow, diagAnem) /= error .and. DiagSet(1:nrow, diagAnem) /= 0 .and. &
+                   DiagSet(1:nrow, diagAnem) /= 10 .and. DiagSet(1:nrow, diagAnem) /= 11)
                 Set(1:nrow, u) = error
                 Set(1:nrow, v) = error
                 Set(1:nrow, w) = error
                 Set(1:nrow, ts) = error
             endwhere
         else
+            mask = DiagSet(1:nrow, diagAnem) /= error .and. DiagSet(1:nrow, diagAnem) /= 0
+            Essentials%m_diag_anem = count(mask)
             !> Otherwise filter all data when flag is different from zero.
-            where (DiagSet(1:nrow, diagAnem) /= error &
-                .and. DiagSet(1:nrow, diagAnem) /= 0)
+            where (DiagSet(1:nrow, diagAnem) /= error .and. DiagSet(1:nrow, diagAnem) /= 0)
                 Set(1:nrow, u) = error
                 Set(1:nrow, v) = error
                 Set(1:nrow, w) = error
                 Set(1:nrow, ts) = error
             endwhere
         end if
+    end if
+    !> Anemometer diagnostics (StaA for some Gill models)
+    if (lDiagAnemometer%staa_present) then
+        mask = DiagSet(1:nrow, diagStaA) == 0
+        Essentials%m_diag_anem = Essentials%m_diag_anem + count(mask)
+        where (DiagSet(1:nrow, diagStaA) == 0)
+            Set(1:nrow, u) = error
+            Set(1:nrow, v) = error
+            Set(1:nrow, w) = error
+            Set(1:nrow, ts) = error
+        endwhere
     end if
 
     !> IRGA diagnostics
@@ -84,16 +108,20 @@ subroutine FilterDatasetForDiagnostics(Set, nrow, ncol, DiagSet, dnrow, dncol, &
                         do i = 1, nrow
                             if (DiagSet(i, diag72) /= error .and. &
                                 (ibits(nint(DiagSet(i, diag72)),  5, 4) < 15 .or. &
-                                ibits(nint(DiagSet(i, diag72)), 12, 1)  == 0)) &
+                                ibits(nint(DiagSet(i, diag72)), 12, 1)  == 0)) then
                                 Set(i, var) = error
+                                Essentials%m_diag_irga(var) = Essentials%m_diag_irga(var) + 1
+                            end if
                         end do
                     !> For LI-7500 flag is OK if = 1, so checks that all bits are
                     !> set to 1, which means 7 integer for three bits words and 15 for four bits words
                     elseif (index(E2Col(var)%instr%model, 'li7500') /= 0) then
                         do i = 1, nrow
                             if (DiagSet(i, diag75) /= error .and. &
-                                ibits(nint(DiagSet(i, diag75)),  5, 3) < 7) &
+                                ibits(nint(DiagSet(i, diag75)),  5, 3) < 7) then
                                 Set(i, var) = error
+                                Essentials%m_diag_irga(var) = Essentials%m_diag_irga(var) + 1
+                            end if
                         end do
                     !> For LI-7700 flag is OK if = 0, so checks that all bits are
                     !> set to 0, which means 0 integer for both 3 and 4 bits words
@@ -102,13 +130,19 @@ subroutine FilterDatasetForDiagnostics(Set, nrow, ncol, DiagSet, dnrow, dncol, &
                             if (DiagSet(i, diag77) /= error .and. &
                                 (ibits(nint(DiagSet(i, diag77)), 5, 1) /= 0 .or. &
                                 ibits(nint(DiagSet(i, diag77)),  8, 4) /= 0 .or. &
-                                ibits(nint(DiagSet(i, diag77)), 13, 3) /= 0)) &
+                                ibits(nint(DiagSet(i, diag77)), 13, 3) /= 0)) then
                                 Set(i, var) = error
+                                Essentials%m_diag_irga(var) = Essentials%m_diag_irga(var) + 1
+                            end if
                         end do
                     end if
             end select
         end do
     end if
+    where (.not. E2Col(co2:gas4)%present)
+        Essentials%m_diag_irga(co2:gas4) = ierror
+    endwhere
+
 !!    > Special case of Tin/Tout for LI-7200
 !!    > Count occurrences of bad flags for either temperature reading
 !    mask = .false.

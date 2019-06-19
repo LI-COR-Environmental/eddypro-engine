@@ -1,22 +1,30 @@
 !***************************************************************************
 ! flux_params.f90
 ! ---------------
-! Copyright (C) 2011-2015, LI-COR Biosciences
+! Copyright (C) 2011-2019, LI-COR Biosciences, Inc.  All Rights Reserved.
+! Author: Gerardo Fratini
 !
-! This file is part of EddyPro (TM).
+! This file is part of EddyPro®.
 !
-! EddyPro (TM) is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
+! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for 
+! non-commercial academic and government research purposes only, 
+! as provided in the EDDYPRO® End User License Agreement. 
+! EDDYPRO® may only be used as provided in the End User License Agreement
+! and may not be used or accessed for any commercial purposes.
+! You may view a copy of the End User License Agreement in the file
+! EULA_NON_COMMERCIAL.rtf.
 !
-! EddyPro (TM) is distributed in the hope that it will be useful,
+! Commercial companies that are LI-COR flux system customers 
+! are encouraged to contact LI-COR directly for our commercial 
+! EDDYPRO® End User License Agreement.
+!
+! EDDYPRO® contains Open Source Components (as defined in the 
+! End User License Agreement). The licenses and/or notices for the 
+! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
+!
+! EddyPro® is distributed in the hope that it will be useful,
 ! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 !
 !***************************************************************************
 !
@@ -36,7 +44,7 @@ subroutine FluxParams(printout)
     !> in/out variables
     logical, intent(in) :: printout
     !> local variables
-    real(kind = dbl) :: Ma
+    ! real(kind = dbl) :: Ma
     real(kind = dbl) :: Cpd
     real(kind = dbl) :: Cpv
 
@@ -46,8 +54,10 @@ subroutine FluxParams(printout)
     Ambient%alpha = 0.51d0
 
     !> Water vapour partial pressure at saturation [Pa]
-    !> (this formula gives same results as that in Buck (1981),
-    !> cited in Campbell and Norman (1998) - Environmental Biophysics
+    !> (this formula gives same results as that in Buck (1986)
+    !> Buck (1996), Buck Research CR-1A User's Manual, Appendix 1
+    !> Ambient%es = 611.21 * np.exp( (18.678 - T / 234.5) * (T / (257.14 + T)) )
+    !> Where T is in Celsius!
     if (Stats%T > 0d0) then
         Ambient%es = (dexp(77.345d0 + 0.0057d0 * Stats%T &
                       - 7235.d0 / Stats%T)) / Stats%T**(8.2d0)
@@ -65,7 +75,7 @@ subroutine FluxParams(printout)
         else
             Ambient%e = error
         end if
-        !> vapor pressure deficit [hPa]
+        !> vapor pressure deficit [Pa]
         if (Ambient%e /= error) then
             Ambient%VPD = Ambient%es - Ambient%e
         else
@@ -105,12 +115,12 @@ subroutine FluxParams(printout)
         !> Molecular weight of wet air:
         !> Ma = chi(h2o) * MW(h2o) + chi(dry_air) * Md
         !> if chi(dry_air) = 1 - chi(h2o) (assumes chi(h2o) in mmol mol_a-1)
-        if (Stats%chi(h2o) > 0d0) then
-            Ma = (Stats%chi(h2o) * 1d-3) * MW(h2o) &
-               + (1d0 - Stats%chi(h2o) * 1d-3) * Md
-        else
-            Ma = error
-        end if
+        ! if (Stats%chi(h2o) > 0d0) then
+        !     Ma = (Stats%chi(h2o) * 1d-3) * MW(h2o) &
+        !        + (1d0 - Stats%chi(h2o) * 1d-3) * Md
+        ! else
+        !     Ma = error
+        ! end if
 
         !> Water vapour mass density [kg_w m-3]
         !> from mole fraction [mmol_w / mol_a]
@@ -222,10 +232,10 @@ subroutine FluxParams(printout)
             Ambient%Tmap = error
         end if
     elseif (E2Col(ts)%instr%category == 'fast_t_sensor') then
-            !> If Ts was actually from a fast temperature sensor,
-            !> do not apply Q correction
-            Ambient%Ta = Stats%Mean(ts)
-            Ambient%Tmap = 1d0
+        !> If Ts was actually from a fast temperature sensor,
+        !> do not apply Q correction
+        Ambient%Ta = Stats%Mean(ts)
+        Ambient%Tmap = 1d0
     else
         if (Ambient%Q > 0d0 .and. Ambient%alpha /= error &
             .and. Stats%Mean(ts) > 0d0) then

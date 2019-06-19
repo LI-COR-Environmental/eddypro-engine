@@ -1,22 +1,30 @@
 !***************************************************************************
 ! bpcf_bandpass_spectral_corrections.f90
 ! --------------------------------------
-! Copyright (C) 2011-2015, LI-COR Biosciences
+! Copyright (C) 2011-2019, LI-COR Biosciences, Inc.  All Rights Reserved.
+! Author: Gerardo Fratini
 !
-! This file is part of EddyPro (TM).
+! This file is part of EddyPro®.
 !
-! EddyPro (TM) is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
+! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for 
+! non-commercial academic and government research purposes only, 
+! as provided in the EDDYPRO® End User License Agreement. 
+! EDDYPRO® may only be used as provided in the End User License Agreement
+! and may not be used or accessed for any commercial purposes.
+! You may view a copy of the End User License Agreement in the file
+! EULA_NON_COMMERCIAL.rtf.
 !
-! EddyPro (TM) is distributed in the hope that it will be useful,
+! Commercial companies that are LI-COR flux system customers 
+! are encouraged to contact LI-COR directly for our commercial 
+! EDDYPRO® End User License Agreement.
+!
+! EDDYPRO® contains Open Source Components (as defined in the 
+! End User License Agreement). The licenses and/or notices for the 
+! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
+!
+! EddyPro® is distributed in the hope that it will be useful,
 ! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 !
 !***************************************************************************
 !
@@ -29,7 +37,7 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine BandPassSpectralCorrections(measuring_height, displ_height,&
+subroutine BandPassSpectralCorrections(measuring_height, displ_height, &
     loc_var_present, wind_speed, t_air, zL, ac_frequency, avrg_length, &
     logger_sw_ver, detrending_method, detrending_time_constant, printout, &
     LocInstr, nfull, LocFileList, nrow_full, lEx, LocSetup)
@@ -88,7 +96,7 @@ subroutine BandPassSpectralCorrections(measuring_height, displ_height,&
     if (app == 'EddyPro-FCC') then
         select case (trim(adjustl(EddyProProj%hf_meth)))
             case('horst_97', 'ibrom_07', 'fratini_12')
-                call char2int(lEx%date(6:7), month, 2)
+                call char2int(lEx%end_date(6:7), month, 2)
                 if(lEx%var_present(h2o) .and. (RegPar(dum, dum)%e1 == error &
                     .or. RegPar(dum, dum)%e2 == error &
                     .or. RegPar(dum, dum)%e3 == error)) then
@@ -201,6 +209,13 @@ subroutine BandPassSpectralCorrections(measuring_height, displ_height,&
 
         BPCF%of(:) = BPCF%of(:) * tmpBPCF%of(:)
     end if
+
+    if (.not. loc_var_present(w_u)) BPCF%of(w_u) = error
+    if (.not. loc_var_present(w_ts)) BPCF%of(w_ts) = error
+    if (.not. loc_var_present(w_co2)) BPCF%of(w_co2) = error
+    if (.not. loc_var_present(w_h2o)) BPCF%of(w_h2o) = error
+    if (.not. loc_var_present(w_ch4)) BPCF%of(w_ch4) = error
+    if (.not. loc_var_present(w_gas4)) BPCF%of(w_gas4) = error
 end subroutine BandPassSpectralCorrections
 
 function DefaultSonicOutputRate(model)
@@ -215,6 +230,8 @@ function DefaultSonicOutputRate(model)
             DefaultSonicOutputRate = 50
         case('r3_100','r3a_100', 'hs_100')
             DefaultSonicOutputRate = 100
+        case('usoni3_classa_mp', 'usoni3_cage_mp')
+            DefaultSonicOutputRate = 30
         case('usa1_standard')
             DefaultSonicOutputRate = 40
         case('usa1_fast')
@@ -225,7 +242,7 @@ function DefaultSonicOutputRate(model)
             DefaultSonicOutputRate = 50
         case('csat3', 'csat3b')
             DefaultSonicOutputRate = 60
-        case('81000')
+        case('81000', '81000v', '81000re', '81000vre')
             DefaultSonicOutputRate = 160
         case default
             DefaultSonicOutputRate = 50

@@ -2,22 +2,30 @@
 ! basic_stats.f90
 ! ---------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2015, LI-COR Biosciences
+! Copyright (C) 2011-2019, LI-COR Biosciences, Inc.  All Rights Reserved.
+! Author: Gerardo Fratini
 !
-! This file is part of EddyPro (TM).
+! This file is part of EddyPro®.
 !
-! EddyPro (TM) is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
+! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for 
+! non-commercial academic and government research purposes only, 
+! as provided in the EDDYPRO® End User License Agreement. 
+! EDDYPRO® may only be used as provided in the End User License Agreement
+! and may not be used or accessed for any commercial purposes.
+! You may view a copy of the End User License Agreement in the file
+! EULA_NON_COMMERCIAL.rtf.
 !
-! EddyPro (TM) is distributed in the hope that it will be useful,
+! Commercial companies that are LI-COR flux system customers 
+! are encouraged to contact LI-COR directly for our commercial 
+! EDDYPRO® End User License Agreement.
+!
+! EDDYPRO® contains Open Source Components (as defined in the 
+! End User License Agreement). The licenses and/or notices for the 
+! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
+!
+! EddyPro® is distributed in the hope that it will be useful,
 ! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 !
 !***************************************************************************
 !
@@ -47,7 +55,7 @@ subroutine BasicStats(Set, nrow, ncol, nfold, printout)
     real(kind = dbl) :: Prime(nrow, ncol)
     real(kind = dbl) :: SumSquare(3)
 
-
+    
     if (printout) then
         if (nfold == 1) then
             write(*, '(a)', advance = 'no') '  Calculating statistics..'
@@ -62,6 +70,14 @@ subroutine BasicStats(Set, nrow, ncol, nfold, printout)
     if (nfold <= 6) then
         !> mean values (only before detrending, after is deleterious)
         call AverageNoError(Set, size(Set, 1), size(Set, 2), Stats%Mean, error)
+        
+        if (nfold == 6) then
+            !> Quantile calculation is computationally expensive so does it only when needed
+            call QuantileNoError(Set, size(Set, 1), size(Set, 2), Stats%Median, 0.5d0, error)
+            call QuantileNoError(Set, size(Set, 1), size(Set, 2), Stats%Q1, 0.25d0, error)
+            call QuantileNoError(Set, size(Set, 1), size(Set, 2), Stats%Q3, 0.75d0, error)
+        end if
+
         !> fluctuations (only before detrending, after is deleterious)
         do j = u, pe
             if (E2Col(j)%present) then
@@ -82,9 +98,11 @@ subroutine BasicStats(Set, nrow, ncol, nfold, printout)
     end if
 
     !> wind direction (only before rotation, after makes no sense)
-    if (nfold <= 4) &
-        call WindDirection(Stats%Mean(u:w), &
-            E2Col(u)%instr%north_offset + magnetic_declination, Stats%wind_dir)
+    if (nfold <= 4) then
+        call AverageWindDirection(Set, size(Set, 1), size(Set, 2), &
+            E2Col(u)%instr%north_offset + magnetic_declination, Stats%wind_dir, error)
+        call WindDirectionStDev(Set, size(Set, 1), size(Set, 2), Stats%wind_dir_stdev, error)
+    end if
 
     !> Standard deviations
     do j = u, pe

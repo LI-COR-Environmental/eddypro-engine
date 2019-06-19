@@ -1,22 +1,30 @@
 !***************************************************************************
 ! read_biomet_meta_file.f90
 ! -------------------------
-! Copyright (C) 2011-2015, LI-COR Biosciences
+! Copyright (C) 2011-2019, LI-COR Biosciences, Inc.  All Rights Reserved.
+! Author: Gerardo Fratini
 !
-! This file is part of EddyPro (TM).
+! This file is part of EddyPro®.
 !
-! EddyPro (TM) is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
+! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for 
+! non-commercial academic and government research purposes only, 
+! as provided in the EDDYPRO® End User License Agreement. 
+! EDDYPRO® may only be used as provided in the End User License Agreement
+! and may not be used or accessed for any commercial purposes.
+! You may view a copy of the End User License Agreement in the file
+! EULA_NON_COMMERCIAL.rtf.
 !
-! EddyPro (TM) is distributed in the hope that it will be useful,
+! Commercial companies that are LI-COR flux system customers 
+! are encouraged to contact LI-COR directly for our commercial 
+! EDDYPRO® End User License Agreement.
+!
+! EDDYPRO® contains Open Source Components (as defined in the 
+! End User License Agreement). The licenses and/or notices for the 
+! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
+!
+! EddyPro® is distributed in the hope that it will be useful,
 ! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 !
 !***************************************************************************
 !
@@ -81,9 +89,8 @@ subroutine WriteBiometMetaVariables(skip_file)
     integer :: ix
     integer :: nbTimestamp
     character(32) :: label
-
     logical, external :: BiometValidateVar
-    character(32), external :: biometBaseName
+
 
     !> File general features
     skip_file = .false.
@@ -138,6 +145,8 @@ subroutine WriteBiometMetaVariables(skip_file)
     allocate(bAggr(nbVars))
     if (allocated(bAggrFluxnet)) deallocate(bAggrFluxnet)
     allocate(bAggrFluxnet(nbVars))
+    if (allocated(bAggrEddyPro)) deallocate(bAggrEddyPro)
+    allocate(bAggrEddyPro(nbVars))
     bVars = nullbVar
 
     !> Variables description
@@ -184,7 +193,9 @@ subroutine WriteBiometMetaVariables(skip_file)
                 if (len_trim(bVars(cnt)%label) == 0) bVars(cnt)%label = 'UNNAMED'
 
                 !> Retrieve variable base name
-                bVars(cnt)%base_name = biometBaseName(bVars(cnt)%label)
+                call biometBaseNameAndPositionalQualifierFromLabel(bVars(cnt)%label, &
+                    bVars(cnt)%base_name, bVars(cnt)%pq_string)
+
            end if
         end if
     end do
@@ -200,9 +211,11 @@ subroutine WriteBiometMetaVariables(skip_file)
     end if
     bFileMetadata%numTsCol = tsCnt
 
-    !> Append suffix if variables have not
-    call BiometAppendReplicateSuffix()
-
     !> Fill variables information based on label and other available fields
     call BiometEnrichVarsDescription()
+
+    ! !> Append suffix if variables have not
+    ! if (EddyProProj%fluxnet_standardize_biomet) &
+    !     call BiometAppendDefaultPositionalQualifier()
+
 end subroutine WriteBiometMetaVariables

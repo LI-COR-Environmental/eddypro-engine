@@ -2,22 +2,30 @@
 ! biomet_enrich_vars_description.f90
 ! ----------------------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2015, LI-COR Biosciences
+! Copyright (C) 2011-2019, LI-COR Biosciences, Inc.  All Rights Reserved.
+! Author: Gerardo Fratini
 !
-! This file is part of EddyPro (TM).
+! This file is part of EddyPro®.
 !
-! EddyPro (TM) is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
+! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for 
+! non-commercial academic and government research purposes only, 
+! as provided in the EDDYPRO® End User License Agreement. 
+! EDDYPRO® may only be used as provided in the End User License Agreement
+! and may not be used or accessed for any commercial purposes.
+! You may view a copy of the End User License Agreement in the file
+! EULA_NON_COMMERCIAL.rtf.
 !
-! EddyPro (TM) is distributed in the hope that it will be useful,
+! Commercial companies that are LI-COR flux system customers 
+! are encouraged to contact LI-COR directly for our commercial 
+! EDDYPRO® End User License Agreement.
+!
+! EDDYPRO® contains Open Source Components (as defined in the 
+! End User License Agreement). The licenses and/or notices for the 
+! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
+!
+! EddyPro® is distributed in the hope that it will be useful,
 ! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 !
 !***************************************************************************
 !***************************************************************************
@@ -37,12 +45,12 @@ subroutine BiometEnrichVarsDescription()
     !> Local variables
     integer :: i
     character(32) :: base_name
-    character(32) :: qPos
-
+    ! character(32) :: qPos
     character(32), external :: positionalQualifier
 
+
     do i = 1, nbVars
-        call BiometInterpretPositionalQualifier(bVars(i))
+        ! call BiometInterpretPositionalQualifier(bVars(i))
         base_name = trim(bVars(i)%base_name)
         call uppercase(base_name)
         select case(base_name)
@@ -344,7 +352,7 @@ subroutine BiometEnrichVarsDescription()
                 bVars(i)%fluxnet_unit_out = '[#]'
 
             case('PPFD', 'PPFD_IN')
-                bVars(i)%fluxnet_base_name = 'PPFD'
+                bVars(i)%fluxnet_base_name = 'PPFD_IN'
                 bVars(i)%nature = 'PHOTON_FLUX'
                 bVars(i)%accumul_type = 'AVERAGING'
                 bVars(i)%unit_out = 'UMOL+1M-2S-1'
@@ -594,8 +602,8 @@ subroutine BiometEnrichVarsDescription()
 
     !> Complete Fluxnet labels adding positional qualifier to Fluxnet base name
     do i = 1, nbVars
-        qPos = positionalQualifier(bVars(i))
-        bVars(i)%fluxnet_label = trim(bVars(i)%fluxnet_base_name) // trim(qPos)
+        ! qPos = positionalQualifier(bVars(i))
+            bVars(i)%fluxnet_label = trim(bVars(i)%fluxnet_base_name) // trim(bVars(i)%pq_string)
     end do
-end subroutine
+end subroutine BiometEnrichVarsDescription
 

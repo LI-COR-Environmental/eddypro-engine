@@ -2,22 +2,30 @@
 ! init_outfiles_rp.f90
 ! --------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2015, LI-COR Biosciences
+! Copyright (C) 2011-2019, LI-COR Biosciences, Inc.  All Rights Reserved.
+! Author: Gerardo Fratini
 !
-! This file is part of EddyPro (TM).
+! This file is part of EddyPro®.
 !
-! EddyPro (TM) is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
+! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for 
+! non-commercial academic and government research purposes only, 
+! as provided in the EDDYPRO® End User License Agreement. 
+! EDDYPRO® may only be used as provided in the End User License Agreement
+! and may not be used or accessed for any commercial purposes.
+! You may view a copy of the End User License Agreement in the file
+! EULA_NON_COMMERCIAL.rtf.
 !
-! EddyPro (TM) is distributed in the hope that it will be useful,
+! Commercial companies that are LI-COR flux system customers 
+! are encouraged to contact LI-COR directly for our commercial 
+! EDDYPRO® End User License Agreement.
+!
+! EDDYPRO® contains Open Source Components (as defined in the 
+! End User License Agreement). The licenses and/or notices for the 
+! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
+!
+! EddyPro® is distributed in the hope that it will be useful,
 ! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 !
 !***************************************************************************
 !
@@ -54,8 +62,6 @@ subroutine InitOutFiles_rp()
     character(LongOutstringLen) :: head2_utf8
     character(LongOutstringLen) :: head3_utf8
     character(LongOutstringLen) :: dataline
-    integer :: today(3), now(3)
-    character(8) :: dum_string
     logical :: proceed
     include '../src_common/interfaces.inc'
 
@@ -76,8 +82,11 @@ subroutine InitOutFiles_rp()
     e2sg(te)  = 'air_t_'
     e2sg(pe)  = 'air_p_'
 
+    call lowercase(e2sg(gas4))
+    
     do j = 1, NumUserVar
         usg(j)  = UserCol(j)%label(1:len_trim(UserCol(j)%label)) // '_'
+        call lowercase(usg(j))
     end do
 
     !> Create sub-directory
@@ -259,7 +268,7 @@ subroutine InitOutFiles_rp()
                 call AddDatum(header3, '[' // char(181) // 'mol+1s-1m-2],[#]', separator)
                 if (RUsetup%meth /= 'none') then
                     call AddDatum(header1, '', separator)
-                    call AddDatum(header2, 'rand_err' // e2sg(gas4)(1:len_trim(e2sg(gas4))) // 'flux', separator)
+                    call AddDatum(header2, 'rand_err_' // e2sg(gas4)(1:len_trim(e2sg(gas4))) // 'flux', separator)
                     call AddDatum(header3, '[' // char(181) // 'mol+1s-1m-2]', separator)
                 end if
             end if
@@ -588,252 +597,6 @@ subroutine InitOutFiles_rp()
             write(uflx, '(a)') head2_utf8(1:len_trim(head2_utf8) - 1)
             write(uflx, '(a)') head3_utf8(1:len_trim(head3_utf8) - 1)
         end if
-    end if
-
-    !>==========================================================================
-    !>==========================================================================
-    !> Essentials output, for use in Fluxes
-    if (EddyProProj%out_essentials) then
-        Test_Path = Dir%main_out(1:len_trim(Dir%main_out)) &
-                  // EddyProProj%id(1:len_trim(EddyProProj%id)) &
-                  // Essentials_FilePadding // Timestamp_FilePadding // CsvExt
-        dot = index(Test_Path, CsvExt, .true.) - 1
-        Essentials_Path = Test_Path(1:dot) // CsvTmpExt
-        open(uex, file = Essentials_Path, iostat = open_status, encoding = 'utf-8')
-
-        call clearstr(dataline)
-        dataline = 'filename,date,time,daytime,file_records,used_records,&
-            &Tau,ru_Tau,H,ru_H,LE,ru_LE,co2_flux,ru_co2,h2o_flux,ru_h2o,ch4_flux,ru_ch4,' &
-            // e2sg(gas4)(1:len_trim(e2sg(gas4))-1) // '_flux,ru_' // e2sg(gas4)(1:len_trim(e2sg(gas4))-1) // &
-            ',H_stor,LE_stor,co2_stor,h2o_stor,ch4_stor,' // e2sg(gas4)(1:len_trim(e2sg(gas4))-1) // '_stor,&
-            &E_co2,E_ch4,E_' // e2sg(gas4)(1:len_trim(e2sg(gas4))-1) // ',&
-            &H_co2,H_h2o,H_ch4,H_' // e2sg(gas4)(1:len_trim(e2sg(gas4))-1) // ',&
-            &unrot_u,unrot_v,unrot_w,rot_u,rot_v,rot_w,wind_speed,max_wind_speed,wind_dir,u*,TKE,L,(z-d)/L,bowen_ratio,T*,&
-            &measure_type_co2,d_co2,r_co2,chi_co2,measure_type_h2o,d_h2o,r_h2o,chi_h2o,&
-            &measure_type_ch4,d_ch4,r_ch4,chi_ch4,measure_type_' // e2sg(gas4)(1:len_trim(e2sg(gas4))-1) // ',&
-            &d_' // e2sg(gas4)(1:len_trim(e2sg(gas4))-1) // ',&
-            &r_' // e2sg(gas4)(1:len_trim(e2sg(gas4))-1) // ',&
-            &chi_' // e2sg(gas4)(1:len_trim(e2sg(gas4))-1) // ',&
-            &t_sonic,t_air,p_air,rh_air,v_air,rho_air,rhocp_air,&
-            &rho_w,e,es,q,vpd,td,p_dry,rho_dry,v_dry,lambda,sigma,&
-            &t_cell,p_cell,v_cell_co2,v_cell_h2o,v_cell_ch4,v_cell_' // e2sg(gas4)(1:len_trim(e2sg(gas4))-1) // ',&
-            &li7700_a,li7700_b,li7700_c,bu_h_bot,bu_h_top,bu_h_spar,&
-            &cov_wT,cov_wT_1.626,cov_wT_0.614,cov_wT_0.277,cov_wT_0.133,cov_wT_0.065,cov_wT_0.032&
-            &,cov_wT_0.016,cov_wT_0.008,cov_wT_0.004,&
-            &var(u),var(v),var(w),var(ts),var(co2),var(h2o),&
-            &var(ch4),var(' // e2sg(gas4)(1:len_trim(e2sg(gas4))-1) // '),var(tc),var(pc),var(te),var(pe),&
-            &cov(w/u),cov(w/v),cov(w/ts),cov(w/co2),cov(w/h2o),cov(w/ch4),&
-            &cov(w/' // e2sg(gas4)(1:len_trim(e2sg(gas4))-1) // '),cov(w/tc),cov(w/pc),cov(w/te),cov(w/pe),&
-            &tlag_co2,def_tlag_co2,tlag_h2o,def_tlag_h2o,tlag_ch4,def_tlag_ch4,&
-            &tlag_' // e2sg(gas4)(1:len_trim(e2sg(gas4))-1) // ',def_tlag_' // e2sg(gas4)(1:len_trim(e2sg(gas4))-1) // ',&
-            &yaw,pitch,roll,&
-            &st_w_u,st_w_ts,st_w_co2,st_w_h2o,st_w_ch4,st_w_' // e2sg(gas4)(1:len_trim(e2sg(gas4))-1) // ',&
-            &dt_u,dt_w,dt_ts,&
-            &detrending_method,dentrending_time_constant,&
-            &logger_swver_major,logger_swver_minor,logger_swver_revision,&
-            &latitude,longitude,altitude,file_length,&
-            &averaging_interval,acquisition_frequency,&
-            &canopy_height,displacement_height,roughness_length,&
-            &master_sonic_manufacturer,master_sonic_model,master_sonic_height,&
-            &master_sonic_wformat,master_sonic_wref,master_sonic_north_offset,&
-            &master_sonic_hpath,master_sonic_vpath,master_sonic_tau,&
-            &co2_irga_manufacturer,co2_irga_model,&
-            &co2_irga_northward_separation,co2_irga_eastward_separation,co2_irga_vertical_separation,&
-            &co2_irga_tube_length,co2_irga_tube_diameter,co2_irga_tube_flowrate, &
-            &co2_irga_kw,co2_irga_ko,co2_irga_hpath_length,co2_irga_vpath_length,co2_irga_tau, &
-            &h2o_irga_manufacturer,h2o_irga_model,&
-            &h2o_irga_northward_separation,h2o_irga_eastward_separation,h2o_irga_vertical_separation,&
-            &h2o_irga_tube_length,h2o_irga_tube_diameter,h2o_irga_tube_flowrate, &
-            &h2o_irga_kw,h2o_irga_ko,h2o_irga_hpath_length,h2o_irga_vpath_length,h2o_irga_tau, &
-            &ch4_irga_manufacturer,ch4_irga_model,&
-            &ch4_irga_northward_separation,ch4_irga_eastward_separation,ch4_irga_vertical_separation,&
-            &ch4_irga_tube_length,ch4_irga_tube_diameter,ch4_irga_tube_flowrate, &
-            &ch4_irga_kw,ch4_irga_ko,ch4_irga_hpath_length,ch4_irga_vpath_length,ch4_irga_tau,' &
-            // e2sg(gas4)(1:len_trim(e2sg(gas4))) // 'irga_manufacturer,' &
-            // e2sg(gas4)(1:len_trim(e2sg(gas4))) // 'irga_model,' &
-            // e2sg(gas4)(1:len_trim(e2sg(gas4))) // 'irga_northward_separation,' &
-            // e2sg(gas4)(1:len_trim(e2sg(gas4))) // 'irga_eastward_separation,' &
-            // e2sg(gas4)(1:len_trim(e2sg(gas4))) // 'irga_vertical_separation,' &
-            // e2sg(gas4)(1:len_trim(e2sg(gas4))) // 'irga_tube_length,' &
-            // e2sg(gas4)(1:len_trim(e2sg(gas4))) // 'irga_tube_diameter,' &
-            // e2sg(gas4)(1:len_trim(e2sg(gas4))) // 'irga_tube_flowrate,' &
-            // e2sg(gas4)(1:len_trim(e2sg(gas4))) // 'irga_kw,' &
-            // e2sg(gas4)(1:len_trim(e2sg(gas4))) // 'irga_ko,' &
-            // e2sg(gas4)(1:len_trim(e2sg(gas4))) // 'irga_hpath_length,' &
-            // e2sg(gas4)(1:len_trim(e2sg(gas4))) // 'irga_vpath_length,' &
-            // e2sg(gas4)(1:len_trim(e2sg(gas4))) // 'irga_tau,&
-            &hf_sr,hf_ar,hf_do,hf_al,hf_sk,sf_sk,hf_ds,sf_ds,hf_tl,sf_tl,hf_aa,sf_ns,&
-            &spikes_u,spikes_v,spikes_w,spikes_ts,spikes_co2,spikes_h2o,spikes_ch4,spikes_' &
-            // e2sg(gas4)(1:len_trim(e2sg(gas4)) - 1) // ',&
-            &li72_head_detect,li72_t_out,li72_t_in,li72_aux_in,li72_delta_p,li72_chopper,li72_detector,li72_pll,li72_sync,&
-            &li75_chopper,li75_detector,li75_pll,li75_sync,&
-            &li77_not_ready,li77_no_signal,li77_re_unlocked,li77_bad_temp,li77_laser_t_unreg,li77_clock_t_unreg,&
-            &li77_motor_spinning,li77_pump_on,li77_top_heater_on,li77_bottom_heater_on,li77_calibrating,li77_motor_failure,&
-            &li77_bad_aux_tc1,li77_bad_aux_tc2,li77_bad_aux_tc3,li77_box_connected,&
-            &li72_AGC,li75_AGC,li77_RSSI,num_user_var,'
-            if (NumUserVar > 0) then
-                do i = 1, NumUserVar
-                    dataline = dataline(1:len_trim(dataline)) &
-                        // usg(i)(1:len_trim(usg(i))) // 'mean' // ','
-                end do
-            end if
-            write(uex, '(a)') dataline(1:len_trim(dataline) - 1)
-    end if
-
-    !>==========================================================================
-    !>==========================================================================
-    !> FLUXNET EDDY output
-
-    !> Even if it was selected for output, FLUXNET eddy is not created if
-    !> FCC will run
-    if (EddyProProj%fcc_follows) EddyProProj%out_fluxnet_eddy = .false.
-
-    if (EddyProProj%out_fluxnet_eddy) then
-        Test_Path = Dir%main_out(1:len_trim(Dir%main_out)) &
-                  // EddyProProj%id(1:len_trim(EddyProProj%id)) &
-                  // FLUXNET_EDDY_FilePadding // Timestamp_FilePadding // CsvExt
-        dot = index(Test_Path, CsvExt, .true.) - 1
-        FLUXNET_EDDY_Path = Test_Path(1:dot) // CsvTmpExt
-        open(ufnet_e, file = FLUXNET_EDDY_Path, &
-            iostat = open_status, encoding = 'utf-8')
-
-        !> Initialize header strings to void
-        call Clearstr(header2)
-        call Clearstr(header3)
-        call Clearstr(head2_utf8)
-        call Clearstr(head3_utf8)
-
-        !> Initial common part
-        call AddDatum(header2,'TIMESTAMP', separator)
-        call AddDatum(header3,'[yyyymmddHHMMSS]', separator)
-
-        !>======================================================================
-        !> Variables located at the EC stations
-        !> GASES
-        do gas = co2, gas4
-            if(OutVarPresent(gas)) then
-                select case (gas)
-                    case(co2)
-                        call AddDatum(header2, 'CO2_1_1_1', separator)
-                        call AddDatum(header3, &
-                            '[mmolCO2 mol-1]', separator)
-                    case(h2o)
-                        call AddDatum(header2, 'H2O_1_1_1', separator)
-                        call AddDatum(header3, '[mmolH2O mol-1]', separator)
-                    case(ch4)
-                        call AddDatum(header2, 'CH4_1_1_1', separator)
-                        call AddDatum(header3, '[nmolCH4 mol-1]', separator)
-                    case(gas4)
-                        call AddDatum(header2, &
-                            trim(adjustl(e2sg(gas4))) // '1_1_1', separator)
-                        call AddDatum(header3, '[nmol' &
-                            // trim(adjustl(e2sg(gas4))) //' mol-1]', separator)
-                end select
-            end if
-        end do
-        call AddDatum(header2,&
-            'TAU_1_1_1,TAU_SSITC_TEST_1_1_1,H_1_1_1,H_SSITC_TEST_1_1_1', separator)
-        call AddDatum(header3,'[kg m-1 s-2],[#],[W m-2],[#]', separator)
-        if(OutVarPresent(h2o)) then
-            call AddDatum(header2,'LE_1_1_1,LE_SSITC_TEST_1_1_1', separator)
-            call AddDatum(header3,'[W m-2],[#]', separator)
-        end if
-        if(OutVarPresent(co2)) then
-            call AddDatum(header2,'FC_1_1_1,FC_SSITC_TEST_1_1_1', separator)
-            call AddDatum(header3,'[umolCO2 m-2 s-1],[#]', separator)
-        end if
-        if(OutVarPresent(ch4)) then
-            call AddDatum(header2,'FCH4_1_1_1,FCH4_SSITC_TEST_1_1_1', separator)
-            call AddDatum(header3,'[nmolCH4 m-2 s-1],[#]', separator)
-        end if
-        if(OutVarPresent(gas4)) then
-            call AddDatum(header2,'F' // trim(adjustl(e2sg(gas4))) &
-                // '1_1_1,' // trim(adjustl(e2sg(gas4))) // 'SSITC_TEST_1_1_1', separator)
-            call AddDatum(header3,'[nmol'// trim(adjustl(e2sg(gas4))) &
-                //' m-2 s-1],[#]', separator)
-        end if
-
-        !> MET_WIND and FOOTPRINT
-        call AddDatum(header2,'WD_0_0_1,WS_0_0_1,WS_MAX_0_0_1,U_SIGMA_0_0_1,&
-            &V_SIGMA_0_0_1,W_SIGMA_0_0_1,USTAR_0_0_1,MO_LENGTH_0_0_1,ZL_0_0_1,&
-            &FETCH_MAX_0_0_1,FETCH_70_0_0_1,FETCH_80_0_0_1,FETCH_90_0_0_1', separator)
-        call AddDatum(header3,'[Decimal degrees],[m s-1],[m s-1],[m s-1],&
-            &[m s-1],[m s-1],[m s-1],[m],[#],[m],[m],[m],[m]', separator)
-
-        !> MET_ATM
-        call AddDatum(header2,'PA_0_0_1,RH_0_0_1,TA_0_0_1,VPD_0_0_1,T_SONIC_0_0_1,&
-            &T_SONIC_SIGMA_0_0_1', separator)
-        call AddDatum(header3,'[kPa],[%],[deg C],[hPa],[deg C],[deg C]', separator)
-
-        call latin1_to_utf8(header2, head2_utf8)
-        call latin1_to_utf8(header3, head3_utf8)
-
-        !> Write on output file
-        write(ufnet_e, '(a)') head2_utf8(1:len_trim(head2_utf8) - 1)
-        write(ufnet_e, '(a)') head3_utf8(1:len_trim(head3_utf8) - 1)
-    end if
-
-    !>==========================================================================
-    !>==========================================================================
-    !> AmeriFlux output
-    if (EddyProProj%out_amflux) then
-        Test_Path = Dir%main_out(1:len_trim(Dir%main_out)) &
-                  // EddyProProj%id(1:len_trim(EddyProProj%id)) &
-                  // AmeriFlux_FilePadding // Timestamp_FilePadding // CsvExt
-        dot = index(Test_Path, CsvExt, .true.) - 1
-        AmeriFlux_Path = Test_Path(1:dot) // CsvTmpExt
-        open(uaflx, file = AmeriFlux_Path, iostat = open_status, encoding = 'utf-8')
-
-        write(uaflx, '(a)') 'Sitename:' // Metadata%sitename(1:len_trim(Metadata%sitename))
-        write(uaflx, '(a, f12.7, a, f12.7, a, f6.0)') 'Location: Latitude: ', Metadata%lat, &
-            ' - Longitude: ', Metadata%lon, ' - Elevation (masl): ', Metadata%alt
-        write(uaflx, '(a)') 'Principal investigator: '
-        write(uaflx, '(a)') 'Ecosystem type: '
-        call idate(today)   ! today(1)=day, (2)=month, (3)=year
-        call itime(now)     ! now(1)=hour, (2)=minute, (3)=second
-        call clearstr(dataline)
-        write(dum_string, '(i4)') today(3)
-        dataline(1:5) = dum_string(1:4) // '-'
-        write(dum_string, '(i2)') today(2)
-        if(dum_string(1:1) == ' ') dum_string(1:1) = '0'
-        dataline(6:8) = dum_string(1:2) // '-'
-        write(dum_string, '(i2)') today(1)
-        if(dum_string(1:1) == ' ') dum_string(1:1) = '0'
-        dataline(9:11) = dum_string(1:2) // 'T'
-        write(dum_string, '(i2)') now(1)
-        if(dum_string(1:1) == ' ') dum_string(1:1) = '0'
-        dataline(12:14) = dum_string(1:2) // ':'
-        write(dum_string, '(i2)') now(2)
-        if(dum_string(1:1) == ' ') dum_string(1:1) = '0'
-        dataline(15:16) = dum_string(1:2)
-        write(uaflx, '(a)') 'File creation date: ' // dataline(1:len_trim(dataline))
-        write(uaflx, '(a)') 'Datapolicy:  -- The AmeriFlux data provided on this site&
-            & are freely available and were furnished by individual AmeriFlux scientists who encourage their use.'
-        write(uaflx, '(a)') 'Please kindly inform in writing (or e-mail) the appropriate AmeriFlux scientist(s)&
-            & of how you intend to use the data and of any publication plans.'
-        write(uaflx, '(a)') 'It is also important to contact the AmeriFlux investigator to assure you are downloading&
-            & the latest revision of the data and to prevent potential misuse or misinterpretation of the data.'
-        write(uaflx, '(a)') 'Please acknowledge the data source as a citation or in the&
-            & acknowledgments if no citation is available.'
-        write(uaflx, '(a)') 'If the AmeriFlux Principal Investigators (PIs) feel that they should be acknowledged&
-            & or offered participation as authors they will let you know.'
-        write(uaflx, '(a)') 'And we assume that an agreement on such matters will be reached&
-            & before publishing and/or use of the data for publication.'
-        write(uaflx, '(a)') 'If your work directly competes with the PIs analysis they may ask that they have the&
-            & opportunity to submit a manuscript before you submit one that uses unpublished data.'
-        write(uaflx, '(a)') 'In addition when publishing please acknowledge the agency that supported the research. --'
-        write(uaflx, '(a)') 'File Origin (4 lines) - To be compiled by AmeriFlux data management group.'
-        write(uaflx, '(a)') 'File Origin (4 lines) - To be compiled by AmeriFlux data management group.'
-        write(uaflx, '(a)') 'File Origin (4 lines) - To be compiled by AmeriFlux data management group.'
-        write(uaflx, '(a)') 'File Origin (4 lines) - To be compiled by AmeriFlux data management group.'
-        write(uaflx, '(a)') 'YEAR,GAP,DTIME,DOY,HRMIN,UST,TA,WD,WS,NEE,FC,SFC,H,SH,LE,SLE,FG,TS1,TSdepth1,TS2,TSdepth2,&
-            &PREC,RH,PRESS,CO2,VPD,SWC1,SWC2,Rn,PAR,Rg,Rgdif,PARout,RgOut,Rgl,RglOut,&
-            &H2O,RE,GPP,CO2top,CO2height,APAR,PARdif,APARpct,ZL'
-        write(uaflx, '(a)') 'YEAR,GAP,DTIME,DOY,HRMIN,m/s,deg C,deg,m/s,umol/m2/s,umol/m2/s,&
-            &umol/m2/s,W/m2,W/m2,W/m2,W/m2,W/m2,&
-            &deg C,cm,deg C,cm,mm,%,kPa,umol/mol,kPa,%,%,W/m2,umol/m2/s,W/m2,W/m2,umol/m2/s,&
-            &W/m2,W/m2,W/m2,mmol/mol,umol/m2/s,&
-            &umol/m2/s,umol/mol,m,umol/m2/s,umol/m2/s,%,unitless'
     end if
 
     !>==========================================================================

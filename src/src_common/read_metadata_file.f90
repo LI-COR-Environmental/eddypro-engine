@@ -2,22 +2,30 @@
 ! read_metadata_file.f90
 ! ----------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2015, LI-COR Biosciences
+! Copyright (C) 2011-2019, LI-COR Biosciences, Inc.  All Rights Reserved.
+! Author: Gerardo Fratini
 !
-! This file is part of EddyPro (TM).
+! This file is part of EddyPro®.
 !
-! EddyPro (TM) is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
+! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for 
+! non-commercial academic and government research purposes only, 
+! as provided in the EDDYPRO® End User License Agreement. 
+! EDDYPRO® may only be used as provided in the End User License Agreement
+! and may not be used or accessed for any commercial purposes.
+! You may view a copy of the End User License Agreement in the file
+! EULA_NON_COMMERCIAL.rtf.
 !
-! EddyPro (TM) is distributed in the hope that it will be useful,
+! Commercial companies that are LI-COR flux system customers 
+! are encouraged to contact LI-COR directly for our commercial 
+! EDDYPRO® End User License Agreement.
+!
+! EDDYPRO® contains Open Source Components (as defined in the 
+! End User License Agreement). The licenses and/or notices for the 
+! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
+!
+! EddyPro® is distributed in the hope that it will be useful,
 ! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 !
 !***************************************************************************
 !
@@ -81,7 +89,6 @@ subroutine WriteEddyProMetadataVariables(LocCol, printout)
     integer :: i = 0
     integer :: j = 0
     include 'interfaces.inc'
-    character(32), external :: replace
 
 
     if (len_trim(ACTags(1)%value) > 0) then
@@ -228,19 +235,19 @@ subroutine WriteEddyProMetadataVariables(LocCol, printout)
             !> If instrument firm is empty, retrieve it from the instrument model
             if (len(Instr(i)%firm) == 0 .or. Instr(i)%firm == 'none') then
                 select case (Instr(i)%model(1:len_trim(Instr(i)%model) - 2))
-                    case('li7500', 'li7500a', 'li7500rs', 'li7200', 'li7200rs', &
-                        'li7700', 'li6262', 'li7000')
+                    case('li7500', 'li7500a', 'li7500rs', 'li7500ds', 'li7200', &
+                        'li7200rs', 'li7700', 'li6262', 'li7000')
                         Instr(i)%firm = 'licor'
                     case('generic_open_path', 'generic_closed_path', 'open_path_krypton', &
                         'open_path_lyman', 'closed_path_krypton', 'closed_path_lyman')
                         Instr(i)%firm = 'other_irga'
                     case('hs_50', 'hs_100', 'r2', 'r3_50', 'r3_100', 'r3a_100', 'wm', 'wmpro')
                         Instr(i)%firm = 'gill'
-                    case('usa1_standard', 'usa1_fast')
+                    case('usa1_standard', 'usa1_fast', 'usoni3_classa_mp', 'usoni3_cage_mp')
                         Instr(i)%firm = 'metek'
                     case('csat3', 'csat3b')
                         Instr(i)%firm = 'csi'
-                    case('81000')
+                    case('81000', '81000v', '81000re', '81000vre')
                         Instr(i)%firm = 'young'
                     case('generic_sonic')
                         Instr(i)%firm = 'other_sonic'
@@ -317,7 +324,7 @@ subroutine WriteEddyProMetadataVariables(LocCol, printout)
                 Instr(i)%tube_f = error
 
                 select case (Instr(i)%model(1:len_trim(Instr(i)%model) - 2))
-                    case ('li7700', 'li7500', 'li7500a', 'li7500rs', &
+                    case ('li7700', 'li7500', 'li7500a', 'li7500rs', 'li7500ds', &
                         'generic_open_path', 'open_path_krypton', &
                         'open_path_lyman')
                         Instr(i)%path_type = 'open'

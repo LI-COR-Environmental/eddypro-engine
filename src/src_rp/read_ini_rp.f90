@@ -2,22 +2,30 @@
 ! read_ini_rp.f90
 ! ---------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2015, LI-COR Biosciences
+! Copyright (C) 2011-2019, LI-COR Biosciences, Inc.  All Rights Reserved.
+! Author: Gerardo Fratini
 !
-! This file is part of EddyPro (TM).
+! This file is part of EddyPro®.
 !
-! EddyPro (TM) is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
+! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for 
+! non-commercial academic and government research purposes only, 
+! as provided in the EDDYPRO® End User License Agreement. 
+! EDDYPRO® may only be used as provided in the End User License Agreement
+! and may not be used or accessed for any commercial purposes.
+! You may view a copy of the End User License Agreement in the file
+! EULA_NON_COMMERCIAL.rtf.
 !
-! EddyPro (TM) is distributed in the hope that it will be useful,
+! Commercial companies that are LI-COR flux system customers 
+! are encouraged to contact LI-COR directly for our commercial 
+! EDDYPRO® End User License Agreement.
+!
+! EDDYPRO® contains Open Source Components (as defined in the 
+! End User License Agreement). The licenses and/or notices for the 
+! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
+!
+! EddyPro® is distributed in the hope that it will be useful,
 ! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 !
 !***************************************************************************
 !
@@ -116,6 +124,23 @@ subroutine WriteVariablesRP()
     !> In/out directories
     Dir%main_in = SCTags(1)%value(1:len_trim(SCTags(1)%value))
     if (len_trim(Dir%main_in) == 0) Dir%main_in = 'none'
+
+    !> Wind direction filter option and corresponding sectors
+    RPSetup%apply_wdf = SCTags(99)%value(1:1) == '1'
+    if (RPSetup%apply_wdf) then
+        leap_an_wsect = 2
+        init_an_wsect = 373 - leap_an_wsect
+        RPSetup%wdf_num_secs = 0
+        do i = 1, MaxNumWdfSectors
+            if (SNTagFound(init_an_wsect + i*leap_an_wsect)) then
+                RPSetup%wdf_num_secs = RPSetup%wdf_num_secs + 1
+                RPSetup%wdf_start(RPSetup%wdf_num_secs) = &
+                    SNTags(init_an_wsect + i*leap_an_wsect)%value
+                RPSetup%wdf_end(RPSetup%wdf_num_secs) = &
+                    SNTags(init_an_wsect + i*leap_an_wsect + 1)%value
+            end if
+        end do
+    end if
 
     !> Everything about raw statistical tests
     Test%sr = SCTags(3)%value(1:1) == '1'
@@ -229,6 +254,7 @@ subroutine WriteVariablesRP()
     RPsetup%recurse = SCTags(19)%value(1:1) == '1'
     !> select whether to output binned (co)spectra
     RPsetup%out_bin_sp = SCTags(26)%value(1:1) == '1'
+
     !> select whether to output binned ogives
     RPsetup%out_bin_og = SCTags(51)%value(1:1) == '1'
 
@@ -534,30 +560,6 @@ subroutine WriteVariablesRP()
         if (TOSetup%h2o_nclass > 1) then
             TOSetup%h2o_class_size = floor(100d0 / TOSetup%h2o_nclass)
         end if
-    end if
-
-    !> Random error estimation settings
-    select case (nint(SNTags(281)%value))
-        case(1)
-            RUsetup%meth = 'finkelstein_sims_01'
-        case(2)
-            RUsetup%meth = 'mann_lenschow_94'
-        case(3)
-            RUsetup%meth = 'tbd'
-        case default
-            RUsetup%meth = 'none'
-    end select
-    if (RUsetup%meth /= 'none') then
-        select case (nint(SNTags(282)%value))
-            case(1)
-                RUsetup%its_meth = 'cross_0'
-            case(2)
-                RUsetup%its_meth = 'full_integral'
-            case default
-                RUsetup%its_meth = 'cross_e'
-        end select
-        RUsetup%its_sec_fact = nint(SNTags(283)%value)
-        RUsetup%tlag_max = nint(SNTags(284)%value)
     end if
 
     !> Biomet measurements

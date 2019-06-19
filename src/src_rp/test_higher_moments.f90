@@ -2,22 +2,30 @@
 ! test_higher_moments.f90
 ! -----------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2015, LI-COR Biosciences
+! Copyright (C) 2011-2019, LI-COR Biosciences, Inc.  All Rights Reserved.
+! Author: Gerardo Fratini
 !
-! This file is part of EddyPro (TM).
+! This file is part of EddyPro®.
 !
-! EddyPro (TM) is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
+! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for 
+! non-commercial academic and government research purposes only, 
+! as provided in the EDDYPRO® End User License Agreement. 
+! EDDYPRO® may only be used as provided in the End User License Agreement
+! and may not be used or accessed for any commercial purposes.
+! You may view a copy of the End User License Agreement in the file
+! EULA_NON_COMMERCIAL.rtf.
 !
-! EddyPro (TM) is distributed in the hope that it will be useful,
+! Commercial companies that are LI-COR flux system customers 
+! are encouraged to contact LI-COR directly for our commercial 
+! EDDYPRO® End User License Agreement.
+!
+! EDDYPRO® contains Open Source Components (as defined in the 
+! End User License Agreement). The licenses and/or notices for the 
+! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
+!
+! EddyPro® is distributed in the hope that it will be useful,
 ! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 !
 !***************************************************************************
 !
@@ -38,22 +46,13 @@ subroutine TestHigherMoments(Set, N)
     integer, intent(in) :: N
     real(kind = dbl), intent(inout) :: Set(N, E2NumVar)
     !> local variables
-    integer :: i = 0
     integer :: j = 0
-    integer :: hflags(GHGNumVar)
-    integer :: sflags(GHGNumVar)
-    real(kind = dbl) :: LocSet(N, GHGNumVar)
-    real(kind = dbl) :: Trend(N, GHGNumVar)
-    real(kind = dbl) :: Primes(N, GHGNumVar)
-    real(kind = dbl) :: Mean(GHGNumVar)
-    real(kind = dbl) :: Var(GHGNumVar)
-    real(kind = dbl) :: Skw(GHGNumVar)
-    real(kind = dbl) :: Kur(GHGNumVar)
-    real(kind = dbl) :: sumx1(GHGNumVar)
-    real(kind = dbl) :: sumx2(GHGNumVar)
-    real(kind = dbl) :: sumtime
-    real(kind = dbl) :: sumtime2
-    real(kind = dbl) :: b(GHGNumVar)
+    integer :: hflags(E2NumVar)
+    integer :: sflags(E2NumVar)
+    real(kind = dbl) :: LocSet(N, E2NumVar)
+    real(kind = dbl) :: Primes(N, E2NumVar)
+    real(kind = dbl) :: Skw(E2NumVar)
+    real(kind = dbl) :: Kur(E2NumVar)
 
     write(*, '(a)', advance = 'no') '   Skewness & kurtosis test..'
 
@@ -62,49 +61,14 @@ subroutine TestHigherMoments(Set, N)
     sflags = 9
 
     !> Define LocSet, limited to variables u to gas4
-    LocSet(1:N, u:GHGNumVar) = Set(1:N, u:GHGNumVar)
+    LocSet(1:N, u:E2NumVar) = Set(1:N, u:E2NumVar)
 
     !> Linear detrending
-    !> mean values
-    Mean(:) = sum(LocSet(1:N, :), dim = 1)
-    Mean(:) = Mean(:) / dfloat(N)
-    sumx1 = 0.d0
-    sumx2 = 0.d0
-    sumtime = 0.d0
-    sumtime2 = 0.d0
-    do i = 1, N
-        sumx1(:) = sumx1(:) + (LocSet(i, :)*(dble(i - 1)))
-        sumx2(:) = sumx2(:) + LocSet(i, :)
-        sumtime = sumtime + (dble(i - 1))
-        sumtime2 = sumtime2 + (dble(i - 1))**2
-    end do
-    b(:) = (sumx1(:) - (sumx2(:)*sumtime) / dble(N)) / &
-          (sumtime2 - (sumtime*sumtime) / dble(N))
-    !> Trend
-    do i = 1, N
-        Trend(i, :) = Mean(:) + b(:) * (dble(i - 1) - sumtime / dble(N))
-    end do
-    !> Fluctuations
-    do i = 1, N
-        Primes(i, :) = LocSet(i, :) - Trend(i, :)
-    end do
+    call LinDetrend(LocSet, Primes, RPsetup%avrg_len * 60, E2Col, N, E2NumVar)
 
-    !> Standard deviations
-    Var = 0.d0
-    do i = 1, N
-        Var(:) = Var(:) + Primes(i, :) **2
-    end do
-    Var = Var / dble(N - 1)
-
-    !> Skewness & Kurtosis
-    Skw = 0.d0
-    Kur = 0.d0
-    do i = 1, N
-        Skw(:) = Skw(:) + (Primes(i, :) / dsqrt(Var(:))) **3
-        Kur(:) = Kur(:) + (Primes(i, :) / dsqrt(Var(:))) **4
-    end do
-    Skw(:) = Skw(:) / dble(N)
-    Kur(:) = Kur(:) / dble(N)
+    !> Hihgher moments 
+    call KurtosisNoError(Primes, N, E2NumVar, Kur, error)
+    call SkewnessNoError(Primes, N, E2NumVar, Skw, error)
 
     !> Hard/soft flags for skewness or kurtorsis out of bounds
     do j = u, GHGNumVar
@@ -121,6 +85,11 @@ subroutine TestHigherMoments(Set, N)
             else
                 sflags(j) = 0
             end if
+            Essentials%sk_s_skw(j) = Skw(j)
+            Essentials%sk_s_kur(j) = Kur(j)
+        else
+            Essentials%sk_s_skw(j) = error
+            Essentials%sk_s_kur(j) = error
         end if
     end do
 

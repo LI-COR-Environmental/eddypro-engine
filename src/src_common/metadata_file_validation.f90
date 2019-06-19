@@ -2,22 +2,30 @@
 ! metadata_file_validation.f90
 ! ----------------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2015, LI-COR Biosciences
+! Copyright (C) 2011-2019, LI-COR Biosciences, Inc.  All Rights Reserved.
+! Author: Gerardo Fratini
 !
-! This file is part of EddyPro (TM).
+! This file is part of EddyPro®.
 !
-! EddyPro (TM) is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
+! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for 
+! non-commercial academic and government research purposes only, 
+! as provided in the EDDYPRO® End User License Agreement. 
+! EDDYPRO® may only be used as provided in the End User License Agreement
+! and may not be used or accessed for any commercial purposes.
+! You may view a copy of the End User License Agreement in the file
+! EULA_NON_COMMERCIAL.rtf.
 !
-! EddyPro (TM) is distributed in the hope that it will be useful,
+! Commercial companies that are LI-COR flux system customers 
+! are encouraged to contact LI-COR directly for our commercial 
+! EDDYPRO® End User License Agreement.
+!
+! EDDYPRO® contains Open Source Components (as defined in the 
+! End User License Agreement). The licenses and/or notices for the 
+! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
+!
+! EddyPro® is distributed in the hope that it will be useful,
 ! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 !
 !***************************************************************************
 !
@@ -73,8 +81,8 @@ subroutine MetadataFileValidation(LocCol, passed, faulty_col)
                 .and. LocCol(i)%instr%category == 'fast_t_sensor') then
                 select case &
                     (LocCol(i)%instr%model(1:len_trim(LocCol(i)%instr%model)-2))
-                    case ('li7500', 'li7500a', 'li7500rs', 'li7200', 'li7200rs', &
-                        'li7700', 'li6262', 'li7000')
+                    case ('li7500', 'li7500a', 'li7500rs', 'li7500ds', 'li7200', &
+                        'li7200rs', 'li7700', 'li6262', 'li7000')
                         passed(1) = .false.
                         passed(25) = .false.
                         faulty_col = i
@@ -91,7 +99,9 @@ subroutine MetadataFileValidation(LocCol, passed, faulty_col)
                     (LocCol(i)%instr%model(1:len_trim(LocCol(i)%instr%model)-2))
                     case ('hs_50', 'hs_100', 'r2', 'r3_50', 'r3_100', &
                         'r3a_100', 'wm', 'wmpro', 'usa1_standard', &
-                        'usa1_fast', 'csat3', 'csat3b', '81000')
+                        'usa1_fast', 'usoni3_classa_mp', 'usoni3_cage_mp', &
+                        'csat3', 'csat3b', &
+                        '81000', '81000v', '81000re', '81000vre')
                         passed(1) = .false.
                         passed(26) = .false.
                         faulty_col = i
@@ -205,8 +215,10 @@ subroutine InstrumentValidation(LocInstr, LocCol, passed)
             !> check model
             select case (LocInstr%model(1:len_trim(LocInstr%model)-2))
                 case ('hs_50', 'hs_100', 'r2', 'r3_50', 'r3_100', 'r3a_100', 'wm', 'wmpro', &
-                    'usa1_standard', 'usa1_fast', 'csat3', 'csat3b', '81000')
-                    continue
+                      'usa1_standard', 'usa1_fast', 'csat3', 'csat3b', &
+                      'usoni3_classa_mp', 'usoni3_cage_mp', &
+                      '81000', '81000v', '81000re', '81000vre')
+                      continue
                 case ('generic_sonic')
                     if (LocInstr%hpath_length * LocInstr%vpath_length * LocInstr%tau == 0) then
                         passed(1) = .false.
@@ -231,8 +243,8 @@ subroutine InstrumentValidation(LocInstr, LocCol, passed)
             end select
             !> check model
             select case (LocInstr%model(1:len_trim(LocInstr%model)-2))
-                case ('li7500', 'li7500a', 'li7500rs', 'li7200', 'li7200rs', &
-                    'li7700', 'li6262', 'li7000')
+                case ('li7500', 'li7500a', 'li7500rs', 'li7500ds', 'li7200', &
+                    'li7200rs', 'li7700', 'li6262', 'li7000')
                     continue
                 case ('generic_open_path', 'generic_closed_path')
                     if (LocInstr%hpath_length * LocInstr%vpath_length * LocInstr%tau == 0) then

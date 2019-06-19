@@ -1,22 +1,30 @@
 !***************************************************************************
 ! qc_flags_subs.f90
 ! -----------------
-! Copyright (C) 2011-2015, LI-COR Biosciences
+! Copyright (C) 2011-2019, LI-COR Biosciences, Inc.  All Rights Reserved.
+! Author: Gerardo Fratini
 !
-! This file is part of EddyPro (TM).
+! This file is part of EddyPro®.
 !
-! EddyPro (TM) is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
+! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for 
+! non-commercial academic and government research purposes only, 
+! as provided in the EDDYPRO® End User License Agreement. 
+! EDDYPRO® may only be used as provided in the End User License Agreement
+! and may not be used or accessed for any commercial purposes.
+! You may view a copy of the End User License Agreement in the file
+! EULA_NON_COMMERCIAL.rtf.
 !
-! EddyPro (TM) is distributed in the hope that it will be useful,
+! Commercial companies that are LI-COR flux system customers 
+! are encouraged to contact LI-COR directly for our commercial 
+! EDDYPRO® End User License Agreement.
+!
+! EDDYPRO® contains Open Source Components (as defined in the 
+! End User License Agreement). The licenses and/or notices for the 
+! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
+!
+! EddyPro® is distributed in the hope that it will be useful,
 ! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 !
 !***************************************************************************
 !
@@ -57,46 +65,54 @@ subroutine QualityFlags(lFlux2, StDiff, DtDiff, STFlg, DTFlg, lQCFlag, printout)
     call PartialFlagLF(DtDiff%ts, DTFlg(ts))
     DTFlg(u)  = max(DTFlg(u),  DTFlg(w))
 
-    select case(Meth%qcflag(1:len_trim(Meth%qcflag)))
-        case ('none')
-            lQCFlag%tau = nint(error)
-            lQCFlag%H = nint(error)
-            lQCFlag%co2 = nint(error)
-            lQCFlag%h2o = nint(error)
-            lQCFlag%ch4 = nint(error)
-            lQCFlag%gas4 = nint(error)
-        case ('mauder_foken_04')
-            !> Combined flags according to Mauder and Foken (2004)
-            call GTK2Flag(STFlg(w_u),   DTFlg(u), lQCFlag%tau)
-            call GTK2Flag(STFlg(w_ts),  DTFlg(w), lQCFlag%H)
-            call GTK2Flag(STFlg(w_co2), DTFlg(w), lQCFlag%co2)
-            call GTK2Flag(STFlg(w_h2o), DTFlg(w), lQCFlag%h2o)
-            call GTK2Flag(STFlg(w_ch4), DTFlg(w), lQCFlag%ch4)
-            call GTK2Flag(STFlg(w_gas4), DTFlg(w), lQCFlag%gas4)
-        case ('foken_03')
-            !> Combined flags according to Foken (2003), retrieved from Foken et al. (2004, HoM)
-            call FokenFlag(STFlg(w_u),   DTFlg(u), lQCFlag%tau)
-            call FokenFlag(STFlg(w_ts),  DTFlg(w), lQCFlag%H)
-            call FokenFlag(STFlg(w_co2), DTFlg(w), lQCFlag%co2)
-            call FokenFlag(STFlg(w_h2o), DTFlg(w), lQCFlag%h2o)
-            call FokenFlag(STFlg(w_ch4), DTFlg(w), lQCFlag%ch4)
-            call FokenFlag(STFlg(w_gas4), DTFlg(w), lQCFlag%gas4)
-        case ('goeckede_06')
-            !> Combined flags according to Goeckede et al. (2006)
-            call GoeckedeFlag(STFlg(w_u),   DTFlg(u), lQCFlag%tau)
-            call GoeckedeFlag(STFlg(w_ts),  DTFlg(w), lQCFlag%H)
-            call GoeckedeFlag(STFlg(w_co2), DTFlg(w), lQCFlag%co2)
-            call GoeckedeFlag(STFlg(w_h2o), DTFlg(w), lQCFlag%h2o)
-            call GoeckedeFlag(STFlg(w_ch4), DTFlg(w), lQCFlag%ch4)
-            call GoeckedeFlag(STFlg(w_gas4), DTFlg(w), lQCFlag%gas4)
-    end select
-
-    !> If fluxes are set to error, set to error also the quality flags
-    if (lFlux2%H    == error) lQCFlag%H    = nint(error)
-    if (lFlux2%h2o  == error) lQCFlag%h2o  = nint(error)
-    if (lFlux2%co2  == error) lQCFlag%co2  = nint(error)
-    if (lFlux2%ch4  == error) lQCFlag%ch4  = nint(error)
-    if (lFlux2%gas4 == error) lQCFlag%gas4 = nint(error)
+    if (.not. EddyProProj%fcc_follows) then
+        select case(Meth%qcflag(1:len_trim(Meth%qcflag)))
+            case ('none')
+                lQCFlag%tau = nint(error)
+                lQCFlag%H = nint(error)
+                lQCFlag%co2 = nint(error)
+                lQCFlag%h2o = nint(error)
+                lQCFlag%ch4 = nint(error)
+                lQCFlag%gas4 = nint(error)
+            case ('mauder_foken_04')
+                !> Combined flags according to Mauder and Foken (2004)
+                call GTK2Flag(STFlg(w_u),   DTFlg(u), lQCFlag%tau)
+                call GTK2Flag(STFlg(w_ts),  DTFlg(w), lQCFlag%H)
+                call GTK2Flag(STFlg(w_co2), DTFlg(w), lQCFlag%co2)
+                call GTK2Flag(STFlg(w_h2o), DTFlg(w), lQCFlag%h2o)
+                call GTK2Flag(STFlg(w_ch4), DTFlg(w), lQCFlag%ch4)
+                call GTK2Flag(STFlg(w_gas4), DTFlg(w), lQCFlag%gas4)
+            case ('foken_03')
+                !> Combined flags according to Foken (2003), retrieved from Foken et al. (2004, HoM)
+                call FokenFlag(STFlg(w_u),   DTFlg(u), lQCFlag%tau)
+                call FokenFlag(STFlg(w_ts),  DTFlg(w), lQCFlag%H)
+                call FokenFlag(STFlg(w_co2), DTFlg(w), lQCFlag%co2)
+                call FokenFlag(STFlg(w_h2o), DTFlg(w), lQCFlag%h2o)
+                call FokenFlag(STFlg(w_ch4), DTFlg(w), lQCFlag%ch4)
+                call FokenFlag(STFlg(w_gas4), DTFlg(w), lQCFlag%gas4)
+            case ('goeckede_06')
+                !> Combined flags according to Goeckede et al. (2006)
+                call GoeckedeFlag(STFlg(w_u),   DTFlg(u), lQCFlag%tau)
+                call GoeckedeFlag(STFlg(w_ts),  DTFlg(w), lQCFlag%H)
+                call GoeckedeFlag(STFlg(w_co2), DTFlg(w), lQCFlag%co2)
+                call GoeckedeFlag(STFlg(w_h2o), DTFlg(w), lQCFlag%h2o)
+                call GoeckedeFlag(STFlg(w_ch4), DTFlg(w), lQCFlag%ch4)
+                call GoeckedeFlag(STFlg(w_gas4), DTFlg(w), lQCFlag%gas4)
+        end select
+        !> If fluxes are set to error, set to error also the quality flags
+        if (lFlux2%H    == error) lQCFlag%H    = nint(error)
+        if (lFlux2%h2o  == error) lQCFlag%h2o  = nint(error)
+        if (lFlux2%co2  == error) lQCFlag%co2  = nint(error)
+        if (lFlux2%ch4  == error) lQCFlag%ch4  = nint(error)
+        if (lFlux2%gas4 == error) lQCFlag%gas4 = nint(error)
+    else
+        lQCFlag%tau = nint(error)
+        lQCFlag%H = nint(error)
+        lQCFlag%co2 = nint(error)
+        lQCFlag%h2o = nint(error)
+        lQCFlag%ch4 = nint(error)
+        lQCFlag%gas4 = nint(error)
+    end if
 
     if (printout) write(*, '(a)') ' Done.'
 end subroutine QualityFlags
@@ -139,7 +155,7 @@ subroutine PartialFlagLF(val, flag)
         case (1001:)
             flag = 9
         case default
-            flag = 9
+            flag = ierror
     end select
 end subroutine PartialFlagLF
 
@@ -200,7 +216,7 @@ subroutine GTK2Flag(STFlg, DTFlg, OAFlag)
     !> itc test  < 30  ==> itc flag  <= 2
     !> stat test < 100 ==> stat flag <= 5
     !> itc test  < 100 ==> itc  flag <= 5
-    if (STFlg == idint(error) .or. DTFlg == idint(error)) then
+    if (STFlg == ierror .or. DTFlg == ierror) then
         OAFlag = 2
         return
     end if

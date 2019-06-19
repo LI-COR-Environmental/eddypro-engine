@@ -2,22 +2,30 @@
 ! point_by_point_to_mixing_ratio.f90
 ! ----------------------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2015, LI-COR Biosciences
+! Copyright (C) 2011-2019, LI-COR Biosciences, Inc.  All Rights Reserved.
+! Author: Gerardo Fratini
 !
-! This file is part of EddyPro (TM).
+! This file is part of EddyPro®.
 !
-! EddyPro (TM) is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
+! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for 
+! non-commercial academic and government research purposes only, 
+! as provided in the EDDYPRO® End User License Agreement. 
+! EDDYPRO® may only be used as provided in the End User License Agreement
+! and may not be used or accessed for any commercial purposes.
+! You may view a copy of the End User License Agreement in the file
+! EULA_NON_COMMERCIAL.rtf.
 !
-! EddyPro (TM) is distributed in the hope that it will be useful,
+! Commercial companies that are LI-COR flux system customers 
+! are encouraged to contact LI-COR directly for our commercial 
+! EDDYPRO® End User License Agreement.
+!
+! EDDYPRO® contains Open Source Components (as defined in the 
+! End User License Agreement). The licenses and/or notices for the 
+! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
+!
+! EddyPro® is distributed in the hope that it will be useful,
 ! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 !
 !***************************************************************************
 !
@@ -41,6 +49,7 @@ subroutine PointByPointToMixingRatio(Set, nrow, ncol, printout)
     !> Local variables
     real(kind = dbl) :: H2Omf(nrow)
     real(kind = dbl) :: Va(nrow)
+    logical :: cellVaAvailable
 
 
     !> Point-by-point, accurate conversion to mixing ratio cannot be
@@ -62,6 +71,12 @@ subroutine PointByPointToMixingRatio(Set, nrow, ncol, printout)
         Va(:) = error
     end if
 
+    if (all(Va(:) == error)) then
+        cellVaAvailable = .false.
+    else
+        cellVaAvailable = .true.
+    end if
+    
     !> Locally transform h2o into mole fraction [mmol/mol]
     select case (E2Col(h2o)%measure_type)
         case ('mixing_ratio')
@@ -80,10 +95,11 @@ subroutine PointByPointToMixingRatio(Set, nrow, ncol, printout)
             end where
     end select
 
-    !> If there is any scalar expressed as mole_fraction, coming
-    !> from the same analyzer of H2O, convert it into mixing ratio using
+    !> If there is any scalar expressed as mole_fraction or molar density, 
+    !> measured by the same analyzer of H2O, convert it into mixing ratio using
     !> water vapor mole fraction as calculated above
-    !> H2O mole fraction is expressed as  mmol_w / mol_a
+    !> (H2O mole fraction is expressed as  mmol_w / mol_a)
+    !> and using cell air molar volume
     if (printout) write(*, '(a)', advance = 'no') &
         '  WPL step: converting into mixing ratios wherever possible..'
 
@@ -95,7 +111,7 @@ subroutine PointByPointToMixingRatio(Set, nrow, ncol, printout)
         elsewhere
             Set(:, h2o) = error
         endwhere
-    elseif (E2Col(h2o)%measure_type == 'molar_density') then
+    elseif (E2Col(h2o)%measure_type == 'molar_density' .and. cellVaAvailable) then
         E2Col(h2o)%measure_type = 'mixing_ratio'
         where(Va(:) /= error .and. H2Omf(:) /= error)
             Set(:, h2o) = Set(:, h2o) * Va(:) / (1.d0 - H2Omf(:) * 1d-3)
@@ -113,7 +129,7 @@ subroutine PointByPointToMixingRatio(Set, nrow, ncol, printout)
             elsewhere
                 Set(:, co2) = error
             endwhere
-        elseif (E2Col(co2)%measure_type == 'molar_density') then
+        elseif (E2Col(co2)%measure_type == 'molar_density' .and. cellVaAvailable) then
             E2Col(co2)%measure_type = 'mixing_ratio'
             where(Va(:) /= error .and. H2Omf(:) /= error &
                 .and. Set(:, co2) /= error)
@@ -134,7 +150,7 @@ subroutine PointByPointToMixingRatio(Set, nrow, ncol, printout)
             elsewhere
                 Set(:, ch4) = error
             endwhere
-        elseif (E2Col(ch4)%measure_type == 'molar_density') then
+        elseif (E2Col(ch4)%measure_type == 'molar_density' .and. cellVaAvailable) then
             E2Col(ch4)%measure_type = 'mixing_ratio'
             where(Va(:) /= error .and. H2Omf(:) /= error &
                 .and. Set(:, ch4) /= error)
@@ -154,7 +170,7 @@ subroutine PointByPointToMixingRatio(Set, nrow, ncol, printout)
             elsewhere
                 Set(:, gas4) = error
             endwhere
-        elseif (E2Col(gas4)%measure_type == 'molar_density') then
+        elseif (E2Col(gas4)%measure_type == 'molar_density' .and. cellVaAvailable) then
             E2Col(gas4)%measure_type = 'mixing_ratio'
             where(Va(:) /= error .and. H2Omf(:) /= error &
             .and. Set(:, gas4) /= error)

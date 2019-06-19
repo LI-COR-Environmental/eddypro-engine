@@ -1,22 +1,30 @@
 !***************************************************************************
 ! fluxes0_rp.f90
 ! --------------
-! Copyright (C) 2011-2015, LI-COR Biosciences
+! Copyright (C) 2011-2019, LI-COR Biosciences, Inc.  All Rights Reserved.
+! Author: Gerardo Fratini
 !
-! This file is part of EddyPro (TM).
+! This file is part of EddyPro®.
 !
-! EddyPro (TM) is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
+! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for 
+! non-commercial academic and government research purposes only, 
+! as provided in the EDDYPRO® End User License Agreement. 
+! EDDYPRO® may only be used as provided in the End User License Agreement
+! and may not be used or accessed for any commercial purposes.
+! You may view a copy of the End User License Agreement in the file
+! EULA_NON_COMMERCIAL.rtf.
 !
-! EddyPro (TM) is distributed in the hope that it will be useful,
+! Commercial companies that are LI-COR flux system customers 
+! are encouraged to contact LI-COR directly for our commercial 
+! EDDYPRO® End User License Agreement.
+!
+! EDDYPRO® contains Open Source Components (as defined in the 
+! End User License Agreement). The licenses and/or notices for the 
+! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
+!
+! EddyPro® is distributed in the hope that it will be useful,
 ! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 !
 !***************************************************************************
 !
@@ -298,16 +306,21 @@ subroutine Fluxes0_rp(printout)
         if (Essentials%rand_uncer(h2o) /= error .and. Ambient%lambda > 0d0) then
             Essentials%rand_uncer_LE = &
                 Essentials%rand_uncer(h2o) * Ambient%lambda * MW(h2o) * 1d-3
+            Essentials%rand_uncer_ET = &
+                Essentials%rand_uncer(h2o) * h2o_to_ET
         else
             Essentials%rand_uncer_LE = error
+            Essentials%rand_uncer_ET = error
         end if
     end if
 
     !> Level 0 evapotranspiration flux [kg m-2 -1]
     if (Flux0%h2o /= error .and. Ambient%lambda > 0d0) then
         Flux0%E = Flux0%h2o * MW(h2o) * 1d-3
+        Flux0%ET = Flux0%h2o * h2o_to_ET
     else
         Flux0%E = error
+        Flux0%ET = error
     end if
 
     !> Level 0 evapotranspiration flux [kg m-2 -1]
@@ -376,10 +389,12 @@ subroutine Fluxes0_rp(printout)
     else
         Ambient%us = error
     end if
+    Flux0%ustar = Ambient%us
+    Essentials%ustar = Ambient%us
 
     !> Momentum flux [kg m-1 s-2], after Van Dijk et al. 2004 Eq. 2.44
     if (RHO%a > 0d0 .and. Ambient%us >= 0d0) then
-        Flux0%tau = RHO%a * Ambient%us ** 2d0
+        Flux0%tau = sign(RHO%a * Ambient%us ** 2d0, Stats%Cov(u, w))
     else
         Flux0%tau = error
     end if

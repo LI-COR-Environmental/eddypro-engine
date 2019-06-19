@@ -2,22 +2,30 @@
 ! date_subs.f90
 ! -------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2015, LI-COR Biosciences
+! Copyright (C) 2011-2019, LI-COR Biosciences, Inc.  All Rights Reserved.
+! Author: Gerardo Fratini
 !
-! This file is part of EddyPro (TM).
+! This file is part of EddyPro®.
 !
-! EddyPro (TM) is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
+! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for 
+! non-commercial academic and government research purposes only, 
+! as provided in the EDDYPRO® End User License Agreement. 
+! EDDYPRO® may only be used as provided in the End User License Agreement
+! and may not be used or accessed for any commercial purposes.
+! You may view a copy of the End User License Agreement in the file
+! EULA_NON_COMMERCIAL.rtf.
 !
-! EddyPro (TM) is distributed in the hope that it will be useful,
+! Commercial companies that are LI-COR flux system customers 
+! are encouraged to contact LI-COR directly for our commercial 
+! EDDYPRO® End User License Agreement.
+!
+! EDDYPRO® contains Open Source Components (as defined in the 
+! End User License Agreement). The licenses and/or notices for the 
+! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
+!
+! EddyPro® is distributed in the hope that it will be useful,
 ! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 !
 !***************************************************************************
 !
@@ -51,7 +59,10 @@ subroutine tsValidateTemplate(Template)
     if ( index(Template, 'yy') == 0 &
     .or. index(Template, 'dd') == 0 &
     .or. index(Template, 'HH') == 0 &
-    .or. index(Template, 'MM') == 0) call ExceptionHandler(20)
+    .or. index(Template, 'MM') == 0) then
+        write(*, *) ''
+        call ExceptionHandler(20)
+    end if
 end subroutine tsValidateTemplate
 
 !***************************************************************************
@@ -351,13 +362,41 @@ logical function IsDaytime(rad, date, time)
     character(*), intent(in) :: date
     character(*), intent(in) :: time
     !> local variables
-    logical :: isleap
+    integer :: indx
+    integer, external :: DateTimeToHalfHourNumber
+
+    indx = DateTimeToHalfHourNumber(date, time)
+    !> Now indx is known, use relevant radiation value to determine daytime
+    if (rad(indx) > 10d0) then
+        IsDaytime = .true.
+    else
+        IsDaytime = .false.
+    end if
+end function IsDaytime
+
+!***************************************************************************
+!
+! \brief       Calculate passed date/time's half-hour number in the year
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+integer function DateTimeToHalfHourNumber(date, time) result(indx)
+    use m_common_global_Var
+    implicit none
+    !> in/out variables
+    character(*), intent(in) :: date
+    character(*), intent(in) :: time
+    !> local variables
     integer :: int_year
     integer :: int_day
     integer :: int_hour
     integer :: int_min
-    integer :: indx
-
+    logical :: isleap
 
     !> Deterime whether current year is leap
     read(date(1:4), '(i4)') int_year
@@ -422,14 +461,7 @@ logical function IsDaytime(rad, date, time)
             indx = indx + 2
     end select
     if (indx == 0) indx = 1
-
-    !> Now indx is known, use relevant radiation value to determine daytime
-    if (rad(indx) > 10d0) then
-        IsDaytime = .true.
-    else
-        IsDaytime = .false.
-    end if
-end function IsDaytime
+end function DateTimeToHalfHourNumber
 
 !***************************************************************************
 !

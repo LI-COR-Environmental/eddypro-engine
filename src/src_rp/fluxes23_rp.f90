@@ -1,22 +1,30 @@
 !***************************************************************************
 ! fluxes23_rp.f90
 ! ---------------
-! Copyright (C) 2011-2015, LI-COR Biosciences
+! Copyright (C) 2011-2019, LI-COR Biosciences, Inc.  All Rights Reserved.
+! Author: Gerardo Fratini
 !
-! This file is part of EddyPro (TM).
+! This file is part of EddyPro®.
 !
-! EddyPro (TM) is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
+! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for 
+! non-commercial academic and government research purposes only, 
+! as provided in the EDDYPRO® End User License Agreement. 
+! EDDYPRO® may only be used as provided in the End User License Agreement
+! and may not be used or accessed for any commercial purposes.
+! You may view a copy of the End User License Agreement in the file
+! EULA_NON_COMMERCIAL.rtf.
 !
-! EddyPro (TM) is distributed in the hope that it will be useful,
+! Commercial companies that are LI-COR flux system customers 
+! are encouraged to contact LI-COR directly for our commercial 
+! EDDYPRO® End User License Agreement.
+!
+! EDDYPRO® contains Open Source Components (as defined in the 
+! End User License Agreement). The licenses and/or notices for the 
+! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
+!
+! EddyPro® is distributed in the hope that it will be useful,
 ! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 !
 !***************************************************************************
 !
@@ -125,6 +133,7 @@ subroutine Fluxes23_rp()
     !> Level 2 h2o and latent heat flux
     if (Flux2%E /= error) then
         Flux2%h2o = Flux2%E * 1d3 / MW(h2o)
+        Flux2%ET = Flux2%h2o * h2o_to_ET
         if (Ambient%lambda /= error) then
             Flux2%LE = Flux2%E * Ambient%lambda
         else
@@ -133,6 +142,7 @@ subroutine Fluxes23_rp()
     else
         Flux2%h2o = error
         Flux2%LE  = error
+        Flux2%ET  = error
     end if
 
     !> Level 2 evapotranspiration fluxes with H2O covariances
@@ -206,6 +216,7 @@ subroutine Fluxes23_rp()
     !> Level 3 h2o flux and latent heat flux
     if (Flux3%E /= error) then
         Flux3%h2o = Flux3%E * 1d3 / MW(h2o)
+        Flux3%ET = Flux3%h2o * h2o_to_ET
         if (Ambient%lambda /= error) then
             Flux3%LE = Flux3%E * Ambient%lambda
         else
@@ -214,6 +225,7 @@ subroutine Fluxes23_rp()
     else
         Flux3%h2o = error
         Flux3%LE  = error
+        Flux3%ET  = error
     end if
 
     !> Calculate E_nowpl for closed and open path systems
@@ -235,12 +247,14 @@ subroutine Fluxes23_rp()
         Flux3%h2o = Flux3%h2o * BPCF%of(w_h2o)
         Flux3%E   = Flux3%E   * BPCF%of(w_h2o)
         Flux3%LE  = Flux3%LE  * BPCF%of(w_h2o)
+        Flux3%ET  = Flux3%ET  * BPCF%of(w_h2o)
     end if
 
     if (.not. E2Col(h2o)%present) then
         Flux3%h2o = error
         Flux3%E   = error
         Flux3%LE  = error
+        Flux3%ET  = error
     end if
 
     !> Level 2 other gases
@@ -403,46 +417,25 @@ subroutine Fluxes23_rp()
         end select
     else
         !> Level 2, WPL for open path implemented after e.g. Burba et al. (2008, GCB, eq. 1)
-        if(index(E2Col(co2)%Instr%model, 'li7500') /= 0) then
-            if (Flux1%co2 /= error .and. Flux3%H /= error .and. Flux3%E /= error &
-                .and. RHO%d > 0 .and. Ambient%RhoCp > 0 .and. Ambient%Ta > 0d0 .and. Ambient%sigma /= error) then
-                Flux2%co2 = Flux1%co2 + mu * Flux3%E * Stats%d(co2) * 1d3 &
-                    / ((1d0 + mu * Ambient%sigma) * RHO%d) &
-                    + (Flux3%H + Burba%h_top + Burba%h_bot + Burba%h_spar) * Stats%d(co2) * 1d3 &
-                    / (Ambient%RhoCp * Ambient%Ta)
-            elseif(Flux1%co2 /= error .and. Flux3%H /= error &
-                .and. Ambient%RhoCp >0 .and. Ambient%Ta > 0d0) then
-                Flux2%co2 = Flux1%co2 &
-                    + (Flux3%H + Burba%h_top + Burba%h_bot + Burba%h_spar) * Stats%d(co2) * 1d3 &
-                    / (Ambient%RhoCp * Ambient%Ta)
-            elseif(Flux1%co2 /= error .and. Flux3%E /= error &
-                .and. RHO%d > 0d0 .and. Ambient%sigma /= error) then
-                Flux2%co2 = Flux1%co2 &
-                    + mu * Flux3%E * Stats%d(co2) * 1d3 / ((1d0 + mu * Ambient%sigma) * RHO%d)
-            elseif(Flux1%co2 /= error) then
-                Flux2%co2 = Flux1%co2
-            else
-                Flux2%co2 = error
-            end if
+        if (Flux1%co2 /= error .and. Flux3%H /= error .and. Flux3%E /= error &
+            .and. RHO%d > 0 .and. Ambient%RhoCp > 0 .and. Ambient%Ta > 0d0 .and. Ambient%sigma /= error) then
+            Flux2%co2 = Flux1%co2 + mu * Flux3%E * Stats%d(co2) * 1d3 &
+                / ((1d0 + mu * Ambient%sigma) * RHO%d) &
+                + (Flux3%H + Burba%h_top + Burba%h_bot + Burba%h_spar) * Stats%d(co2) * 1d3 &
+                / (Ambient%RhoCp * Ambient%Ta)
+        elseif(Flux1%co2 /= error .and. Flux3%H /= error &
+            .and. Ambient%RhoCp >0 .and. Ambient%Ta > 0d0) then
+            Flux2%co2 = Flux1%co2 &
+                + (Flux3%H + Burba%h_top + Burba%h_bot + Burba%h_spar) * Stats%d(co2) * 1d3 &
+                / (Ambient%RhoCp * Ambient%Ta)
+        elseif(Flux1%co2 /= error .and. Flux3%E /= error &
+            .and. RHO%d > 0d0 .and. Ambient%sigma /= error) then
+            Flux2%co2 = Flux1%co2 &
+                + mu * Flux3%E * Stats%d(co2) * 1d3 / ((1d0 + mu * Ambient%sigma) * RHO%d)
+        elseif(Flux1%co2 /= error) then
+            Flux2%co2 = Flux1%co2
         else
-            if (Flux1%co2 /= error .and. Flux3%H /= error .and. Flux3%E /= error &
-                .and. RHO%d > 0d0 .and. Ambient%RhoCp > 0d0 .and. Ambient%Ta > 0d0 .and. Ambient%sigma /= error) then
-                Flux2%co2 = Flux1%co2 &
-                    + mu * Flux3%E * Stats%d(co2) * 1d3 / ((1d0 + mu * Ambient%sigma) * RHO%d) &
-                    + Flux3%H * Stats%d(co2) * 1d3 / (Ambient%RhoCp * Ambient%Ta)
-            elseif(Flux1%co2 /= error .and. Flux3%H /= error &
-                .and. Ambient%RhoCp > 0d0 .and. Ambient%Ta > 0d0) then
-                Flux2%co2 = Flux1%co2 &
-                    + Flux3%H * Stats%d(co2) * 1d3 / (Ambient%RhoCp * Ambient%Ta)
-            elseif(Flux1%co2 /= error .and. Flux3%E /= error &
-                .and. RHO%d > 0d0 .and. Ambient%sigma /= error) then
-                Flux2%co2 = Flux1%co2 &
-                    + mu * Flux3%E * Stats%d(co2) * 1d3 / ((1d0 + mu * Ambient%sigma) * RHO%d)
-            elseif(Flux1%co2 /= error) then
-                Flux2%co2 = Flux1%co2
-            else
-                Flux2%co2 = error
-            end if
+            Flux2%co2 = error
         end if
     end if
     if (.not. E2Col(co2)%present) Flux2%co2 = error
@@ -878,7 +871,7 @@ subroutine Fluxes23_rp()
     !> scale temperature(T*)
     !> If condition fails, previous value (from Fluxes0) holds
     if (Ambient%us > 0d0 .and. Flux3%H /= error .and. Ambient%RhoCp > 0d0) &
-        Ambient%Ts = Flux3%H / (Ambient%RhoCp * Ambient%us)
+        Ambient%Ts = - Flux3%H / (Ambient%RhoCp * Ambient%us)
 
     !> Bowen ration (Bowen, 1926, Phyis Rev)
     if (Flux3%LE /= 0d0 .and. Flux3%LE /= error .and. Flux3%H /= error) then
@@ -890,12 +883,14 @@ subroutine Fluxes23_rp()
     !> Momentum flux
     Flux2%tau = Flux1%tau
     Flux3%tau = Flux1%tau
+    Flux2%ustar = Flux1%ustar
+    Flux3%ustar = Flux1%ustar
 
     !> If fluxes are error, set also time-lags to error, just for clarity
-    if (Flux2%co2  == error) Essentials%timelag(co2)  = error
-    if (Flux2%h2o  == error) Essentials%timelag(h2o)  = error
-    if (Flux2%ch4  == error) Essentials%timelag(ch4)  = error
-    if (Flux2%gas4 == error) Essentials%timelag(gas4) = error
+    if (Flux2%co2  == error) Essentials%used_timelag(co2)  = error
+    if (Flux2%h2o  == error) Essentials%used_timelag(h2o)  = error
+    if (Flux2%ch4  == error) Essentials%used_timelag(ch4)  = error
+    if (Flux2%gas4 == error) Essentials%used_timelag(gas4) = error
 
     write(*,'(a)')   ' Done.'
 end subroutine Fluxes23_rp

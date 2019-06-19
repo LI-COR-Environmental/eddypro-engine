@@ -1,0 +1,37 @@
+This software uses the following libraries:
+
+- sort.f90
+
+    Patched by Gerardo Fratini from original code by Alan Miller,
+    available in the public domain at:
+    http://www.fortran-2000.com/rank/refsor.f90
+    See also here:
+    https://jblevins.org/mirror/amiller/
+
+- m_levenberg_marquardt.f90
+
+    MINPACK routines which are used by both LMDIF & LMDER
+    A. Miller (amiller@bigpond.net.au)
+    MINPACK License:
+    This code may freely be copied, modified, and used for any purpose.
+
+- m_libdate.f90
+
+    Dr. Arjan van Dijk (Arjan.van.Dijk@rivm.nl, http://www.rivm.nl/) for:
+    LSO   Laboratory for Radiation Research
+    RIVM - National Institute for Public Health and the Environment
+    PO Box 1,
+    NL - 3720 BA Bilthoven
+    The Netherlands
+    Version: 12 september 2008
+    License:
+    Use, copy and modify this source code freely and at your own risk!
+
+- rfttf.F, rfttb.F, rftti.F:
+
+    Paul B. Swarztrauber
+    This routine is part of FFTPACK, which is part of SLATEC
+    SLATEC is Public Domain Software, see for example:
+    https://gams.nist.gov/cgi-bin/serve.cgi/Package/SLATEC/
+    and
+    https://en.wikipedia.org/wiki/SLATEC#Project_history_and_current_status

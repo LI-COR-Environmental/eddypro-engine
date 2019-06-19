@@ -1,22 +1,30 @@
 !***************************************************************************
 ! bpcf_additional_horst_lenschow_09.f90
 ! -------------------------------------
-! Copyright (C) 2011-2015, LI-COR Biosciences
+! Copyright (C) 2011-2019, LI-COR Biosciences, Inc.  All Rights Reserved.
+! Author: Gerardo Fratini
 !
-! This file is part of EddyPro (TM).
+! This file is part of EddyPro®.
 !
-! EddyPro (TM) is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
+! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for 
+! non-commercial academic and government research purposes only, 
+! as provided in the EDDYPRO® End User License Agreement. 
+! EDDYPRO® may only be used as provided in the End User License Agreement
+! and may not be used or accessed for any commercial purposes.
+! You may view a copy of the End User License Agreement in the file
+! EULA_NON_COMMERCIAL.rtf.
 !
-! EddyPro (TM) is distributed in the hope that it will be useful,
+! Commercial companies that are LI-COR flux system customers 
+! are encouraged to contact LI-COR directly for our commercial 
+! EDDYPRO® End User License Agreement.
+!
+! EDDYPRO® contains Open Source Components (as defined in the 
+! End User License Agreement). The licenses and/or notices for the 
+! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
+!
+! EddyPro® is distributed in the hope that it will be useful,
 ! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 !
 !***************************************************************************
 !
@@ -46,28 +54,28 @@ subroutine CF_HorstLenschow09(lEx, LocSetup)
     real(kind = dbl) :: alpha
     real(kind = dbl) :: direc
     real(kind = dbl) :: r
-
+ 
     integer :: igas
     integer :: gas
 
     !> Initialization
     ADDCF%of(co2:gas4) = 1d0
 
-    if (lEx%zL /= error) then
+    if (lEx%Flux0%zL /= error) then
         !> normalized wavenumber corresponding to cospectrum peak
         !> in streamwise direction as a function of stability (Eq. 15)
-        if (lEx%zL <= -0.1d0) then
+        if (lEx%Flux0%zL <= -0.1d0) then
             n_mx = 0.07d0
         else
-            n_mx = 2.31d0 - 2.24d0 / (1.015d0 + 0.15d0 * lEx%zL)**2
+            n_mx = 2.31d0 - 2.24d0 / (1.015d0 + 0.15d0 * lEx%Flux0%zL)**2
         end if
 
         !> normalized wavenumber corresponding to cospectrum peak
         !> in cross-stream direction as a function of stability (Eq. 18)
-        if (lEx%zL <= -0.05d0) then
+        if (lEx%Flux0%zL <= -0.05d0) then
             n_my = 0.15d0
         else
-            n_my = 2.43d0 - 2.28d0 / (1.01d0 + 0.2d0 * lEx%zL)**2
+            n_my = 2.43d0 - 2.28d0 / (1.01d0 + 0.2d0 * lEx%Flux0%zL)**2
         end if
 
         !> normalized wavenumber corresponding to cospectrum peak
@@ -76,15 +84,15 @@ subroutine CF_HorstLenschow09(lEx, LocSetup)
             gas = igas + 3
             if (lEx%var_present(gas)) then
                 if (lEx%instr(igas)%vsep >= 0) then
-                    zL = lEx%zL
+                    zL = lEx%Flux0%zL
                     if (zL <= 0.03d0) then
                         n_mz(gas) = 0.1d0
                     else
                         n_mz(gas) = 0.43d0 - 0.33d0 / (0.964d0 + 1.2d0 * zL)**2
                     end if
                 else
-                    if (lEx%L /= 0 .and. lEx%L /= error) then
-                        zL = (lEx%instr(sonic)%height + lEx%instr(igas)%vsep - lEx%disp_height) / lEx%L
+                    if (lEx%Flux0%L /= 0 .and. lEx%Flux0%L /= error) then
+                        zL = (lEx%instr(sonic)%height + lEx%instr(igas)%vsep - lEx%disp_height) / lEx%Flux0%L
                         if (zL <= -0.03d0) then
                             n_mz(gas) = 0.013d0
                         else

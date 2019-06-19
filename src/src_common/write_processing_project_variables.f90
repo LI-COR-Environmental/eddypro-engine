@@ -2,22 +2,30 @@
 ! write_processing_project_variables.f90
 ! --------------------------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2015, LI-COR Biosciences
+! Copyright (C) 2011-2019, LI-COR Biosciences, Inc.  All Rights Reserved.
+! Author: Gerardo Fratini
 !
-! This file is part of EddyPro (TM).
+! This file is part of EddyPro®.
 !
-! EddyPro (TM) is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
+! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for 
+! non-commercial academic and government research purposes only, 
+! as provided in the EDDYPRO® End User License Agreement. 
+! EDDYPRO® may only be used as provided in the End User License Agreement
+! and may not be used or accessed for any commercial purposes.
+! You may view a copy of the End User License Agreement in the file
+! EULA_NON_COMMERCIAL.rtf.
 !
-! EddyPro (TM) is distributed in the hope that it will be useful,
+! Commercial companies that are LI-COR flux system customers 
+! are encouraged to contact LI-COR directly for our commercial 
+! EDDYPRO® End User License Agreement.
+!
+! EDDYPRO® contains Open Source Components (as defined in the 
+! End User License Agreement). The licenses and/or notices for the 
+! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
+!
+! EddyPro® is distributed in the hope that it will be useful,
 ! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 !
 !***************************************************************************
 !
@@ -164,6 +172,8 @@ subroutine WriteProcessingProjectVariables()
     EddyProProj%col(E2NumVar + diag75) = nint(EPPrjNTags(15)%value)
     EddyProProj%col(E2NumVar + diag77) = nint(EPPrjNTags(16)%value)
     EddyProProj%col(E2NumVar + diagAnem) = nint(EPPrjNTags(20)%value)
+    EddyProProj%col(E2NumVar + diagStaA) = nint(EPPrjNTags(21)%value)
+    EddyProProj%col(E2NumVar + diagStaD) = nint(EPPrjNTags(22)%value)
 
     !> if a column was selected for gas4, read diffusivity. If diffusivity is
     !> below zero, defaults to gas4 diffusivity
@@ -211,12 +221,6 @@ subroutine WriteProcessingProjectVariables()
     EddyProProj%binned_spec_avail = EPPrjCTags(44)%value(1:1) == '1'
     EddyProProj%full_spec_avail   = EPPrjCTags(45)%value(1:1) == '1'
 
-    !> select whether to output GHG-europe-formatted file
-    EddyProProj%out_fluxnet = EPPrjCTags(19)%value(1:1) == '1'
-    EddyProProj%out_fluxnet_eddy   = EddyProProj%out_fluxnet
-    EddyProProj%out_fluxnet_biomet = EddyProProj%out_fluxnet
-    !> select whether to output AmeriFlux-formatted file
-    EddyProProj%out_amflux = EPPrjCTags(20)%value(1:1) == '1'
     !> select whether to output full output file
     EddyProProj%out_full = EPPrjCTags(21)%value(1:1) == '1'
     !> select whether to use fixed or dynamic output format
@@ -320,7 +324,7 @@ subroutine WriteProcessingProjectVariables()
     !> set error string
     EddyProProj%err_label = trim(adjustl(EPPrjCTags(36)%value))
     if (len_trim(EddyProProj%err_label) == 0 .or. EddyProProj%err_label == 'none') &
-        EddyProProj%err_label = '-9999.0'
+        EddyProProj%err_label = '-9999'
 
     !> select footprint method
     select case (EPPrjCTags(34)%value(1:1))
@@ -350,6 +354,10 @@ subroutine WriteProcessingProjectVariables()
         Meth%qcflag = 'mauder_foken_04'
     end select
 
+    !> Select whether to standardize biomets or not
+    EddyProProj%fluxnet_standardize_biomet = EPPrjCTags(48)%value(1:1) == '1'
+    EddyProProj%fluxnet_mode = EPPrjCTags(49)%value(1:1) == '1'
+
     !> main output directory, only in Desktop mode
     if (EddyProProj%run_env /= 'embedded') then
         Dir%main_out = EPPrjCTags(35)%value
@@ -358,6 +366,29 @@ subroutine WriteProcessingProjectVariables()
             call ExceptionHandler(36)
         end if
         call AdjDir(Dir%main_out, slash)
+    end if
+
+    !> Random error estimation settings
+    select case (nint(EPPrjNTags(24)%value))
+        case(1)
+            RUsetup%meth = 'finkelstein_sims_01'
+        case(2)
+            RUsetup%meth = 'mann_lenschow_94'
+        case(3)
+            RUsetup%meth = 'mahrt_98'
+        case default
+            RUsetup%meth = 'none'
+    end select
+    if (RUsetup%meth /= 'none') then
+        select case (nint(EPPrjNTags(23)%value))
+            case(1)
+                RUsetup%its_meth = 'cross_0'
+            case(2)
+                RUsetup%its_meth = 'full_integral'
+            case default
+                RUsetup%its_meth = 'cross_e'
+        end select
+        RUsetup%tlag_max = nint(EPPrjNTags(25)%value)
     end if
 
     !> Adjust paths

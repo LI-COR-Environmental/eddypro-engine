@@ -2,22 +2,30 @@
 ! potential_radiation.f90
 ! -----------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2015, LI-COR Biosciences
+! Copyright (C) 2011-2019, LI-COR Biosciences, Inc.  All Rights Reserved.
+! Author: Gerardo Fratini
 !
-! This file is part of EddyPro (TM).
+! This file is part of EddyPro®.
 !
-! EddyPro (TM) is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
+! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for 
+! non-commercial academic and government research purposes only, 
+! as provided in the EDDYPRO® End User License Agreement. 
+! EDDYPRO® may only be used as provided in the End User License Agreement
+! and may not be used or accessed for any commercial purposes.
+! You may view a copy of the End User License Agreement in the file
+! EULA_NON_COMMERCIAL.rtf.
 !
-! EddyPro (TM) is distributed in the hope that it will be useful,
+! Commercial companies that are LI-COR flux system customers 
+! are encouraged to contact LI-COR directly for our commercial 
+! EDDYPRO® End User License Agreement.
+!
+! EDDYPRO® contains Open Source Components (as defined in the 
+! End User License Agreement). The licenses and/or notices for the 
+! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
+!
+! EddyPro® is distributed in the hope that it will be useful,
 ! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 !
 !***************************************************************************
 !
@@ -31,7 +39,7 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine PotentialRadiation(latit)
+function PotentialRadiation(latit) result(RP)
     use m_common_global_var
     implicit none
     !> in/out variables
@@ -48,7 +56,7 @@ subroutine PotentialRadiation(latit)
     real(kind = dbl) :: omega       !< solar hour angle
     real(kind = dbl) :: LAS         !< boh
     real(kind = dbl), parameter :: solar_constant = 1376d0
-
+    real(kind = dbl) :: RP(17568)
 
     !> Compute potential radiation, based on lat/long, on a 30 min basis
     do i = 1, 17568
@@ -76,7 +84,7 @@ subroutine PotentialRadiation(latit)
         !> Compute extraterrestrial solar radiation
         rpot = solar_constant * (1.00011d0 + 0.034221d0 * dcos(theta) + 0.00128d0 * dsin(theta) &
              + 0.000719d0 * dcos(2d0 * theta) + 0.000077d0 * dsin(2d0 * theta))
-        PotRad(i) = rpot*dcos(theta_rad)
-        if (PotRad(i) < 0d0) PotRad(i) = 0d0
+        RP(i) = rpot*dcos(theta_rad)
+        if (RP(i) < 0d0) RP(i) = 0d0
     end do
-end subroutine PotentialRadiation
+end function PotentialRadiation

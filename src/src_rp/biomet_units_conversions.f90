@@ -1,22 +1,30 @@
 !***************************************************************************
 ! biomet_units_conversions.f90
 ! ----------------------------
-! Copyright (C) 2011-2015, LI-COR Biosciences
+! Copyright (C) 2011-2019, LI-COR Biosciences, Inc.  All Rights Reserved.
+! Author: Gerardo Fratini
 !
-! This file is part of EddyPro (TM).
+! This file is part of EddyPro®.
 !
-! EddyPro (TM) is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
+! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for 
+! non-commercial academic and government research purposes only, 
+! as provided in the EDDYPRO® End User License Agreement. 
+! EDDYPRO® may only be used as provided in the End User License Agreement
+! and may not be used or accessed for any commercial purposes.
+! You may view a copy of the End User License Agreement in the file
+! EULA_NON_COMMERCIAL.rtf.
 !
-! EddyPro (TM) is distributed in the hope that it will be useful,
+! Commercial companies that are LI-COR flux system customers 
+! are encouraged to contact LI-COR directly for our commercial 
+! EDDYPRO® End User License Agreement.
+!
+! EDDYPRO® contains Open Source Components (as defined in the 
+! End User License Agreement). The licenses and/or notices for the 
+! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
+!
+! EddyPro® is distributed in the hope that it will be useful,
 ! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 !
 !***************************************************************************
 !
@@ -39,7 +47,7 @@ subroutine BiometStandardEddyProUnits()
     !> local variables
     integer :: i
 
-    !> Temperatures
+
     do i = 1, nbVars
         select case(trim(bVars(i)%nature))
             case('TEMPERATURE')
@@ -108,29 +116,6 @@ subroutine BiometStandardEddyProUnits()
                     case default
                         continue
                 end select
-
-!            !> Precipitation is converted to [m]
-!            case('PRECIPITATION')
-!                select case(bVars(i)%unit_in)
-!                    case('NM')
-!                        where (bSet(:, i) /= error)
-!                            bSet(:, i) = bSet(:, i) * 1d-6
-!                        end where
-!                    case('UM')
-!                        where (bSet(:, i) /= error)
-!                            bSet(:, i) = bSet(:, i) * 1d-3
-!                        end where
-!                    case('CM')
-!                        where (bSet(:, i) /= error)
-!                            bSet(:, i) = bSet(:, i) * 10
-!                        end where
-!                    case('M')
-!                        where (bSet(:, i) /= error)
-!                            bSet(:, i) = bSet(:, i) * 1d3
-!                        end where
-!                    case default
-!                        continue
-!                end select
 
             !> Lengths
             !> converted to [m]
@@ -245,39 +230,39 @@ subroutine BiometStandardFluxnetUnits()
 
 
     !> Most variables will have same units..
-    bAggrFluxnet = bAggr
+    bAggrFluxnet = bAggrEddyPro
 
     !> Change units as needed
     do i = 1, nbVars
         !> All temperatures converted to [degC]
-        if (trim(bVars(i)%nature) == 'TEMPERATURE' .and. bAggr(i) /= error) &
-            bAggrFluxnet(i) = bAggr(i) - 273.15d0
+        if (trim(bVars(i)%nature) == 'TEMPERATURE' .and. bAggrEddyPro(i) /= error) &
+            bAggrFluxnet(i) = bAggrEddyPro(i) - 273.15d0
         !> Air pressure is converted to [kPa]
-        if (bVars(i)%fluxnet_base_name == 'PA' .and. bAggr(i) /= error) &
-            bAggrFluxnet(i) = bAggr(i) * 1d-3
+        if (bVars(i)%fluxnet_base_name == 'PA' .and. bAggrEddyPro(i) /= error) &
+            bAggrFluxnet(i) = bAggrEddyPro(i) * 1d-3
         !> VPD is converted to [hPa]
-        if (bVars(i)%fluxnet_base_name == 'VPD' .and. bAggr(i) /= error) &
-            bAggrFluxnet(i) = bAggr(i) * 1d-2
+        if (bVars(i)%fluxnet_base_name == 'VPD' .and. bAggrEddyPro(i) /= error) &
+            bAggrFluxnet(i) = bAggrEddyPro(i) * 1d-2
         !> All precipitations are converted to [mm]
-        if (trim(bVars(i)%nature) == 'PRECIPITATION' .and. bAggr(i) /= error) &
-            bAggrFluxnet(i) = bAggr(i) * 1d3
+        if (trim(bVars(i)%nature) == 'PRECIPITATION' .and. bAggrEddyPro(i) /= error) &
+            bAggrFluxnet(i) = bAggrEddyPro(i) * 1d3
         !> Snow depth is converted to [cm]
-        if (bVars(i)%fluxnet_base_name == 'SNOW_D' .and. bAggr(i) /= error) &
-            bAggrFluxnet(i) = bAggr(i) * 1d2
+        if (bVars(i)%fluxnet_base_name == 'SNOW_D' .and. bAggrEddyPro(i) /= error) &
+            bAggrFluxnet(i) = bAggrEddyPro(i) * 1d2
         !> Water table depth is converted to [cm]
-        if (bVars(i)%fluxnet_base_name == 'WATER_TABLE_DEPTH' .and. bAggr(i) /= error) &
-            bAggrFluxnet(i) = bAggr(i) * 1d2
+        if (bVars(i)%fluxnet_base_name == 'WATER_TABLE_DEPTH' .and. bAggrEddyPro(i) /= error) &
+            bAggrFluxnet(i) = bAggrEddyPro(i) * 1d2
         !> SWC is converted to [%]
-        if (bVars(i)%fluxnet_base_name == 'SWC' .and. bAggr(i) /= error) &
-            bAggrFluxnet(i) = bAggr(i) * 1d2
+        if (bVars(i)%fluxnet_base_name == 'SWC' .and. bAggrEddyPro(i) /= error) &
+            bAggrFluxnet(i) = bAggrEddyPro(i) * 1d2
         !> RUNOFF is converted to [mm]
-        if (bVars(i)%fluxnet_base_name == 'RUNOFF' .and. bAggr(i) /= error) &
-            bAggrFluxnet(i) = bAggr(i) * 1d3
+        if (bVars(i)%fluxnet_base_name == 'RUNOFF' .and. bAggrEddyPro(i) /= error) &
+            bAggrFluxnet(i) = bAggrEddyPro(i) * 1d3
         !> THROUGHFALL is converted to [mm]
-        if (bVars(i)%fluxnet_base_name == 'THROUGHFALL' .and. bAggr(i) /= error) &
-            bAggrFluxnet(i) = bAggr(i) * 1d3
+        if (bVars(i)%fluxnet_base_name == 'THROUGHFALL' .and. bAggrEddyPro(i) /= error) &
+            bAggrFluxnet(i) = bAggrEddyPro(i) * 1d3
         !> DBH is converted to [cm]
-        if (bVars(i)%fluxnet_base_name == 'DBH' .and. bAggr(i) /= error) &
-            bAggrFluxnet(i) = bAggr(i) * 1d2
+        if (bVars(i)%fluxnet_base_name == 'DBH' .and. bAggrEddyPro(i) /= error) &
+            bAggrFluxnet(i) = bAggrEddyPro(i) * 1d2
     end do
 end subroutine BiometStandardFluxnetUnits

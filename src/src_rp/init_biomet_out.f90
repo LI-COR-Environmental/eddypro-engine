@@ -1,22 +1,30 @@
 !***************************************************************************
 ! init_biomet_out.f90
 ! -------------------
-! Copyright (C) 2011-2015, LI-COR Biosciences
+! Copyright (C) 2011-2019, LI-COR Biosciences, Inc.  All Rights Reserved.
+! Author: Gerardo Fratini
 !
-! This file is part of EddyPro (TM).
+! This file is part of EddyPro®.
 !
-! EddyPro (TM) is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
+! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for 
+! non-commercial academic and government research purposes only, 
+! as provided in the EDDYPRO® End User License Agreement. 
+! EDDYPRO® may only be used as provided in the End User License Agreement
+! and may not be used or accessed for any commercial purposes.
+! You may view a copy of the End User License Agreement in the file
+! EULA_NON_COMMERCIAL.rtf.
 !
-! EddyPro (TM) is distributed in the hope that it will be useful,
+! Commercial companies that are LI-COR flux system customers 
+! are encouraged to contact LI-COR directly for our commercial 
+! EDDYPRO® End User License Agreement.
+!
+! EDDYPRO® contains Open Source Components (as defined in the 
+! End User License Agreement). The licenses and/or notices for the 
+! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
+!
+! EddyPro® is distributed in the hope that it will be useful,
 ! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 !
 !***************************************************************************
 !
@@ -75,47 +83,6 @@ subroutine InitBiometOut()
         !> Write on output file
         write(ubiomet, '(a)') head1_utf8(1:len_trim(head1_utf8) - 1)
         write(ubiomet, '(a)') head2_utf8(1:len_trim(head2_utf8) - 1)
-    end if
-
-    !>==========================================================================
-    !> FLUXNET BIOMET output
-
-    !> Even if it was selected for output, FLUXNET biomet is not created if there
-    !> are no biomet variables
-    if (nbVars <= 0) EddyProProj%out_fluxnet_biomet = .false.
-
-    if (EddyProProj%out_fluxnet_biomet) then
-        Test_Path = Dir%main_out(1:len_trim(Dir%main_out)) &
-                  // EddyProProj%id(1:len_trim(EddyProProj%id)) &
-                  // FLUXNET_BIOMET_FilePadding // Timestamp_FilePadding // CsvExt
-        dot = index(Test_Path, CsvExt, .true.) - 1
-        FLUXNET_BIOMET_Path = Test_Path(1:dot) // CsvTmpExt
-        open(ufnet_b, file = FLUXNET_BIOMET_Path, &
-            iostat = open_status, encoding = 'utf-8')
-
-        !> Initialize header strings to void
-        call Clearstr(header1)
-        call Clearstr(header2)
-        call Clearstr(head1_utf8)
-        call Clearstr(head2_utf8)
-
-        !> Initial common part
-        call AddDatum(header1,'TIMESTAMP', separator)
-        call AddDatum(header2,'[yyyymmddHHMMSS]', separator)
-
-        !>======================================================================
-        !> Biomet variables
-        do i = 1, nbVars
-            call AddDatum(header1,trim(bVars(i)%fluxnet_label), separator)
-            call AddDatum(header2,trim(bVars(i)%fluxnet_unit_out), separator)
-        end do
-
-        call latin1_to_utf8(header1, head1_utf8)
-        call latin1_to_utf8(header2, head2_utf8)
-
-        !> Write on output file
-        write(ufnet_b, '(a)') head1_utf8(1:len_trim(head1_utf8) - 1)
-        write(ufnet_b, '(a)') head2_utf8(1:len_trim(head2_utf8) - 1)
     end if
 
 end subroutine InitBiometOut

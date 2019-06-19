@@ -2,22 +2,30 @@
 ! test_spike_detection_vickers_97.f90
 ! -----------------------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2015, LI-COR Biosciences
+! Copyright (C) 2011-2019, LI-COR Biosciences, Inc.  All Rights Reserved.
+! Author: Gerardo Fratini
 !
-! This file is part of EddyPro (TM).
+! This file is part of EddyPro®.
 !
-! EddyPro (TM) is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
+! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for 
+! non-commercial academic and government research purposes only, 
+! as provided in the EDDYPRO® End User License Agreement. 
+! EDDYPRO® may only be used as provided in the End User License Agreement
+! and may not be used or accessed for any commercial purposes.
+! You may view a copy of the End User License Agreement in the file
+! EULA_NON_COMMERCIAL.rtf.
 !
-! EddyPro (TM) is distributed in the hope that it will be useful,
+! Commercial companies that are LI-COR flux system customers 
+! are encouraged to contact LI-COR directly for our commercial 
+! EDDYPRO® End User License Agreement.
+!
+! EDDYPRO® contains Open Source Components (as defined in the 
+! End User License Agreement). The licenses and/or notices for the 
+! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
+!
+! EddyPro® is distributed in the hope that it will be useful,
 ! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 !
 !*******************************************************************************
 !
@@ -293,6 +301,14 @@ subroutine TestSpikeDetectionVickers97(Set, N, printout)
     end do
 
     !> Write on output variable
-    Essentials%e2spikes(u:pe) = tot_spikes(u:pe)
+    if (.not. RPsetup%filter_sr) tot_spikes_sng(u:pe) = 0
+    where (E2Col(u:pe)%present) 
+        Essentials%e2spikes(u:pe) = tot_spikes(u:pe)
+        Essentials%m_despiking(u:pe) = tot_spikes_sng(u:pe)
+    elsewhere
+        Essentials%e2spikes(u:pe) = ierror
+        Essentials%m_despiking(u:pe) = ierror
+    endwhere
     if (printout) write(*,'(a)') ' Done.'
+
 end subroutine TestSpikeDetectionVickers97

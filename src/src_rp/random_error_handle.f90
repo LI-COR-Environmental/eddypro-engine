@@ -1,22 +1,30 @@
 !***************************************************************************
 ! random_error_handle.f90
 ! -----------------------
-! Copyright (C) 2011-2015, LI-COR Biosciences
+! Copyright (C) 2011-2019, LI-COR Biosciences, Inc.  All Rights Reserved.
+! Author: Gerardo Fratini
 !
-! This file is part of EddyPro (TM).
+! This file is part of EddyPro®.
 !
-! EddyPro (TM) is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
+! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for 
+! non-commercial academic and government research purposes only, 
+! as provided in the EDDYPRO® End User License Agreement. 
+! EDDYPRO® may only be used as provided in the End User License Agreement
+! and may not be used or accessed for any commercial purposes.
+! You may view a copy of the End User License Agreement in the file
+! EULA_NON_COMMERCIAL.rtf.
 !
-! EddyPro (TM) is distributed in the hope that it will be useful,
+! Commercial companies that are LI-COR flux system customers 
+! are encouraged to contact LI-COR directly for our commercial 
+! EDDYPRO® End User License Agreement.
+!
+! EDDYPRO® contains Open Source Components (as defined in the 
+! End User License Agreement). The licenses and/or notices for the 
+! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
+!
+! EddyPro® is distributed in the hope that it will be useful,
 ! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 !
 !***************************************************************************
 !
@@ -36,31 +44,29 @@ subroutine RandomUncertaintyHandle(Set, nrow, ncol)
     integer, intent(in) :: nrow, ncol
     real(kind = dbl), intent(in) :: Set(nrow, ncol)
 
-    if (RUsetup%meth == 'none') then
-        Essentials%rand_uncer = aflx_error
-        Essentials%rand_uncer_LE = aflx_error
-        return
-    end if
 
     write(*, '(a)') '  Estimating random uncertainty..'
 
-    !> Calculate Integral turbulence scale
-    call IntegralTurbulenceScale(Set, size(Set, 1), size(Set, 2))
-
     !> Calculate random uncertainty
-    Essentials%rand_uncer(u:gas4) = error
-    Essentials%rand_uncer_LE = error
     select case (RUsetup%meth)
         case('finkelstein_sims_01')
+            call IntegralTurbulenceScale(Set, size(Set, 1), size(Set, 2))
             call RU_Finkelstein_Sims_01(Set, nrow, ncol)
         case('mann_lenschow_94')
+            call IntegralTurbulenceScale(Set, size(Set, 1), size(Set, 2))
             call RU_Mann_Lenschow_04(nrow)
-        case('tbd')
-            !call RE_Lenschow(Set, nrow, ncol)
+        case('none')
+            Essentials%rand_uncer(u:gas4) = error
+            Essentials%rand_uncer_LE = error
+            Essentials%rand_uncer_ET = error
+        case('mahrt_98')
+            !> Mahrt has been calculated already, so don't need to do anything
+            continue
         case default
             call ExceptionHandler(42)
-            Essentials%rand_uncer(u:gas4) = aflx_error
-            Essentials%rand_uncer_LE = aflx_error
+            Essentials%rand_uncer(u:gas4) = error
+            Essentials%rand_uncer_LE = error
+            Essentials%rand_uncer_ET = error
             return
     end select
     write(*, '(a)') '  Done.'
@@ -188,6 +194,109 @@ subroutine RU_Mann_Lenschow_04(N)
         end if
     end do
 end subroutine RU_Mann_Lenschow_04
+
+
+!***************************************************************************
+!
+! \brief       Estimate random error according to \n
+!              Mahrt (1998), Eqs. 8 - 9
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+subroutine RU_Mahrt_98(Set, nrow, ncol)
+    use m_rp_global_var
+    implicit none
+    !> in/out variables
+    integer, intent(in) :: nrow
+    integer, intent(in) :: ncol
+    real(kind = dbl), intent(in) :: Set(nrow, ncol)
+    !> local variables
+    integer :: i
+    integer :: j
+    integer :: Ni
+    integer :: Nj
+    integer :: var
+    integer, parameter :: nrec = 6
+    integer, parameter :: nsubrec = 6
+    real(kind = dbl) :: covmat(GHGNumVar, GHGNumVar)
+    real(kind = dbl)  :: Fij(nsubrec, GHGNumVar)
+    real(kind = dbl)  :: Fijs(nrec * nsubrec, GHGNumVar)
+    real(kind = dbl)  :: Fi_bar(GHGNumVar)
+    real(kind = dbl)  :: Fi_bars(nrec, GHGNumVar)
+    real(kind = dbl)  :: F_bar(GHGNumVar)
+    real(kind = dbl) :: SumSquares(GHGNumVar)
+    real(kind = dbl) :: sigma_wis(nrec, GHGNumVar)
+    real(kind = dbl) :: sigma_btw(GHGNumVar)
+    real(kind = dbl), allocatable :: sSet(:, :)
+    real(kind = dbl), allocatable :: ssSet(:, :)
+
+    Ni = nrow / nrec
+    Nj = Ni / nsubrec
+    if (.not. allocated(sSet)) allocate(sSet(Ni, GHGNumVar))
+    do i = 1, nrec
+        sSet(:, :) = Set(Ni * (i-1) + 1: Ni * i, 1:GHGNumVar)
+        !> Compute covariance matrices on sub-sub-periods
+        do j = 1, nsubrec
+            if (.not. allocated(ssSet)) allocate(ssSet(Nj, GHGNumVar))
+            ssSet(:, :) = sSet(Nj * (j-1) + 1: Nj * j, :)
+            call CovarianceMatrixNoError(ssSet, size(ssSet, 1), size(ssSet, 2), covmat, error)
+            Fij(j, :) = covmat(w, :)
+            if (allocated(ssSet)) deallocate(ssSet)
+        end do
+
+        !> Mean of covariances on sub-sub-periods, per variable, per sub-period, F(i)bar in Eq. 8
+        call AverageNoError(Fij, nsubrec, GHGNumVar, Fi_bar, error)
+
+        !> Accumulate covariances on sub-sub-records, needed to compute Fbar in Eq. 10
+        Fijs(nsubrec * (i-1) + 1: nsubrec * i, :) = Fij(:, :)
+
+        !> Accumulate mean covariances, per superiod, needed in Eq. 10
+        Fi_bars(i, :) = Fi_bar(:)
+
+        !> Sum of squares of residuals, per variable, per sub-period, Eq. 8
+        SumSquares = 0d0
+        do j = 1, nsubrec
+            SumSquares(:) = SumSquares(:) + (Fij(j, :) - Fi_bar(:))**2
+        end do
+
+        !> Standard deviation within, per variable, per sub-period, sig_wi(i) in Eq. 8
+        sigma_wis(i, :) = dsqrt(SumSquares(:) / (nsubrec - 1))
+    end do
+    if (allocated(sSet)) deallocate(sSet)
+    
+    !> Mean of covariances on sub-sub-periods and sub-periods, per variable, Fbar in Eq. 10
+    call AverageNoError(Fijs, nrec * nsubrec, GHGNumVar, F_bar, error)
+
+    !> Random errore RE, Eq. 9
+    do var = u, gas4
+        if (E2Col(var)%present) then
+            Essentials%rand_uncer(var) = sum(sigma_wis(:, var)) / nrec / sqrt(float(nsubrec))
+        else
+            Essentials%rand_uncer(var) = error
+        end if
+    end do
+
+    !> Sum of squares of residuals, per variable, Eq. 10
+    SumSquares = 0d0
+    do i = 1, nrec
+        SumSquares(:) = SumSquares(:) + (Fi_bars(i, :) - F_bar(:))**2
+    end do
+
+    !> Between-records standard deviation, sig_btw in Eq. 10
+    sigma_btw = dsqrt(SumSquares(:) / (nrec - 1))
+
+    !> Non stationarity ratio
+    where (E2Col(u:GHGNumVar)%present)
+        Essentials%mahrt98_NR(:) = sigma_btw(:) / Essentials%rand_uncer(u:gas4)
+    else where
+        Essentials%mahrt98_NR(:) = error
+    end where
+end subroutine RU_Mahrt_98    
 
 !***************************************************************************
 !

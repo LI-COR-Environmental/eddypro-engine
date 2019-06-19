@@ -2,22 +2,30 @@
 ! m_fx_global_var.f90
 ! -------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2015, LI-COR Biosciences
+! Copyright (C) 2011-2019, LI-COR Biosciences, Inc.  All Rights Reserved.
+! Author: Gerardo Fratini
 !
-! This file is part of EddyPro (TM).
+! This file is part of EddyPro®.
 !
-! EddyPro (TM) is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
+! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for 
+! non-commercial academic and government research purposes only, 
+! as provided in the EDDYPRO® End User License Agreement. 
+! EDDYPRO® may only be used as provided in the End User License Agreement
+! and may not be used or accessed for any commercial purposes.
+! You may view a copy of the End User License Agreement in the file
+! EULA_NON_COMMERCIAL.rtf.
 !
-! EddyPro (TM) is distributed in the hope that it will be useful,
+! Commercial companies that are LI-COR flux system customers 
+! are encouraged to contact LI-COR directly for our commercial 
+! EDDYPRO® End User License Agreement.
+!
+! EDDYPRO® contains Open Source Components (as defined in the 
+! End User License Agreement). The licenses and/or notices for the 
+! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
+!
+! EddyPro® is distributed in the hope that it will be useful,
 ! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 !
 !***************************************************************************
 !
@@ -45,11 +53,13 @@ module m_fx_global_var
 
     real(kind = dbl) :: float_doy
     real(kind = dbl) :: dkf(ndkf + 1)
+    real(kind = dbl), allocatable :: custVars(:)
 
     character(11), parameter :: fcc_app = 'EddyPro-FCC'
     character(32) :: g4lab
     character(1024) :: UserVarHeader
     character(25), parameter :: SubDirSpecAn = 'eddypro_spectral_analysis'
+    character(16000) :: fluxnet_header
 
     logical :: MeanBinSpecAvailable(MaxGasClasses, GHGNumVar)
     logical :: MeanBinCospAvailable(MaxGasClasses, GHGNumVar)
@@ -74,7 +84,7 @@ module m_fx_global_var
 
     !> tags of the setup ".ini" file for eccoce
     integer, parameter :: Nsn = 109
-    integer, parameter :: Nsc = 25
+    integer, parameter :: Nsc = 30
     logical            :: SNTagFound(Nsn)
     logical            :: SCTagFound(Nsc)
     type (Numerical)   :: SNTags(Nsn)
@@ -213,5 +223,6 @@ module m_fx_global_var
          SCTags(22)%Label / 'sa_subset'         / &
          SCTags(23)%Label / 'sa_use_vm_flags'   / &
          SCTags(24)%Label / 'sa_use_foken_low'  / &
-         SCTags(25)%Label / 'sa_use_foken_mid'  /
+         SCTags(25)%Label / 'sa_use_foken_mid'  / &
+         SCTags(26)%Label / 'keep_parent_fluxnet_file'  /
 end module m_fx_global_var

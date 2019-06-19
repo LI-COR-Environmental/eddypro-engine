@@ -2,22 +2,30 @@
 ! median.f90
 ! ----------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2015, LI-COR Biosciences
+! Copyright (C) 2011-2019, LI-COR Biosciences, Inc.  All Rights Reserved.
+! Author: Gerardo Fratini
 !
-! This file is part of EddyPro (TM).
+! This file is part of EddyPro®.
 !
-! EddyPro (TM) is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
+! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for 
+! non-commercial academic and government research purposes only, 
+! as provided in the EDDYPRO® End User License Agreement. 
+! EDDYPRO® may only be used as provided in the End User License Agreement
+! and may not be used or accessed for any commercial purposes.
+! You may view a copy of the End User License Agreement in the file
+! EULA_NON_COMMERCIAL.rtf.
 !
-! EddyPro (TM) is distributed in the hope that it will be useful,
+! Commercial companies that are LI-COR flux system customers 
+! are encouraged to contact LI-COR directly for our commercial 
+! EDDYPRO® End User License Agreement.
+!
+! EDDYPRO® contains Open Source Components (as defined in the 
+! End User License Agreement). The licenses and/or notices for the 
+! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
+!
+! EddyPro® is distributed in the hope that it will be useful,
 ! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 !
 !***************************************************************************
 !
@@ -148,3 +156,91 @@ subroutine median(ivec, n, med)
     med = 0.5*(xmin + xmax)
     return
 end subroutine median
+
+!***************************************************************************
+! median.f90
+! ----------
+! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
+! Copyright (C) 2011-2019, LI-COR Biosciences, Inc.  All Rights Reserved.
+! Author: Gerardo Fratini
+!
+!
+! This file is part of EddyPro®.
+!
+! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for 
+! non-commercial academic and government research purposes only, 
+! as provided in the EDDYPRO® End User License Agreement. 
+! EDDYPRO® may only be used as provided in the End User License Agreement
+! and may not be used or accessed for any commercial purposes.
+! You may view a copy of the End User License Agreement in the file
+! EULA_NON_COMMERCIAL.rtf.
+!
+! Commercial companies that are LI-COR flux system customers 
+! are encouraged to contact LI-COR directly for our commercial 
+! EDDYPRO® End User License Agreement.
+!
+! EDDYPRO® contains Open Source Components (as defined in the 
+! End User License Agreement). The licenses and/or notices for the 
+! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
+!
+! EddyPro® is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+!
+!***************************************************************************
+!
+! \ brief      Calculate Quartiles using SAS Method 5
+!              This method is the default method of SAS and is based on the 
+!              empirical distribution function. 
+!              Based on discussion in this paper 
+!              http://www.haiweb.org/medicineprices/manual/quartiles_iTSS.pdf
+! \author      Patched by Gerardo Fratini from original code
+!              available in the public domain at:
+!              http://fortranwiki.org/fortran/show/Quartiles
+
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+double precision function quantile_sas5(x, N, qin)
+    use m_common_global_var
+    implicit none
+    integer, intent(in) :: N
+    !> In/out variables
+    ! real(kind = dbl), intent(in) :: x(N)
+    real(kind = dbl), intent(inout) :: x(N)
+    real(kind = dbl), intent(in) :: qin
+    !> Local variables
+    real(kind = dbl) :: xx(N)
+    real(kind = dbl), parameter :: tol = 1d-8
+    real(kind = dbl) :: a,b,c
+    real(kind = dbl) :: diff
+    integer :: ib
+
+
+    a = N * qin
+    b = mod(a, 1d0)
+    c = a - b
+
+    !> Sort array
+
+    !> This works on Mac but not Win (gfortran issue?)
+    ! call sort(x, size(x), xx)
+
+
+    !> This works on Mac and Win
+    call HPSORT(size(x), x)
+    xx = x
+
+    !> Find quantile qin
+    ib = int(c)
+    diff = b - 0d0
+    if (diff <= tol) then
+        quantile_sas5 = (xx(ib+1) + xx(ib)) / 2d0
+    else
+        quantile_sas5 = xx(ib+1)
+    end if
+end function quantile_sas5

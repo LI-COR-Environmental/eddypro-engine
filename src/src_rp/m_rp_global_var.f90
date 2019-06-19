@@ -2,22 +2,30 @@
 ! m_rp_global_var.f90
 ! -------------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2015, LI-COR Biosciences
+! Copyright (C) 2011-2019, LI-COR Biosciences, Inc.  All Rights Reserved.
+! Author: Gerardo Fratini
 !
-! This file is part of EddyPro (TM).
+! This file is part of EddyPro®.
 !
-! EddyPro (TM) is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
+! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for 
+! non-commercial academic and government research purposes only, 
+! as provided in the EDDYPRO® End User License Agreement. 
+! EDDYPRO® may only be used as provided in the End User License Agreement
+! and may not be used or accessed for any commercial purposes.
+! You may view a copy of the End User License Agreement in the file
+! EULA_NON_COMMERCIAL.rtf.
 !
-! EddyPro (TM) is distributed in the hope that it will be useful,
+! Commercial companies that are LI-COR flux system customers 
+! are encouraged to contact LI-COR directly for our commercial 
+! EDDYPRO® End User License Agreement.
+!
+! EDDYPRO® contains Open Source Components (as defined in the 
+! End User License Agreement). The licenses and/or notices for the 
+! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
+!
+! EddyPro® is distributed in the hope that it will be useful,
 ! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 !
 !***************************************************************************
 !
@@ -75,7 +83,6 @@ module m_rp_global_var
     character(PathLen) :: UserSt6_Path
     character(PathLen) :: UserSt7_Path
     character(PathLen) :: Biomet_Path
-    character(PathLen) :: Essentials_Path
     character(PathLen) :: PlanarFit_Path
     character(PathLen) :: TimelagOpt_Path
     character(PathLen) :: QCdetails_Path
@@ -87,7 +94,6 @@ module m_rp_global_var
     type(RPsetupType) :: RPsetup
     type(PFSetupType) :: PFSetup
     type(TOSetupType) :: TOSetup
-    type(RUsetupType) :: RUsetup
     type(TimeLagType) :: toPasGas(E2NumVar)
     type(TimeLagType) :: toH2O(toMaxH2OClass)
     type(StatsType) :: Stats1
@@ -148,7 +154,7 @@ module m_rp_global_var
             error, error, error, error, error, error, NullInstrument)
 
     !> Tags of the setup ".ini" file for rawscreening
-    integer, parameter :: Nsn = 400
+    integer, parameter :: Nsn = 450
     integer, parameter :: Nsc = 100
     logical :: SNTagFound(Nsn)
     logical :: SCTagFound(Nsc)
@@ -435,10 +441,10 @@ module m_rp_global_var
          SNTags(278)%Label  / 'pf_sect_35_exclude' / &
          SNTags(279)%Label  / 'pf_sect_36_width'     / &
          SNTags(280)%Label  / 'pf_sect_36_exclude' / &
-         SNTags(281)%Label  / 'ru_meth'            / &
-         SNTags(282)%Label  / 'ru_its_meth'        / &
-         SNTags(283)%Label  / 'ru_its_sec_factor'  / &
-         SNTags(284)%Label  / 'ru_tlag_max'        / &
+         SNTags(281)%Label  / 'ru_meth'            / &   !> No longer used
+         SNTags(282)%Label  / 'ru_its_meth'        / &   !> No longer used
+         SNTags(283)%Label  / 'ru_its_sec_factor'  / &   !> No longer used
+         SNTags(284)%Label  / 'ru_tlag_max'        / &   !> No longer used
          SNTags(290)%Label  / 'flow_distortion'    /
 
     data SNTags(300)%Label  / 'drift_method'           / &
@@ -500,7 +506,40 @@ module m_rp_global_var
          SNTags(356)%Label  / 'drift_inv_gas4_6'        / &
          SNTags(370)%Label  / 'drift_tempsens_b'        / &
          SNTags(371)%Label  / 'drift_tempsens_c'        / &
-         SNTags(372)%Label  / 'tcell_filter_tconst'     /
+         SNTags(372)%Label  / 'tcell_filter_tconst'     / &
+         SNTags(373)%Label  / 'wdf_sect_1_start'      / &
+         SNTags(374)%Label  / 'wdf_sect_1_end'        / &
+         SNTags(375)%Label  / 'wdf_sect_2_start'      / &
+         SNTags(376)%Label  / 'wdf_sect_2_end'        / &
+         SNTags(377)%Label  / 'wdf_sect_3_start'      / &
+         SNTags(378)%Label  / 'wdf_sect_3_end'        / &
+         SNTags(379)%Label  / 'wdf_sect_4_start'      / &
+         SNTags(380)%Label  / 'wdf_sect_4_end'        / &
+         SNTags(381)%Label  / 'wdf_sect_5_start'      / &
+         SNTags(382)%Label  / 'wdf_sect_5_end'        / &
+         SNTags(383)%Label  / 'wdf_sect_6_start'      / &
+         SNTags(384)%Label  / 'wdf_sect_6_end'        / &
+         SNTags(385)%Label  / 'wdf_sect_7_start'      / &
+         SNTags(386)%Label  / 'wdf_sect_7_end'        / &
+         SNTags(387)%Label  / 'wdf_sect_8_start'      / &
+         SNTags(388)%Label  / 'wdf_sect_8_end'        / &
+         SNTags(389)%Label  / 'wdf_sect_9_start'      / &
+         SNTags(390)%Label  / 'wdf_sect_9_end'        / &
+         SNTags(391)%Label  / 'wdf_sect_10_start'      / &
+         SNTags(392)%Label  / 'wdf_sect_10_end'        / &
+         SNTags(393)%Label  / 'wdf_sect_11_start'      / &
+         SNTags(394)%Label  / 'wdf_sect_11_end'        / &
+         SNTags(395)%Label  / 'wdf_sect_12_start'      / &
+         SNTags(396)%Label  / 'wdf_sect_12_end'        / &
+         SNTags(397)%Label  / 'wdf_sect_13_start'      / &
+         SNTags(398)%Label  / 'wdf_sect_13_end'        / &
+         SNTags(399)%Label  / 'wdf_sect_14_start'      / &
+         SNTags(400)%Label  / 'wdf_sect_14_end'        / &
+         SNTags(401)%Label  / 'wdf_sect_15_start'      / &
+         SNTags(402)%Label  / 'wdf_sect_15_end'        / &
+         SNTags(403)%Label  / 'wdf_sect_16_start'      / &
+         SNTags(404)%Label  / 'wdf_sect_16_end'        / &
+         SNTags(405)%Label  / 'wdf_apply'             /
 
     data SCTags(1)%Label  / 'data_path'    / &
          SCTags(2)%Label  / 'out_path'     / &
@@ -554,7 +593,7 @@ module m_rp_global_var
          SCTags(50)%Label / 'pf_end_date' / &
          SCTags(51)%Label / 'out_bin_og'  / &
 !         SCTags(52)%Label / 'out_ghg_eu'  / &      !< no longer used
-         SCTags(53)%Label / 'out_amflux'  / &
+!         SCTags(53)%Label / 'out_amflux'  / &      !< no longer used
 !         SCTags(54)%Label / 'out_rich'    / &      !< no longer used
 !         SCTags(55)%Label / 'to_mixratio' / &      !< no longer used
          SCTags(56)%Label / 'pf_mode'     / &
@@ -599,5 +638,6 @@ module m_rp_global_var
          SCTags(95)%Label / 'filter_spectra_qc'/ &
          SCTags(96)%Label / 'pf_subtract_b0'   / &
          SCTags(97)%Label / 'pf_subset'        / &
-         SCTags(98)%Label / 'to_subset'        /
+         SCTags(98)%Label / 'to_subset'        / &
+         SCTags(99)%Label / 'wdf_apply'        /
 end module m_rp_global_var

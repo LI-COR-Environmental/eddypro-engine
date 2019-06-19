@@ -2,22 +2,30 @@
 ! bpcf_aux_subs.f90
 ! -----------------
 ! Copyright (C) 2007-2011, Eco2s team, Gerardo Fratini
-! Copyright (C) 2011-2015, LI-COR Biosciences
+! Copyright (C) 2011-2019, LI-COR Biosciences, Inc.  All Rights Reserved.
+! Author: Gerardo Fratini
 !
-! This file is part of EddyPro (TM).
+! This file is part of EddyPro®.
 !
-! EddyPro (TM) is free software: you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
+! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for 
+! non-commercial academic and government research purposes only, 
+! as provided in the EDDYPRO® End User License Agreement. 
+! EDDYPRO® may only be used as provided in the End User License Agreement
+! and may not be used or accessed for any commercial purposes.
+! You may view a copy of the End User License Agreement in the file
+! EULA_NON_COMMERCIAL.rtf.
 !
-! EddyPro (TM) is distributed in the hope that it will be useful,
+! Commercial companies that are LI-COR flux system customers 
+! are encouraged to contact LI-COR directly for our commercial 
+! EDDYPRO® End User License Agreement.
+!
+! EDDYPRO® contains Open Source Components (as defined in the 
+! End User License Agreement). The licenses and/or notices for the 
+! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
+!
+! EddyPro® is distributed in the hope that it will be useful,
 ! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
-!
-! You should have received a copy of the GNU General Public License
-! along with EddyPro (TM).  If not, see <http://www.gnu.org/licenses/>.
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 !
 !***************************************************************************
 !
@@ -196,7 +204,7 @@ subroutine RetrieveLPTFpars(lEx, tf_shape, LocSetup)
             end if
             !> select relevant tranfer function parameters
             !> according to the month, for CO2, CH4, GAS4
-            call char2int(lEx%date(6:7), month, 2)
+            call char2int(lEx%end_date(6:7), month, 2)
             if(lEx%var_present(co2))  f_c(co2)  = RegPar(co2,  LocSetup%SA%class(co2,  month))%fc
             if(lEx%var_present(ch4))  f_c(ch4)  = RegPar(ch4,  LocSetup%SA%class(ch4,  month))%fc
             if(lEx%var_present(gas4)) f_c(gas4) = RegPar(gas4, LocSetup%SA%class(gas4, month))%fc
@@ -213,7 +221,7 @@ subroutine RetrieveLPTFpars(lEx, tf_shape, LocSetup)
                     end if
                 end do
             end if
-            call char2int(lEx%date(6:7), month, 2)
+            call char2int(lEx%end_date(6:7), month, 2)
             if(lEx%var_present(co2))  f_2(co2)  = RegPar(co2,  LocSetup%SA%class(co2,  month))%f2
             if(lEx%var_present(ch4))  f_2(ch4)  = RegPar(ch4,  LocSetup%SA%class(ch4,  month))%f2
             if(lEx%var_present(gas4)) f_2(gas4) = RegPar(gas4, LocSetup%SA%class(gas4,  month))%f2
@@ -251,11 +259,11 @@ subroutine CorrectionFactorsHorst97(lBPCF, lEx)
     !> in Ibrom et al (2007, AFM), with 2*pi*t_c = 1/fc. Thus, the fc derived with \n
     !> the procedure described in Ibrom et al. 2007 can be used to calculate \n
     !> tau_c, and hence to derive the BPCF with Horst's method.
-    if (lEx%zL <= 0d0) then
+    if (lEx%Flux0%zL <= 0d0) then
         Nm = 0.085d0
         alpha = 7d0 / 8d0
     else
-        Nm = 2d0 - 1.915d0 / (1d0 + 0.5d0 * lEx%zL)
+        Nm = 2d0 - 1.915d0 / (1d0 + 0.5d0 * lEx%Flux0%zL)
         alpha = 1d0
     end if
     zeta = lEx%instr(sonic)%height - lEx%disp_height
@@ -310,7 +318,7 @@ subroutine CorrectionFactorsIbrom07(do_co2, do_h2o, do_ch4, do_gas4, lBPCF, lEx)
     logical, intent(in) :: do_gas4
 
 
-    if (lEx%zL >= 0d0) then
+    if (lEx%Flux0%zL >= 0d0) then
         if (lEx%var_present(co2) .and. do_co2) &
             lBPCF%of(w_co2) = StPar(1) * lEx%WS  / (StPar(2) + f_c(co2))  + 1d0
         if (lEx%var_present(h2o) .and. do_h2o) &
