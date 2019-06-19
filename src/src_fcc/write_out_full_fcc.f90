@@ -77,7 +77,7 @@ subroutine WriteOutFullFcc(lEx)
     call AddDatum(dataline, datum, separator)
     call WriteDatumInt(QCFlag%tau, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    if(RUsetup%meth /= 'none') then
+    if(RUsetup%meth /= 'none' .or. EddyProProj%fix_out_format) then
         call WriteDatumFloat(lEx%rand_uncer(u), datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
     end if
@@ -87,7 +87,7 @@ subroutine WriteOutFullFcc(lEx)
     call AddDatum(dataline, datum, separator)
     call WriteDatumInt(QCFlag%H, datum, EddyProProj%err_label)
     call AddDatum(dataline, datum, separator)
-    if (RUsetup%meth /= 'none') then
+    if (RUsetup%meth /= 'none' .or. EddyProProj%fix_out_format) then
         call WriteDatumFloat(lEx%rand_uncer(ts), datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
     end if
@@ -98,7 +98,7 @@ subroutine WriteOutFullFcc(lEx)
         call AddDatum(dataline, datum, separator)
         call WriteDatumInt(QCFlag%h2o, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        if (RUsetup%meth /= 'none') then
+        if (RUsetup%meth /= 'none' .or. EddyProProj%fix_out_format) then
             call WriteDatumFloat(lEx%rand_uncer_LE, datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         end if
@@ -114,7 +114,7 @@ subroutine WriteOutFullFcc(lEx)
         call AddDatum(dataline, datum, separator)
         call WriteDatumInt(QCFlag%co2, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        if (RUsetup%meth /= 'none') then
+        if (RUsetup%meth /= 'none' .or. EddyProProj%fix_out_format) then
             call WriteDatumFloat(lEx%rand_uncer(co2), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         end if
@@ -129,7 +129,7 @@ subroutine WriteOutFullFcc(lEx)
         call AddDatum(dataline, datum, separator)
         call WriteDatumInt(QCFlag%h2o, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        if (RUsetup%meth /= 'none') then
+        if (RUsetup%meth /= 'none' .or. EddyProProj%fix_out_format) then
             call WriteDatumFloat(lEx%rand_uncer(h2o), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         end if
@@ -144,7 +144,7 @@ subroutine WriteOutFullFcc(lEx)
         call AddDatum(dataline, datum, separator)
         call WriteDatumInt(QCFlag%ch4, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        if (RUsetup%meth /= 'none') then
+        if (RUsetup%meth /= 'none' .or. EddyProProj%fix_out_format) then
             call WriteDatumFloat(lEx%rand_uncer(ch4), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         end if
@@ -159,7 +159,7 @@ subroutine WriteOutFullFcc(lEx)
         call AddDatum(dataline, datum, separator)
         call WriteDatumInt(QCFlag%gas4, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
-        if (RUsetup%meth /= 'none') then
+        if (RUsetup%meth /= 'none' .or. EddyProProj%fix_out_format) then
             call WriteDatumFloat(lEx%rand_uncer(gas4), datum, EddyProProj%err_label)
             call AddDatum(dataline, datum, separator)
         end if
