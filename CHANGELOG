@@ -1,4 +1,10 @@
-7.0.0 (2018-11-15)
+7.0.5 (2019-08-12)
+
+    Engine:
+    - Fix:  error in columns alignment in "full output" file when "fixed output format" is selected along with
+            advanced processing options.
+
+7.0.3 (2019-07-17)
 
     Engine:
     - Add:  new output file conforming FLUXNET and AmeriFlux's FP-In Standards for labels, units and format
