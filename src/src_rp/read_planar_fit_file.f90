@@ -48,6 +48,7 @@ subroutine ReadPlanarFitFile()
     integer :: i
     integer :: zero
     integer :: j
+    integer :: start
     character(ShortInstringLen) :: dataline
     character(64) :: strg
 
@@ -70,6 +71,31 @@ subroutine ReadPlanarFitFile()
             if (index(dataline, 'Number_of_selected_wind_sectors') == 0) cycle
             read(dataline(index(dataline, ':') + 1: len_trim(dataline)), *) PFSetup%num_sec
             exit
+        end do
+
+        !> Skip remaining lines until beginning of fitting plane coefficients
+        do
+            read(udf, '(a)', iostat = io_status) dataline
+            if (io_status /= 0) then
+                Meth%rot = 'double_rotation'
+                call ExceptionHandler(29)
+                return
+            end if
+            if (index(dataline, 'WindSector') == 0) cycle
+            exit
+        end do
+
+        !> Read fitting plane coefficients
+        do sec = 1, PFSetup%num_sec
+            call clearstr(strg)
+            read(udf, '(a)', iostat = io_status) strg
+            if (io_status /= 0) then
+                Meth%rot = 'double_rotation'
+                call ExceptionHandler(29)
+                return
+            end if
+            start = index(strg, '-') + 6
+            read(strg(start:), *) (PFb(i, sec), i = 1, 3)
         end do
 
         !> Skip remaining lines until beginning of rotation matrices
@@ -130,6 +156,5 @@ subroutine ReadPlanarFitFile()
         Meth%rot = 'double_rotation'
         call ExceptionHandler(30)
     end if
-
     write(*,'(a)')   ' Done.'
 end subroutine ReadPlanarFitFile

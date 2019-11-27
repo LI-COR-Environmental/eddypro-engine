@@ -827,7 +827,6 @@ program EddyproRP
     !********************** PLANAR FIT IF REQUESTED ****************************
     !***************************************************************************
     !***************************************************************************
-
     if (index(Meth%rot(1:len_trim(Meth%rot)), 'planar_fit') /= 0) then
         if (.not. RPsetup%pf_onthefly) then
             call ReadPlanarFitFile()
