@@ -723,6 +723,7 @@ module m_typedef
         real(kind = dbl) :: AGC72
         real(kind = dbl) :: AGC75
         real(kind = dbl) :: RSSI77
+        real(kind = dbl) :: LGD(GHGNumVar)
         real(kind = dbl) :: KID(GHGNumVar)
         real(kind = dbl) :: CorrDiff(GHGNumVar, GHGNumVar)
         real(kind = dbl) :: mahrt98_NR(GHGNumVar)

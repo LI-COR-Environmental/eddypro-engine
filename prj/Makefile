@@ -172,6 +172,9 @@ interpret_diagnostics.o: \
 kid.o: \
 	kid.f90 \
 	m_rp_global_var.o
+longest_gap_duration.o: \
+	longest_gap_duration.f90 \
+	m_rp_global_var.o
 fisher.o: \
 	fisher.f90 \
 	m_rp_global_var.o

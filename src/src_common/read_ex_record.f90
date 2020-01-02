@@ -176,8 +176,8 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
         end do
     end if
 
-    !> Copy KID/ZCD/CORRDIFF/NSR chunk
-    ix = strCharIndex(dataline, ',', 30)
+    !> Copy LGD/KID/ZCD/CORRDIFF/NSR chunk
+    ix = strCharIndex(dataline, ',', 38)
     fluxnetChunks%s(2) = dataline(1: ix-1)
     dataline = dataline(ix+1: len_trim(dataline))
 
