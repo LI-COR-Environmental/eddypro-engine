@@ -305,10 +305,15 @@ subroutine WriteOutFluxnetFcc(lEx)
     call AddFloatDatumToDataline(lEx%Flux0%Hi_gas4, dataline, EddyProProj%err_label)
 
     !> Burba terms
-    call AddFloatDatumToDataline(lEx%Burba%h_bot, dataline, EddyProProj%err_label)
-    call AddFloatDatumToDataline(lEx%Burba%h_top, dataline, EddyProProj%err_label)
-    call AddFloatDatumToDataline(lEx%Burba%h_spar, dataline, EddyProProj%err_label)
-
+    if (lEx%Burba%h_bot + lEx%Burba%h_top + lEx%Burba%h_spar /= 0.0) then
+        call AddFloatDatumToDataline(lEx%Burba%h_bot, dataline, EddyProProj%err_label)
+        call AddFloatDatumToDataline(lEx%Burba%h_top, dataline, EddyProProj%err_label)
+        call AddFloatDatumToDataline(lEx%Burba%h_spar, dataline, EddyProProj%err_label)
+    else
+        call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+        call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+        call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+    end if
     !> LI-7700 multipliers
     call AddFloatDatumToDataline(lEx%Mul7700%A, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(lEx%Mul7700%B, dataline, EddyProProj%err_label)
