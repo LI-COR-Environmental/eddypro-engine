@@ -178,6 +178,12 @@ longest_gap_duration.o: \
 fisher.o: \
 	fisher.f90 \
 	m_rp_global_var.o
+qn_estimator.o: \
+	qn_estimator.f90 \
+	m_rp_global_var.o
+cross_corr_test.o: \
+	cross_corr_test.f90 \
+	m_rp_global_var.o
 parse_ini_file.o: \
 	parse_ini_file.f90 \
 	m_common_global_var.o
