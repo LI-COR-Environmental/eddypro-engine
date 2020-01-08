@@ -638,3 +638,189 @@ subroutine QuantileNoError(Set, nrow, ncol, Quantile, qin, err_float)
         end if
     end do
 end subroutine QuantileNoError
+
+
+subroutine unbiased_correlation(arr1, arr2, n, err_float, lag, r, t, m)
+    ! Computes the correlation of two series A and B of length
+    ! N as a function of lag. The correlation is unbiased
+    ! because the sums in the covariance and standard devia-
+    ! tions are divided by m, not m-1, where m is the number
+    ! of overlapping grid points.
+
+    ! The correlation r is defined as 
+    !
+    !           cov(A,B)
+    !     r = -------------
+    !          s(A) * s(B)
+    !
+    ! where cov() is covariance and s() is standard deviation.
+
+    ! The series A and B must be prepared such that they
+    ! are sent to this routine with zero lag. If necessary, this
+    ! is accomplished by padding the beginning or ends (or both)
+    ! of each time series with missing values (err_float) so that their
+    ! elements correspond one to one. The resultant time series
+    ! will be of equal length N. Also, missing values (err_float)
+    ! distributed thoughout each time series is perfectly
+    ! acceptable. Time series B will be shifted by the amount
+    ! lag relative to time series A:
+
+    ! RETURNS: r, the unbiased correlation, t, the significance
+    ! of the unbiased correlation ( t is set to err_float if B = A
+    ! at lag 0, i.e. an autocorrelation at lag 0, or if the
+    ! correlation is 1.0 in general), and m, the number of
+    ! overlapping grid points.
+
+    ! A:      t1  t2  t3  t4        ...       tN
+    ! B:              t1  t2  t3  t4        ...       tN 
+
+    !         \_ _/
+    !           V
+    !           lag = 2 (Defined to be > 0.) 
+
+    implicit none
+    !> In/out variables
+    integer, intent(in) :: n
+    real, dimension(n), intent(in) :: arr1 
+    real, dimension(n), intent(in) :: arr2           
+    real, intent(in) :: err_float 
+    integer, intent(in) :: lag 
+    real, intent(out) :: r
+    real, intent(out) :: t
+    integer, intent(out) :: m
+    !> Local variables
+    real, dimension(:), allocatable :: x
+    real, dimension(:), allocatable :: y
+    real, dimension(:), allocatable :: xdev
+    real, dimension(:), allocatable :: ydev
+    real, dimension(:), allocatable :: xdevydev
+    real, dimension(:), allocatable :: xdevxdev
+    real, dimension(:), allocatable :: ydevydev
+    real :: xmn
+    real :: ymn
+    real :: covxy
+    real :: sx
+    real :: sy
+
+
+    allocate( x(1:3*n) )
+    allocate( y(1:3*n) )
+
+    x(:) = err_float
+    y(:) = err_float
+
+    !> Extend arrays with copy for easier handling of shifting
+    x(n+1:2*n) = arr1(:)
+    y(n+1:2*n) = arr2(:)
+
+    !> Shift y
+    y = eoshift(y, shift = -lag, boundary = err_float)
+    where (x == err_float) y = err_float
+    where (y == err_float) x = err_float
+    m = count(x /= err_float)
+
+    !> Mean values
+    xmn = sum(x, dim=1, mask=x /= err_float) / float(m)
+    ymn = sum(y, dim=1, mask=y /= err_float) / float(m)
+
+    !> Fluctuations around mean
+    allocate(xdev(1:3*n))
+    allocate(ydev(1:3*n))
+    xdev(:) = x(:) - xmn
+    where (x == err_float) xdev(:) = err_float
+    ydev(:) = y(:) - ymn
+    where (y == err_float) ydev(:) = err_float
+
+    !> Covariance
+    allocate( xdevydev(1:3*n) )
+    xdevydev(:) = xdev(:) * ydev(:)
+    where (x == err_float) xdevydev(:) = err_float
+    covxy = sum(xdevydev, dim=1, mask=xdevydev /= err_float) / float(m)
+
+    !> Standard Deviations
+    allocate(xdevxdev(1:3*n))
+    xdevxdev(:) = xdev(:) * xdev(:)
+    where (x == err_float) xdevxdev(:) = err_float
+    sx = sqrt(sum(xdevxdev, dim=1, mask=xdevxdev /= err_float) / float(m))
+
+    allocate(ydevydev(1:3*n))
+    ydevydev(:) = ydev(:) * ydev(:)
+    where (y == err_float) ydevydev(:) = err_float
+    sy = sqrt(sum(ydevydev, dim=1, mask=ydevydev /= err_float) / float(m))
+
+    !> Correlation coefficient 
+    r = covxy / ( sx * sy )
+
+    if (r /= 1.0) then
+        t = r * sqrt( (m - 2) / ( 1 - r*r ) )
+    else
+        t = err_float
+    end if
+    deallocate( x, y, xdev, ydev, xdevydev, xdevxdev, ydevydev )
+end subroutine unbiased_correlation 
+
+
+!***************************************************************************
+!
+! \brief       Cross-correlation function for passed arrays and specified
+!              lag-time boundaries
+! \author      Gerardo Fratini
+! \note
+! \sa
+! \bug
+! \deprecated
+! \test
+! \todo
+!***************************************************************************
+! function CrossCorrelation(arr1, arr2, nrow, lagmin, lagmax) result(CCF)
+!     use m_common_global_var
+!     implicit none
+!     !> in/out variables
+!     integer, intent(in) :: nrow
+!     real(kind = dbl), intent(in) :: arr1(nrow)
+!     real(kind = dbl), intent(in) :: arr2(nrow)
+!     integer, intent(in) :: lagmin
+!     integer, intent(in) :: lagmax
+!     real(kind = dbl), dimension(51) :: CCF
+!     !> local variables
+!     integer :: lag
+!     real(kind = dbl), external :: LaggedCovarianceNoError
+
+!     print*, arr1(1), arr2(1), nrow, lagmin, lagmax
+!     stop
+!     ! do lag = lagmin, lagmax
+!     !     CCF(lag) = LaggedCovarianceNoError(arr1, arr2, nrow, lag, error)
+!     ! end do
+
+!     print*, 'ci sono'
+
+! end function CrossCorrelation
+
+
+subroutine CrossCorrelation(arr1, arr2, nrow, lagmin, lagmax, CCF)
+    use m_common_global_var
+    implicit none
+    !> in/out variables
+    integer, intent(in) :: nrow
+    real(kind = dbl), intent(in) :: arr1(nrow)
+    real(kind = dbl), intent(in) :: arr2(nrow)
+    integer, intent(in) :: lagmin
+    integer, intent(in) :: lagmax
+    real(kind = dbl), intent(out) :: CCF(lagmin: lagmax)
+    !> local variables
+    integer :: lag
+    real(kind = dbl) :: sig1(1), sig2(1)
+    real(kind = dbl), external :: LaggedCovarianceNoError
+
+
+    !> Cross-covariance function
+    do lag = lagmin, lagmax
+        CCF(lag) = LaggedCovarianceNoError(arr1, arr2, nrow, lag, error)
+    end do
+
+    !> Normalize by standard deviations
+    call StDevNoError(arr1, nrow, 1, sig1, error)
+    call StDevNoError(arr2, nrow, 1, sig2, error)
+    CCF = CCF / (sig1(1) * sig2(1))
+
+end subroutine CrossCorrelation
