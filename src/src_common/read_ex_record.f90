@@ -145,6 +145,13 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
     ix = strCharIndex(dataline, ',', 258)
     dataline = dataline(ix+1: len_trim(dataline))
     
+    if (lEx%fname == 'not_enough_data') then
+        ValidRecord = .false.
+        if (rec_num > 0) close(unt)
+        return
+    end if
+
+
     !> Copy NREX chunk
     ix = strCharIndex(dataline, ',', 23)
     fluxnetChunks%s(1) = dataline(1: ix-1)

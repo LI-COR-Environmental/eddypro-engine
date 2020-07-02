@@ -38,12 +38,13 @@
 ! \test
 ! \todo
 !***************************************************************************
-subroutine InitExVars(StartTimestamp, EndTimestamp, NumRecords, NumValidRecords)
+subroutine InitExVars(StartTimestamp, EndTimestamp, NumRecords, NumValidRecords, FirstValidRecord)
     use m_fx_global_var
     implicit none
     !> In/out variables
     integer, intent(out) :: NumRecords
     integer, intent(out) :: NumValidRecords
+    integer, intent(out) :: FirstValidRecord
     type(DateType), intent(out) :: StartTimestamp
     type(DateType), intent(out) :: EndTimestamp
     !> local variables
@@ -108,6 +109,9 @@ subroutine InitExVars(StartTimestamp, EndTimestamp, NumRecords, NumValidRecords)
 
         !> Counts
         NumRecords = NumRecords + 1
+
+        if (NumValidRecords == 0 .and. ValidRecord) FirstValidRecord = NumRecords
+
         if (ValidRecord) NumValidRecords = NumValidRecords + 1
 
         !> Handles dates
