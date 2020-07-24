@@ -90,7 +90,6 @@ subroutine CrossCorrTest(Set, nrow, ncol)
             r = cov / (sig(1) * msig(1))
 
             ! call unbiased_correlation(CCF, mCCF, lagmax - lagmin + 1, error, 0, r, t, m)
-            print*, r
         end if
     end do
 

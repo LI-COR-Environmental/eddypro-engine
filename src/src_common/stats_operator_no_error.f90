@@ -792,8 +792,6 @@ end subroutine unbiased_correlation
 !     !     CCF(lag) = LaggedCovarianceNoError(arr1, arr2, nrow, lag, error)
 !     ! end do
 
-!     print*, 'ci sono'
-
 ! end function CrossCorrelation
 
 
