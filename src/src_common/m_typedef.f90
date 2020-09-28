@@ -1250,6 +1250,7 @@ module m_typedef
         real(kind = dbl) :: RH
         real(kind = dbl) :: Va
         real(kind = dbl) :: RhoCp
+        real(kind = dbl) :: Cp
         real(kind = dbl) :: e
         real(kind = dbl) :: es
         real(kind = dbl) :: Q

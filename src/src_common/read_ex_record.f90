@@ -114,7 +114,7 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
         aux(1:4), & !< Skip advection fluxes
         lEx%unrot_u, lEx%unrot_v, lEx%unrot_w, lEx%rot_u, lEx%rot_v, lEx%rot_w, &
         lEx%WS, lEx%MWS, lEx%WD, lEx%WD_SIGMA, lEx%ustar, lEx%TKE, lEx%L, lEx%zL, lEx%Bowen, lEx%Tstar, &
-        lEx%Ts, lEx%Ta, lEx%Pa, lEx%RH, lEx%Va, lEx%RHO%a, lEx%RhoCp, &
+        lEx%Ts, lEx%Ta, lEx%Pa, lEx%RH, lEx%Va, lEx%RHO%a, lEx%RhoCp, lEx%Cp, &
         lEx%RHO%w, lEx%e, lEx%es, lEx%Q, lEx%VPD, lEx%Tdew, &
         lEx%Pd, lEx%RHO%d, lEx%Vd, lEx%lambda, lEx%sigma, &
         lEx%measure_type_int(co2), lEx%d(co2), lEx%r(co2), lEx%chi(co2), &
@@ -142,7 +142,7 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
         aux(1:8), & !< Skip SCFs
         lEx%degT%cov, lEx%degT%dcov(1:9), &
         lEx%spikes(u:gas4)
-    ix = strCharIndex(dataline, ',', 258)
+    ix = strCharIndex(dataline, ',', 259)
     dataline = dataline(ix+1: len_trim(dataline))
     
     if (lEx%fname == 'not_enough_data') then

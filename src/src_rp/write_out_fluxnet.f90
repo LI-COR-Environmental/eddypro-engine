@@ -202,6 +202,12 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
     call AddFloatDatumToDataline(Ambient%Va, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(RHO%a, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Ambient%RhoCp, dataline, EddyProProj%err_label)
+    if (RHO%a > 0) then
+        call AddFloatDatumToDataline(Ambient%RhoCp / RHO%a, dataline, EddyProProj%err_label)
+    else
+        call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+    end if
+
     !> Water
     call AddFloatDatumToDataline(RHO%w, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Ambient%e, dataline, EddyProProj%err_label, gain=1d-2, offset=0d0)
@@ -755,7 +761,7 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
     !> Footprint model
     select case(trim(adjustl(foot_model_used)))
         case('none')
-            call AddDatum(dataline, EddyProProj%err_label, separator)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
         case('kljun_04')
             call AddIntDatumToDataline(0, dataline, EddyProProj%err_label)
         case('kormann_meixner_01')
