@@ -1537,6 +1537,13 @@ program EddyproRP
             cycle periods_loop
         end if
 
+        !> Update metadata if dynamic metadata are to be used
+        if (EddyProProj%use_dynmd_file) &
+        call RetrieveDynamicMetadata(tsEnd, E2Col, size(E2Col))
+
+        MaxNumFileRecords   = nint(Metadata%file_length * 60d0 * Metadata%ac_freq)
+        MaxPeriodNumRecords = nint(RPsetup%avrg_len     * 60d0 * Metadata%ac_freq)
+
         !> Search file containing data starting from the time
         !> closest to tsStart. Searches only from most current
         !> file onward, to avoid wasting time
@@ -1686,9 +1693,9 @@ program EddyproRP
         RowLags = 0
         if (EddyProProj%run_mode /= 'md_retrieval') then
 
-            !> Update metadata if dynamic metadata are to be used
-            if (EddyProProj%use_dynmd_file) &
-                call RetrieveDynamicMetadata(tsEnd, E2Col, size(E2Col))
+            ! !> Update metadata if dynamic metadata are to be used
+            ! if (EddyProProj%use_dynmd_file) &
+            !     call RetrieveDynamicMetadata(tsEnd, E2Col, size(E2Col))
 
             !> Calculate relative separations between the analyzers
             !> and the anemometer used
