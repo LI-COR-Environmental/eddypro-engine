@@ -72,12 +72,12 @@ subroutine CrossCorrTest(Set, nrow, ncol)
     end do
 
     !> Estimate CCFs
-    open(123, file='all.txt')
-    open(124, file='non_repeated.txt')
-    do i = 1, nrow
-    write(123, *) Set(i, u:gas4)
-    write(124, *) mSet(i, u:gas4)
-    end do
+    ! open(123, file='all.txt')
+    ! open(124, file='non_repeated.txt')
+    ! do i = 1, nrow
+    ! write(123, *) Set(i, u:gas4)
+    ! write(124, *) mSet(i, u:gas4)
+    ! end do
 
     do var = ts, gas4
         if (OutVarPresent(var)) then
