@@ -344,7 +344,7 @@ subroutine WriteOutFull(init_string, PeriodRecords, PeriodActualRecords)
         call WriteDatumFloat(Foot%x90, datum, EddyProProj%err_label)
         call AddDatum(dataline, datum, separator)
     elseif(EddyProProj%fix_out_format) then
-        call AddDatum(dataline, '9', separator)
+        call AddDatum(dataline, EddyProProj%err_label, separator)
         call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
         call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
         call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)

@@ -755,13 +755,13 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
     !> Footprint model
     select case(trim(adjustl(foot_model_used)))
         case('none')
-            call AddIntDatumToDataline(0, dataline, EddyProProj%err_label)
+            call AddDatum(dataline, EddyProProj%err_label, separator)
         case('kljun_04')
-            call AddIntDatumToDataline(1, dataline, EddyProProj%err_label)
+            call AddIntDatumToDataline(0, dataline, EddyProProj%err_label)
         case('kormann_meixner_01')
-            call AddIntDatumToDataline(2, dataline, EddyProProj%err_label)
+            call AddIntDatumToDataline(1, dataline, EddyProProj%err_label)
         case('hsieh_00')
-            call AddIntDatumToDataline(3, dataline, EddyProProj%err_label)
+            call AddIntDatumToDataline(2, dataline, EddyProProj%err_label)
     end select
 
 !> Metadata
