@@ -362,12 +362,15 @@ logical function IsDaytime(rad, date, time)
     character(*), intent(in) :: date
     character(*), intent(in) :: time
     !> local variables
+    real(kind = dbl) :: lrad
     integer :: indx
     integer, external :: DateTimeToHalfHourNumber
 
-    indx = DateTimeToHalfHourNumber(date, time)
+    indx = DateTimeToHalfHourNumber(date, time) - 1
+    lrad = (rad(indx) + rad(indx - 1)) / 2
+
     !> Now indx is known, use relevant radiation value to determine daytime
-    if (rad(indx) > 10d0) then
+    if (lrad > 10d0) then
         IsDaytime = .true.
     else
         IsDaytime = .false.

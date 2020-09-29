@@ -57,6 +57,7 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
     integer :: int_doy
     real(kind = dbl) :: float_doy
     real(kind = dbl), allocatable :: bAggrOut(:)
+    real(kind = dbl) :: lrad
     character(16000) :: dataline
     character(32) :: char_doy
     character(14) :: tsIso
@@ -89,8 +90,9 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
     call AddDatum(dataline, trim(adjustl(Essentials%fname)), separator)
 
     !> Potential Radiations
-    indx = DateTimeToHalfHourNumber(Stats%date, Stats%time)
-    call AddFloatDatumToDataline(PotRad(indx), dataline, EddyProProj%err_label)
+    indx = DateTimeToHalfHourNumber(Stats%date, Stats%time) - 1
+    lrad = (PotRad(indx) + PotRad(indx - 1)) / 2
+    call AddFloatDatumToDataline(lrad, dataline, EddyProProj%err_label)
 
     !> Daytime
     if (Stats%daytime) then
