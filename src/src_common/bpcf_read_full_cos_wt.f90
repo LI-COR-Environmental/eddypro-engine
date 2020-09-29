@@ -109,7 +109,8 @@ subroutine ImportFullCospectra(CospFile, cospectra, nfreq, wanted, skip)
         return
     end if
 
-    if (any(ord>0 .and. wanted)) then
+
+    if (any(ord>0)) then
         !> Import covariances
         if (.not. allocated(aux)) allocate (aux(nvar))
         aux = 0d0
