@@ -44,8 +44,10 @@ subroutine ConfigureForEmbedded()
     !> Local variables
     character(CommLen) :: comm
     character(ShortInstringLen) :: dataline
+    character(128) :: sa_fname
     integer :: dir_status
     integer :: io_status
+    integer :: ix
 
     select case (app)
         !> EddyPro-RP
@@ -128,28 +130,36 @@ subroutine ConfigureForEmbedded()
             end if
             close(udf)
 
+
             !> Retrieve spectral assessment file name if needed
             if (EddyProProj%hf_meth =='fratini_12' .or. &
                 EddyProProj%hf_meth =='horst_97' .or. &
                 EddyProProj%hf_meth =='ibrom_07') then
 
+                ! Retrieve file name from project file
+                ix = index(AuxFile%sa, slash, back=.true.)
+                sa_fname = AuxFile%sa(ix+1: len_trim(AuxFile%sa))
+                ! File path is $HOME/ini/sa_fname
+                AuxFile%sa = trim(homedir) // 'ini' // slash // trim(sa_fname)
+                
                 !> Retrieve spectral assessment file name from /ini folder
-                comm = 'find "' // trim(homedir) // 'ini' // slash &
-                    // '" -iname *_spectral_assessment_*' // ' > ' &
-                    // trim(adjustl(TmpDir)) // 'sa_flist.tmp ' &
-                    // comm_err_redirect
-                dir_status = system(comm)
-                open(udf, file = trim(adjustl(TmpDir)) &
-                    // 'sa_flist.tmp', iostat = io_status)
-                AuxFile%sa = 'none'
-                if (io_status == 0) then
-                    read(udf, '(a128)', iostat = io_status) dataline
-                    if(io_status == 0) then
-                        AuxFile%sa = trim(adjustl(dataline))
-                        call StripFileName(AuxFile%sa)
-                    end if
-                end if
-                close(udf)
+                ! comm = 'find "' // trim(homedir) // 'ini' // slash &
+                !     // '" -iname *spectral_assessment*' // ' > ' &
+                !     // trim(adjustl(TmpDir)) // 'sa_flist.tmp ' &
+                !     // comm_err_redirect
+                ! dir_status = system(comm)
+                ! open(udf, file = trim(adjustl(TmpDir)) &
+                !     // 'sa_flist.tmp', iostat = io_status)
+                ! AuxFile%sa = 'none'
+                ! if (io_status == 0) then
+                !     read(udf, '(a128)', iostat = io_status) dataline
+                !     if(io_status == 0) then
+                !         AuxFile%sa = trim(adjustl(dataline))
+                !         call StripFileName(AuxFile%sa)
+                !     end if
+                ! end if
+                ! close(udf)
+
             end if
 
             !> Delet all temporary files
