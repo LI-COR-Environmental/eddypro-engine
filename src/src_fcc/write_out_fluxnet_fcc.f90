@@ -389,8 +389,17 @@ subroutine WriteOutFluxnetFcc(lEx)
     call AddFloatDatumToDataline(lEx%TS_ITC, dataline, EddyProProj%err_label)
 
     !> Write second string from Chunks
-    !> FK04_ST_FLAG_W_U thru ...
     call AddDatum(dataline, fluxnetChunks%s(3), separator)
+
+    !> Foken's final flags
+    call AddIntDatumToDataline(QCFlag%tau, dataline, EddyProProj%err_label)
+    call AddIntDatumToDataline(QCFlag%H, dataline, EddyProProj%err_label)
+    call AddIntDatumToDataline(QCFlag%h2o, dataline, EddyProProj%err_label)
+    call AddIntDatumToDataline(QCFlag%h2o, dataline, EddyProProj%err_label)
+    call AddIntDatumToDataline(QCFlag%co2, dataline, EddyProProj%err_label)
+    call AddIntDatumToDataline(QCFlag%h2o, dataline, EddyProProj%err_label)
+    call AddIntDatumToDataline(QCFlag%ch4, dataline, EddyProProj%err_label)
+    call AddIntDatumToDataline(QCFlag%gas4, dataline, EddyProProj%err_label)
 
     !> LI-COR's IRGAs diagnostics breakdown
     do i = 1, 29

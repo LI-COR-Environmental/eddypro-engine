@@ -194,14 +194,14 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
     ix = strCharIndex(dataline, ',', 9)
     dataline = dataline(ix+1: len_trim(dataline))
 
-    !> Copy .._TEST
-    ix = strCharIndex(dataline, ',', 17)
+    !> Copy another piece
+    ix = strCharIndex(dataline, ',', 9)
     fluxnetChunks%s(3) = dataline(1: ix-1)
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> Read licor IRGA flags
-    read(dataline, *, iostat = read_status) lEx%licor_flags(1:29)
-    ix = strCharIndex(dataline, ',', 29)
+    read(dataline, *, iostat = read_status) aux(1:8), lEx%licor_flags(1:29)
+    ix = strCharIndex(dataline, ',', 37)
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> Read AGC/RSSI
