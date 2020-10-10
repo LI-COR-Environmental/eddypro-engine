@@ -367,6 +367,7 @@ logical function IsDaytime(rad, date, time)
     integer, external :: DateTimeToHalfHourNumber
 
     indx = DateTimeToHalfHourNumber(date, time) - 1
+    indx = max(indx, 2)
     lrad = (rad(indx) + rad(indx - 1)) / 2
 
     !> Now indx is known, use relevant radiation value to determine daytime

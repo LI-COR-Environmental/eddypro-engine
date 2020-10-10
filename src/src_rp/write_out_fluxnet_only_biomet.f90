@@ -78,6 +78,7 @@ subroutine WriteOutFluxnetOnlyBiomet()
 
     !> Potential Radiations
     indx = DateTimeToHalfHourNumber(Stats%date, Stats%time) - 1
+    indx = max(indx, 2)
     lrad = (PotRad(indx) + PotRad(indx - 1)) / 2
     call AddFloatDatumToDataline(lrad, dataline, EddyProProj%err_label)
 
