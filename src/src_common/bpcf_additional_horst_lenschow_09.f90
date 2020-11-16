@@ -148,7 +148,7 @@ subroutine CF_HorstLenschow09(lEx, LocSetup)
                     Ax = error
                 end if
                 if (k_my /= error .and. r_y(gas) /= error) then
-                    Ay = dexp(-k_my * r_y(gas))
+                    Ay = dexp(-(k_my * r_y(gas))**1.2)       ! Eq. 16 instead of 13 - After notification by M. Aubinet, Nov. 2020
                 else
                     Ay = error
                 end if
