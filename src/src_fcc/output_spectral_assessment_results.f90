@@ -645,7 +645,7 @@ subroutine OutputSpectralAssessmentResults(nbins)
                             MassPar(gas, unstable)%mu)), datum, EddyProProj%err_label)
                         call AddDatum(dataline, datum, separator)
                         !> Ideal cospectrum
-                        call WriteDatumFloat(kaimal(MeanStabilityCosp(i, unstable)%fn(gas), 1, 'unstable'), &
+                        call WriteDatumFloat(kaimal(MeanStabilityCosp(i, unstable)%fn(gas), -9999d0, 'unstable'), &
                             datum, EddyProProj%err_label)
                         call AddDatum(dataline, datum, separator)
                         call AddDatum(dataline, '', separator)
