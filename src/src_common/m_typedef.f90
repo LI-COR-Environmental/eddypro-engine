@@ -884,6 +884,7 @@ module m_typedef
         integer :: nspec
         integer :: avrg_len
         integer :: wdf_num_secs
+        integer  :: covmax_var
         real(kind = dbl) :: wdf_start(MaxNumWdfSectors)
         real(kind = dbl) :: wdf_end(MaxNumWdfSectors)
         real(kind = dbl) :: offset(3)
@@ -916,6 +917,7 @@ module m_typedef
         logical :: out_raw_var(E2NumVar)
         logical :: out_st(7)
         logical :: out_raw(7)
+        logical :: covmax_stocdet
     end type RPsetupType
 
     type :: PrType
