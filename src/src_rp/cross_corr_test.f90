@@ -53,8 +53,6 @@ subroutine CrossCorrTest(Set, nrow, ncol)
     real(kind = dbl) :: CCF(lagmin: lagmax)
     real(kind = dbl) :: mCCF(lagmin: lagmax)
     real(kind = dbl) :: r
-    real(kind = dbl) :: t
-    integer(kind = dbl) :: m
     real(kind = dbl) :: cov, sig(1), msig(1)
     real(kind = dbl), external :: LaggedCovarianceNoError
 
