@@ -1,3 +1,17 @@
+7.0.7 (2020-02-12)
+
+    Engine:
+    - Refine: improved detection of Spectral Assessment file when running in embedded mode (SmartFlux)
+    - Refine: add variable CP (specific heat at constant pressure) to FLUXNET output
+    - Fix: fix usage of dynamic metadata "file_length" and "ac_freq"
+    - Fix: harmonize Full Output and FLUXNET output for footprint model selection
+    - Fix: implementation of Horst and Leschow 2009 now use Eq. 16 instead of Eq. 13. Thanks M. Aubinet for the notification!
+    - Fix: eliminated spurious Potential Radiation offset. 
+    - Fix: reporting QC flags in the FLUXNET output when using FCC executable
+    - Fix: header error with custom variables when using FCC executable
+    - Fix: reading full cospectra files when using the Fratini et al. 2012 spectral correction method
+    - Fix: planar fit settings when planar fit fails for a sector
+
 7.0.6 (2019-10-14)
 
     Engine:
