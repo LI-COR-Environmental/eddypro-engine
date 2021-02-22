@@ -52,6 +52,8 @@ subroutine InitEnv()
     character(PathLen) :: projPath
     character(256) :: arg
     character(32) :: tmpDirPadding
+    real         :: realrand
+    character(5) :: strrand
     character(3), parameter :: OS_default = 'win'
     integer, external :: CreateDir
 
@@ -145,11 +147,13 @@ subroutine InitEnv()
     end if
 
     !> Define TmpDir differently if it's in desktop or embedded mode
+    call random_number(realrand)
+    write(strrand, '(i0.5)') int(realrand*10000)
     if (EddyProProj%run_env == 'desktop') then
         TmpDir = trim(homedir) // 'tmp' // slash // 'tmp' &
-        // trim(adjustl(tmpDirPadding)) // slash
+        // trim(adjustl(tmpDirPadding)) // '_' // strrand // slash
     else
-        TmpDir = trim(homedir) // 'tmp' // slash
+        TmpDir = trim(homedir) // 'tmp' // '_' // strrand // slash
     end if
 
     !> Create TmpDir in case it doesn't exist (for use from command line)

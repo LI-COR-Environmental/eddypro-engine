@@ -61,7 +61,7 @@ integer function CreateDir(directory)
 
     !> create dir and if one already exists, skip obvious system message
     !> redirecting through windows NUL (equivalent to linux /dev/null)
-    comm = 'mkdir ' // directory(1: len_trim(directory)) // comm_err_redirect
+    comm = trim(comm_mkdir) // ' ' // directory(1: len_trim(directory)) // comm_err_redirect
     CreateDir = system(comm)
 end function CreateDir
 

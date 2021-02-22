@@ -86,10 +86,12 @@ module m_common_global_var
     character(16) :: comm_out_redirect
     character(16) :: comm_7zip
     character(16) :: comm_7zip_x_opt
+    character(16) :: comm_7zip_out
     character(16) :: comm_copy
     character(16) :: comm_move
     character(16) :: comm_force_opt
     character(15) :: comm_dir
+    character(15) :: comm_mkdir
     character(PathLen) :: homedir
     character(PathLen) :: IniDir
     character(PathLen) :: TmpDir
