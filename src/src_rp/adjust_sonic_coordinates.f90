@@ -125,7 +125,7 @@ subroutine AdjustSonicCoordinates(Set, nrow, ncol)
         case('csat3', 'csat3b')
             E2Col(u)%instr%north_offset = E2Col(u)%instr%north_offset - 180d0
         case('usoni3_cage_mp', 'usoni3_classa_mp')
-            E2Col(u)%instr%north_offset = E2Col(u)%instr%north_offset - 90d0
+            E2Col(u)%instr%north_offset = E2Col(u)%instr%north_offset + 90d0
         case('81000', '81000v', '81000re', '81000vre')
             E2Col(u)%instr%north_offset = E2Col(u)%instr%north_offset - 90d0
     end select
