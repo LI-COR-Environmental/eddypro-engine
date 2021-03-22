@@ -166,7 +166,7 @@ subroutine WriteOutFluxnetFcc(lEx)
     call AddFloatDatumToDataline(lEx%RHO%a, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(lEx%RhoCp, dataline, EddyProProj%err_label)
     if (lEx%RHO%a > 0) then
-        call AddFloatDatumToDataline(Ambient%RhoCp / lEx%RHO%a, dataline, EddyProProj%err_label)
+        call AddFloatDatumToDataline(lEx%RhoCp / lEx%RHO%a, dataline, EddyProProj%err_label)
     else
         call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
     end if
