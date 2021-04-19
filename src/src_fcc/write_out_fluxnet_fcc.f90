@@ -428,6 +428,17 @@ subroutine WriteOutFluxnetFcc(lEx)
     !> TIMELAG_DETECTION_METHOD thru FOOTPRINT_MODEL
     call AddDatum(dataline, fluxnetChunks%s(5), separator)
 
+    select case(trim(adjustl(foot_model_used)))
+    case('none')
+        call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+    case('kljun_04')
+        call AddIntDatumToDataline(0, dataline, EddyProProj%err_label)
+    case('kormann_meixner_01')
+        call AddIntDatumToDataline(1, dataline, EddyProProj%err_label)
+    case('hsieh_00')
+        call AddIntDatumToDataline(2, dataline, EddyProProj%err_label)
+    end select
+
     !> Metadata
     call AddIntDatumToDataline(lEx%logger_swver%major, dataline, EddyProProj%err_label)
     call AddIntDatumToDataline(lEx%logger_swver%minor, dataline, EddyProProj%err_label)

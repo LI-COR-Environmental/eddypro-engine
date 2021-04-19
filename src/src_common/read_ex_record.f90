@@ -220,13 +220,13 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
     ix = strCharIndex(dataline, ',', 5)
     dataline = dataline(ix+1: len_trim(dataline))
 
-    !> Copy TIMELAG_DETECTION_METHOD thru FOOTPRINT_MODEL
-    ix = strCharIndex(dataline, ',', 5)
+    !> Copy TIMELAG_DETECTION_METHOD thru SPECTRAL_CORRECTION_METHOD
+    ix = strCharIndex(dataline, ',', 4)
     fluxnetChunks%s(5) = dataline(1: ix-1)
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> Read out metadata
-    read(dataline, *, iostat = read_status) &
+    read(dataline, *, iostat = read_status) aux(1), &
         lEx%logger_swver%major,lEx%logger_swver%minor,lEx%logger_swver%revision, &
         lEx%lat, lEx%lon, lEx%alt, &
         lEx%canopy_height, lEx%disp_height, lEx%rough_length, &
@@ -251,7 +251,7 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
         lEx%instr(igas4)%tube_f, &
         lEx%instr(igas4)%hpath_length, lEx%instr(igas4)%vpath_length, lEx%instr(igas4)%tau, &
         lEx%ncustom
-    ix = strCharIndex(dataline, ',', 68)
+    ix = strCharIndex(dataline, ',', 69)
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> Read custom variables
