@@ -998,7 +998,7 @@ program EddyproRP
                 call DefineE2Set(Col, Raw,   size(Raw, 1),     Size(Raw, 2), &
                                     E2Set,   size(E2Set, 1),   Size(E2Set, 2), &
                                     DiagSet, size(DiagSet, 1), Size(DiagSet, 2))
-!                if (allocated(DiagSet))  deallocate(DiagSet)
+                !if (allocated(DiagSet))  deallocate(DiagSet)
 
                 !> Clean up E2Set, eliminating values that are clearly un-physical
                 call CleanUpE2Set(E2Set, size(E2Set, 1), size(E2Set, 2))
