@@ -18,7 +18,7 @@
 ! Commercial companies that are LI-COR flux system customers 
 ! are encouraged to contact LI-COR directly for our commercial 
 ! EDDYPRO® End User License Agreement.
-!
+! 
 ! EDDYPRO® contains Open Source Components (as defined in the 
 ! End User License Agreement). The licenses and/or notices for the 
 ! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
