@@ -444,9 +444,9 @@ subroutine WriteVariablesRP()
 
     !> Time lag optimizer extra settings
     RPsetup%to_onthefly = .false.
-    TimeLagOptSelected = .false.
+    ! TimeLagOptSelected = .false.
     if (Meth%tlag == 'tlag_opt') then
-        TimeLagOptSelected = .true.
+        ! TimeLagOptSelected = .true.
         if (SCTags(91)%value(1:1) == '1') then
             RPsetup%to_onthefly = .true.
         else

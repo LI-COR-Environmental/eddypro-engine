@@ -223,9 +223,9 @@ program EddyproRP
     !> spectral correction method
     if (EddyProProj%out_avrg_cosp &
         .or. EddyProProj%out_avrg_spec &
-        .or. (EddyProProj%hf_meth /= 'none' &
-        .and. EddyProProj%hf_meth /= 'moncrieff_97' &
-        .and. EddyProProj%hf_meth /= 'massman_00')) then
+        .or. (trim(EddyProProj%hf_meth) /= 'none' &
+        .and. trim(EddyProProj%hf_meth) /= 'moncrieff_97' &
+        .and. trim(EddyProProj%hf_meth) /= 'massman_00')) then
         !> in this cases, passage is needed to FCC, so:
         !> don't output files, don't create dataset
         !> don't output metadata
@@ -296,7 +296,7 @@ program EddyproRP
         !> GHG files.
         allocate(Raw(1, 1))
         BypassCol = NullCol
-        if (EddyProProj%ftype == 'licor_ghg') then
+        if (trim(EddyProProj%ftype) == 'licor_ghg') then
             i = 1
             do while (i <= NumRawFiles)
                 call ReadLicorGhgArchive(RawFileList(i)%path, -1, -1, Col, &
@@ -325,7 +325,7 @@ program EddyproRP
         RPsetup%avrg_len = nint(Metadata%file_length)
 
     !> Adjust time constant for planar fit if needed
-    if (Meth%det == 'ld') then
+    if (trim(Meth%det) == 'ld') then
         !> If time constant is larger than flux averaging interval,
         !> limit time constant to flux averaging interval and notify
         if (RPsetup%Tconst > RPsetup%avrg_len) then
@@ -359,7 +359,7 @@ program EddyproRP
             else
                 NumBiometFiles = NumFileNoRecurse
             end if
-            write(*, '(a)') ' Done.'
+            write(*, '(a)') '  Done.'
         else
             NumBiometFiles = 1
         end if
@@ -409,7 +409,7 @@ program EddyproRP
 
     !> Check the dynamic metadata file for calibration data.
     !> If found, builds up time series of absorptance drifts
-    if (DriftCorr%method /= 'none') then
+    if (trim(DriftCorr%method) /= 'none') then
         allocate(tsDrifts(NumberOfPeriods + 1))
         allocate(Calib(0:NumDynRecords))  !< elem. 0 is to alloc. start of period
         allocate(tmpCalib(0:NumDynRecords))
@@ -437,7 +437,7 @@ program EddyproRP
     !***************************************************************************
     !***************************************************************************
 
-    if (trim(adjustl(Meth%tlag)) == 'tlag_opt') then
+    if (trim(Meth%tlag) == 'tlag_opt') then
         if (.not. RPsetup%to_onthefly) then
             call ReadTimelagOptFile(TOSetup%h2o_nclass)
             if (TOSetup%h2o_nclass > 1) &
@@ -467,8 +467,8 @@ program EddyproRP
 
             !> Count maximum number of periods for timelag optimization
             write(TmpString1, '(i7)') toEndTimestampIndx - toStartTimestampIndx
-            write(*, '(a)') '  Maximum number of flux averaging periods &
-                &available for time-lag optimization: ' &
+            write(*, '(a)') '  Maximum number of flux averaging periods ' &
+                // 'available for time-lag optimization: ' &
                 // trim(adjustl(TmpString1))
 
             !> Allocate variables that depend upon maximum number of periods
@@ -514,9 +514,7 @@ program EddyproRP
 
                 !> Averaging period advancement
                  if (day /= 0) then
-                    if (EddyProProj%caller == 'console') then
-                        write(*, '(a)', advance = 'no') '#'
-                    else
+                    if (trim(EddyProProj%caller) /= 'console') then
                         call DisplayProgress('avrg_interval', &
                             '   another small step to the time-lag: ', &
                             tsStart, 'yes')
@@ -528,14 +526,11 @@ program EddyproRP
                     .or. month /= tsStart%month) then
                     month = tsStart%month
                     day   = tsStart%day
-                    if (EddyProProj%caller == 'console') then
+                    if (trim(EddyProProj%caller) == 'console') then
                         write(*, '(a)')
-                        call DisplayProgress('daily','  Importing data for ', &
-                            tsStart, 'no')
-                    else
-                        call DisplayProgress('daily','  Importing data for ', &
-                            tsStart, 'yes')
-                    end if
+                    endif
+                    call DisplayProgress('daily','  Importing data for ', &
+                         tsStart, 'yes')
                 end if
 
                 if (skip_period) cycle to_periods_loop
@@ -790,8 +785,8 @@ program EddyproRP
                 call AddToTimelagOptDataset(TimelagOpt, size(TimelagOpt),ton)
 
             end do to_periods_loop
-            write(*, '(a)')
-            write(*, '(a)') ' Done.'
+            ! write(*, '(a)')
+            write(*, '(a)') '  Done.'
 
             !*******************************************************************
             !**** RAW DATA REDUCTION FINISHES HERE.    *************************
@@ -812,7 +807,7 @@ program EddyproRP
                 TOSetup%h2o_nclass, TOSetup%h2o_class_size)
 
             !> Write time-lag optimization results on output file
-            if (.not. (Meth%tlag == 'maxcov')) &
+            if (.not. (trim(Meth%tlag) == 'maxcov')) &
                 call WriteOutTimelagOptimization(tlagn, E2NumVar, &
                     toH2On, TOSetup%h2o_nclass, TOSetup%h2o_class_size)
 
@@ -855,7 +850,7 @@ program EddyproRP
             end if
 
             !> Allocate variables depending upon number of sectors
-            if (.not. allocated(pfNumElem))  &
+            if (.not. allocated(pfNumElem)) &
                 allocate(pfNumElem(PFSetup%num_sec))
 
             if (PFSetup%subperiod) then
@@ -883,8 +878,8 @@ program EddyproRP
             !> Count maximum number of periods for planar fit
             write(TmpString1, '(i7)') &
                 pfEndTimestampIndx - pfStartTimestampIndx
-            write(*, '(a)') '  Maximum number of &
-                &flux averaging periods available for planar-fit: ' &
+            write(*, '(a)') '  Maximum number of ' &
+                // 'flux averaging periods available for planar-fit: ' &
                 // trim(adjustl(TmpString1))
 
             !> Allocate variables that depend upon maximum number of
@@ -930,9 +925,7 @@ program EddyproRP
 
                 !> Averaging period advancement
                 if (day /= 0) then
-                    if (EddyProProj%caller == 'console') then
-                        write(*, '(a)', advance = 'no') '#'
-                    else
+                    if (trim(EddyProProj%caller) /= 'console') then
                         call DisplayProgress('avrg_interval', &
                             '   another small step to the planar-fit: ', &
                                 tsStart, 'yes')
@@ -944,14 +937,11 @@ program EddyproRP
                     .or. month /= tsStart%month) then
                     month = tsStart%month
                     day   = tsStart%day
-                    if (EddyProProj%caller == 'console') then
+                    if (trim(EddyProProj%caller) == 'console') then
                         write(*, '(a)')
-                        call DisplayProgress('daily', &
-                            '  Importing wind data for ', tsStart, 'no')
-                    else
-                        call DisplayProgress('daily', &
-                            '  Importing wind data for ', tsStart, 'yes')
-                    end if
+                    endif
+                    call DisplayProgress('daily', &
+                         '  Importing wind data for ', tsStart, 'yes')
                 end if
 
                 if (skip_period) cycle pf_periods_loop
@@ -963,7 +953,7 @@ program EddyproRP
                 !> On exit, LatestRawFileIndx contains the index of
                 !> the latest file used
                 call ImportCurrentPeriod(tsStart, tsEnd, &
-                    RawFileList, NumRawFiles, NextRawFileIndx, BypassCol,  &
+                    RawFileList, NumRawFiles, NextRawFileIndx, BypassCol, &
                     MaxNumFileRecords, MetaIsNeeded, &
                     .false., .false., &
                     Raw, size(Raw, 1), size(Raw, 2), PeriodRecords, &
@@ -1136,7 +1126,7 @@ program EddyproRP
             !> Some logging
             write(LogInteger, '(i6)') PFSetup%num_sec
             write(*, '(a)') ' Calculating planar fit rotation matrices for ' &
-                                  // trim(adjustl(LogInteger)) // ' sector(s).'
+                 // trim(adjustl(LogInteger)) // ' sector(s).'
 
             !> Loop over wind sectors
             GoPlanarFit = .true.
@@ -1166,7 +1156,7 @@ program EddyproRP
                 call PlanarFitAuxParams(pfWind, pfNumElem(sec), Mat, pfVec)
                 deallocate(pfWind)
 
-                if (Meth%rot(1:len_trim(Meth%rot)) == 'planar_fit') then
+                if (trim(Meth%rot) == 'planar_fit') then
                     !> Invert matrix --> Mat^(-1)
                     call MatrixInversion(Mat, 3, SingMat)
 
@@ -1184,8 +1174,7 @@ program EddyproRP
                     do i = u, w
                         PFb(:, sec) = PFb(:, sec) + dble(Mat(:, i)) * pfVec(i)
                     end do
-                elseif (Meth%rot(1:len_trim(Meth%rot)) &
-                        == 'planar_fit_no_bias') then
+                elseif (trim(Meth%rot) == 'planar_fit_no_bias') then
                     !> Define tensors of 2 elements (out of the 3-elements ones)
                     Mat2d(1,1:2) = Mat(2, 2:3)
                     Mat2d(2,1:2) = Mat(3, 2:3)
@@ -1281,7 +1270,7 @@ program EddyproRP
     !******************** DEFINITION OF CALIBRATION EVENTS *********************
     !***************************************************************************
     !***************************************************************************
-    if (DriftCorr%method /= 'none' .and. nCalibEvents > 0) then
+    if (trim(DriftCorr%method) /= 'none' .and. nCalibEvents > 0) then
         write(*,'(a)') ' Elaborating IRGA calibration-check history..'
 
         !> Loop on periods to be processed
@@ -1502,8 +1491,8 @@ program EddyproRP
         !> Some logging
         if (EddyProProj%run_mode /= 'md_retrieval') then
             write(*, '(a)')
-            call hms_current_print(' ',': processing new &
-                &flux averaging period', .true.)
+            call hms_current_print(' ',': processing new ' &
+                // 'flux averaging period', .true.)
             write(*, '(a)') ' From: ' &
                 // trim(date)   // ' ' // trim(time)
             write(*, '(a)') '   To: ' &
@@ -1645,7 +1634,7 @@ program EddyproRP
 
             !> If drift correction is to be performed with signal strength
             !> proxy, calculate mean refCounts for current period
-            if (DriftCorr%method == 'signal_strength') &
+            if (trim(DriftCorr%method) == 'signal_strength') &
                 call ReferenceCounts(dble(Raw), size(Raw, 1), size(Raw, 2))
         end if
 
@@ -1654,11 +1643,11 @@ program EddyproRP
         !***********************************************************************
 
         !> Allocate arrays for actual data processing
-        if (.not. allocated(E2Set))    &
+        if (.not. allocated(E2Set)) &
             allocate(E2Set(PeriodRecords, E2NumVar))
         if (.not. allocated(E2Primes)) &
             allocate(E2Primes(PeriodRecords, E2NumVar))
-        if (.not. allocated(DiagSet))  &
+        if (.not. allocated(DiagSet)) &
             allocate(DiagSet(PeriodRecords, MaxNumDiag))
 
         !> Define EddyPro set of variables for the following processing
@@ -1867,8 +1856,8 @@ program EddyproRP
                 call CrossWindCorr(E2Col(u), E2Set, &
                     size(E2Set, 1), size(E2Set, 2), .true.)
             else
-                write(*,'(a)') '  Cross-wind correction not requested &
-                    &or not applicable'
+                write(*,'(a)') '  Cross-wind correction not requested ' &
+                    // 'or not applicable'
             end if
 
             !> Output raw dataset third level
@@ -1914,7 +1903,7 @@ program EddyproRP
             end if
 
             !> ===== 4.1 CORRECTION OF CALIBRATION DRIFTS ======================
-            if (DriftCorr%method /= 'none' .and. nCalibEvents /= 0) &
+            if (trim(DriftCorr%method) /= 'none' .and. nCalibEvents /= 0) &
                 call DriftCorrection(E2Set, size(E2Set, 1), size(E2Set, 2), &
                     E2Col, size(E2Col), nCalibEvents, tsStart)
 
@@ -1925,7 +1914,7 @@ program EddyproRP
 
             !> ===== 5. TILT CORRECTION ========================================
             !> Apply rotations for tilt correction, if requested
-            call TiltCorrection(Meth%rot, GoPlanarFit, E2Set, &
+            call TiltCorrection(trim(Meth%rot), GoPlanarFit, E2Set, &
                 size(E2Set, 1), size(E2Set, 2), PFSetup%num_sec, &
                 Essentials%yaw, Essentials%pitch, Essentials%roll, .true.)
 
@@ -1952,12 +1941,12 @@ program EddyproRP
             !> ===== 6. TIMELAG COMPENSATION  ==================================
             !> If available, for files others than GHG, replace flow rate
             !> of LI-7200 provided by user with mean value from raw files
-            if (EddyProProj%ftype /= 'licor_ghg' &
+            if (trim(EddyProProj%ftype) /= 'licor_ghg' &
                 .or. EddyProProj%use_extmd_file) then
                 do i = 1, E2NumVar
                     if (NumUserVar > 0) then
                         do j = 1, NumUserVar
-                            if (UserCol(j)%var == 'flowrate' &
+                            if (trim(UserCol(j)%var) == 'flowrate' &
                                 .and. UserCol(j)%instr%model == E2Col(i)%instr%model &
                                 .and. UserStats%Mean(j) /= 0d0 &
                                 .and. UserStats%Mean(j) /= error) then
@@ -1976,11 +1965,11 @@ program EddyproRP
             call SetTimelags()
 
             !> Calculate and compensate time-lags
-            if (TimeLagOptSelected) Meth%tlag = 'maxcov&default'
-            call TimeLagHandle(Meth%tlag(1:len_trim(Meth%tlag)), E2Set, &
+            ! if (TimeLagOptSelected) Meth%tlag = 'maxcov&default'
+            call TimeLagHandle(trim(Meth%tlag), E2Set, &
                 size(E2Set, 1), size(E2Set, 2), Essentials%actual_timelag, &
                 Essentials%used_timelag, Essentials%def_tlag, .false.)
-            if (TimeLagOptSelected) Meth%tlag = 'tlag_opt'
+            ! if (TimeLagOptSelected) Meth%tlag = 'tlag_opt'
 
             !> ===== 6.1 FILTERING MOLAR DENSITY DATA FOR ABSOLUTE LIMITS TEST  ====================
             if (EddyProProj%run_mode /= 'md_retrieval') then
@@ -2172,7 +2161,7 @@ program EddyproRP
                 call BandPassSpectralCorrections(E2Col(u)%Instr%height, &
                     Metadata%d, E2Col(u:gas4)%present, Ambient%WS, Ambient%Ta, &
                     Ambient%zL, Metadata%ac_freq, RPsetup%avrg_len, &
-                    Metadata%logger_swver, Meth%det, &
+                    Metadata%logger_swver, trim(Meth%det), &
                     RPsetup%Tconst, .true., E2Col(u:GHGNumVar)%instr, 1)
 
                 !> Calculate fluxes at Level 1
@@ -2182,7 +2171,7 @@ program EddyproRP
                 call Fluxes23_rp()
 
                 !> Footprint estimation
-                foot_model_used = Meth%foot(1:len_trim(Meth%foot))
+                foot_model_used = trim(Meth%foot)
                 call FootprintHandle(Stats%Cov(w, w), Ambient%us, &
                     Ambient%zL, Ambient%WS, Ambient%L, &
                     E2Col(u)%Instr%height, Metadata%d, Metadata%z0)
@@ -2216,7 +2205,7 @@ program EddyproRP
             call QualityFlags(Flux2, StDiff, DtDiff, STFlg, DTFlg, QCFlag, .true.)
 
             !> Write details on output files if requested
-            if(RPsetup%out_qc_details .and. Meth%qcflag /= 'none') &
+            if(RPsetup%out_qc_details .and. trim(Meth%qcflag) /= 'none') &
                 call WriteOutQCDetails(suffixOutString, StDiff, DtDiff, STFlg, DTFlg)
 
             !> Update values of AGC and RSSI as available
@@ -2289,8 +2278,8 @@ program EddyproRP
 
     !> Creating datasets from output files
     write(*, '(a)')
-    write(*, '(a)') ' Raw data processing terminated. &
-        &Creating continuous datasets if necessary..'
+    write(*, '(a)') ' Raw data processing terminated. ' &
+        // 'Creating continuous datasets if necessary..'
 
     if (make_dataset_common) then
         call CreateDatasetsCommon(MasterTimeSeries, size(MasterTimeSeries), &

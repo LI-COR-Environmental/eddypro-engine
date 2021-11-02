@@ -7,20 +7,20 @@
 !
 ! This file is part of EddyPro®.
 !
-! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for 
-! non-commercial academic and government research purposes only, 
-! as provided in the EDDYPRO® End User License Agreement. 
+! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for
+! non-commercial academic and government research purposes only,
+! as provided in the EDDYPRO® End User License Agreement.
 ! EDDYPRO® may only be used as provided in the End User License Agreement
 ! and may not be used or accessed for any commercial purposes.
 ! You may view a copy of the End User License Agreement in the file
 ! EULA_NON_COMMERCIAL.rtf.
 !
-! Commercial companies that are LI-COR flux system customers 
-! are encouraged to contact LI-COR directly for our commercial 
+! Commercial companies that are LI-COR flux system customers
+! are encouraged to contact LI-COR directly for our commercial
 ! EDDYPRO® End User License Agreement.
 !
-! EDDYPRO® contains Open Source Components (as defined in the 
-! End User License Agreement). The licenses and/or notices for the 
+! EDDYPRO® contains Open Source Components (as defined in the
+! End User License Agreement). The licenses and/or notices for the
 ! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
 !
 ! EddyPro® is distributed in the hope that it will be useful,
@@ -90,7 +90,7 @@ subroutine TimeLagHandle(TlagMeth, Set, nrow, ncol, ActTLag, TLag, &
             TLag(ts:pe)    = E2Col(ts:pe)%def_tl
             ActTLag(ts:pe) = E2Col(ts:pe)%def_tl
             DefTlagUsed(ts:pe) = .true.
-        case ('maxcov', 'maxcov&default')
+        case ('maxcov', 'maxcov&default', 'tlag_opt')
             !> covariance maximization method, with or without default
             do j = ts, pe
                 !> Only for present variables,
@@ -105,7 +105,7 @@ subroutine TimeLagHandle(TlagMeth, Set, nrow, ncol, ActTLag, TLag, &
                     ActTLag(j) = TLag(j)
                     !> If no max cov has been detected within the interval, \n
                     !> sets the time lag to the suggested values
-                    if (TlagMeth == 'maxcov&default') then
+                    if ((TlagMeth == 'maxcov&default') .or. (TlagMeth == 'tlag_opt')) then
                         if ( (RowLags(j) == min_rl(j)) .or. (RowLags(j) == max_rl(j)) ) then
                             DefTlagUsed(j) = .true.
                             TLag(j) = dble(def_rl(j)) / Metadata%ac_freq
@@ -254,7 +254,7 @@ subroutine CovMax(lagmin, lagmax, Col1, Col2, nrow, TLag, RLag)
         allocate(ShSet(N2, 2))
         allocate(ShPrimes(N2, 2))
 
-        !> Align the two timeseries at the current time-lag 
+        !> Align the two timeseries at the current time-lag
         do ii = 1, N2
             if (i < 0) then
                 ShSet(ii, 1) = Col1(ii - i)
@@ -366,7 +366,7 @@ subroutine VariableStochasticDetrending(Var, Primes, N)
     do i = 2, N
         if (Var(i) /= error .and. Var(i-1) /= error) then
             Primes(i) = Var(i) - Var(i-1)
-        else 
+        else
             Primes(i) = error
         end if
     end do
@@ -484,5 +484,5 @@ subroutine CalculateTrend(Var, Trend, N)
         else
             Trend(i) = error
         end if
-    end do        
+    end do
 end subroutine CalculateTrend

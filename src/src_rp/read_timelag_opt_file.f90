@@ -54,7 +54,7 @@ subroutine ReadTimelagOptFile(ncls)
     open(udf, file = AuxFile%to, status = 'old', iostat = open_status)
 
     if (open_status == 0) then
-        write(*, '(a)') ' Time lag optimization file found, retrieving content..'
+        write(*, '(a)') '  Time lag optimization file found, retrieving content..'
         do
             !> co2
             read(udf, '(a)', iostat = read_status) strg
@@ -134,5 +134,5 @@ subroutine ReadTimelagOptFile(ncls)
         Meth%tlag = 'maxcov'
         call ExceptionHandler(39)
     end if
-    write(*,'(a)')   ' Done.'
+    write(*,'(a)')   '  Done.'
 end subroutine ReadTimelagOptFile
