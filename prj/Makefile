@@ -24,6 +24,7 @@ else
 	RP_EXE = eddypro_rp
 	FCC_EXE = eddypro_fcc
 	FC = gfortran
+	# FC = gfortran-8
 	MAKE_DIR = @mkdir -p DIR
 	PATHSEP2 = /
 	platform=$(shell uname)
@@ -264,7 +265,8 @@ wind_direction.o: \
 	m_common_global_var.o
 read_ini_rp.o: \
 	read_ini_rp.f90 \
-	m_rp_global_var.o
+	m_rp_global_var.o \
+	exception_handler.o
 bpcf_li7550_analog_filters.o: \
 	bpcf_li7550_analog_filters.f90 \
 	m_common_global_var.o

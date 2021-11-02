@@ -814,6 +814,12 @@ program EddyproRP
             if (allocated(toH2On)) deallocate(toH2On)
             write(*,'(a)') ' Time-lag optimization session terminated.'
             write(*,'(a)')
+
+            if (RPsetup%to_only) then
+                write(*,'(a)')
+                write(*,'(a)') ' Finish after time-lag optimization.'
+                stop
+            endif
         end if
     end if
 
@@ -1225,6 +1231,12 @@ program EddyproRP
             if (allocated (pfNumElem)) deallocate(pfNumElem)
             write(*,'(a)') ' Planar Fit session terminated.'
             write(*,'(a)')
+
+            if (RPsetup%pf_only) then
+               write(*,'(a)')
+               write(*,'(a)') ' Finish after planar fit.'
+               stop
+            endif
         end if
     else
         if (.not. allocated(GoPlanarFit)) allocate(GoPlanarFit(PFSetup%num_sec))

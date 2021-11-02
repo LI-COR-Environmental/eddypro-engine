@@ -415,10 +415,14 @@ subroutine WriteVariablesRP()
 
     !> Planar fit extra settings
     RPsetup%pf_onthefly = .false.
+    RPsetup%pf_only = .false.
     if (index(Meth%rot, 'planar_fit') /= 0) then
         !> Whether to perfom planar fit on the fly or use previous results file
         if (SCTags(56)%value(1:1) == '1') then
             RPsetup%pf_onthefly = .true.
+        elseif (SCTags(56)%value(1:1) == '2') then
+            RPsetup%pf_onthefly = .true.
+            RPsetup%pf_only = .true.
         else
             AuxFile%pf = SCTags(57)%value(1:len_trim(SCTags(57)%value))
         end if
@@ -444,15 +448,24 @@ subroutine WriteVariablesRP()
 
     !> Time lag optimizer extra settings
     RPsetup%to_onthefly = .false.
+    RPsetup%to_only = .false.
     ! TimeLagOptSelected = .false.
     if (Meth%tlag == 'tlag_opt') then
         ! TimeLagOptSelected = .true.
         if (SCTags(91)%value(1:1) == '1') then
             RPsetup%to_onthefly = .true.
+        elseif (SCTags(91)%value(1:1) == '2') then
+            RPsetup%to_onthefly = .true.
+            RPsetup%to_only = .true.
         else
             AuxFile%to = SCTags(92)%value(1:len_trim(SCTags(92)%value))
         end if
     end if
+
+    ! Only one of the two possible at once
+    if (RPsetup%pf_only .and. RPsetup%to_only) then
+        call ExceptionHandler(96)
+    endif
 
     !>  tapering window
     select case (SCTags(17)%value(1:1))

@@ -903,6 +903,8 @@ module m_typedef
         logical :: despike
         logical :: pf_onthefly
         logical :: to_onthefly
+        logical :: pf_only
+        logical :: to_only
         logical :: pf_subtract_b0
         logical :: recurse
         logical :: despike_vickers97

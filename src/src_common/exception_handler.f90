@@ -359,5 +359,10 @@ subroutine ExceptionHandler(error_code)
             write(*,*) ' Warning(95)> The selected "w-boost" correction is not applicable'
             write(*,*) ' Warning(95)> to data collected with selected sonic anemometer.'
             write(*,*) ' Warning(95)> Continuing without applying "w-boost" correction.'
+         case(96)
+            write(*,*) ' Fatal error(96)> You can only choose one of to_mode=2 and pf_mode=2'
+            write(*,*) ' Fatal error(96)> for only performing timelag optimization or'
+            write(*,*) ' Fatal error(96)> planar fit calculation.'
+            stop 1
     end select
 end subroutine ExceptionHandler
