@@ -81,10 +81,10 @@ subroutine InitEnv()
         call get_command_argument(i, value=switch, status=io_status)
         if (io_status > 0 .or. len_trim(switch) == 0) exit arg_loop
         i = i + 1
-        call get_command_argument(i, value=arg, status=io_status)
-        i = i + 1
 
         if (switch(1:1) == '-') then
+            call get_command_argument(i, value=arg, status=io_status)
+            i = i + 1
             select case(trim(adjustl(switch)))
 
                 !> Switch for "system", the host operating system
@@ -130,6 +130,7 @@ subroutine InitEnv()
             if (index(projPath, '.eddypro') == 0) projPath = ''
         end if
     end do arg_loop
+
 
     !> Set OS-dependent parameters
     if (len_trim(OS) == 0) OS = OS_default
@@ -195,7 +196,7 @@ subroutine InformOfSoftwareVersion(sw_ver, build_date)
 
 
     write (*, '(a)') ' ' // trim(adjustl(app)) // ', version ' // trim(adjustl(sw_ver)) // &
-        &', build ' // trim(adjustl(build_date)) // '.'
+        ', build ' // trim(adjustl(build_date)) // '.'
     stop
 end subroutine InformOfSoftwareVersion
 
@@ -229,7 +230,7 @@ subroutine CommandLineHelp(sw_ver, build_date)
     write(*, '(a)') ' Help for ' // trim(adjustl(app))
     write(*, '(a)') ' --------------------'
     write (*, '(a)') ' ' // trim(adjustl(app)) // ', version ' // trim(adjustl(sw_ver)) // &
-        &', build ' // trim(adjustl(build_date)) // '.'
+        ', build ' // trim(adjustl(build_date)) // '.'
     write(*,*)
     write(*, '(a)') ' USAGE: ' // trim(prog) // ' [OPTION [ARG]] [PROJ_FILE]'
     write(*,*)
@@ -237,12 +238,14 @@ subroutine CommandLineHelp(sw_ver, build_date)
     write(*, '(a)') '   [-s | --system [win | linux | mac]]  Operating system; if not provided assumes "win"'
     write(*, '(a)') '   [-m | --mode [embedded | desktop]]   Running mode; if not provided assumes "desktop"'
     write(*, '(a)') '   [-c | --caller [gui | console]]      Caller; if not provided assumes "console"'
-    write(*, '(a)') '   [-e | --environment [DIRECTORY]]     Working directory, to be provided in embedded mode;&
-                                                             & if not provided assumes \.'
+    write(*, '(a)') '   [-e | --environment [DIRECTORY]]     Working directory, to be provided in embedded mode;' &
+        // ' if not provided assumes \.'
+    write(*, '(a)') '   [-t | --tmpdir [DIRECTORY]]          Directory for temporary files and directories;' &
+        // ' if not provided assumes \..'
     write(*, '(a)') '   [-h | --help]                        Display this help and exit'
     write(*, '(a)') '   [-v | --version]                     Output version information and exit'
     write(*, '(a)')
-    write(*, '(a)') ' PROJ_FILE                              Path of project (*.eddypro) file;&
-                                                             & if not provided, assumes ..\ini\processing.eddypro'
+    write(*, '(a)') ' PROJ_FILE                              Path of project (*.eddypro) file;' &
+        // ' if not provided, assumes ..\ini\processing.eddypro'
     stop
 end subroutine CommandLineHelp
