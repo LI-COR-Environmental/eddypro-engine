@@ -54,6 +54,7 @@ subroutine InitEnv()
     character(32) :: tmpDirPadding
     real         :: realrand
     character(5) :: strrand
+    character(PathLen) :: tempdir
     character(3), parameter :: OS_default = 'win'
     integer, external :: CreateDir
 
@@ -72,6 +73,7 @@ subroutine InitEnv()
     homedir = ''
     EddyProProj%run_env = ''
     EddyProProj%caller = ''
+    tempdir = ''
     projPath = ''
     i = 1
     arg_loop: do
@@ -109,6 +111,12 @@ subroutine InitEnv()
                     EddyProProj%caller = trim(arg)
                     if (EddyProProj%caller(1:1) == '-') EddyProProj%caller = ''
 
+                !> Switch for "temporary directory", the temporary working directory
+                case('-t', '--tmpdir')
+                    if (io_status > 0 .or. len_trim(switch) == 0) exit arg_loop
+                    tempdir = trim(arg)
+                    if (tempdir(1:1) == '-') tempdir = ''
+
                 !> Software version
                 case('-v', '--version')
                     call InformOfSoftwareVersion(sw_ver, build_date)
@@ -131,6 +139,11 @@ subroutine InitEnv()
     if (len_trim(homedir) == 0) homedir = '..'
     if (len_trim(EddyProProj%run_env) == 0) EddyProProj%run_env = 'desktop'
     if (len_trim(EddyProProj%caller) == 0)  EddyProProj%caller  = 'console'
+    if (len_trim(tempdir) == 0) then
+        tempdir = homedir
+        if (EddyProProj%run_env == 'desktop') &
+            tempdir = trim(tempdir) // 'tmp' // slash
+    endif
 
     !> Define default unit number (udf), run specific
     call hms_current_hms(aux, aux, aux, udf)
@@ -150,10 +163,10 @@ subroutine InitEnv()
     call random_number(realrand)
     write(strrand, '(i0.5)') int(realrand*10000)
     if (EddyProProj%run_env == 'desktop') then
-        TmpDir = trim(homedir) // 'tmp' // slash // 'tmp' &
-        // trim(adjustl(tmpDirPadding)) // '_' // strrand // slash
+        TmpDir = trim(tempdir) // 'tmp' // trim(adjustl(tmpDirPadding)) &
+            // '_' // strrand // slash
     else
-        TmpDir = trim(homedir) // 'tmp' // '_' // strrand // slash
+        TmpDir = trim(tempdir) // 'tmp' // '_' // strrand // slash
     end if
 
     !> Create TmpDir in case it doesn't exist (for use from command line)
