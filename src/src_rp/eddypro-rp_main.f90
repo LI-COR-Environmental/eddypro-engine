@@ -514,7 +514,7 @@ program EddyproRP
                     NumRawFiles, LatestRawFileIndx, NextRawFileIndx, skip_period)
 
                 !> Averaging period advancement
-                 if (day /= 0) then
+                if (day /= 0) then
                     if (trim(EddyProProj%caller) /= 'console') then
                         call DisplayProgress('avrg_interval', &
                             '   another small step to the time-lag: ', &
@@ -817,7 +817,11 @@ program EddyproRP
             write(*,'(a)')
 
             if (RPsetup%to_only) then
-                write(*,'(a)')
+                if (EddyProProj%run_env == 'desktop') &
+                    del_status = system(trim(comm_rmdir) // ' "' &
+                    // trim(adjustl(TmpDir)) // '"')
+
+                write(*,'(a)') ''
                 write(*,'(a)') ' Finish after time-lag optimization.'
                 stop
             endif
@@ -910,7 +914,6 @@ program EddyproRP
                     Col = BypassCol
                 else
                     Col = NullCol
-
                 end if
 
                 !> Normal exit instruction: either the last period
@@ -1234,9 +1237,13 @@ program EddyproRP
             write(*,'(a)')
 
             if (RPsetup%pf_only) then
-               write(*,'(a)')
-               write(*,'(a)') ' Finish after planar fit.'
-               stop
+                if (EddyProProj%run_env == 'desktop') &
+                    del_status = system(trim(comm_rmdir) // ' "' &
+                    // trim(adjustl(TmpDir)) // '"')
+
+                write(*,'(a)')
+                write(*,'(a)') ' Finish after planar fit.'
+                stop
             endif
         end if
     else
@@ -1588,7 +1595,7 @@ program EddyproRP
                 call BiometRetrieveEmbeddedData(EmbBiometDataExist, .true.)
 
                 !> Open biomet output file in case of embedded biomet files
-                if(initializeBiometOut .and. nbVars > 0) then
+                if (initializeBiometOut .and. nbVars > 0) then
                     call InitBiometOut()
                     initializeBiometOut  = .false.
                 end if
@@ -1758,7 +1765,7 @@ program EddyproRP
         !> Now that variables have been properly assigned, can initialize
         !> main output files. This is done also if run is in
         !> metadata retriever mode
-        if(initialize) then
+        if (initialize) then
             call InitOutFiles_rp()
             initialize = .false.
         end if
@@ -2325,7 +2332,7 @@ program EddyproRP
     end if
 
     !> Delete tmp folder if running in embedded mode
-    if(EddyProProj%run_env == 'desktop') &
+    if (EddyProProj%run_env == 'desktop') &
         del_status = system(trim(comm_rmdir) // ' "' &
         // trim(adjustl(TmpDir)) // '"')
 
