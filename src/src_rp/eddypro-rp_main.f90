@@ -370,7 +370,8 @@ program EddyproRP
     end if
 
     !> Open biomet output file
-    if (index(EddyProProj%biomet_data, 'ext_') /= 0 .and. nbVars > 0) &
+    if ((index(EddyProProj%biomet_data, 'ext_') /= 0) .and. (nbVars > 0) &
+        .and. (.not. RPsetup%to_only) .and. (.not. RPsetup%pf_only)) &
         call InitBiometOut()
 
     !> Initialize dynamic metadata by reading the file
