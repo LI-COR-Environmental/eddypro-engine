@@ -1,3 +1,9 @@
+7.0.9 (2021-12-09)
+
+    Engine:
+    - Fix: fix again usage of dynamic metadata
+    - Fix: writing of FLUXNET output in RP when "not_enogh_data" (i.e. only biomet to be written)
+
 7.0.7 (2020-02-12)
 
     Engine:
