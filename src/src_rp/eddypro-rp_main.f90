@@ -1681,7 +1681,6 @@ program EddyproRP
         end if
 
         !> Define User set of variables, for main statistics
-!        if (NumUserVar > 0) then
             if (.not. allocated(UserSet)) &
                 allocate(UserSet(PeriodRecords, NumUserVar))
             if (.not. allocated(UserCol)) &
@@ -1690,14 +1689,13 @@ program EddyproRP
                 allocate(UserPrimes(PeriodRecords, NumUserVar))
             call DefineUserSet(Col, Raw, size(Raw, 1), size(Raw, 2), &
                 UserSet, size(UserSet, 1), size(UserSet, 2))
-!        end if
 
         RowLags = 0
         if (EddyProProj%run_mode /= 'md_retrieval') then
 
             ! !> Update metadata if dynamic metadata are to be used
-            ! if (EddyProProj%use_dynmd_file) &
-            !     call RetrieveDynamicMetadata(tsEnd, E2Col, size(E2Col))
+            if (EddyProProj%use_dynmd_file) &
+                call RetrieveDynamicMetadata(tsEnd, E2Col, size(E2Col))
 
             !> Calculate relative separations between the analyzers
             !> and the anemometer used
