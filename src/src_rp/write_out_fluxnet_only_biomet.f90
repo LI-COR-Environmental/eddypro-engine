@@ -90,9 +90,10 @@ subroutine WriteOutFluxnetOnlyBiomet()
     endif
 
     !> Write error codes in place of fixed columns
-    do i = 1, 456
+    do i = 1, 465
         call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
     end do
+    
     !> Write error codes in place of custom variables
     do i = 1, NumUserVar + 1
         call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
