@@ -78,6 +78,12 @@ subroutine FilterDatasetForFlags(LocCol, Raw, nrow, ncol)
     end do
     Essentials%m_custom_flags = count(filtered)
     ! write(*, '(a)') '  Done.'
-    write(*, '(a, i6)') '   Number of records eliminated for custom flags: ',  Essentials%m_custom_flags
+    if (trim(EddyProProj%ftype) == 'licor_ghg') then
+        ! Native formats read quickly so progress report after
+        ! one day is fine. ghg files read very slow so that
+        ! a sign of life after each file is useful
+        write(*, '(a, i6)') '   Number of records eliminated for custom flags: ',  &
+            Essentials%m_custom_flags
+    end if
 
 end subroutine FilterDatasetForFlags

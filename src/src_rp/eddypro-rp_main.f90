@@ -527,9 +527,9 @@ program EddyproRP
                     .or. month /= tsStart%month) then
                     month = tsStart%month
                     day   = tsStart%day
-                    if (trim(EddyProProj%caller) == 'console') then
-                        write(*, '(a)')
-                    endif
+                    ! if (trim(EddyProProj%caller) == 'console') then
+                    !     write(*, '(a)')
+                    ! endif
                     call DisplayProgress('daily','  Importing data for ', &
                          tsStart, 'yes')
                 end if
@@ -947,9 +947,9 @@ program EddyproRP
                     .or. month /= tsStart%month) then
                     month = tsStart%month
                     day   = tsStart%day
-                    if (trim(EddyProProj%caller) == 'console') then
-                        write(*, '(a)')
-                    endif
+                    ! if (trim(EddyProProj%caller) == 'console') then
+                    !     write(*, '(a)')
+                    ! endif
                     call DisplayProgress('daily', &
                          '  Importing wind data for ', tsStart, 'yes')
                 end if

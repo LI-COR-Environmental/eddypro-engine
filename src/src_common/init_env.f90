@@ -143,7 +143,7 @@ subroutine InitEnv()
     if (len_trim(tempdir) == 0) then
         tempdir = homedir
         if (EddyProProj%run_env == 'desktop') &
-            tempdir = trim(tempdir) // 'tmp' // slash
+            tempdir = trim(tempdir) // slash // 'tmp' // slash
     endif
 
     !> Define default unit number (udf), run specific
