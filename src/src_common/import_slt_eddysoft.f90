@@ -7,20 +7,20 @@
 !
 ! This file is part of EddyPro®.
 !
-! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for 
-! non-commercial academic and government research purposes only, 
-! as provided in the EDDYPRO® End User License Agreement. 
+! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for
+! non-commercial academic and government research purposes only,
+! as provided in the EDDYPRO® End User License Agreement.
 ! EDDYPRO® may only be used as provided in the End User License Agreement
 ! and may not be used or accessed for any commercial purposes.
 ! You may view a copy of the End User License Agreement in the file
 ! EULA_NON_COMMERCIAL.rtf.
 !
-! Commercial companies that are LI-COR flux system customers 
-! are encouraged to contact LI-COR directly for our commercial 
+! Commercial companies that are LI-COR flux system customers
+! are encouraged to contact LI-COR directly for our commercial
 ! EDDYPRO® End User License Agreement.
 !
-! EDDYPRO® contains Open Source Components (as defined in the 
-! End User License Agreement). The licenses and/or notices for the 
+! EDDYPRO® contains Open Source Components (as defined in the
+! End User License Agreement). The licenses and/or notices for the
 ! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
 !
 ! EddyPro® is distributed in the hope that it will be useful,
@@ -58,12 +58,13 @@ subroutine ImportSLTEddySoft(FirstRecord, LastRecord, LocCol, fRaw, nrow, ncol, 
     integer :: j
     integer :: jj
     integer :: NumAnalog
-    integer(kind = 1) :: loc_header(8 + (NumCol - 4) * 2)
-    integer(kind = 2) :: IntRec(NumCol)
+    !MC integer(kind = 1) :: loc_header(8 + (NumCol - 4) * 2)
+    !MC integer(kind = 2) :: IntRec(NumCol)
+    integer(i1) :: loc_header(8 + (NumCol - 4) * 2)
+    integer(i2) :: IntRec(NumCol)
     real(kind = sgl) :: TmpfRaw(nrow, NumCol)
     type(ColType) :: TmpCol(MaxNumCol)
     logical :: high_res(6) = .false.
-
 
     FileEndReached = .false.
 
@@ -78,7 +79,8 @@ subroutine ImportSLTEddySoft(FirstRecord, LastRecord, LocCol, fRaw, nrow, ncol, 
     end if
 
     do j = 1, NumAnalog
-        if (loc_header(7 + 2 * j) == 0_1 .or. loc_header(7 + 2 * j) / 2_1 * 2_1 == loc_header(7 + 2 * j)) then
+        !MC if (loc_header(7 + 2 * j) == 0_1 .or. loc_header(7 + 2 * j) / 2_1 * 2_1 == loc_header(7 + 2 * j)) then
+        if (loc_header(7 + 2 * j) == 0_i1 .or. loc_header(7 + 2 * j) / 2_i1 * 2_i1 == loc_header(7 + 2 * j)) then
             !> if mask byte is even, low resolution is used
             high_res(j) = .false.
         else
@@ -91,7 +93,7 @@ subroutine ImportSLTEddySoft(FirstRecord, LastRecord, LocCol, fRaw, nrow, ncol, 
     i = 0
     N = 0
     fRaw = error
-    IntRec = nint(error)
+    IntRec = nint(error, i2)
     record_loop: do
         i = i + 1
         read(unat, rec = i + 1, iostat = io_status) (IntRec(j), j = 1, ncol)
@@ -124,7 +126,7 @@ subroutine ImportSLTEddySoft(FirstRecord, LastRecord, LocCol, fRaw, nrow, ncol, 
     TmpCol = NullCol
     jj = 0
     do j = 1, NumCol
-        if (LocCol(j)%var /= 'ignore' .and. LocCol(j)%var /= 'not_numeric') then
+        if (trim(LocCol(j)%var) /= 'ignore' .and. trim(LocCol(j)%var) /= 'not_numeric') then
             jj = jj + 1
             TmpCol(jj) = LocCol(j)
             fRaw(1:N, jj) = TmpfRaw(1:N, j)

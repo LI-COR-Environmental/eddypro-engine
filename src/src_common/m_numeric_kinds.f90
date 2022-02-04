@@ -39,9 +39,8 @@
 ! \todo
 !***************************************************************************
 module m_numeric_kinds
-    implicit none
-    save
 
+    implicit none
 
     !> Declare parameters
     integer, parameter :: short = kind(2)
@@ -50,4 +49,12 @@ module m_numeric_kinds
     integer, parameter :: sgl   = kind(0.0)
     integer, parameter :: dbl   = kind(0.0d0)
     integer, parameter :: utf8 = selected_char_kind('ISO_10646')
+
+    integer, parameter :: i1 = selected_int_kind(2)
+    integer, parameter :: i2 = selected_int_kind(4)
+    integer, parameter :: i4 = selected_int_kind(9)
+    integer, parameter :: i8 = selected_int_kind(18)
+    integer, parameter :: sp = selected_real_kind(6,37)
+    integer, parameter :: dp = selected_real_kind(15,307)
+
 end module m_numeric_kinds

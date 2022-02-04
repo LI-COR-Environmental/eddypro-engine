@@ -7,20 +7,20 @@
 !
 ! This file is part of EddyPro®.
 !
-! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for 
-! non-commercial academic and government research purposes only, 
-! as provided in the EDDYPRO® End User License Agreement. 
+! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for
+! non-commercial academic and government research purposes only,
+! as provided in the EDDYPRO® End User License Agreement.
 ! EDDYPRO® may only be used as provided in the End User License Agreement
 ! and may not be used or accessed for any commercial purposes.
 ! You may view a copy of the End User License Agreement in the file
 ! EULA_NON_COMMERCIAL.rtf.
 !
-! Commercial companies that are LI-COR flux system customers 
-! are encouraged to contact LI-COR directly for our commercial 
+! Commercial companies that are LI-COR flux system customers
+! are encouraged to contact LI-COR directly for our commercial
 ! EDDYPRO® End User License Agreement.
 !
-! EDDYPRO® contains Open Source Components (as defined in the 
-! End User License Agreement). The licenses and/or notices for the 
+! EDDYPRO® contains Open Source Components (as defined in the
+! End User License Agreement). The licenses and/or notices for the
 ! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
 !
 ! EddyPro® is distributed in the hope that it will be useful,
@@ -56,7 +56,8 @@ subroutine ImportNativeData(Filepath, FirstRecord, LastRecord, LocCol, &
     integer :: i
     integer :: io_status
     integer :: read_status
-    integer(kind = 1) :: rec_len
+    !MC integer(kind = 1) :: rec_len
+    integer(i1) :: rec_len
     character(ShortInstringLen) :: dataline
 
 
@@ -66,6 +67,9 @@ subroutine ImportNativeData(Filepath, FirstRecord, LastRecord, LocCol, &
 
         case ('eddymeas_bin')
             !> Open raw file in binary mode
+            !MC record length should be ncol*2 bytes,
+            !   which should be the same as 8 + (NumCol - 4) * 2
+            !   because NumCol is ncol without the 4 anemometer variables
             open(unat, file = trim(adjustl(Filepath)), status = 'old', &
                 iostat = io_status, access='direct', form = 'unformatted', &
                 recl = 8 + (NumCol - 4) * 2)
@@ -211,7 +215,8 @@ subroutine ReadNativeFile(Filepath, FirstRecord, LastRecord, rec_len, &
     integer, intent(in) :: FirstRecord
     integer, intent(in) :: LastRecord
     integer, intent(in) :: nrow, ncol
-    integer(kind = 1), intent(in) :: rec_len
+    !MC integer(kind = 1), intent(in) :: rec_len
+    integer(i1), intent(in) :: rec_len
     character(*), intent(in) :: Filepath
     type(ColType), intent(inout) :: LocCol(MaxNumCol)
     integer, intent(out) :: N
