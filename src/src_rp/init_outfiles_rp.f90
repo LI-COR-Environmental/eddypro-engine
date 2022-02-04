@@ -7,20 +7,20 @@
 !
 ! This file is part of EddyPro®.
 !
-! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for 
-! non-commercial academic and government research purposes only, 
-! as provided in the EDDYPRO® End User License Agreement. 
+! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for
+! non-commercial academic and government research purposes only,
+! as provided in the EDDYPRO® End User License Agreement.
 ! EDDYPRO® may only be used as provided in the End User License Agreement
 ! and may not be used or accessed for any commercial purposes.
 ! You may view a copy of the End User License Agreement in the file
 ! EULA_NON_COMMERCIAL.rtf.
 !
-! Commercial companies that are LI-COR flux system customers 
-! are encouraged to contact LI-COR directly for our commercial 
+! Commercial companies that are LI-COR flux system customers
+! are encouraged to contact LI-COR directly for our commercial
 ! EDDYPRO® End User License Agreement.
 !
-! EDDYPRO® contains Open Source Components (as defined in the 
-! End User License Agreement). The licenses and/or notices for the 
+! EDDYPRO® contains Open Source Components (as defined in the
+! End User License Agreement). The licenses and/or notices for the
 ! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
 !
 ! EddyPro® is distributed in the hope that it will be useful,
@@ -83,7 +83,7 @@ subroutine InitOutFiles_rp()
     e2sg(pe)  = 'air_p_'
 
     call lowercase(e2sg(gas4))
-    
+
     do j = 1, NumUserVar
         usg(j)  = UserCol(j)%label(1:len_trim(UserCol(j)%label)) // '_'
         call lowercase(usg(j))
@@ -104,7 +104,7 @@ subroutine InitOutFiles_rp()
     end if
     !> Raw dataset dir
     proceed = .false.
-    do i = 1, 7
+    do i = 1, 8
         if (RPsetup%out_raw(i)) then
             proceed = .true.
             exit
@@ -141,6 +141,10 @@ subroutine InitOutFiles_rp()
         if (RPsetup%out_raw(7)) then
             RawSubDir(7) = RawDir(1:len_trim(RawDir)) // 'level_7' // slash
             mkdir_status = CreateDir('"' // RawSubDir(7)(1:len_trim(RawSubDir(7))) // '"')
+        end if
+        if (RPsetup%out_raw(8)) then
+            RawSubDir(8) = RawDir(1:len_trim(RawDir)) // 'crosscorr' // slash
+            mkdir_status = CreateDir('"' // RawSubDir(8)(1:len_trim(RawSubDir(8))) // '"')
         end if
     end if
 

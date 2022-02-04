@@ -27,6 +27,7 @@
 ! but WITHOUT ANY WARRANTY; without even the implied warranty of
 ! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 !
+
 !***************************************************************************
 !
 ! \brief       Calculates time lags (in terms of data rows) for all scalars \n
@@ -42,31 +43,44 @@
 ! \todo
 !***************************************************************************
 subroutine TimeLagHandle(TlagMeth, Set, nrow, ncol, ActTLag, TLag, &
-    DefTlagUsed, InTimelagOpt)
+    DefTlagUsed, InTimelagOpt, CorrSet)
+
+    use m_numeric_kinds, only: dbl
+    use m_typedef, only: ts, pe
     use m_rp_global_var
+    use mo_fftmax, only: fftmax
+
     implicit none
+
     !> in/out variables
-    integer, intent(in) :: nrow, ncol
-    character(*), intent(in) :: TlagMeth
-    logical, intent(in) :: InTimelagOpt
-    logical, intent(out) :: DefTlagUsed(ncol)
-    real(kind = dbl), intent(out) :: ActTLag(ncol)
-    real(kind = dbl), intent(out) :: TLag(ncol)
-    real(kind = dbl), intent(inout) :: Set(nrow, ncol)
+    character(*),                     intent(in)    :: TlagMeth
+    integer,                          intent(in)    :: nrow
+    integer,                          intent(in)    :: ncol
+    real(dbl), dimension(nrow, ncol), intent(inout) :: Set
+    real(dbl), dimension(ncol),       intent(out)   :: ActTLag
+    real(dbl), dimension(ncol),       intent(out)   :: TLag
+    logical,   dimension(ncol),       intent(out)   :: DefTlagUsed
+    logical,                          intent(in)    :: InTimelagOpt
+    real(dbl), dimension(nrow, ncol), intent(out), optional :: CorrSet
+
     !> local variables
     integer :: i = 0
     integer :: j = 0
-    integer :: def_rl(ncol)
-    integer :: min_rl(ncol)
-    integer :: max_rl(ncol)
-    real(kind = dbl) :: ColW(nrow)
-    real(kind = dbl) :: ColH2O(nrow)
-    real(kind = dbl) :: ColTC(nrow)
-    real(kind = dbl) :: FirstCol(nrow)
-    real(kind = dbl) :: SecondCol(nrow)
-    real(kind = dbl) :: TmpSet(nrow, ncol)
+    integer, dimension(ncol) :: def_rl
+    integer, dimension(ncol) :: min_rl
+    integer, dimension(ncol) :: max_rl
+    real(dbl), dimension(nrow) :: ColW
+    real(dbl), dimension(nrow) :: ColH2O
+    real(dbl), dimension(nrow) :: ColTC
+    real(dbl), dimension(nrow) :: FirstCol
+    real(dbl), dimension(nrow) :: SecondCol
+    real(dbl), dimension(nrow, ncol) :: TmpSet
+    real(dbl), dimension(nrow) :: CrossCorr ! cross-correlations
+    integer   :: RowLagMaxCov ! RowLag of MaxCov if maxfft
+    real(dbl) :: TlagMaxCov   ! TLag of MaxCov if maxfft
+    integer :: ncorr        ! length 2**n of cross-correlation
 
-    if  (.not. InTimelagOpt) write(*, '(a)', advance = 'no') &
+    if (.not. InTimelagOpt) write(*, '(a)', advance = 'no') &
         '  Compensating time-lags..'
 
     !> for E2Set scalars, initialise auxiliary vars to zero
@@ -81,9 +95,10 @@ subroutine TimeLagHandle(TlagMeth, Set, nrow, ncol, ActTLag, TLag, &
         max_rl(ts:pe) = nint(E2Col(ts:pe)%max_tl * Metadata%ac_freq)
     end where
 
+    if (present(CorrSet)) CorrSet(:, :) = 0.0_dbl
     DefTlagUsed = .false.
     !> calculate actual time-lags according to the chosen method
-    select case(TlagMeth)
+    select case(trim(TlagMeth))
         case ('constant')
             !> constant timelags are set equal to default values (user selected)
             RowLags(ts:pe) = def_rl(ts:pe)
@@ -108,20 +123,56 @@ subroutine TimeLagHandle(TlagMeth, Set, nrow, ncol, ActTLag, TLag, &
                     if ((TlagMeth == 'maxcov&default') .or. (TlagMeth == 'tlag_opt')) then
                         if ( (RowLags(j) == min_rl(j)) .or. (RowLags(j) == max_rl(j)) ) then
                             DefTlagUsed(j) = .true.
-                            TLag(j) = dble(def_rl(j)) / Metadata%ac_freq
+                            TLag(j) = real(def_rl(j), kind=dbl) / Metadata%ac_freq
                             RowLags(j) = def_rl(j)
                         end if
                     end if
                 else
                     RowLags(j) = 0
-                    TLag(j) = 0d0
-                    ActTLag(j) = 0d0
+                    TLag(j) = 0.0_dbl
+                    ActTLag(j) = 0.0_dbl
+               end if
+            end do
+        case ('maxfft')
+            !> covariance maximization using Fourier transform
+            do j=ts, pe
+                !> Only for variables present
+                if (E2Col(j)%present) then
+                    FirstCol(:)  = Set(:, w)
+                    SecondCol(:) = Set(:, j)
+                    ! invert columns because opposite sign convention
+                    call fftmax(SecondCol(:), FirstCol(:), error, &
+                        min_rl(j), max_rl(j), Metadata%ac_freq, &
+                        TLag(j), RowLags(j), ncorr, CrossCorr(:))
+                    ActTLag(j) = TLag(j)
+                    if ( (RowLags(j) == min_rl(j)) .or. (RowLags(j) == max_rl(j)) ) then
+                        DefTlagUsed(j) = .true.
+                        TLag(j) = real(def_rl(j), kind=dbl) / Metadata%ac_freq
+                        RowLags(j) = def_rl(j)
+                    end if
+                    if (present(CorrSet)) then
+                        CorrSet(:, j) = CrossCorr(:)
+                        CorrSet(size(CorrSet, 1), j)   = real(ncorr, dbl)
+                        CorrSet(size(CorrSet, 1)-1, j) = real(RowLags(j), dbl)
+                        call CovMax(min_rl(j), max_rl(j), &
+                            FirstCol, SecondCol, size(FirstCol), &
+                            TlagMaxCov, RowLagMaxCov)
+                        if ( (RowLagMaxCov == min_rl(j)) .or. (RowLagMaxCov == max_rl(j)) ) then
+                            CorrSet(size(CorrSet, 1)-2, j) = real(def_rl(j), dbl)
+                        else
+                            CorrSet(size(CorrSet, 1)-2, j) = real(RowLagMaxCov, dbl)
+                        end if
+                    endif
+                else
+                    RowLags(j) = 0
+                    TLag(j) = 0.0_dbl
+                    ActTLag(j) = 0.0_dbl
                end if
             end do
         case ('none')
             !> not compensating for timelags
             RowLags(ts:pe) = 0
-            TLag(ts:pe) = 0d0
+            TLag(ts:pe) = 0.0_dbl
     end select
 
     if  (.not. InTimelagOpt) then
@@ -211,6 +262,7 @@ subroutine TimeLagHandle(TlagMeth, Set, nrow, ncol, ActTLag, TLag, &
     end do
     Set = TmpSet
     if  (.not. InTimelagOpt) write(*,'(a)') ' Done.'
+
 end subroutine TimeLagHandle
 
 !*******************************************************************************
@@ -226,8 +278,12 @@ end subroutine TimeLagHandle
 ! \todo
 !*******************************************************************************
 subroutine CovMax(lagmin, lagmax, Col1, Col2, nrow, TLag, RLag)
+
+    use m_numeric_kinds, only: dbl
     use m_rp_global_var
+
     implicit none
+
     !> in/out variables
     integer, intent(in) :: nrow
     integer, intent(in) :: lagmin
@@ -236,6 +292,7 @@ subroutine CovMax(lagmin, lagmax, Col1, Col2, nrow, TLag, RLag)
     real(kind = dbl), intent(in) :: Col2(nrow)
     integer, intent(out) :: RLag
     real(kind = dbl), intent(out) :: TLag
+
     !> local variables
     integer :: i = 0
     integer :: ii = 0
@@ -246,9 +303,9 @@ subroutine CovMax(lagmin, lagmax, Col1, Col2, nrow, TLag, RLag)
     real(kind = dbl) :: Cov
     real(kind = dbl) :: MaxCov
 
-    Cov = 0.d0
-    MaxCov = 0.d0
-    TLag = 0.d0
+    Cov = 0.0_dbl
+    MaxCov = 0.0_dbl
+    TLag = 0.0_dbl
     do i = lagmin, lagmax
         N2 = nrow - abs(i)
         allocate(ShSet(N2, 2))
@@ -282,12 +339,13 @@ subroutine CovMax(lagmin, lagmax, Col1, Col2, nrow, TLag, RLag)
         !> Max cov and actual time lag
         if (abs(Cov) > MaxCov) then
             MaxCov = abs(Cov)
-            TLag = dble(i) / Metadata%ac_freq
+            TLag = real(i, kind=dbl) / Metadata%ac_freq
             RLag = i
         end if
         deallocate(ShSet)
         deallocate(ShPrimes)
     end do
+
 end subroutine CovMax
 
 
@@ -304,23 +362,28 @@ end subroutine CovMax
 ! \todo
 !***************************************************************************
 subroutine CovarianceW(col1, col2, nrow, lag, cov)
+
+    use m_numeric_kinds, only: dbl
     use m_rp_global_var
+
     implicit none
+
     !> in/out variables
     integer, intent(in) :: nrow
     integer, intent(in) :: lag
     real(kind = dbl), intent(in) :: col1(nrow)
     real(kind = dbl), intent(in) :: col2(nrow)
     real(kind = dbl), intent(out) :: cov
+
     !> local variables
     integer :: i
     integer :: N2
     real(kind = dbl) ::sum1
     real(kind = dbl) ::sum2
 
-    sum1 = 0d0
-    sum2 = 0d0
-    Cov = 0d0
+    sum1 = 0.0_dbl
+    sum2 = 0.0_dbl
+    Cov = 0.0_dbl
     N2 = 0
     do i = 1, nrow - lag
         if (col1(i) /= error .and. col2(i+lag) /= error) then
@@ -332,13 +395,14 @@ subroutine CovarianceW(col1, col2, nrow, lag, cov)
     end do
 
     if (N2 /= 0) then
-        sum1 = sum1 / dble(N2)
-        sum2 = sum2 / dble(N2)
-        cov = cov / dble(N2)
+        sum1 = sum1 / real(N2, kind=dbl)
+        sum2 = sum2 / real(N2, kind=dbl)
+        cov = cov / real(N2, kind=dbl)
         cov = cov - sum1 * sum2
     else
         cov = error
     end if
+
 end subroutine CovarianceW
 
 !***************************************************************************
@@ -353,12 +417,16 @@ end subroutine CovarianceW
 ! \todo
 !***************************************************************************
 subroutine VariableStochasticDetrending(Var, Primes, N)
+
     use m_common_global_var
+
     implicit none
+
     !> in/out variables
     integer, intent(in) :: N
     real(kind = dbl), intent(in) :: Var(N)
     real(kind = dbl), intent(out) :: Primes(N)
+
     !> local variables
     integer :: i
 
@@ -370,6 +438,7 @@ subroutine VariableStochasticDetrending(Var, Primes, N)
             Primes(i) = error
         end if
     end do
+
 end subroutine VariableStochasticDetrending
 
 !***************************************************************************
@@ -384,12 +453,16 @@ end subroutine VariableStochasticDetrending
 ! \todo
 !***************************************************************************
 subroutine VariableLinearDetrending(Var, Primes, N)
+
     use m_rp_global_var
+
     implicit none
+
     !> in/out variables
     integer, intent(in) :: N
     real(kind = dbl), intent(in) :: Var(N)
     real(kind = dbl), intent(out) :: Primes(N)
+
     !> Local variables
     real(kind = dbl) :: Trend(N)
 
@@ -410,19 +483,22 @@ end subroutine VariableLinearDetrending
 ! \todo
 !***************************************************************************
 subroutine Detrend(Var, Trend, Primes, N)
+
     use m_rp_global_var
+
     implicit none
+
     !> in/out variables
     integer, intent(in) :: N
     real(kind = dbl), intent(in) :: Var(N)
     real(kind = dbl), intent(in) :: Trend(N)
     real(kind = dbl), intent(out) :: Primes(N)
 
-
     Primes = error
     where (Var /= error .and. Trend /= error)
         Primes = Var - Trend
     end where
+
 end subroutine Detrend
 
 !***************************************************************************
@@ -437,12 +513,17 @@ end subroutine Detrend
 ! \todo
 !***************************************************************************
 subroutine CalculateTrend(Var, Trend, N)
+
+    use m_numeric_kinds, only: dbl
     use m_rp_global_var
+
     implicit none
+
     !> in/out variables
     integer, intent(in) :: N
     real(kind = dbl), intent(in) :: Var(N)
     real(kind = dbl), intent(out) :: Trend(N)
+
     !> local variables
     integer :: i
     integer :: nn
@@ -456,33 +537,34 @@ subroutine CalculateTrend(Var, Trend, N)
 
 
     !> Linear regression
-    sumx1 = 0d0
-    sumx2 = 0d0
-    sumtime = 0d0
-    sumtime2 = 0d0
+    sumx1 = 0.0_dbl
+    sumx2 = 0.0_dbl
+    sumtime = 0.0_dbl
+    sumtime2 = 0.0_dbl
     nn = 0
     do i = 1, N
         if (Var(i) /= error) then
             nn = nn + 1
-            sumx1 = sumx1 + (Var(i) * (dble(nn - 1)))
+            sumx1 = sumx1 + (Var(i) * (real(nn - 1, kind=dbl)))
             sumx2 = sumx2 + Var(i)
-            sumtime = sumtime + (dble(nn - 1))
-            sumtime2 = sumtime2 + (dble(nn - 1))**2
+            sumtime = sumtime + (real(nn - 1, kind=dbl))
+            sumtime2 = sumtime2 + (real(nn - 1, kind=dbl))**2
         end if
     end do
     if (nn /= 0) then
-        mean = sumx2 / dble(nn)
+        mean = sumx2 / real(nn, kind=dbl)
     end if
 
     !> Trend
     mm = 0
-    b = (sumx1 - (sumx2 * sumtime) / dble(nn)) / (sumtime2 - (sumtime * sumtime) / dble(nn))
+    b = (sumx1 - (sumx2 * sumtime) / real(nn, kind=dbl)) / (sumtime2 - (sumtime * sumtime) / real(nn, kind=dbl))
     do i = 1, N
         mm = mm + 1
         if (Var(i) /= error) then
-            Trend(i) = mean + b * (dble(mm - 1) - sumtime / dble(nn))
+            Trend(i) = mean + b * (real(mm - 1, kind=dbl) - sumtime / real(nn, kind=dbl))
         else
             Trend(i) = error
         end if
     end do
+
 end subroutine CalculateTrend

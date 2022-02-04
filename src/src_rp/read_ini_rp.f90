@@ -7,20 +7,20 @@
 !
 ! This file is part of EddyPro®.
 !
-! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for 
-! non-commercial academic and government research purposes only, 
-! as provided in the EDDYPRO® End User License Agreement. 
+! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for
+! non-commercial academic and government research purposes only,
+! as provided in the EDDYPRO® End User License Agreement.
 ! EDDYPRO® may only be used as provided in the End User License Agreement
 ! and may not be used or accessed for any commercial purposes.
 ! You may view a copy of the End User License Agreement in the file
 ! EULA_NON_COMMERCIAL.rtf.
 !
-! Commercial companies that are LI-COR flux system customers 
-! are encouraged to contact LI-COR directly for our commercial 
+! Commercial companies that are LI-COR flux system customers
+! are encouraged to contact LI-COR directly for our commercial
 ! EDDYPRO® End User License Agreement.
 !
-! EDDYPRO® contains Open Source Components (as defined in the 
-! End User License Agreement). The licenses and/or notices for the 
+! EDDYPRO® contains Open Source Components (as defined in the
+! End User License Agreement). The licenses and/or notices for the
 ! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
 !
 ! EddyPro® is distributed in the hope that it will be useful,
@@ -53,7 +53,7 @@ subroutine ReadIniRP(key)
 
     !> parse processing.eddypro file and store [Project] variables,
     !> common to all programs
-    call ParseIniFile(PrjPath, 'Project', EPPrjNTags, EPPrjCTags,&
+    call ParseIniFile(PrjPath, 'Project', EPPrjNTags, EPPrjCTags, &
         size(EPPrjNTags), size(EPPrjCTags), SNTagFound, SCTagFound, &
         IniFileNotFound)
 
@@ -61,7 +61,7 @@ subroutine ReadIniRP(key)
     call WriteProcessingProjectVariables()
 
     !> parse processing.eddypro file and store all numeric and character tags
-    call ParseIniFile(PrjPath, key, SNTags, SCTags, size(SNTags), size(SCTags),&
+    call ParseIniFile(PrjPath, key, SNTags, SCTags, size(SNTags), size(SCTags), &
         SNTagFound, SCTagFound, IniFileNotFound)
 
     if (IniFileNotFound) call ExceptionHandler(21)
@@ -297,6 +297,7 @@ subroutine WriteVariablesRP()
     RPsetup%out_raw(5) = SCTags(72)%value(1:1) == '1'
     RPsetup%out_raw(6) = SCTags(73)%value(1:1) == '1'
     RPsetup%out_raw(7) = SCTags(74)%value(1:1) == '1'
+    RPsetup%out_raw(8) = SCTags(100)%value(1:1) == '1'
 
     RPsetup%out_raw_var(u)   = SCTags(75)%value(1:1) == '1'
     RPsetup%out_raw_var(v)   = SCTags(76)%value(1:1) == '1'
@@ -318,13 +319,13 @@ subroutine WriteVariablesRP()
         .or. any(RPsetup%out_full_cosp(w_ts:w_gas4))) &
         RPsetup%do_spectral_analysis = .true.
 
-    !> If no variable was selected for output, force out_raw to false
+    !> If no variable was selected for output, force out_raw(1:7) to false
     !> regardless of user setting
-    if (.not. any(RPsetup%out_raw_var(u:pe))) RPsetup%out_raw = .false.
+    if (.not. any(RPsetup%out_raw_var(u:pe))) RPsetup%out_raw(1:7) = .false.
 
     !> Raw dataset dir
     proceed = .false.
-    do i = 1, 7
+    do i = 1, 8
         if (RPsetup%out_raw(i)) then
             proceed = .true.
             exit
@@ -433,24 +434,26 @@ subroutine WriteVariablesRP()
     !> select time lag handling method
     select case (SCTags(16)%value(1:1))
         case ('0')
-        Meth%tlag = 'none'
+            Meth%tlag = 'none'
         case ('1')
-        Meth%tlag = 'constant'
+            Meth%tlag = 'constant'
         case ('2')
-        Meth%tlag = 'maxcov&default'
+            Meth%tlag = 'maxcov&default'
         case ('3')
-        Meth%tlag = 'maxcov'
+            Meth%tlag = 'maxcov'
         case ('4')
-        Meth%tlag = 'tlag_opt'
+            Meth%tlag = 'tlag_opt'
+        case ('5')
+            Meth%tlag = 'maxfft'
         case default
-        Meth%tlag = 'none'
+            Meth%tlag = 'none'
     end select
 
     !> Time lag optimizer extra settings
     RPsetup%to_onthefly = .false.
     RPsetup%to_only = .false.
     ! TimeLagOptSelected = .false.
-    if (Meth%tlag == 'tlag_opt') then
+    if ((trim(Meth%tlag) == 'tlag_opt') .or. (trim(Meth%tlag) == 'maxfft')) then
         ! TimeLagOptSelected = .true.
         if (SCTags(91)%value(1:1) == '1') then
             RPsetup%to_onthefly = .true.
@@ -716,4 +719,5 @@ subroutine WriteVariablesRP()
     call AdjDir(Dir%main_in, slash)
     call AdjFilePath(AuxFile%pf, slash)
     call AdjFilePath(AuxFile%to, slash)
+
 end subroutine WriteVariablesRP

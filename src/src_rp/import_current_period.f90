@@ -6,20 +6,20 @@
 !
 ! This file is part of EddyPro®.
 !
-! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for 
-! non-commercial academic and government research purposes only, 
-! as provided in the EDDYPRO® End User License Agreement. 
+! NON-COMMERCIAL RESEARCH PURPOSES ONLY - EDDYPRO® is licensed for
+! non-commercial academic and government research purposes only,
+! as provided in the EDDYPRO® End User License Agreement.
 ! EDDYPRO® may only be used as provided in the End User License Agreement
 ! and may not be used or accessed for any commercial purposes.
 ! You may view a copy of the End User License Agreement in the file
 ! EULA_NON_COMMERCIAL.rtf.
 !
-! Commercial companies that are LI-COR flux system customers 
-! are encouraged to contact LI-COR directly for our commercial 
+! Commercial companies that are LI-COR flux system customers
+! are encouraged to contact LI-COR directly for our commercial
 ! EDDYPRO® End User License Agreement.
 !
-! EDDYPRO® contains Open Source Components (as defined in the 
-! End User License Agreement). The licenses and/or notices for the 
+! EDDYPRO® contains Open Source Components (as defined in the
+! End User License Agreement). The licenses and/or notices for the
 ! Open Source Components can be found in the file LIBRARIES-ENGINE.txt.
 !
 ! EddyPro® is distributed in the hope that it will be useful,
@@ -72,8 +72,8 @@ subroutine ImportCurrentPeriod(InitialTimestamp, FinalTimestamp, FileList, &
     integer :: FirstRecord
     integer :: LastRecord
     real(kind = sgl), allocatable :: fRaw(:, :)
-    real(kind = sgl) :: zero = 0.
-    real(kind = dbl) :: dzero = 0d0
+    real(kind = sgl) :: zero = 0.0
+    real(kind = dbl) :: dzero = 0.0_dbl
     logical :: InitialMetaIsNeeded
     logical :: skip_file
     logical :: passed(32)
@@ -97,7 +97,7 @@ subroutine ImportCurrentPeriod(InitialTimestamp, FinalTimestamp, FileList, &
     InitialMetaIsNeeded = MetaIsNeeded
     pN = 0
     if (EddyProProj%biomet_data == 'embedded') nbRecs = 0
-    Raw = 0.d0
+    Raw = 0.0_dbl
     CurrentFile = FirstFile
     rawfile_loop: do
         FileEndReached = .false.
@@ -224,8 +224,8 @@ subroutine ImportCurrentPeriod(InitialTimestamp, FinalTimestamp, FileList, &
 
                 !> substitute NaN and Inf with error code
                 where (IsNaN(fbSet(:, :)) .or. &
-                    fbSet(:, :) == 1d0 / dzero .or. &
-                    fbSet(:, :) == -1d0 / dzero) &
+                    fbSet(:, :) == 1.0_dbl / dzero .or. &
+                    fbSet(:, :) == -1.0_dbl / dzero) &
                     fbSet(:, :) = error
 
                 !> Extend size of bSet to accommodate new data

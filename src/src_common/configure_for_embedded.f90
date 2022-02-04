@@ -75,9 +75,9 @@ subroutine ConfigureForEmbedded()
             end if
 
             !> Retrieve time-lag optimization file name if needed
-            if (index(Meth%tlag, 'tlag_opt') /= 0) then
+            if ((index(Meth%tlag, 'tlag_opt') /= 0) .or. (index(Meth%tlag, 'maxfft') /= 0)) then
 
-                !> Retrieve planar fit file name from /ini folder
+                !> Retrieve timelag file name from /ini folder
                 comm = 'find "' // trim(homedir) // 'ini' // slash &
                     // '" -iname *_timelag_opt_*'// ' > ' // '"' &
                     // trim(adjustl(TmpDir)) // 'to_flist.tmp" ' &
