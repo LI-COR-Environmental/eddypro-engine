@@ -183,7 +183,8 @@ interpret_diagnostics.o: \
 	m_rp_global_var.o
 kid.o: \
 	kid.f90 \
-	m_rp_global_var.o
+	m_rp_global_var.o \
+	timelag_handle.o
 fisher.o: \
 	fisher.f90 \
 	m_rp_global_var.o
@@ -580,7 +581,8 @@ replace_gap_with_linear_interpolation.o: \
 	m_common_global_var.o
 eddypro-rp_main.o: \
 	eddypro-rp_main.f90 \
-	m_rp_global_var.o
+	m_rp_global_var.o \
+	timelag_handle.o
 import_current_period.o: \
 	import_current_period.f90 \
 	m_rp_global_var.o

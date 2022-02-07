@@ -39,10 +39,13 @@
 ! \todo
 !***************************************************************************
 program EddyproRP
+
     use m_rp_global_var
+    use mo_timelag_handle, only: TimeLagHandle
     !use netcdf
     !use iso_c_binding
     !use iso_fortran_env
+
     implicit none
 
     !> Local variables
@@ -735,12 +738,21 @@ program EddyproRP
                 !MC should this be done with E2Primes?
                 if (trim(Meth%tlag) == 'tlag_opt') then
                     call TimeLagHandle('maxcov', E2Set, &
-                        size(E2Set, 1), size(E2Set, 2), Essentials%actual_timelag, &
-                        Essentials%used_timelag, Essentials%def_tlag, .true.)
+                        Essentials%actual_timelag, Essentials%used_timelag, &
+                        Essentials%def_tlag, .true.)
                 elseif (trim(Meth%tlag) == 'maxfft') then
-                    call TimeLagHandle('maxfft', E2Set, &
-                        size(E2Set, 1), size(E2Set, 2), Essentials%actual_timelag, &
-                        Essentials%used_timelag, Essentials%def_tlag, .true., CorrSet)
+                    if (RPsetup%out_raw(8)) then
+                        call TimeLagHandle('maxfft', E2Set, &
+                            Essentials%actual_timelag, Essentials%used_timelag, &
+                            Essentials%def_tlag, .true., CorrSet)
+                        !> Output raw dataset eighth level = cross correlations
+                        call OutRawData(Stats%date, Stats%time, CorrSet, &
+                            size(CorrSet, 1), size(CorrSet, 2), 8)
+                    else
+                        call TimeLagHandle('maxfft', E2Set, &
+                            Essentials%actual_timelag, Essentials%used_timelag, &
+                            Essentials%def_tlag, .true.)
+                    endif
                 endif
 
                 !> Calculate basic stats
@@ -2006,19 +2018,17 @@ program EddyproRP
             !> Calculate and compensate time-lags
             ! if (TimeLagOptSelected) Meth%tlag = 'maxcov&default'
             !MC should this be done with E2Primes?
-            if (trim(Meth%tlag) == 'maxfft') then
+            if ((trim(Meth%tlag) == 'maxfft') .and. RPsetup%out_raw(8)) then
                 call TimeLagHandle(trim(Meth%tlag), E2Set, &
-                    size(E2Set, 1), size(E2Set, 2), Essentials%actual_timelag, &
-                    Essentials%used_timelag, Essentials%def_tlag, .false., CorrSet)
+                    Essentials%actual_timelag, Essentials%used_timelag, &
+                    Essentials%def_tlag, .false., CorrSet)
                 !> Output raw dataset eighth level = cross correlations
-                if (RPsetup%out_raw(8)) then
-                    call OutRawData(Stats%date, Stats%time, CorrSet, &
-                        size(CorrSet, 1), size(CorrSet, 2), 8)
-                endif
+                call OutRawData(Stats%date, Stats%time, CorrSet, &
+                    size(CorrSet, 1), size(CorrSet, 2), 8)
             else
                 call TimeLagHandle(trim(Meth%tlag), E2Set, &
-                    size(E2Set, 1), size(E2Set, 2), Essentials%actual_timelag, &
-                    Essentials%used_timelag, Essentials%def_tlag, .false.)
+                    Essentials%actual_timelag, Essentials%used_timelag, &
+                    Essentials%def_tlag, .false.)
             endif
 
             !> ===== 6.1 FILTERING MOLAR DENSITY DATA FOR ABSOLUTE LIMITS TEST  ====================
