@@ -57,6 +57,8 @@ subroutine OutRawData(date, time, Set, nrow, ncol, level)
     character(256) :: string
     character(256) :: string_utf8
     real(kind = dbl) :: OutSet(nrow, ncol)
+    integer :: hlen
+    character(512) :: raw_out_corr
 
     !> If binned (co)spectra or at least one full (co)spectrum are requested,
     !> perform all related calculations
@@ -86,21 +88,44 @@ subroutine OutRawData(date, time, Set, nrow, ncol, level)
         & mole fraction [mmol/mol] or mixing ratio [mmol/mol]&
         &, depending on raw data'
     write(udf, '(a)')
-    write(udf, '(a)') raw_out_header(1:len_trim(raw_out_header))
+    if (level == 8) then
+        raw_out_corr = '   '
+        hlen = 3
+        do j=5, ncol
+            if (E2Col(j)%present) then
+                raw_out_corr = raw_out_corr(1:hlen) // E2Col(j)%var
+                hlen = hlen + 25
+            end if
+        end do
+        write(udf, '(a)') raw_out_corr(1:hlen)
+    else
+        write(udf, '(a)') raw_out_header(1:len_trim(raw_out_header))
+    end if
 
     !> Define output dataset
     num_var = 0
-    do j = 1, ncol
-        if (RPsetup%out_raw_var(j)) then
-            num_var = num_var + 1
-            OutSet(:, num_var) = Set(:, j)
-        end if
-    end do
+    if (level == 8) then
+        do j = 5, ncol
+            if (E2Col(j)%present) then
+                num_var = num_var + 1
+                OutSet(:, num_var) = Set(:, j)
+            end if
+        end do
+    else
+        do j = 1, ncol
+            if (RPsetup%out_raw_var(j)) then
+                num_var = num_var + 1
+                OutSet(:, num_var) = Set(:, j)
+            end if
+        end do
+    end if
 
     !> write output dataset
     do i = 1, nrow
-        write(udf,*) OutSet(i, 1: num_var)
+        write(udf,*) OutSet(i, 1:num_var)
     end do
+
     close(udf)
     write(*, '(a)') ' Done.'
+
 end subroutine OutRawData

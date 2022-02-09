@@ -52,6 +52,9 @@ subroutine InitEnv()
     character(PathLen) :: projPath
     character(256) :: arg
     character(32) :: tmpDirPadding
+    real         :: realrand
+    character(5) :: strrand
+    character(PathLen) :: tempdir
     character(3), parameter :: OS_default = 'win'
     integer, external :: CreateDir
 
@@ -70,6 +73,7 @@ subroutine InitEnv()
     homedir = ''
     EddyProProj%run_env = ''
     EddyProProj%caller = ''
+    tempdir = ''
     projPath = ''
     i = 1
     arg_loop: do
@@ -77,10 +81,10 @@ subroutine InitEnv()
         call get_command_argument(i, value=switch, status=io_status)
         if (io_status > 0 .or. len_trim(switch) == 0) exit arg_loop
         i = i + 1
-        call get_command_argument(i, value=arg, status=io_status)
-        i = i + 1
 
         if (switch(1:1) == '-') then
+            call get_command_argument(i, value=arg, status=io_status)
+            i = i + 1
             select case(trim(adjustl(switch)))
 
                 !> Switch for "system", the host operating system
@@ -107,6 +111,12 @@ subroutine InitEnv()
                     EddyProProj%caller = trim(arg)
                     if (EddyProProj%caller(1:1) == '-') EddyProProj%caller = ''
 
+                !> Switch for "temporary directory", the temporary working directory
+                case('-t', '--tmpdir')
+                    if (io_status > 0 .or. len_trim(switch) == 0) exit arg_loop
+                    tempdir = trim(arg)
+                    if (tempdir(1:1) == '-') tempdir = ''
+
                 !> Software version
                 case('-v', '--version')
                     call InformOfSoftwareVersion(sw_ver, build_date)
@@ -121,6 +131,7 @@ subroutine InitEnv()
         end if
     end do arg_loop
 
+
     !> Set OS-dependent parameters
     if (len_trim(OS) == 0) OS = OS_default
     call SetOSEnvironment()
@@ -129,6 +140,11 @@ subroutine InitEnv()
     if (len_trim(homedir) == 0) homedir = '..'
     if (len_trim(EddyProProj%run_env) == 0) EddyProProj%run_env = 'desktop'
     if (len_trim(EddyProProj%caller) == 0)  EddyProProj%caller  = 'console'
+    if (len_trim(tempdir) == 0) then
+        tempdir = homedir
+        if (EddyProProj%run_env == 'desktop') &
+            tempdir = trim(tempdir) // slash // 'tmp' // slash
+    endif
 
     !> Define default unit number (udf), run specific
     call hms_current_hms(aux, aux, aux, udf)
@@ -145,11 +161,13 @@ subroutine InitEnv()
     end if
 
     !> Define TmpDir differently if it's in desktop or embedded mode
+    call random_number(realrand)
+    write(strrand, '(i0.5)') int(realrand*10000)
     if (EddyProProj%run_env == 'desktop') then
-        TmpDir = trim(homedir) // 'tmp' // slash // 'tmp' &
-        // trim(adjustl(tmpDirPadding)) // slash
+        TmpDir = trim(tempdir) // 'tmp' // trim(adjustl(tmpDirPadding)) &
+            // '_' // strrand // slash
     else
-        TmpDir = trim(homedir) // 'tmp' // slash
+        TmpDir = trim(tempdir) // 'tmp' // '_' // strrand // slash
     end if
 
     !> Create TmpDir in case it doesn't exist (for use from command line)
@@ -178,7 +196,7 @@ subroutine InformOfSoftwareVersion(sw_ver, build_date)
 
 
     write (*, '(a)') ' ' // trim(adjustl(app)) // ', version ' // trim(adjustl(sw_ver)) // &
-        &', build ' // trim(adjustl(build_date)) // '.'
+        ', build ' // trim(adjustl(build_date)) // '.'
     stop
 end subroutine InformOfSoftwareVersion
 
@@ -212,7 +230,7 @@ subroutine CommandLineHelp(sw_ver, build_date)
     write(*, '(a)') ' Help for ' // trim(adjustl(app))
     write(*, '(a)') ' --------------------'
     write (*, '(a)') ' ' // trim(adjustl(app)) // ', version ' // trim(adjustl(sw_ver)) // &
-        &', build ' // trim(adjustl(build_date)) // '.'
+        ', build ' // trim(adjustl(build_date)) // '.'
     write(*,*)
     write(*, '(a)') ' USAGE: ' // trim(prog) // ' [OPTION [ARG]] [PROJ_FILE]'
     write(*,*)
@@ -220,12 +238,14 @@ subroutine CommandLineHelp(sw_ver, build_date)
     write(*, '(a)') '   [-s | --system [win | linux | mac]]  Operating system; if not provided assumes "win"'
     write(*, '(a)') '   [-m | --mode [embedded | desktop]]   Running mode; if not provided assumes "desktop"'
     write(*, '(a)') '   [-c | --caller [gui | console]]      Caller; if not provided assumes "console"'
-    write(*, '(a)') '   [-e | --environment [DIRECTORY]]     Working directory, to be provided in embedded mode;&
-                                                             & if not provided assumes \.'
+    write(*, '(a)') '   [-e | --environment [DIRECTORY]]     Working directory, to be provided in embedded mode;' &
+        // ' if not provided assumes \.'
+    write(*, '(a)') '   [-t | --tmpdir [DIRECTORY]]          Directory for temporary files and directories;' &
+        // ' if not provided assumes \..'
     write(*, '(a)') '   [-h | --help]                        Display this help and exit'
     write(*, '(a)') '   [-v | --version]                     Output version information and exit'
     write(*, '(a)')
-    write(*, '(a)') ' PROJ_FILE                              Path of project (*.eddypro) file;&
-                                                             & if not provided, assumes ..\ini\processing.eddypro'
+    write(*, '(a)') ' PROJ_FILE                              Path of project (*.eddypro) file;' &
+        // ' if not provided, assumes ..\ini\processing.eddypro'
     stop
 end subroutine CommandLineHelp

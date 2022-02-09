@@ -78,8 +78,8 @@ subroutine UnZipArchive(ZipFile, MetaExt, DataExt, MetaFile, DataFile, &
 
     !> Extract files from archive
     comm = trim(comm_7zip) // ' ' // trim(comm_7zip_x_opt) &
-        // ' "' // ZipFile(1:len_trim(ZipFile)) // '" -o"' &
-        // trim(adjustl(TmpDir)) // '"' &
+        // ' "' // trim(ZipFile(1:len_trim(ZipFile))) // '" ' &
+        // trim(comm_7zip_out) // '"' // trim(adjustl(TmpDir)) // '" ' &
         // comm_out_redirect // comm_err_redirect
 
     unzip_status = system(comm)

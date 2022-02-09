@@ -6,7 +6,7 @@
 #Portabilityn
 #ifdef ComSpec
 ifeq ($(OS), Windows_NT)
-	#Windows
+  # Windows
 	INFO = Compiling for Windows 64bit
 	RM = if exist FILE del /F /Q FILE
 	MV = if exist FILE move FILE DESTINATION
@@ -18,12 +18,13 @@ ifeq ($(OS), Windows_NT)
 	PATHSEP2 = \\
 	LDFLAGS = -shared-libgcc
 else
-	#Unix
+  # Unix
 	RM = rm -f FILE
 	MV = mv FILE DESTINATION || true
 	RP_EXE = eddypro_rp
 	FCC_EXE = eddypro_fcc
-	FC = gfortran
+  # FC = gfortran
+	FC = gfortran-8
 	MAKE_DIR = @mkdir -p DIR
 	PATHSEP2 = /
 	platform=$(shell uname)
@@ -34,7 +35,7 @@ else
 		OS_DIR = mac
 		INFO = Compiling for Mac OS
 	endif
-	LDLAGS = -shared-libgcc
+	LDFLAGS = -shared-libgcc
 endif
 
 PATHSEP=$(strip $(PATHSEP2))
@@ -42,7 +43,8 @@ PATHSEP=$(strip $(PATHSEP2))
 #Dirs as seen by Make
 ##RP
 RP_SRC_DIR_f90d1 = ../src/src_rp/
-RP_SRC_DIR_Fd2 = ../src/src_rp/fft4/
+# RP_SRC_DIR_Fd2 = ../src/src_rp/fft4/
+RP_SRC_DIR_f90d3 = ../src/src_rp/fftpack/src/
 ##FCC
 FCC_SRC_DIR_f90d1 = ../src/src_fcc/
 ##Common
@@ -53,7 +55,8 @@ EXE_DIR = ../bin/$(OS_DIR)/
 #Dirs as seen by OS
 ##RP
 OS_RP_SRC_DIR_f90d1 = ..$(PATHSEP)src$(PATHSEP)src_rp$(PATHSEP)
-OS_RP_SRC_DIR_Fd2   = ..$(PATHSEP)src$(PATHSEP)src_rp$(PATHSEP)fft4$(PATHSEP)
+# OS_RP_SRC_DIR_Fd2   = ..$(PATHSEP)src$(PATHSEP)src_rp$(PATHSEP)fft4$(PATHSEP)
+OS_RP_SRC_DIR_f90d3 = ..$(PATHSEP)src$(PATHSEP)src_rp$(PATHSEP)fftpack$(PATHSEP)src$(PATHSEP)
 ##FCC
 OS_FCC_SRC_DIR_f90d1 = ..$(PATHSEP)src$(PATHSEP)src_fcc$(PATHSEP)
 ##Common
@@ -64,7 +67,8 @@ OS_EXE_DIR  = ..$(PATHSEP)bin$(PATHSEP)$(OS_DIR)$(PATHSEP)
 #List of source file basenames (.f90, .F)
 ##RP
 RP_SRCS_f90d1 = $(notdir $(wildcard $(RP_SRC_DIR_f90d1)*.f90))
-RP_SRCS_Fd2 = $(notdir $(wildcard $(RP_SRC_DIR_Fd2)*.F))
+# RP_SRCS_Fd2 = $(notdir $(wildcard $(RP_SRC_DIR_Fd2)*.F))
+RP_SRCS_f90d3 = $(notdir $(wildcard $(RP_SRC_DIR_f90d3)*.f90))
 ##FCC
 FCC_SRCS_f90d1 = $(notdir $(wildcard $(FCC_SRC_DIR_f90d1)*.f90))
 ##Common
@@ -73,7 +77,8 @@ COMMON_SRCS_f90d1 = $(notdir $(wildcard $(COMMON_SRC_DIR_f90d1)*.f90))
 #List of object file basenames (.o)
 ##RP
 RP_OBJS_f90d1=$(patsubst %.f90, %.o, $(RP_SRCS_f90d1))
-RP_OBJS_Fd2=$(patsubst %.F, %.o, $(RP_SRCS_Fd2))
+# RP_OBJS_Fd2=$(patsubst %.F, %.o, $(RP_SRCS_Fd2))
+RP_OBJS_f90d3=$(patsubst %.f90, %.o, $(RP_SRCS_f90d3))
 ##FCC
 FCC_OBJS_f90d1=$(patsubst %.f90, %.o, $(FCC_SRCS_f90d1))
 ##Common
@@ -83,8 +88,10 @@ COMMON_OBJS_f90d1=$(patsubst %.f90, %.o, $(COMMON_SRCS_f90d1))
 #CFLAGS = -g -fcheck=all -Wall -pedantic -fall-intrinsics -fbounds-check -Wextra -Wcharacter-truncation -Wunderflow -Wno-compare-reals -std=f2003 -O3 -I $(OBJS_DIR)
 CFLAGS = -Wall -pedantic -fall-intrinsics -fbounds-check -Wextra -Wcharacter-truncation -Wunderflow -Wno-compare-reals -std=f2008 -O3 -I $(OBJS_DIR)
 
-VPATH = $(RP_SRC_DIR_f90d1):$(RP_SRC_DIR_Fd2):$(FCC_SRC_DIR_f90d1):$(COMMON_SRC_DIR_f90d1):$(OBJS_DIR)
-RP_OBJS = $(addprefix $(OBJS_DIR), $(RP_OBJS_f90d1) $(RP_OBJS_Fd2)$(COMMON_OBJS_f90d1))
+# VPATH = $(RP_SRC_DIR_f90d1):$(RP_SRC_DIR_Fd2):$(RP_SRC_DIR_f90d3):$(FCC_SRC_DIR_f90d1):$(COMMON_SRC_DIR_f90d1):$(OBJS_DIR)
+# RP_OBJS = $(addprefix $(OBJS_DIR), $(RP_OBJS_f90d1) $(RP_OBJS_Fd2) $(RP_OBJS_f90d3) $(COMMON_OBJS_f90d1))
+VPATH = $(RP_SRC_DIR_f90d1):$(RP_SRC_DIR_f90d3):$(FCC_SRC_DIR_f90d1):$(COMMON_SRC_DIR_f90d1):$(OBJS_DIR)
+RP_OBJS = $(addprefix $(OBJS_DIR), $(RP_OBJS_f90d1) $(RP_OBJS_f90d3) $(COMMON_OBJS_f90d1))
 FCC_OBJS = $(addprefix $(OBJS_DIR), $(FCC_OBJS_f90d1) $(COMMON_OBJS_f90d1))
 
 $(info $(INFO))
@@ -92,15 +99,17 @@ $(info $(INFO))
 #Targets
 all : rp fcc
 
-rp : $(RP_OBJS_f90d1) $(RP_OBJS_Fd2) $(COMMON_OBJS_f90d1)
+rp : $(RP_OBJS_f90d1) $(RP_OBJS_f90d3) $(COMMON_OBJS_f90d1)
 	@$(subst DIR,$(OS_EXE_DIR),$(MAKE_DIR))
 	$(FC) $(LDFLAGS) -o $(EXE_DIR)$(RP_EXE) $(RP_OBJS)
 	@$(subst DESTINATION, $(OS_OBJS_DIR), $(subst FILE, *.mod, $(MV)))
+	@$(subst DESTINATION, $(OS_OBJS_DIR), $(subst FILE, *.smod, $(MV)))
 
 fcc : $(FCC_OBJS_f90d1) $(COMMON_OBJS_f90d1)
 	@$(subst DIR,$(OS_EXE_DIR),$(MAKE_DIR))
 	$(FC) $(LDFLAGS) -o $(EXE_DIR)$(FCC_EXE) $(FCC_OBJS)
 	@$(subst DESTINATION, $(OS_OBJS_DIR), $(subst FILE, *.mod, $(MV)))
+	@$(subst DESTINATION, $(OS_OBJS_DIR), $(subst FILE, *.smod, $(MV)))
 
 #Compilation
 ##RP
@@ -110,6 +119,9 @@ $(RP_OBJS_f90d1):
 $(RP_OBJS_Fd2):
 	@$(subst DIR,$(OS_OBJS_DIR),$(MAKE_DIR))
 	$(FC) -c $(RP_SRC_DIR_Fd2)$(@:.o=.F) -o $(OBJS_DIR)$@
+$(RP_OBJS_f90d3):
+	@$(subst DIR,$(OS_OBJS_DIR),$(MAKE_DIR))
+	$(FC) $(CFLAGS) -c $(RP_SRC_DIR_f90d3)$(@:.o=.f90) -o $(OBJS_DIR)$@
 ##FCC
 $(FCC_OBJS_f90d1):
 	@$(subst DIR,$(OS_OBJS_DIR),$(MAKE_DIR))
@@ -171,7 +183,8 @@ interpret_diagnostics.o: \
 	m_rp_global_var.o
 kid.o: \
 	kid.f90 \
-	m_rp_global_var.o
+	m_rp_global_var.o \
+	timelag_handle.o
 fisher.o: \
 	fisher.f90 \
 	m_rp_global_var.o
@@ -181,9 +194,16 @@ parse_ini_file.o: \
 basic_stats.o: \
 	basic_stats.f90 \
 	m_common_global_var.o
+mo_fftmax.o: \
+	mo_fftmax.f90 \
+  m_numeric_kinds.o \
+  fftpack.o
 timelag_handle.o: \
 	timelag_handle.f90 \
-	m_rp_global_var.o
+  m_numeric_kinds.o \
+  m_typedef.o \
+	m_rp_global_var.o \
+  mo_fftmax.o
 count_records_and_values.o: \
 	count_records_and_values.f90 \
 	m_common_global_var.o
@@ -264,7 +284,8 @@ wind_direction.o: \
 	m_common_global_var.o
 read_ini_rp.o: \
 	read_ini_rp.f90 \
-	m_rp_global_var.o
+	m_rp_global_var.o \
+	exception_handler.o
 bpcf_li7550_analog_filters.o: \
 	bpcf_li7550_analog_filters.f90 \
 	m_common_global_var.o
@@ -476,7 +497,8 @@ timestamp.o: \
 	m_numeric_kinds.o
 fourier_transform.o: \
 	fourier_transform.f90 \
-	m_rp_global_var.o
+	m_rp_global_var.o \
+  fftpack.o
 optimize_timelags.o: \
 	optimize_timelags.f90 \
 	m_rp_global_var.o
@@ -559,7 +581,8 @@ replace_gap_with_linear_interpolation.o: \
 	m_common_global_var.o
 eddypro-rp_main.o: \
 	eddypro-rp_main.f90 \
-	m_rp_global_var.o
+	m_rp_global_var.o \
+	timelag_handle.o
 import_current_period.o: \
 	import_current_period.f90 \
 	m_rp_global_var.o
@@ -841,3 +864,64 @@ write_out_full_fcc.o: \
 write_out_metadata_fcc.o: \
 	write_out_metadata_fcc.f90 \
 	m_fx_global_var_mod.o
+
+# fftpack
+fftpack.o: fftpack.f90 rk.o
+fftpack_fft.o: fftpack_fft.f90 fftpack.o rk.o
+fftpack_ifft.o: fftpack_ifft.f90 fftpack.o rk.o
+fftpack_rfft.o: fftpack_rfft.f90 fftpack.o rk.o
+fftpack_irfft.o: fftpack_irfft.f90 fftpack.o rk.o
+fftpack_qct.o: fftpack_qct.f90 fftpack.o rk.o
+fftpack_iqct.o: fftpack_iqct.f90 fftpack.o rk.o
+fftpack_dct.o: fftpack_dct.f90 fftpack.o rk.o
+fftpack_fftshift.o: fftpack_fftshift.f90 fftpack.o rk.o
+fftpack_ifftshift.o: fftpack_ifftshift.f90 fftpack.o rk.o
+zfftb.o: zfftb.f90 rk.o
+cfftb1.o: cfftb1.f90 rk.o
+zfftf.o: zfftf.f90 rk.o
+cfftf1.o: cfftf1.f90 rk.o
+zffti.o: zffti.f90 rk.o
+cffti1.o: cffti1.f90 rk.o
+dcosqb.o: dcosqb.f90 rk.o
+cosqb1.o: cosqb1.f90 rk.o
+dcosqf.o: dcosqf.f90 rk.o
+cosqf1.o: cosqf1.f90 rk.o
+dcosqi.o: dcosqi.f90 rk.o
+dcost.o: dcost.f90 rk.o
+dcosti.o: dcosti.f90 rk.o
+ezfft1.o: ezfft1.f90 rk.o
+dzfftb.o: dzfftb.f90 rk.o
+dzfftf.o: dzfftf.f90 rk.o
+dzffti.o: dzffti.f90 rk.o
+passb.o: passb.f90 rk.o
+passb2.o: passb2.f90 rk.o
+passb3.o: passb3.f90 rk.o
+passb4.o: passb4.f90 rk.o
+passb5.o: passb5.f90 rk.o
+passf.o: passf.f90 rk.o
+passf2.o: passf2.f90 rk.o
+passf3.o: passf3.f90 rk.o
+passf4.o: passf4.f90 rk.o
+passf5.o: passf5.f90 rk.o
+radb2.o: radb2.f90 rk.o
+radb3.o: radb3.f90 rk.o
+radb4.o: radb4.f90 rk.o
+radb5.o: radb5.f90 rk.o
+radbg.o: radbg.f90 rk.o
+radf2.o: radf2.f90 rk.o
+radf3.o: radf3.f90 rk.o
+radf4.o: radf4.f90 rk.o
+radf5.o: radf5.f90 rk.o
+radfg.o: radfg.f90 rk.o
+dfftb.o: dfftb.f90 rk.o
+rfftb1.o: rfftb1.f90 rk.o
+dfftf.o: dfftf.f90 rk.o
+rfftf1.o: rfftf1.f90 rk.o
+dffti.o: dffti.f90 rk.o
+rffti1.o: rffti1.f90 rk.o
+dsinqb.o: dsinqb.f90 rk.o
+dsinqf.o: dsinqf.f90 rk.o
+dsinqi.o: dsinqi.f90 rk.o
+dsint.o: dsint.f90 rk.o
+sint1.o: sint1.f90 rk.o
+dsinti.o: dsinti.f90 rk.o

@@ -207,6 +207,6 @@ subroutine OptimizeTimelags(toSet, nrow, actn, M, h2o_n, MM, cls_size)
     if (toH2O(1)%def == error .and. toH2O(MM)%def == error) then
         call ExceptionHandler(43)
         Meth%tlag = 'maxcov'
-        TimeLagOptSelected = .false.
+        ! TimeLagOptSelected = .false.
     end if
 end subroutine OptimizeTimelags

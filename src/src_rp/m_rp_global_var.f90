@@ -64,7 +64,7 @@ module m_rp_global_var
     character(PathLen) :: StatsDir
     character(PathLen) :: UserStatsDir
     character(PathLen) :: RawDir
-    character(PathLen) :: RawSubDir(7)
+    character(PathLen) :: RawSubDir(8)
     character(PathLen) :: BinCospectraDir
     character(PathLen) :: BinOgivesDir
     character(PathLen) :: CospectraDir
@@ -87,7 +87,7 @@ module m_rp_global_var
     character(PathLen) :: TimelagOpt_Path
     character(PathLen) :: QCdetails_Path
     logical :: OutVarPresent(E2NumVar)
-    logical :: TimeLagOptSelected
+    ! logical :: TimeLagOptSelected
     logical :: SonicDataHasWBug
 
     !> global variables
@@ -639,5 +639,7 @@ module m_rp_global_var
          SCTags(96)%Label / 'pf_subtract_b0'   / &
          SCTags(97)%Label / 'pf_subset'        / &
          SCTags(98)%Label / 'to_subset'        / &
-         SCTags(99)%Label / 'wdf_apply'        /
+         SCTags(99)%Label / 'wdf_apply'        / &
+         SCTags(100)%Label / 'out_crosscorr'   /
+
 end module m_rp_global_var

@@ -711,6 +711,8 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
             call AddIntDatumToDataline(3, dataline, EddyProProj%err_label)
         case('tlag_opt')
             call AddIntDatumToDataline(4, dataline, EddyProProj%err_label)
+        case('maxfft')
+            call AddIntDatumToDataline(5, dataline, EddyProProj%err_label)
     end select
     !> WPL terms
     if (EddyProProj%wpl) then

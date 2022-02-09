@@ -59,7 +59,7 @@ subroutine SetTimelags()
     safety = 0.3d0  !< Safety margin for min/max setting, should nominal tlag be very close to zero
 
     !> set time-lags to optimized values if selected so by user
-    if (meth%tlag == 'tlag_opt') then
+    if ((trim(Meth%tlag) == 'tlag_opt') .or. (trim(Meth%tlag) == 'maxfft')) then
         do gas = co2, gas4
             if (E2Col(gas)%present) then
                 if (gas /= h2o) then
@@ -91,7 +91,7 @@ subroutine SetTimelags()
         end do
     else
         do gas = co2, gas4
-            if (E2Col(gas)%instr%path_type == 'closed') then
+            if (trim(E2Col(gas)%instr%path_type) == 'closed') then
                 if (E2Col(gas)%def_tl == 0d0) then
                     tube_volume(gas) = (p * (E2Col(gas)%instr%tube_d / 2d0)**2 * E2Col(gas)%instr%tube_l)
                     tube_time(gas) = tube_volume(gas) / E2Col(gas)%instr%tube_f
@@ -104,7 +104,7 @@ subroutine SetTimelags()
                 if (E2Col(gas)%max_tl == 0d0) E2Col(gas)%max_tl = &
                                               E2Col(gas)%def_tl + mult(gas) * E2Col(gas)%def_tl + safety
 
-            elseif (E2Col(gas)%instr%path_type == 'open') then
+            elseif (trim(E2Col(gas)%instr%path_type) == 'open') then
                 if (E2Col(gas)%min_tl == 0d0) &
                     E2Col(gas)%min_tl = - dsqrt(E2Col(gas)%instr%hsep**2 + E2Col(gas)%instr%vsep**2) * 2d0 - safety
                 if (E2Col(gas)%max_tl == 0d0) &

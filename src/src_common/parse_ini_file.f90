@@ -178,7 +178,7 @@ end subroutine StoreIniTags
 ! \test
 ! \todo
 !***************************************************************************
-subroutine SearchLocalTags(Tags, nlines, NumTags, CharTags, nnum, nchar,&
+subroutine SearchLocalTags(Tags, nlines, NumTags, CharTags, nnum, nchar, &
            NumTagFound, CharTagFound)
     use m_common_global_var
     implicit none
