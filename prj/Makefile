@@ -23,8 +23,7 @@ else
 	MV = mv FILE DESTINATION || true
 	RP_EXE = eddypro_rp
 	FCC_EXE = eddypro_fcc
-  # FC = gfortran
-	FC = gfortran-8
+  FC = gfortran
 	MAKE_DIR = @mkdir -p DIR
 	PATHSEP2 = /
 	platform=$(shell uname)

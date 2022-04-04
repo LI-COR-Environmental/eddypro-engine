@@ -179,6 +179,7 @@ program EddyproRP
     integer, external :: CreateDir
     include '../src_common/interfaces.inc'
 
+    logical :: FakeGoPlanarFit(1)
 
     !***************************************************************************
     !***************************************************************************
@@ -712,7 +713,8 @@ program EddyproRP
                 Stats4 = Stats
 
                 !> Apply rotations for tilt correction, if requested
-                call TiltCorrection('double_rotation', .false., E2Set, &
+                FakeGoPlanarFit = .false.
+                call TiltCorrection('double_rotation', FakeGoPlanarFit, E2Set, &
                     size(E2Set, 1), size(E2Set, 2), 1, Essentials%yaw, &
                     Essentials%pitch, Essentials%roll, .false.)
 
@@ -1590,7 +1592,7 @@ program EddyproRP
         if (skip_period) then
             if (EddyProProj%run_mode /= 'md_retrieval') then
                 call ExceptionHandler(53)
-                if (EddYProProj%out_fluxnet) call WriteOutFluxnetOnlyBiomet(suffixOutString)
+                if (EddYProProj%out_fluxnet) call WriteOutFluxnetOnlyBiomet()
             end if
             call hms_delta_print(PeriodSkipMessage,'')
             cycle periods_loop
@@ -1641,7 +1643,7 @@ program EddyproRP
 
             !> Period skip control
             if (skip_period) then
-                if (EddyProProj%out_fluxnet) call WriteOutFluxnetOnlyBiomet(suffixOutString)
+                if (EddyProProj%out_fluxnet) call WriteOutFluxnetOnlyBiomet()
                 call hms_delta_print(PeriodSkipMessage,'')
                 cycle periods_loop
             end if
@@ -1657,7 +1659,7 @@ program EddyproRP
             MissingRecords = real(MaxPeriodNumRecords - Essentials%n_in, dbl) &
                 / real(MaxPeriodNumRecords, dbl) * 100.0_dbl
             if (Essentials%n_in > 0 .and. MissingRecords > RPsetup%max_lack) then
-                if (EddYProProj%out_fluxnet) call WriteOutFluxnetOnlyBiomet(suffixOutString)
+                if (EddYProProj%out_fluxnet) call WriteOutFluxnetOnlyBiomet()
                 call ExceptionHandler(58)
                 call hms_delta_print(PeriodSkipMessage,'')
                 cycle periods_loop
@@ -1673,7 +1675,7 @@ program EddyproRP
             MissingRecords = real(MaxPeriodNumRecords - Essentials%n_after_custom_flags, dbl) &
                 / real(MaxPeriodNumRecords, dbl) * 100.0_dbl
             if (MissingRecords > RPsetup%max_lack) then
-                if (EddYProProj%out_fluxnet) call WriteOutFluxnetOnlyBiomet(suffixOutString)
+                if (EddYProProj%out_fluxnet) call WriteOutFluxnetOnlyBiomet()
                 call ExceptionHandler(58)
                 call hms_delta_print(PeriodSkipMessage,'')
                 cycle periods_loop
@@ -1768,7 +1770,7 @@ program EddyproRP
             MissingRecords = real(MaxPeriodNumRecords - Essentials%n_after_wdf, dbl) &
                 / real(MaxPeriodNumRecords, dbl) * 100.0_dbl
             if (MissingRecords > RPsetup%max_lack) then
-                if (EddYProProj%out_fluxnet) call WriteOutFluxnetOnlyBiomet(suffixOutString)
+                if (EddYProProj%out_fluxnet) call WriteOutFluxnetOnlyBiomet()
                 if(allocated(E2Set)) deallocate(E2Set)
                 if(allocated(E2Primes)) deallocate(E2Primes)
                 if(allocated(CorrSet)) deallocate(CorrSet)
@@ -1842,7 +1844,7 @@ program EddyproRP
             !> If either u, v or w have been eliminated,
             !> stops processing this period
                 if (skip_period) then
-                if (EddYProProj%out_fluxnet) call WriteOutFluxnetOnlyBiomet(suffixOutString)
+                if (EddYProProj%out_fluxnet) call WriteOutFluxnetOnlyBiomet()
                 if(allocated(E2Set)) deallocate(E2Set)
                 if(allocated(E2Primes)) deallocate(E2Primes)
                 if(allocated(CorrSet)) deallocate(CorrSet)
