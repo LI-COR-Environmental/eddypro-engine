@@ -43,6 +43,7 @@ Program EddyproFCC
     integer :: DTFlg(GHGNumVar)
     integer :: int_doy
     integer :: NumValidExRecords
+    integer :: FirstValidRecord
     integer :: NumExRecords
     integer :: NumberOfPeriods
     integer :: fxStartTimestampIndx
@@ -129,9 +130,9 @@ Program EddyproFCC
 
     !> Preliminarily read essential files and retrieve a few information
     call InitExVars(exStartTimestamp, exEndTimestamp, &
-        NumExRecords, NumValidExRecords)
+        NumExRecords, NumValidExRecords, FirstValidRecord)
 
-    call ReadExRecord(AuxFile%ex, udf, 1, lEx, ValidRecord, EndOfFileReached)
+    call ReadExRecord(AuxFile%ex, udf, FirstValidRecord, lEx, ValidRecord, EndOfFileReached)
 
     !> If no good records are found stop execution
     if (NumValidExRecords <= 0) call ExceptionHandler(61)

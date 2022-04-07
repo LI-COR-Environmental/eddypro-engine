@@ -723,6 +723,7 @@ module m_typedef
         real(kind = dbl) :: AGC72
         real(kind = dbl) :: AGC75
         real(kind = dbl) :: RSSI77
+        real(kind = dbl) :: LGD(GHGNumVar)
         real(kind = dbl) :: KID(GHGNumVar)
         real(kind = dbl) :: CorrDiff(GHGNumVar, GHGNumVar)
         real(kind = dbl) :: mahrt98_NR(GHGNumVar)
@@ -883,6 +884,7 @@ module m_typedef
         integer :: nspec
         integer :: avrg_len
         integer :: wdf_num_secs
+        integer  :: covmax_var
         real(kind = dbl) :: wdf_start(MaxNumWdfSectors)
         real(kind = dbl) :: wdf_end(MaxNumWdfSectors)
         real(kind = dbl) :: offset(3)
@@ -915,6 +917,7 @@ module m_typedef
         logical :: out_raw_var(E2NumVar)
         logical :: out_st(7)
         logical :: out_raw(7)
+        logical :: covmax_stocdet
     end type RPsetupType
 
     type :: PrType
@@ -1249,6 +1252,7 @@ module m_typedef
         real(kind = dbl) :: RH
         real(kind = dbl) :: Va
         real(kind = dbl) :: RhoCp
+        real(kind = dbl) :: Cp
         real(kind = dbl) :: e
         real(kind = dbl) :: es
         real(kind = dbl) :: Q

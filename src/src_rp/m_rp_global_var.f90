@@ -599,8 +599,8 @@ module m_rp_global_var
          SCTags(56)%Label / 'pf_mode'     / &
          SCTags(57)%Label / 'pf_file'     / &
          SCTags(58)%Label / 'biom_use_native_header' / &
-!         SCTags(59)%Label / 'biom_var_string'  / &   !< no longer used
-!         SCTags(60)%Label / 'biom_unit_string' / &   !< no longer used
+         SCTags(59)%Label / 'covmax_var'       / &
+         SCTags(60)%Label / 'covmax_stocdet'   / &
          SCTags(61)%Label / 'biom_separator'   / &
          SCTags(62)%Label / 'biom_tstamp_ref'  / &
          SCTags(63)%Label / 'filter_sr'        / &

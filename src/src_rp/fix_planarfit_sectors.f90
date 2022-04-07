@@ -49,6 +49,7 @@ subroutine FixPlanarfitSectors(GoPlanarFit, N)
     integer :: sec2
     real(kind = dbl) :: loc_pfmat(3, 3, -N + 1: 2 * N)
     logical :: loc_go(-N + 1: 2 * N)
+    real(kind = dbl)  :: loc_pfb(3, -N + 1: 2 * N)
 
 
     !> First, if there is no valid sector, switches to 2D rotations
@@ -73,6 +74,9 @@ subroutine FixPlanarfitSectors(GoPlanarFit, N)
     loc_go(-N + 1: 0)    = GoPlanarFit(1:N)
     loc_go(1: N)         = GoPlanarFit(1:N)
     loc_go(N + 1: 2 * N) = GoPlanarFit(1:N)
+    loc_pfb(:, -N + 1: 0)    = PFb(:, 1:N)
+    loc_pfb(:, 1: N)         = PFb(:, 1:N)
+    loc_pfb(:, N + 1: 2 * N) = PFb(:, 1:N)
 
     do sec = 1, N
         if (.not. GoPlanarFit(sec)) then
@@ -81,6 +85,7 @@ subroutine FixPlanarfitSectors(GoPlanarFit, N)
                 do sec2 = sec + 1, 2*N
                     if (loc_go(sec2)) then
                         PFMat(:, :, sec) = loc_pfmat(:, :, sec2)
+                        PFb(:, sec) = loc_pfb(:, sec2)
                         GoPlanarFit(Sec) = .true.
                         exit
                     end if
@@ -90,6 +95,7 @@ subroutine FixPlanarfitSectors(GoPlanarFit, N)
                 do sec2 = sec - 1, - N + 1
                     if (loc_go(sec2)) then
                         PFMat(:, :, sec) = loc_pfmat(:, :, sec2)
+                        PFb(:, sec) = loc_pfb(:, sec2)
                         GoPlanarFit(sec) = .true.
                         exit
                     end if

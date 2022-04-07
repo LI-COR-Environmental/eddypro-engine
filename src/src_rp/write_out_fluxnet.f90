@@ -57,6 +57,7 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
     integer :: int_doy
     real(kind = dbl) :: float_doy
     real(kind = dbl), allocatable :: bAggrOut(:)
+    real(kind = dbl) :: lrad
     character(16000) :: dataline
     character(32) :: char_doy
     character(14) :: tsIso
@@ -89,8 +90,10 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
     call AddDatum(dataline, trim(adjustl(Essentials%fname)), separator)
 
     !> Potential Radiations
-    indx = DateTimeToHalfHourNumber(Stats%date, Stats%time)
-    call AddFloatDatumToDataline(PotRad(indx), dataline, EddyProProj%err_label)
+    indx = DateTimeToHalfHourNumber(Stats%date, Stats%time) - 1
+    indx = max(indx, 2)
+    lrad = (PotRad(indx) + PotRad(indx - 1)) / 2
+    call AddFloatDatumToDataline(lrad, dataline, EddyProProj%err_label)
 
     !> Daytime
     if (Stats%daytime) then
@@ -202,6 +205,12 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
     call AddFloatDatumToDataline(Ambient%Va, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(RHO%a, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Ambient%RhoCp, dataline, EddyProProj%err_label)
+    if (RHO%a > 0) then
+        call AddFloatDatumToDataline(Ambient%RhoCp / RHO%a, dataline, EddyProProj%err_label)
+    else
+        call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+    end if
+
     !> Water
     call AddFloatDatumToDataline(RHO%w, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Ambient%e, dataline, EddyProProj%err_label, gain=1d-2, offset=0d0)
@@ -525,6 +534,15 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
     call AddDatum(dataline, '8'//CharHF%ns(9:9), separator)
 
     !> Quality test results
+    !> Longest Gap Duration (LGDs)
+    call AddFloatDatumToDataline(Essentials%LGD(u), dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Essentials%LGD(v), dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Essentials%LGD(w), dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Essentials%LGD(ts), dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Essentials%LGD(co2), dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Essentials%LGD(h2o), dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Essentials%LGD(ch4), dataline, EddyProProj%err_label)
+    call AddFloatDatumToDataline(Essentials%LGD(gas4), dataline, EddyProProj%err_label)
     !> Kurtosis Index on Differenced variables (KIDs)
     call AddFloatDatumToDataline(Essentials%KID(u), dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(Essentials%KID(v), dataline, EddyProProj%err_label)
@@ -746,13 +764,13 @@ subroutine WriteOutFluxnet(StDiff, DtDiff, STFlg, DTFlg)
     !> Footprint model
     select case(trim(adjustl(foot_model_used)))
         case('none')
-            call AddIntDatumToDataline(0, dataline, EddyProProj%err_label)
+            call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
         case('kljun_04')
-            call AddIntDatumToDataline(1, dataline, EddyProProj%err_label)
+            call AddIntDatumToDataline(0, dataline, EddyProProj%err_label)
         case('kormann_meixner_01')
-            call AddIntDatumToDataline(2, dataline, EddyProProj%err_label)
+            call AddIntDatumToDataline(1, dataline, EddyProProj%err_label)
         case('hsieh_00')
-            call AddIntDatumToDataline(3, dataline, EddyProProj%err_label)
+            call AddIntDatumToDataline(2, dataline, EddyProProj%err_label)
     end select
 
 !> Metadata

@@ -144,6 +144,7 @@ program EddyproRP
     logical :: FileEndReached
     logical :: toInit
     logical :: BiometDataFound
+    logical :: FakeGoPlanarFit(1)
 
     logical, allocatable :: GoPlanarFit(:)
 
@@ -707,7 +708,8 @@ program EddyproRP
                 Stats4 = Stats
 
                 !> Apply rotations for tilt correction, if requested
-                call TiltCorrection('double_rotation', .false., E2Set, &
+                FakeGoPlanarFit = .false.
+                call TiltCorrection('double_rotation', FakeGoPlanarFit, E2Set, &
                     size(E2Set, 1), size(E2Set, 2), 1, Essentials%yaw, &
                     Essentials%pitch, Essentials%roll, .false.)
 
@@ -827,7 +829,6 @@ program EddyproRP
     !********************** PLANAR FIT IF REQUESTED ****************************
     !***************************************************************************
     !***************************************************************************
-
     if (index(Meth%rot(1:len_trim(Meth%rot)), 'planar_fit') /= 0) then
         if (.not. RPsetup%pf_onthefly) then
             call ReadPlanarFitFile()
@@ -997,7 +998,7 @@ program EddyproRP
                 call DefineE2Set(Col, Raw,   size(Raw, 1),     Size(Raw, 2), &
                                     E2Set,   size(E2Set, 1),   Size(E2Set, 2), &
                                     DiagSet, size(DiagSet, 1), Size(DiagSet, 2))
-!                if (allocated(DiagSet))  deallocate(DiagSet)
+                !if (allocated(DiagSet))  deallocate(DiagSet)
 
                 !> Clean up E2Set, eliminating values that are clearly un-physical
                 call CleanUpE2Set(E2Set, size(E2Set, 1), size(E2Set, 2))
@@ -1538,6 +1539,13 @@ program EddyproRP
             cycle periods_loop
         end if
 
+        !> Update metadata if dynamic metadata are to be used
+        if (EddyProProj%use_dynmd_file) &
+        call RetrieveDynamicMetadata(tsEnd, E2Col, size(E2Col))
+
+        MaxNumFileRecords   = nint(Metadata%file_length * 60d0 * Metadata%ac_freq)
+        MaxPeriodNumRecords = nint(RPsetup%avrg_len     * 60d0 * Metadata%ac_freq)
+
         !> Search file containing data starting from the time
         !> closest to tsStart. Searches only from most current
         !> file onward, to avoid wasting time
@@ -1554,7 +1562,7 @@ program EddyproRP
         if (skip_period) then
             if (EddyProProj%run_mode /= 'md_retrieval') then
                 call ExceptionHandler(53)
-                if (EddYProProj%out_fluxnet) call WriteOutFluxnetOnlyBiomet(suffixOutString)
+                if (EddYProProj%out_fluxnet) call WriteOutFluxnetOnlyBiomet()
             end if
             call hms_delta_print(PeriodSkipMessage,'')
             cycle periods_loop
@@ -1605,7 +1613,7 @@ program EddyproRP
 
             !> Period skip control
             if (skip_period) then
-                if (EddyProProj%out_fluxnet) call WriteOutFluxnetOnlyBiomet(suffixOutString)
+                if (EddyProProj%out_fluxnet) call WriteOutFluxnetOnlyBiomet()
                 call hms_delta_print(PeriodSkipMessage,'')
                 cycle periods_loop
             end if
@@ -1621,7 +1629,7 @@ program EddyproRP
             MissingRecords = dfloat(MaxPeriodNumRecords - Essentials%n_in) &
                 / dfloat(MaxPeriodNumRecords) * 100d0
             if (Essentials%n_in > 0 .and. MissingRecords > RPsetup%max_lack) then
-                if (EddYProProj%out_fluxnet) call WriteOutFluxnetOnlyBiomet(suffixOutString)
+                if (EddYProProj%out_fluxnet) call WriteOutFluxnetOnlyBiomet()
                 call ExceptionHandler(58)
                 call hms_delta_print(PeriodSkipMessage,'')
                 cycle periods_loop
@@ -1637,7 +1645,7 @@ program EddyproRP
             MissingRecords = dfloat(MaxPeriodNumRecords - Essentials%n_after_custom_flags) &
                 / dfloat(MaxPeriodNumRecords) * 100d0
             if (MissingRecords > RPsetup%max_lack) then
-                if (EddYProProj%out_fluxnet) call WriteOutFluxnetOnlyBiomet(suffixOutString)
+                if (EddYProProj%out_fluxnet) call WriteOutFluxnetOnlyBiomet()
                 call ExceptionHandler(58)
                 call hms_delta_print(PeriodSkipMessage,'')
                 cycle periods_loop
@@ -1673,7 +1681,6 @@ program EddyproRP
         end if
 
         !> Define User set of variables, for main statistics
-!        if (NumUserVar > 0) then
             if (.not. allocated(UserSet)) &
                 allocate(UserSet(PeriodRecords, NumUserVar))
             if (.not. allocated(UserCol)) &
@@ -1682,12 +1689,11 @@ program EddyproRP
                 allocate(UserPrimes(PeriodRecords, NumUserVar))
             call DefineUserSet(Col, Raw, size(Raw, 1), size(Raw, 2), &
                 UserSet, size(UserSet, 1), size(UserSet, 2))
-!        end if
 
         RowLags = 0
         if (EddyProProj%run_mode /= 'md_retrieval') then
 
-            !> Update metadata if dynamic metadata are to be used
+            ! !> Update metadata if dynamic metadata are to be used
             if (EddyProProj%use_dynmd_file) &
                 call RetrieveDynamicMetadata(tsEnd, E2Col, size(E2Col))
 
@@ -1730,7 +1736,7 @@ program EddyproRP
             MissingRecords = dfloat(MaxPeriodNumRecords - Essentials%n_after_wdf) &
                 / dfloat(MaxPeriodNumRecords) * 100d0
             if (MissingRecords > RPsetup%max_lack) then
-                if (EddYProProj%out_fluxnet) call WriteOutFluxnetOnlyBiomet(suffixOutString)
+                if (EddYProProj%out_fluxnet) call WriteOutFluxnetOnlyBiomet()
                 if(allocated(E2Set)) deallocate(E2Set)
                 if(allocated(E2Primes)) deallocate(E2Primes)
                 if(allocated(UserSet)) deallocate(UserSet)
@@ -1803,7 +1809,7 @@ program EddyproRP
             !> If either u, v or w have been eliminated,
             !> stops processing this period
                 if (skip_period) then
-                if (EddYProProj%out_fluxnet) call WriteOutFluxnetOnlyBiomet(suffixOutString)
+                if (EddYProProj%out_fluxnet) call WriteOutFluxnetOnlyBiomet()
                 if(allocated(E2Set)) deallocate(E2Set)
                 if(allocated(E2Primes)) deallocate(E2Primes)
                 if(allocated(UserSet)) deallocate(UserSet)
@@ -1946,9 +1952,6 @@ program EddyproRP
                     AddUserStatsHeader = .false.
             end if
 
-            !> Calculate Kurtosis Index on differenced variables
-            call KID(E2Set(:, 1:GHGNumVar), size(E2Set, 1), GHGNumVar)
-
             !> ===== 6. TIMELAG COMPENSATION  ==================================
             !> If available, for files others than GHG, replace flow rate
             !> of LI-7200 provided by user with mean value from raw files
@@ -2031,6 +2034,13 @@ program EddyproRP
                 Ambient%WS = error
             end if
 
+            !> ===== 6.2 QC tests =============================================
+            !> Calculate Kurtosis Index on differenced variables
+            call KID(E2Set(:, 1:GHGNumVar), size(E2Set, 1), GHGNumVar)
+
+            !> Calculate Longest Gap Duration
+            call LongestGapDuration(E2Set(:, 1:GHGNumVar), size(E2Set, 1), GHGNumVar)
+
             !> ===== 7. DETRENDING =============================================
             !> Calculate fluctuations based on chosen detrending method
             write(*, '(a)', advance = 'no') '  Detrending..'
@@ -2067,15 +2077,18 @@ program EddyproRP
             end if
             if (allocated(UserPrimes)) deallocate(UserPrimes)
 
+            !> ===== 7.1 QC tests =============================================
             !> Fisher's test
             call Fisher(E2Primes(:, 1:GHGNumVar), size(E2Primes, 1), size(E2Primes, 2))
+
+            !> Cross-correlation R^2 test for repeated values 
+            call CrossCorrTest(E2Primes(:, 1:GHGNumVar), size(E2Primes, 1), size(E2Primes, 2))
 
             !> Calculate Mahrt's random error and Nonstationarity ratio anyway.
             call RU_Mahrt_98(E2Primes, size(E2Primes, 1), size(E2Primes, 2))
 
             !> If requested, estimate random error
-            call RandomUncertaintyHandle(E2Primes, &
-                size(E2Primes, 1), size(E2Primes, 2))
+            call RandomUncertaintyHandle(E2Primes, size(E2Primes, 1), size(E2Primes, 2))
 
             !*******************************************************************
             !**** RAW DATA REDUCTION FINISHES HERE *****************************

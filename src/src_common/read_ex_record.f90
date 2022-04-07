@@ -114,7 +114,7 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
         aux(1:4), & !< Skip advection fluxes
         lEx%unrot_u, lEx%unrot_v, lEx%unrot_w, lEx%rot_u, lEx%rot_v, lEx%rot_w, &
         lEx%WS, lEx%MWS, lEx%WD, lEx%WD_SIGMA, lEx%ustar, lEx%TKE, lEx%L, lEx%zL, lEx%Bowen, lEx%Tstar, &
-        lEx%Ts, lEx%Ta, lEx%Pa, lEx%RH, lEx%Va, lEx%RHO%a, lEx%RhoCp, &
+        lEx%Ts, lEx%Ta, lEx%Pa, lEx%RH, lEx%Va, lEx%RHO%a, lEx%RhoCp, lEx%Cp, &
         lEx%RHO%w, lEx%e, lEx%es, lEx%Q, lEx%VPD, lEx%Tdew, &
         lEx%Pd, lEx%RHO%d, lEx%Vd, lEx%lambda, lEx%sigma, &
         lEx%measure_type_int(co2), lEx%d(co2), lEx%r(co2), lEx%chi(co2), &
@@ -142,9 +142,16 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
         aux(1:8), & !< Skip SCFs
         lEx%degT%cov, lEx%degT%dcov(1:9), &
         lEx%spikes(u:gas4)
-    ix = strCharIndex(dataline, ',', 258)
+    ix = strCharIndex(dataline, ',', 259)
     dataline = dataline(ix+1: len_trim(dataline))
     
+    if (lEx%fname == 'not_enough_data') then
+        ValidRecord = .false.
+        if (rec_num > 0) close(unt)
+        return
+    end if
+
+
     !> Copy NREX chunk
     ix = strCharIndex(dataline, ',', 23)
     fluxnetChunks%s(1) = dataline(1: ix-1)
@@ -176,8 +183,8 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
         end do
     end if
 
-    !> Copy KID/ZCD/CORRDIFF/NSR chunk
-    ix = strCharIndex(dataline, ',', 30)
+    !> Copy LGD/KID/ZCD/CORRDIFF/NSR chunk
+    ix = strCharIndex(dataline, ',', 38)
     fluxnetChunks%s(2) = dataline(1: ix-1)
     dataline = dataline(ix+1: len_trim(dataline))
 
@@ -187,14 +194,14 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
     ix = strCharIndex(dataline, ',', 9)
     dataline = dataline(ix+1: len_trim(dataline))
 
-    !> Copy .._TEST
-    ix = strCharIndex(dataline, ',', 17)
+    !> Copy another piece
+    ix = strCharIndex(dataline, ',', 9)
     fluxnetChunks%s(3) = dataline(1: ix-1)
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> Read licor IRGA flags
-    read(dataline, *, iostat = read_status) lEx%licor_flags(1:29)
-    ix = strCharIndex(dataline, ',', 29)
+    read(dataline, *, iostat = read_status) aux(1:8), lEx%licor_flags(1:29)
+    ix = strCharIndex(dataline, ',', 37)
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> Read AGC/RSSI
@@ -213,13 +220,13 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
     ix = strCharIndex(dataline, ',', 5)
     dataline = dataline(ix+1: len_trim(dataline))
 
-    !> Copy TIMELAG_DETECTION_METHOD thru FOOTPRINT_MODEL
-    ix = strCharIndex(dataline, ',', 5)
+    !> Copy TIMELAG_DETECTION_METHOD thru SPECTRAL_CORRECTION_METHOD
+    ix = strCharIndex(dataline, ',', 4)
     fluxnetChunks%s(5) = dataline(1: ix-1)
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> Read out metadata
-    read(dataline, *, iostat = read_status) &
+    read(dataline, *, iostat = read_status) aux(1), &
         lEx%logger_swver%major,lEx%logger_swver%minor,lEx%logger_swver%revision, &
         lEx%lat, lEx%lon, lEx%alt, &
         lEx%canopy_height, lEx%disp_height, lEx%rough_length, &
@@ -244,7 +251,7 @@ subroutine ReadExRecord(FilePath, unt, rec_num, lEx, ValidRecord, EndOfFileReach
         lEx%instr(igas4)%tube_f, &
         lEx%instr(igas4)%hpath_length, lEx%instr(igas4)%vpath_length, lEx%instr(igas4)%tau, &
         lEx%ncustom
-    ix = strCharIndex(dataline, ',', 68)
+    ix = strCharIndex(dataline, ',', 69)
     dataline = dataline(ix+1: len_trim(dataline))
 
     !> Read custom variables

@@ -562,6 +562,17 @@ subroutine WriteVariablesRP()
         end if
     end if
 
+    !> Timelag by covariance maximization options
+    select case (SCTags(59)%value(1:len_trim(SCTags(59)%value)))
+    case('w')
+        RPSetup%covmax_var = w
+    case('ts')
+        RPSetup%covmax_var = ts
+    case default
+        RPSetup%covmax_var = w
+    end select
+    RPSetup%covmax_stocdet = SCTags(60)%value(1:1) == '1'
+
     !> Biomet measurements
     select case (SCTags(61)%value(1:len_trim(SCTags(61)%value)))
         case('comma')

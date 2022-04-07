@@ -81,7 +81,7 @@ COMMON_OBJS_f90d1=$(patsubst %.f90, %.o, $(COMMON_SRCS_f90d1))
 
 #CFLAGS = -ffpe-trap=invalid,zero -Wall -pedantic -fall-intrinsics -fbounds-check -Wextra -Wcharacter-truncation -Wunderflow -Wno-compare-reals -std=f2003 -O3 -I $(OBJS_DIR)
 #CFLAGS = -g -fcheck=all -Wall -pedantic -fall-intrinsics -fbounds-check -Wextra -Wcharacter-truncation -Wunderflow -Wno-compare-reals -std=f2003 -O3 -I $(OBJS_DIR)
-CFLAGS = -Wall -pedantic -fall-intrinsics -fbounds-check -Wextra -Wcharacter-truncation -Wunderflow -Wno-compare-reals -std=f2008 -O3 -I $(OBJS_DIR)
+CFLAGS = -Wno-surprising -Wall -pedantic -fall-intrinsics -fbounds-check -Wextra -Wcharacter-truncation -Wunderflow -Wno-compare-reals -std=f2008 -O3 -I $(OBJS_DIR)
 
 VPATH = $(RP_SRC_DIR_f90d1):$(RP_SRC_DIR_Fd2):$(FCC_SRC_DIR_f90d1):$(COMMON_SRC_DIR_f90d1):$(OBJS_DIR)
 RP_OBJS = $(addprefix $(OBJS_DIR), $(RP_OBJS_f90d1) $(RP_OBJS_Fd2)$(COMMON_OBJS_f90d1))
@@ -172,8 +172,17 @@ interpret_diagnostics.o: \
 kid.o: \
 	kid.f90 \
 	m_rp_global_var.o
+longest_gap_duration.o: \
+	longest_gap_duration.f90 \
+	m_rp_global_var.o
 fisher.o: \
 	fisher.f90 \
+	m_rp_global_var.o
+qn_estimator.o: \
+	qn_estimator.f90 \
+	m_rp_global_var.o
+cross_corr_test.o: \
+	cross_corr_test.f90 \
 	m_rp_global_var.o
 parse_ini_file.o: \
 	parse_ini_file.f90 \

@@ -50,6 +50,7 @@ subroutine WriteOutFluxnetOnlyBiomet()
     character(LongOutstringLen) :: dataline
     character(14) :: tsIso
     real(kind = dbl), allocatable :: bAggrOut(:)
+    real(kind = dbl) :: lrad
     include '../src_common/interfaces.inc'
 
     call clearstr(dataline)
@@ -76,8 +77,10 @@ subroutine WriteOutFluxnetOnlyBiomet()
     call AddDatum(dataline, 'not_enough_data', separator)
 
     !> Potential Radiations
-    indx = DateTimeToHalfHourNumber(Stats%date, Stats%time)
-    call AddFloatDatumToDataline(PotRad(indx), dataline, EddyProProj%err_label)
+    indx = DateTimeToHalfHourNumber(Stats%date, Stats%time) - 1
+    indx = max(indx, 2)
+    lrad = (PotRad(indx) + PotRad(indx - 1)) / 2
+    call AddFloatDatumToDataline(lrad, dataline, EddyProProj%err_label)
 
     !> Daytime
     if (Stats%daytime) then
@@ -87,9 +90,10 @@ subroutine WriteOutFluxnetOnlyBiomet()
     endif
 
     !> Write error codes in place of fixed columns
-    do i = 1, 456
+    do i = 1, 465
         call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
     end do
+    
     !> Write error codes in place of custom variables
     do i = 1, NumUserVar + 1
         call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)

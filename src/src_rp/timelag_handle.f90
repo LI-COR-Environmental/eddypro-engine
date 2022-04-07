@@ -97,7 +97,7 @@ subroutine TimeLagHandle(TlagMeth, Set, nrow, ncol, ActTLag, TLag, &
                 !> with both min and max "row lags" /= 0
                 if (E2Col(j)%present &
                     .and. (min_rl(j) /= 0 .or. max_rl(j) /= 0)) then
-                    FirstCol(:)  = Set(:, w)
+                    FirstCol(:)  = Set(:, RPSetup%covmax_var)
                     SecondCol(:) = Set(:, j)
                     call CovMax(min_rl(j), max_rl(j), &
                         FirstCol, SecondCol, size(FirstCol), &
@@ -265,16 +265,18 @@ subroutine CovMax(lagmin, lagmax, Col1, Col2, nrow, TLag, RLag)
             end if
         end do
 
-        !> Block average
-        ShPrimes = ShSet
 
         !> Linear detrending
         ! call VariableLinearDetrending(ShSet(:, 1), ShPrimes(:, 1), N2)
         ! call VariableLinearDetrending(ShSet(:, 2), ShPrimes(:, 2), N2)
-
-        !> Stochastic detrending
-        ! call VariableStochasticDetrending(ShSet(:, 1), ShPrimes(:, 1), N2)
-        ! call VariableStochasticDetrending(ShSet(:, 2), ShPrimes(:, 2), N2)
+        if (RPSetup%covmax_stocdet) then
+            !> Stochastic detrending
+            call VariableStochasticDetrending(ShSet(:, 1), ShPrimes(:, 1), N2)
+            call VariableStochasticDetrending(ShSet(:, 2), ShPrimes(:, 2), N2)
+        else
+            !> Block average
+            ShPrimes = ShSet
+        end if
 
         call CovarianceMatrixNoError(ShPrimes, size(ShPrimes, 1), size(ShPrimes, 2), CovMat, error)
         Cov = CovMat(1, 2)

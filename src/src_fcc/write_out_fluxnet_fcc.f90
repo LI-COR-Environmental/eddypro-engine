@@ -165,6 +165,12 @@ subroutine WriteOutFluxnetFcc(lEx)
     call AddFloatDatumToDataline(lEx%Va, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(lEx%RHO%a, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(lEx%RhoCp, dataline, EddyProProj%err_label)
+    if (lEx%RHO%a > 0) then
+        call AddFloatDatumToDataline(lEx%RhoCp / lEx%RHO%a, dataline, EddyProProj%err_label)
+    else
+        call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+    end if
+
     !> Water
     call AddFloatDatumToDataline(lEx%RHO%w, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(lEx%e, dataline, EddyProProj%err_label, gain=1d-2, offset=0d0)
@@ -305,10 +311,15 @@ subroutine WriteOutFluxnetFcc(lEx)
     call AddFloatDatumToDataline(lEx%Flux0%Hi_gas4, dataline, EddyProProj%err_label)
 
     !> Burba terms
-    call AddFloatDatumToDataline(lEx%Burba%h_bot, dataline, EddyProProj%err_label)
-    call AddFloatDatumToDataline(lEx%Burba%h_top, dataline, EddyProProj%err_label)
-    call AddFloatDatumToDataline(lEx%Burba%h_spar, dataline, EddyProProj%err_label)
-
+    if (lEx%Burba%h_bot + lEx%Burba%h_top + lEx%Burba%h_spar /= 0.0) then
+        call AddFloatDatumToDataline(lEx%Burba%h_bot, dataline, EddyProProj%err_label)
+        call AddFloatDatumToDataline(lEx%Burba%h_top, dataline, EddyProProj%err_label)
+        call AddFloatDatumToDataline(lEx%Burba%h_spar, dataline, EddyProProj%err_label)
+    else
+        call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+        call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+        call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+    end if
     !> LI-7700 multipliers
     call AddFloatDatumToDataline(lEx%Mul7700%A, dataline, EddyProProj%err_label)
     call AddFloatDatumToDataline(lEx%Mul7700%B, dataline, EddyProProj%err_label)
@@ -378,8 +389,17 @@ subroutine WriteOutFluxnetFcc(lEx)
     call AddFloatDatumToDataline(lEx%TS_ITC, dataline, EddyProProj%err_label)
 
     !> Write second string from Chunks
-    !> FK04_ST_FLAG_W_U thru ...
     call AddDatum(dataline, fluxnetChunks%s(3), separator)
+
+    !> Foken's final flags
+    call AddIntDatumToDataline(QCFlag%tau, dataline, EddyProProj%err_label)
+    call AddIntDatumToDataline(QCFlag%H, dataline, EddyProProj%err_label)
+    call AddIntDatumToDataline(QCFlag%h2o, dataline, EddyProProj%err_label)
+    call AddIntDatumToDataline(QCFlag%h2o, dataline, EddyProProj%err_label)
+    call AddIntDatumToDataline(QCFlag%co2, dataline, EddyProProj%err_label)
+    call AddIntDatumToDataline(QCFlag%h2o, dataline, EddyProProj%err_label)
+    call AddIntDatumToDataline(QCFlag%ch4, dataline, EddyProProj%err_label)
+    call AddIntDatumToDataline(QCFlag%gas4, dataline, EddyProProj%err_label)
 
     !> LI-COR's IRGAs diagnostics breakdown
     do i = 1, 29
@@ -407,6 +427,17 @@ subroutine WriteOutFluxnetFcc(lEx)
     !> Write forth string from Chunks
     !> TIMELAG_DETECTION_METHOD thru FOOTPRINT_MODEL
     call AddDatum(dataline, fluxnetChunks%s(5), separator)
+
+    select case(trim(adjustl(foot_model_used)))
+    case('none')
+        call AddDatum(dataline, trim(adjustl(EddyProProj%err_label)), separator)
+    case('kljun_04')
+        call AddIntDatumToDataline(0, dataline, EddyProProj%err_label)
+    case('kormann_meixner_01')
+        call AddIntDatumToDataline(1, dataline, EddyProProj%err_label)
+    case('hsieh_00')
+        call AddIntDatumToDataline(2, dataline, EddyProProj%err_label)
+    end select
 
     !> Metadata
     call AddIntDatumToDataline(lEx%logger_swver%major, dataline, EddyProProj%err_label)
